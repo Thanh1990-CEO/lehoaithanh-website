@@ -45,7 +45,7 @@ const SUPABASE_TABLE = 'lht_listings';
 
 // Same fallback image the site's baseline <meta property="og:image"> already
 // points at (see index.html <head>) — used whenever a listing has no photo.
-const FALLBACK_IMAGE = 'https://lehoaithanh.org/images/logo.jpg';
+const FALLBACK_IMAGE = 'https://lehoaithanh.org/images/og-share.jpg';
 
 // Give the Supabase fetch a hard budget so a slow/unreachable database never
 // makes a normal page load hang for a crawler or a real visitor.
