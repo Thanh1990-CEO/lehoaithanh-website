@@ -1,0 +1,2410 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM — Lê Hoài Thanh</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="images/logo.jpg" type="image/jpeg">
+<style>
+  :root{
+    --navy:#062A55;
+    --deep:#031A33;
+    --blue:#0B5C91;
+    --gold:#D9A62E;
+    --gold-light:#F5C95A;
+    --white:#FFFFFF;
+    --light:#F3F7FB;
+    --text:#102A43;
+    --muted:#66788A;
+    --border:#E3EAF2;
+    --shadow: 0 8px 30px rgba(6,42,85,0.08);
+    --radius:14px;
+    --green:#2F7D4F;
+    --amber:#B06A2B;
+    --red:#B3261E;
+    --purple:#7A3FA0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--light);
+    color:var(--text);
+    min-height:100vh;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  .wrap{max-width:680px;margin:0 auto;padding:0 16px 60px;}
+
+  /* ---------------- Header ---------------- */
+  header.admin{
+    background:linear-gradient(135deg, var(--deep) 0%, var(--navy) 55%, var(--blue) 100%);
+    color:#fff;
+    padding:16px;
+    position:sticky; top:0; z-index:20;
+    box-shadow:0 4px 16px rgba(3,26,51,0.25);
+  }
+  .admin-head-row{
+    max-width:680px;margin:0 auto;
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  }
+  .admin-title{display:flex; flex-direction:column; gap:2px;}
+  .admin-title b{font-size:1.02rem; letter-spacing:0.01em;}
+  .admin-title span{font-size:0.72rem; color:#c7d3e8;}
+  .head-actions{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .icon-btn-sm{
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:#fff;
+    border-radius:8px; padding:8px 12px; font-size:0.78rem; font-weight:600; text-decoration:none;
+    display:inline-flex; align-items:center;
+  }
+  .icon-btn-sm:active{background:rgba(255,255,255,0.22);}
+
+  /* ---------------- Login screen (same pattern as admin.html) ---------------- */
+  #login-view{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .login-card{ width:100%; max-width:380px; background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:28px 24px; }
+  .login-logo{ width:52px; height:52px; border-radius:10px; background:linear-gradient(135deg, #B9822B 0%, var(--gold) 50%, var(--gold-light) 100%); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-weight:800; color:var(--deep); font-size:1.2rem; }
+  .login-card h1{ font-size:1.05rem; text-align:center; margin:0 0 4px; color:var(--navy); }
+  .login-card p.sub{ font-size:0.8rem; text-align:center; color:var(--muted); margin:0 0 22px; }
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:0.78rem; font-weight:600; color:var(--navy); margin-bottom:6px;}
+  .field input, .field select, .field textarea{
+    width:100%; font-size:0.95rem; padding:12px 13px; border:1.5px solid var(--border);
+    border-radius:9px; background:var(--light); color:var(--text); font-family:inherit;
+  }
+  .field textarea{resize:vertical; min-height:64px;}
+  .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible{outline:2px solid var(--gold); border-color:var(--gold);}
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-size:0.92rem; font-weight:700; border:none; border-radius:9px; padding:13px 18px; width:100%; }
+  .btn.primary{ background:linear-gradient(135deg, #B9822B 0%, var(--gold) 50%, var(--gold-light) 100%); color:var(--deep); }
+  .btn.primary:active{filter:brightness(0.97);}
+  .btn.primary[disabled]{opacity:0.6; pointer-events:none;}
+  .btn.ghost{ background:#fff; border:1px solid var(--border); color:var(--navy); }
+  .btn.ghost:active{background:var(--light);}
+  .btn.small{padding:9px 14px; font-size:0.82rem; width:auto;}
+  .btn.danger{background:#fdeceb; color:var(--red); border:1px solid #f3c7c2;}
+  .login-error{ margin-top:14px; font-size:0.82rem; color:var(--red); background:#fdeceb; border:1px solid #f3c7c2; border-radius:8px; padding:10px 12px; display:none; }
+  .login-error.show{display:block;}
+
+  /* ---------------- Dashboard ---------------- */
+  #dashboard-view{display:none;}
+  .toolbar-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:18px 0 14px; flex-wrap:wrap; }
+  .toolbar-row h2{font-size:0.95rem; margin:0; color:var(--navy);}
+  .refresh-btn{ background:#fff; border:1px solid var(--border); color:var(--navy); border-radius:8px; padding:8px 12px; font-size:0.78rem; font-weight:600; }
+  .refresh-btn:active{background:var(--light);}
+  .share-btn{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .excel-btn{background:#1c7a4d; color:#fff; border-color:#1c7a4d;}
+  .share-panel{ background:#fff7ed; border:1px dashed #e8b975; border-radius:10px; padding:12px 14px; margin-bottom:14px; }
+  .share-panel-title{ font-size:0.82rem; font-weight:700; color:#7a5215; margin-bottom:8px; }
+  .share-panel-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .share-panel-row input{ flex:1; min-width:220px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; font-size:0.8rem; color:var(--navy); background:#fff; }
+  .share-panel-note{ font-size:0.74rem; color:#7a5215; margin-top:8px; }
+
+  .empty-state{ text-align:center; background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:44px 20px; margin-top:20px; color:var(--muted); font-size:0.9rem; }
+  .empty-state .emoji{font-size:2.2rem; display:block; margin-bottom:10px;}
+  .load-state{ text-align:center; padding:40px 0; color:var(--muted); font-size:0.85rem; }
+  .global-error{ background:#fdeceb; border:1px solid #f3c7c2; color:var(--red); font-size:0.82rem; border-radius:9px; padding:11px 13px; margin-top:14px; display:none; }
+  .global-error.show{display:block;}
+
+  /* ---------------- Nhắc việc (follow-up) ---------------- */
+  .reminder-banner{
+    background:#fff7e6; border:1px solid #f0dcb4; border-radius:var(--radius);
+    padding:14px 16px; margin-top:16px; display:none;
+  }
+  .reminder-banner.show{display:block;}
+  .reminder-banner b{color:var(--amber); font-size:0.85rem; display:block; margin-bottom:8px;}
+  .reminder-item{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    font-size:0.82rem; padding:6px 0; border-top:1px solid #f0dcb4;
+  }
+  .reminder-item:first-of-type{border-top:none;}
+  .reminder-item button{ background:none; border:none; color:var(--blue); font-weight:700; font-size:0.78rem; padding:4px; }
+  .overdue{color:var(--red); font-weight:700;}
+
+  /* ---------------- Stage filter pills ---------------- */
+  .stage-pills{display:flex; gap:6px; overflow-x:auto; padding:2px 0 4px; -webkit-overflow-scrolling:touch;}
+  .stage-pill{
+    flex:none; border:1.5px solid var(--border); background:#fff; color:var(--navy);
+    border-radius:999px; padding:7px 13px; font-size:0.78rem; font-weight:600; white-space:nowrap;
+  }
+  .stage-pill.active{ background:var(--navy); border-color:var(--navy); color:#fff; }
+
+  /* ---------------- Contact card ---------------- */
+  .card{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin-bottom:14px; }
+  .card-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:6px;}
+  .stage-badge{ display:inline-block; font-size:0.68rem; font-weight:700; letter-spacing:0.02em; color:#fff; padding:5px 10px; border-radius:999px; white-space:nowrap; }
+  .card-time{font-size:0.7rem; color:var(--muted); white-space:nowrap; padding-top:5px;}
+  .card h3{font-size:1.02rem; margin:2px 0 6px; color:var(--navy); line-height:1.3;}
+  .detail-lines{display:flex; flex-wrap:wrap; gap:6px 10px; margin-bottom:10px;}
+  .detail-lines span{ font-size:0.78rem; color:var(--text); background:var(--light); border:1px solid var(--border); border-radius:6px; padding:4px 9px; }
+  .phone-link{ display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:700; color:var(--green); margin:6px 0; }
+  .listing-chip{
+    display:inline-flex; align-items:center; gap:5px; font-size:0.76rem; font-weight:600;
+    background:#eef4fb; color:var(--blue); border:1px solid #cfe0f0; border-radius:999px; padding:5px 11px; margin:4px 0;
+  }
+  .next-followup{ font-size:0.78rem; margin:6px 0; color:var(--muted); }
+  .next-followup.overdue{color:var(--red); font-weight:700;}
+
+  .card-actions{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+  .act-btn{ flex:1; min-width:100px; border:none; border-radius:9px; padding:11px 10px; font-size:0.82rem; font-weight:700; color:#fff; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .act-btn.expand{background:var(--blue);}
+  .act-btn.expand:active{filter:brightness(0.94);}
+  .del-btn{ display:block; width:100%; margin-top:8px; background:none; border:none; color:var(--red); font-size:0.76rem; font-weight:600; padding:8px 4px; text-align:center; }
+  .card-err{ margin-top:10px; font-size:0.76rem; color:var(--red); background:#fdeceb; border:1px solid #f3c7c2; border-radius:7px; padding:8px 10px; display:none; }
+  .card-err.show{display:block;}
+
+  /* ---------------- Expandable detail panel ---------------- */
+  .detail-panel{ display:none; margin-top:14px; padding-top:14px; border-top:1px dashed var(--border); }
+  .detail-panel.open{display:block;}
+  .detail-panel h4{ font-size:0.82rem; color:var(--navy); margin:0 0 10px; }
+  .stage-select-row{display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap;}
+  .stage-select-row select{ flex:1; min-width:160px; font-size:0.85rem; padding:9px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--light); color:var(--text); }
+
+  .activity-item{ background:var(--light); border:1px solid var(--border); border-radius:9px; padding:10px 12px; margin-bottom:8px; }
+  .activity-item .a-top{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px;}
+  .activity-item .a-type{font-size:0.76rem; font-weight:700; color:var(--navy);}
+  .activity-item .a-time{font-size:0.68rem; color:var(--muted);}
+  .activity-item .a-note{font-size:0.82rem; color:var(--text); line-height:1.5; white-space:pre-wrap;}
+  .activity-item .a-followup{font-size:0.72rem; color:var(--amber); margin-top:4px; font-weight:600;}
+  .no-activity{font-size:0.8rem; color:var(--muted); padding:8px 0;}
+
+  .add-activity-form{ margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+
+  /* ---------------- New contact form ---------------- */
+  .new-contact-card{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin-top:16px; display:none; }
+  .new-contact-card.show{display:block;}
+  .new-contact-card h3{font-size:0.95rem; margin:0 0 12px; color:var(--navy);}
+  .form-row-2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media (max-width:420px){ .form-row-2{grid-template-columns:1fr;} .act-btn{min-width:0;} }
+
+  /* ---------------- Tabs ---------------- */
+  .tab-bar-wrap{ position:relative; margin-top:16px; }
+  .tab-bar{
+    display:flex; gap:6px; border-bottom:1px solid var(--border); overflow-x:auto;
+    -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity;
+    scrollbar-width:none; -ms-overflow-style:none;
+  }
+  .tab-bar::-webkit-scrollbar{ display:none; height:0; }
+  .tab-btn{
+    flex:none; background:none; border:none; padding:10px 6px; margin-right:14px; font-size:0.86rem; font-weight:700;
+    color:var(--muted); border-bottom:3px solid transparent; display:flex; align-items:center; gap:6px; white-space:nowrap;
+    scroll-snap-align:start;
+  }
+  .tab-btn.active{color:var(--navy); border-bottom-color:var(--gold);}
+  .tab-badge{ background:var(--red); color:#fff; font-size:0.66rem; font-weight:800; border-radius:999px; padding:2px 7px; }
+  /* Gợi ý còn tab ẩn bên phải/trái khi cuộn ngang trên điện thoại — mờ dần ở mép, biến mất khi đã cuộn hết */
+  .tab-bar-wrap::before, .tab-bar-wrap::after{
+    content:''; position:absolute; top:0; bottom:1px; width:26px; pointer-events:none; z-index:2;
+    opacity:0; transition:opacity .15s;
+  }
+  .tab-bar-wrap::before{ left:0; background:linear-gradient(to right, var(--light) 15%, rgba(243,247,251,0)); }
+  .tab-bar-wrap::after{ right:0; background:linear-gradient(to left, var(--light) 15%, rgba(243,247,251,0)); }
+  .tab-bar-wrap.scroll-start::before{ opacity:0; }
+  .tab-bar-wrap.scroll-start::after{ opacity:1; }
+  .tab-bar-wrap.scroll-mid::before{ opacity:1; }
+  .tab-bar-wrap.scroll-mid::after{ opacity:1; }
+  .tab-bar-wrap.scroll-end::before{ opacity:1; }
+  .tab-bar-wrap.scroll-end::after{ opacity:0; }
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  /* ---------------- Tổng quan: KPI tiles ---------------- */
+  .kpi-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:16px; }
+  @media (max-width:520px){ .kpi-grid{grid-template-columns:repeat(2, 1fr);} }
+  .kpi-tile{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px 12px; }
+  .kpi-value{ font-size:1.5rem; font-weight:800; color:var(--navy); font-variant-numeric:normal; line-height:1.15; }
+  .kpi-value.accent{color:var(--blue);}
+  .kpi-label{ font-size:0.72rem; color:var(--muted); margin-top:4px; line-height:1.3; }
+
+  /* ---------------- Biểu đồ đường ---------------- */
+  .chart-card{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin-top:14px; }
+  .chart-card h3{ font-size:0.9rem; margin:0 0 2px; color:var(--navy); }
+  .chart-card .chart-sub{ font-size:0.72rem; color:var(--muted); margin:0 0 10px; }
+  .chart-wrap{ position:relative; }
+  .chart-wrap svg{ display:block; width:100%; height:auto; overflow:visible; }
+  .chart-gridline{ stroke:var(--border); stroke-width:1; }
+  .chart-tooltip{
+    position:absolute; pointer-events:none; background:var(--navy); color:#fff; font-size:0.72rem;
+    padding:6px 9px; border-radius:7px; white-space:nowrap; transform:translate(-50%,-115%); opacity:0; transition:opacity .1s;
+    z-index:5;
+  }
+  .chart-tooltip.show{opacity:1;}
+  .chart-tooltip b{font-weight:800;}
+  .chart-empty{ text-align:center; color:var(--muted); font-size:0.82rem; padding:30px 0; }
+
+  /* ---------------- Top lists ---------------- */
+  .toplist-row{ display:grid; grid-template-columns:1fr; gap:3px; padding:8px 0; border-top:1px solid var(--border); }
+  .toplist-row:first-child{border-top:none;}
+  .toplist-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .toplist-label{ font-size:0.82rem; color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .toplist-value{ font-size:0.82rem; color:var(--navy); font-weight:800; font-variant-numeric:tabular-nums; flex:none; padding-left:8px; }
+  .toplist-bar-wrap{ background:var(--light); border-radius:5px; height:7px; overflow:hidden; }
+  .toplist-bar{ background:var(--blue); height:100%; border-radius:5px; }
+  .toplist-sub{ font-size:0.68rem; color:var(--muted); }
+
+  /* ---------------- Thống kê tổng quan (tab Tài sản/Dự án) ---------------- */
+  .asset-stats-panel{ margin-top:14px; }
+  .asset-stats-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:2px; }
+  .asset-stats-head h2{ margin:0; }
+  .asset-stats-toggle{
+    font:inherit; font-size:0.78rem; font-weight:700; color:var(--blue); background:#fff;
+    border:1px solid var(--border); border-radius:8px; padding:7px 12px; cursor:pointer;
+  }
+  .asset-stats-toggle:hover{ background:var(--light); }
+  .asset-stats-body{ display:grid; gap:14px; margin-top:12px; }
+  .asset-stats-body.is-collapsed{ display:none; }
+  .asset-stats-note{ font-size:0.72rem; color:var(--muted); line-height:1.5; margin:8px 0 0; }
+  @media (min-width:860px){ .asset-stats-charts{ display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; } .asset-stats-charts .chart-card{ margin-top:0; } }
+
+  .stat-legend{ display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
+  .stat-legend-item{ display:flex; align-items:center; gap:5px; font-size:0.72rem; color:var(--text); }
+  .stat-legend-swatch{ width:10px; height:10px; border-radius:3px; flex:none; }
+
+  .region-stack-row{ margin-bottom:12px; }
+  .region-stack-row:last-child{ margin-bottom:0; }
+  .region-stack-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px; }
+  .region-stack-label{ font-size:0.8rem; font-weight:700; color:var(--navy); }
+  .region-stack-total{ font-size:0.76rem; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .region-stack-track{ display:flex; height:16px; border-radius:5px; overflow:hidden; background:var(--light); }
+  .region-stack-seg{ height:100%; min-width:2px; }
+  .region-stack-seg + .region-stack-seg{ margin-left:1px; }
+
+  .price-range-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:10px 0; border-bottom:1px solid var(--border); }
+  .price-range-row:last-child{ border-bottom:none; padding-bottom:0; }
+  .price-range-label{ font-size:0.82rem; font-weight:700; color:var(--navy); flex:none; min-width:110px; }
+  .price-range-count{ font-size:0.7rem; color:var(--muted); font-weight:400; }
+  .price-range-figures{ display:flex; gap:16px; flex-wrap:wrap; justify-content:flex-end; flex:1; }
+  .price-range-item{ text-align:right; }
+  .price-range-item .k{ display:block; font-size:0.66rem; color:var(--muted); text-transform:uppercase; letter-spacing:.02em; }
+  .price-range-item .v{ display:block; font-size:0.84rem; font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
+  .price-range-item.mid .v{ color:var(--blue); }
+
+  /* ---------------- Lead mới (tab) ---------------- */
+  .lead-card{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin-bottom:14px; }
+  .lead-card .card-top{margin-bottom:4px;}
+  .lead-card h3{font-size:1.02rem; margin:2px 0 4px; color:var(--navy);}
+  .lead-card .lead-phone{font-weight:700; color:var(--green); font-size:0.88rem;}
+  .lead-card .lead-msg{ font-size:0.85rem; color:var(--text); background:var(--light); border-radius:8px; padding:9px 11px; margin:8px 0; line-height:1.5; }
+  .lead-card .card-actions{margin-top:10px;}
+  .act-btn.accept{background:var(--green);}
+  .act-btn.dismiss{background:#fff; color:var(--muted); border:1.5px solid var(--border);}
+
+  /* ---------------- Tài sản / Dự án (tab) ---------------- */
+  .asset-filter-row{ display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 16px; }
+  .asset-search-input{
+    flex:1 1 100%; font-size:0.88rem; padding:11px 13px; border:1.5px solid var(--border);
+    border-radius:9px; background:#fff; color:var(--text); font-family:inherit;
+  }
+  .asset-filter-row select{
+    flex:1 1 auto; min-width:130px; font-size:0.82rem; padding:9px 10px; border:1.5px solid var(--border);
+    border-radius:9px; background:#fff; color:var(--text); font-family:inherit;
+  }
+  .asset-card{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin-bottom:14px; }
+  .asset-card .card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:6px; }
+  .asset-badges{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .asset-pill{ display:inline-block; font-size:0.66rem; font-weight:700; letter-spacing:0.01em; color:#fff; padding:4px 9px; border-radius:999px; white-space:nowrap; }
+  .asset-pill.region{ background:var(--light); color:var(--navy); border:1px solid var(--border); }
+  .asset-status{ display:inline-block; font-size:0.68rem; font-weight:700; padding:4px 9px; border-radius:999px; white-space:nowrap; }
+  .asset-status.approved{ background:#e6f4ea; color:var(--green); }
+  .asset-status.pending{ background:#fdf3e3; color:var(--amber); }
+  .asset-status.rejected{ background:#fdeceb; color:var(--red); }
+  .asset-card h3{ font-size:1rem; margin:6px 0 6px; color:var(--navy); line-height:1.35; }
+  .asset-card .asset-loc{ font-size:0.82rem; color:var(--text); margin-bottom:6px; }
+  .asset-card .asset-metrics{ display:flex; flex-wrap:wrap; gap:6px 10px; margin-bottom:8px; }
+  .asset-card .asset-metrics span{ font-size:0.78rem; color:var(--text); background:var(--light); border:1px solid var(--border); border-radius:6px; padding:4px 9px; }
+  .asset-card .asset-source{ display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; margin-bottom:8px; padding:6px 10px; border-radius:6px; background:#fff7ed; border:1px dashed #e8b975; font-size:0.76rem; color:#7a5215; }
+  .asset-card .asset-source-label{ font-weight:700; font-size:0.68rem; letter-spacing:.02em; }
+  .asset-card .asset-code-line{ font-size:0.76rem; color:var(--muted); margin-bottom:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .asset-card .asset-code-line b{
+    font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--navy);
+    background:var(--light); border:1px solid var(--border); border-radius:5px; padding:1px 7px; letter-spacing:.02em;
+  }
+  .asset-card .copy-chip{
+    font:inherit; font-size:0.72rem; font-weight:700; color:var(--blue); background:#fff;
+    border:1px solid var(--border); border-radius:5px; padding:2px 7px; cursor:pointer; line-height:1.5;
+  }
+  .asset-card .copy-chip:hover{ background:var(--light); border-color:var(--blue); }
+  .asset-card .copy-chip.is-copied{ color:var(--green); border-color:var(--green); }
+  .asset-card .asset-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); flex-wrap:wrap; }
+  .asset-card .asset-time{ font-size:0.7rem; color:var(--muted); }
+  .asset-card .asset-links{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+  .asset-card .asset-links a{ font-size:0.78rem; font-weight:700; color:var(--blue); text-decoration:none; }
+  .asset-card .asset-links a:active{opacity:0.7;}
+  .asset-card .asset-links button{
+    font:inherit; font-size:0.78rem; font-weight:700; color:var(--blue); background:none; border:none;
+    padding:0; cursor:pointer; text-decoration:none;
+  }
+  .asset-card .asset-links button:active{opacity:0.7;}
+  .asset-card .asset-links button.is-copied{ color:var(--green); }
+
+  /* ---------------- Tài chính (tab) ---------------- */
+  .deal-card{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin-bottom:14px; }
+  .deal-card h3{ font-size:1rem; margin:0 0 6px; color:var(--navy); line-height:1.35; }
+  .deal-card .deal-tags{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+  .deal-card .deal-tags span{ font-size:0.72rem; font-weight:600; background:var(--light); border:1px solid var(--border); color:var(--text); border-radius:999px; padding:4px 10px; }
+  .deal-card .deal-figures{ display:flex; flex-wrap:wrap; gap:8px 16px; margin:8px 0; }
+  .deal-card .deal-figures div{ font-size:0.78rem; color:var(--muted); }
+  .deal-card .deal-figures b{ display:block; font-size:1rem; color:var(--navy); font-variant-numeric:tabular-nums; }
+  .deal-card .deal-figures b.profit-pos{ color:var(--green); }
+  .deal-card .deal-figures b.profit-neg{ color:var(--red); }
+  .deal-card .deal-notes{ font-size:0.82rem; color:var(--text); background:var(--light); border-radius:8px; padding:9px 11px; margin:8px 0; line-height:1.5; }
+  .deal-card .deal-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); }
+  .deal-card .deal-time{ font-size:0.7rem; color:var(--muted); }
+  .deal-card .del-btn{ width:auto; margin-top:0; }
+</style>
+</head>
+<body>
+
+<!-- ============ Login view (dùng chung tài khoản với admin.html) ============ -->
+<div id="login-view">
+  <div class="login-card">
+    <div class="login-logo">LHT</div>
+    <h1>CRM — Quản lý khách hàng</h1>
+    <p class="sub">Lê Hoài Thanh — Industrial &amp; Logistics Investment Advisory</p>
+    <form id="login-form" novalidate>
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input id="login-email" name="email" type="email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="login-password">Mật khẩu</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn primary" id="login-submit">Đăng nhập</button>
+      <div class="login-error" id="login-error"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ Dashboard view ============ -->
+<div id="dashboard-view">
+  <header class="admin">
+    <div class="admin-head-row">
+      <div class="admin-title">
+        <b>CRM — Khách hàng</b>
+        <span>Lê Hoài Thanh — LHT Advisory</span>
+      </div>
+      <div class="head-actions">
+        <a class="icon-btn-sm" href="admin.html">← Duyệt tin</a>
+        <button type="button" class="icon-btn-sm" id="logout-btn">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="global-error" id="global-error"></div>
+
+    <div class="reminder-banner" id="reminder-banner">
+      <b>⏰ Việc cần follow-up</b>
+      <div id="reminder-list"></div>
+    </div>
+
+    <div class="tab-bar-wrap scroll-start" id="tab-bar-wrap">
+      <div class="tab-bar" id="tab-bar">
+        <button type="button" class="tab-btn active" data-tab="overview">Tổng quan</button>
+        <button type="button" class="tab-btn" data-tab="assets">Tài sản / Dự án</button>
+        <button type="button" class="tab-btn" data-tab="finance">Tài chính</button>
+        <button type="button" class="tab-btn" data-tab="contacts">Khách hàng</button>
+        <button type="button" class="tab-btn" data-tab="leads">Lead mới <span class="tab-badge" id="leads-badge" hidden>0</span></button>
+      </div>
+    </div>
+
+    <!-- ============ Tab: Tổng quan ============ -->
+    <div class="tab-panel active" id="tab-overview">
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi-tile"><div class="kpi-value" id="kpi-contacts">–</div><div class="kpi-label">Tổng khách hàng</div></div>
+        <div class="kpi-tile"><div class="kpi-value" id="kpi-leads-new">–</div><div class="kpi-label">Lead mới chưa xử lý</div></div>
+        <div class="kpi-tile"><div class="kpi-value" id="kpi-pending-listings">–</div><div class="kpi-label">Tin đăng chờ duyệt</div></div>
+        <div class="kpi-tile"><div class="kpi-value accent" id="kpi-views-7d">–</div><div class="kpi-label">Lượt xem 7 ngày qua</div></div>
+        <div class="kpi-tile"><div class="kpi-value accent" id="kpi-calls-7d">–</div><div class="kpi-label">Bấm gọi 7 ngày qua</div></div>
+        <div class="kpi-tile"><div class="kpi-value" id="kpi-winrate">–</div><div class="kpi-label">Tỷ lệ chốt thành công</div></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Lượt xem trang &amp; tin đăng</h3>
+        <p class="chart-sub">30 ngày gần nhất — gồm xem trang chủ và xem từng tin đăng</p>
+        <div class="chart-wrap" id="chart-views"></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Lead mới theo ngày</h3>
+        <p class="chart-sub">30 ngày gần nhất — từ form "Yêu cầu tư vấn" trên website</p>
+        <div class="chart-wrap" id="chart-leads"></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Tin được xem nhiều nhất</h3>
+        <p class="chart-sub">30 ngày gần nhất</p>
+        <div id="top-listings"><div class="chart-empty">Đang tải…</div></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Khu vực có tin đăng nhiều nhất</h3>
+        <p class="chart-sub">Toàn bộ tin đăng, theo khu vực ghi trong tin</p>
+        <div id="top-locations"><div class="chart-empty">Đang tải…</div></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Người đăng tin nhiều nhất</h3>
+        <p class="chart-sub">Theo số điện thoại đã dùng để đăng tin</p>
+        <div id="top-posters"><div class="chart-empty">Đang tải…</div></div>
+      </div>
+    </div>
+
+    <!-- ============ Tab: Tài sản / Dự án ============
+         Dùng lại đúng bảng lht_listings đã có (không tạo bảng mới) — mọi tin đăng
+         trên website (7 ngành nghề) đều nằm ở đây, chỉ khác nhau ở cột "collection".
+         Tab này chỉ là một góc nhìn quản trị đầy đủ hơn trên CÙNG một dữ liệu đó,
+         nhóm theo ngành nghề và theo khu vực (tỉnh/thành + vùng miền). -->
+    <div class="tab-panel" id="tab-assets">
+      <div class="kpi-grid" id="asset-kpi-grid">
+        <div class="kpi-tile"><div class="kpi-value" id="kpi-assets-total">–</div><div class="kpi-label">Tổng số tài sản / dự án</div></div>
+        <div class="kpi-tile"><div class="kpi-value accent" id="kpi-assets-approved">–</div><div class="kpi-label">Đang hoạt động (đã duyệt)</div></div>
+        <div class="kpi-tile"><div class="kpi-value" id="kpi-assets-pending">–</div><div class="kpi-label">Chờ duyệt</div></div>
+        <div class="kpi-tile"><div class="kpi-value accent" id="kpi-assets-month">–</div><div class="kpi-label">Mới trong tháng này</div></div>
+      </div>
+
+      <!-- ============ Thống kê tổng quan theo ngành nghề / khu vực / loại giao dịch ============
+           Chỉ tính trên tin ĐÃ DUYỆT (đang hoạt động thật) — dùng để bạn theo dõi tổng quan,
+           và có thể chụp màn hình/đưa cho nhà đầu tư, khách hàng, đối tác xem quy mô đang có. -->
+      <div class="asset-stats-panel">
+        <div class="asset-stats-head">
+          <h2>📊 Thống kê tổng quan</h2>
+          <button type="button" class="asset-stats-toggle" id="asset-stats-toggle-btn">Ẩn thống kê</button>
+        </div>
+        <div class="asset-stats-body" id="asset-stats-body">
+          <div class="kpi-grid" id="asset-value-kpi-grid" style="grid-template-columns:repeat(2,1fr);">
+            <div class="kpi-tile"><div class="kpi-value accent" id="kpi-value-sale">–</div><div class="kpi-label">Tổng giá trị BĐS/thiết bị rao bán &amp; ký gửi (ước tính)</div></div>
+            <div class="kpi-tile"><div class="kpi-value accent" id="kpi-value-rent">–</div><div class="kpi-label">Tổng giá trị cho thuê (quy đổi/tháng, ước tính)</div></div>
+          </div>
+
+          <div class="asset-stats-charts">
+            <div class="chart-card">
+              <h3>Số lượng theo ngành nghề</h3>
+              <p class="chart-sub">Tin đã duyệt, đang hoạt động trên website</p>
+              <div id="stat-by-industry"><div class="chart-empty">Đang tải…</div></div>
+            </div>
+
+            <div class="chart-card">
+              <h3>Theo loại giao dịch</h3>
+              <p class="chart-sub">Mua/bán, cho thuê, ký gửi, dịch vụ &amp; hợp tác — 1 tin có thể tính vào nhiều loại nếu chọn nhiều hình thức</p>
+              <div id="stat-by-txn"><div class="chart-empty">Đang tải…</div></div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Theo tỉnh/thành, khu vực &amp; ngành nghề</h3>
+            <p class="chart-sub">Mỗi thanh là 1 vùng miền, chia màu theo ngành nghề — vùng nào đang tập trung ngành nào</p>
+            <div id="stat-by-region"><div class="chart-empty">Đang tải…</div></div>
+          </div>
+
+          <div class="chart-card">
+            <h3>💰 Khoảng giá theo loại giao dịch</h3>
+            <p class="chart-sub">Đơn giá thực đã nhập khi đăng tin (đ/m² với BĐS, đ/đơn vị với ngành khác) — Thấp nhất · Trung bình (chỉ tính trên tin có nhập giá) · Cao nhất</p>
+            <div id="stat-by-price"><div class="chart-empty">Đang tải…</div></div>
+          </div>
+
+          <p class="asset-stats-note">⚠️ Giá trị chỉ là <b>ước tính</b>, tính từ diện tích/số lượng × đơn giá đã nhập khi đăng tin (chưa gồm ngành Logistics, Dự án &amp; đầu tư, Pháp lý &amp; tài chính — vì các ngành này là dịch vụ/hợp tác, không có đơn giá tài sản cố định để cộng dồn). Nếu 1 tin chọn cùng lúc cả "cho thuê" lẫn "bán", số liệu có thể tính trùng ở cả 2 mục. Khoảng giá theo loại giao dịch chỉ tính trên tin thuộc BĐS công nghiệp, BĐS dân dụng &amp; Xe nâng/thiết bị (3 ngành duy nhất có đủ 4 hình thức Bán/Cho thuê/Ký gửi/Cần mua) — đơn giá m² (BĐS) và đơn giá/chiếc (Xe nâng) khác đơn vị nên chỉ mang tính tham khảo nhanh, không so sánh trực tiếp giữa 2 nhóm.</p>
+        </div>
+      </div>
+
+      <div class="toolbar-row">
+        <h2>Danh sách tài sản / dự án</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="refresh-btn" id="assets-refresh-btn">↻ Làm mới</button>
+          <button type="button" class="refresh-btn share-btn" id="assets-share-btn">🔗 Chia sẻ danh sách</button>
+          <button type="button" class="refresh-btn excel-btn" id="assets-export-excel-btn">📊 Xuất Excel</button>
+          <button type="button" class="refresh-btn share-btn" id="assets-bot-btn">📤 Chia sẻ bot đăng tin</button>
+        </div>
+      </div>
+
+      <div class="share-panel" id="assets-share-panel" style="display:none;">
+        <div class="share-panel-title">📋 Link công khai — mọi người xem lướt được, click vào 1 mục để xem chi tiết trên web</div>
+        <div class="share-panel-row">
+          <input type="text" id="assets-share-url" readonly value="https://lehoaithanh.org/portfolio.html">
+          <button type="button" class="refresh-btn" id="assets-share-copy-btn">Copy link</button>
+          <a class="refresh-btn" id="assets-share-open-btn" href="https://lehoaithanh.org/portfolio.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;">Mở trang ↗</a>
+        </div>
+        <div class="share-panel-note">🔒 Trang này tự động ẩn hoàn toàn thông tin Nguồn/SĐT nguồn — người xem chỉ thấy đúng nội dung như trên website công khai, và mọi liên hệ đều quay về SĐT/Zalo của bạn.</div>
+      </div>
+
+      <div class="share-panel" id="assets-bot-panel" style="display:none;">
+        <div class="share-panel-title">📤 Link bot Telegram đăng tin — gửi cho nhân viên/cộng tác viên để họ tự soạn tin như bạn</div>
+        <div class="share-panel-row">
+          <input type="text" id="assets-bot-url" readonly value="https://t.me/lehoaithanh_dangtin_bot">
+          <button type="button" class="refresh-btn" id="assets-bot-copy-btn">Copy link</button>
+          <a class="refresh-btn" id="assets-bot-open-link-btn" href="https://t.me/lehoaithanh_dangtin_bot" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;">Mở Telegram ↗</a>
+        </div>
+        <div class="share-panel-note">👤 Người nhận chỉ cần bấm vào link, bấm <b>Start</b>, rồi gõ <code>/dangtin</code> là soạn tin được ngay — không cần cài đặt hay xin quyền gì thêm. Tên/username Telegram của họ sẽ tự động ghi lại, và mọi tin vẫn phải qua bạn duyệt ở admin.html trước khi lên web.</div>
+      </div>
+
+      <div class="asset-filter-row">
+        <input type="text" id="asset-search" class="asset-search-input" placeholder="🔎 Tìm theo tiêu đề, khu vực, SĐT…">
+        <select id="asset-filter-industry"><option value="all">Tất cả ngành nghề</option></select>
+        <select id="asset-filter-region"><option value="all">Tất cả vùng miền</option></select>
+        <select id="asset-filter-status">
+          <option value="all">Tất cả trạng thái</option>
+          <option value="approved">Đã duyệt</option>
+          <option value="pending">Chờ duyệt</option>
+          <option value="rejected">Từ chối</option>
+        </select>
+      </div>
+
+      <div id="assets-list"></div>
+    </div>
+
+    <!-- ============ Tab: Tài chính ============
+         Bảng mới crm_deals (doanh thu/chi phí/lãi-lỗ theo từng dự án/giao dịch) —
+         liên kết TUỲ CHỌN tới 1 tin đăng (lht_listings) và/hoặc 1 khách hàng
+         (crm_contacts) đã có sẵn, để có bảng tổng kết kết quả hoạt động chung. -->
+    <div class="tab-panel" id="tab-finance">
+      <div class="kpi-grid" id="finance-kpi-grid">
+        <div class="kpi-tile"><div class="kpi-value" id="kpi-finance-revenue">–</div><div class="kpi-label">Tổng doanh thu</div></div>
+        <div class="kpi-tile"><div class="kpi-value" id="kpi-finance-cost">–</div><div class="kpi-label">Tổng chi phí</div></div>
+        <div class="kpi-tile"><div class="kpi-value accent" id="kpi-finance-profit">–</div><div class="kpi-label">Lãi / Lỗ ròng</div></div>
+        <div class="kpi-tile"><div class="kpi-value" id="kpi-finance-count">–</div><div class="kpi-label">Số giao dịch đã ghi nhận</div></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Doanh thu theo tháng</h3>
+        <p class="chart-sub">12 tháng gần nhất</p>
+        <div class="chart-wrap" id="chart-finance-revenue"></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Lãi / Lỗ theo tháng</h3>
+        <p class="chart-sub">12 tháng gần nhất</p>
+        <div class="chart-wrap" id="chart-finance-profit"></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Lãi / Lỗ theo ngành nghề</h3>
+        <p class="chart-sub">Tổng cộng từ trước tới nay</p>
+        <div id="finance-by-industry"><div class="chart-empty">Đang tải…</div></div>
+      </div>
+
+      <div class="toolbar-row">
+        <h2>Danh sách giao dịch</h2>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="refresh-btn" id="finance-refresh-btn">↻ Làm mới</button>
+          <button type="button" class="refresh-btn" id="add-deal-btn">+ Thêm giao dịch</button>
+        </div>
+      </div>
+
+      <div class="new-contact-card" id="new-deal-card">
+        <h3>Thêm giao dịch / dự án mới</h3>
+        <form id="new-deal-form" novalidate>
+          <div class="field"><label for="nd-title">Tên dự án / giao dịch *</label><input id="nd-title" required placeholder="VD: Cho thuê kho KCN Sóng Thần 1"></div>
+          <div class="form-row-2">
+            <div class="field">
+              <label for="nd-listing">Liên kết tin đăng (gõ để tìm, để trống nếu không có)</label>
+              <input id="nd-listing" list="finance-listing-options" placeholder="Gõ tên tin đăng để tìm…" autocomplete="off">
+              <datalist id="finance-listing-options"></datalist>
+            </div>
+            <div class="field">
+              <label for="nd-contact">Liên kết khách hàng (gõ để tìm, để trống nếu không có)</label>
+              <input id="nd-contact" list="finance-contact-options" placeholder="Gõ tên khách hàng để tìm…" autocomplete="off">
+              <datalist id="finance-contact-options"></datalist>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="field"><label for="nd-revenue">Doanh thu (đ)</label><input id="nd-revenue" type="number" min="0" step="1000" placeholder="0"></div>
+            <div class="field"><label for="nd-cost">Chi phí (đ)</label><input id="nd-cost" type="number" min="0" step="1000" placeholder="0"></div>
+          </div>
+          <div class="field"><label for="nd-date">Ngày ghi nhận</label><input id="nd-date" type="date"></div>
+          <div class="field"><label for="nd-notes">Ghi chú</label><textarea id="nd-notes" placeholder="Ghi chú thêm về giao dịch…"></textarea></div>
+          <div style="display:flex; gap:8px;">
+            <button type="submit" class="btn primary" id="nd-submit" style="width:auto; flex:1;">Lưu giao dịch</button>
+            <button type="button" class="btn ghost small" id="nd-cancel">Huỷ</button>
+          </div>
+          <div class="login-error" id="nd-error"></div>
+        </form>
+      </div>
+
+      <div id="deals-list"></div>
+    </div>
+
+    <!-- ============ Tab: Khách hàng ============ -->
+    <div class="tab-panel" id="tab-contacts">
+      <div class="toolbar-row">
+        <h2>Danh sách khách hàng / lead</h2>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="refresh-btn" id="refresh-btn">↻ Làm mới</button>
+          <button type="button" class="refresh-btn" id="add-contact-btn">+ Thêm khách hàng</button>
+        </div>
+      </div>
+
+      <div class="new-contact-card" id="new-contact-card">
+        <h3>Thêm khách hàng / lead mới</h3>
+        <form id="new-contact-form" novalidate>
+          <div class="form-row-2">
+            <div class="field"><label for="nc-name">Tên khách hàng *</label><input id="nc-name" required></div>
+            <div class="field"><label for="nc-phone">Số điện thoại</label><input id="nc-phone" type="tel"></div>
+          </div>
+          <div class="form-row-2">
+            <div class="field">
+              <label for="nc-source">Nguồn khách</label>
+              <select id="nc-source">
+                <option value="web">Website</option>
+                <option value="zalo">Zalo</option>
+                <option value="facebook">Facebook</option>
+                <option value="telegram_bot">Bot Telegram</option>
+                <option value="gioi_thieu">Giới thiệu</option>
+                <option value="khac" selected>Khác</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="nc-stage">Giai đoạn</label>
+              <select id="nc-stage">
+                <option value="moi" selected>Mới liên hệ</option>
+                <option value="tu_van">Đang tư vấn</option>
+                <option value="thuong_luong">Đang thương lượng</option>
+                <option value="thanh_cong">Thành công</option>
+                <option value="khong_thanh">Không thành</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="nc-listing">Quan tâm tin đăng nào? (gõ để tìm, để trống nếu không có)</label>
+            <input id="nc-listing" list="listing-options" placeholder="Gõ tên tin đăng để tìm…" autocomplete="off">
+            <datalist id="listing-options"></datalist>
+          </div>
+          <div class="field"><label for="nc-notes">Ghi chú</label><textarea id="nc-notes" placeholder="Ghi chú ban đầu về khách hàng…"></textarea></div>
+          <div style="display:flex; gap:8px;">
+            <button type="submit" class="btn primary" id="nc-submit" style="width:auto; flex:1;">Lưu khách hàng</button>
+            <button type="button" class="btn ghost small" id="nc-cancel">Huỷ</button>
+          </div>
+          <div class="login-error" id="nc-error"></div>
+        </form>
+      </div>
+
+      <div class="stage-pills" id="stage-pills">
+        <button type="button" class="stage-pill active" data-stage="all">Tất cả</button>
+        <button type="button" class="stage-pill" data-stage="moi">Mới liên hệ</button>
+        <button type="button" class="stage-pill" data-stage="tu_van">Đang tư vấn</button>
+        <button type="button" class="stage-pill" data-stage="thuong_luong">Thương lượng</button>
+        <button type="button" class="stage-pill" data-stage="thanh_cong">Thành công</button>
+        <button type="button" class="stage-pill" data-stage="khong_thanh">Không thành</button>
+      </div>
+
+      <div id="list-container"></div>
+    </div>
+
+    <!-- ============ Tab: Lead mới ============ -->
+    <div class="tab-panel" id="tab-leads">
+      <div class="toolbar-row">
+        <h2>Lead mới từ website</h2>
+        <button type="button" class="refresh-btn" id="leads-refresh-btn">↻ Làm mới</button>
+      </div>
+      <div id="leads-container"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Danh sách id đã có trang tĩnh /tin/<id> (nạp trước, dùng cho nút "🔗 Copy link" —
+     xem shareUrlFor() bên dưới). Không lỗi gì nếu file này thiếu. -->
+<script src="/tin/manifest.js"></script>
+<!-- SheetJS — dùng để xuất file Excel (.xlsx) lưu trữ đầy đủ dữ liệu ngay trên trình duyệt,
+     không cần server riêng. Chỉ chạy khi bấm nút "Xuất Excel", không ảnh hưởng gì các phần khác. -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+(function(){
+  // =========================================================================
+  // SUPABASE CONFIG — same project as index.html / admin.html.
+  // =========================================================================
+  const SUPABASE_URL = 'https://kbpcmifwplbtggfcnfrx.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_buS_4Iky59zQlMME9dn2NQ_1FqIwlVt';
+  const CONTACTS_TABLE = 'crm_contacts';
+  const ACTIVITIES_TABLE = 'crm_activities';
+  const LISTINGS_TABLE = 'lht_listings';
+  const SITE_EVENTS_TABLE = 'site_events';
+  const WEB_LEADS_TABLE = 'web_leads';
+  const DEALS_TABLE = 'crm_deals';
+
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const STAGE_LABELS = {
+    moi: 'Mới liên hệ', tu_van: 'Đang tư vấn', thuong_luong: 'Đang thương lượng',
+    thanh_cong: 'Thành công', khong_thanh: 'Không thành'
+  };
+  const STAGE_COLORS = {
+    moi: '#2b6fb0', tu_van: '#B06A2B', thuong_luong: '#7A3FA0',
+    thanh_cong: '#2F7D4F', khong_thanh: '#8a8f99'
+  };
+  const SOURCE_LABELS = {
+    web: 'Website', zalo: 'Zalo', facebook: 'Facebook',
+    telegram_bot: 'Bot Telegram', gioi_thieu: 'Giới thiệu', khac: 'Khác'
+  };
+  const ACTIVITY_TYPE_LABELS = {
+    call: '📞 Gọi điện', message: '💬 Nhắn tin', meeting: '🤝 Gặp mặt', note: '📝 Ghi chú'
+  };
+
+  // =========================================================================
+  // TAB "TÀI SẢN / DỰ ÁN" — dùng lại đúng bảng lht_listings đã có (KHÔNG tạo
+  // bảng mới): mọi tin đăng trên website, thuộc 7 ngành nghề, đều nằm chung
+  // trong bảng này, phân biệt bằng cột "collection". Các nhãn dưới đây khớp
+  // 1:1 với admin.html (COLLECTION_LABELS) và index.html (sectionId tương ứng
+  // để tạo link "Xem trên web" dạng /?id=...#sectionId).
+  // =========================================================================
+  const ASSET_COLLECTIONS = {
+    bds_listings:         { label: 'BĐS công nghiệp',            color: '#2b6fb0', sectionId: 'bds-cong-nghiep' },
+    bds_dandung_listings: { label: 'BĐS dân dụng & thương mại',  color: '#7a3fa0', sectionId: 'bds-dan-dung' },
+    logistics_listings:   { label: 'Logistics & sản xuất',       color: '#2f7d4f', sectionId: 'logistics-san-xuat' },
+    xn_listings:           { label: 'Xe nâng & thiết bị',        color: '#b06a2b', sectionId: 'xe-nang-thiet-bi' },
+    da_listings:           { label: 'Dự án & đầu tư',            color: '#7a3fa0', sectionId: 'du-an-dau-tu' },
+    pl_listings:            { label: 'Pháp lý & tài chính',      color: '#a3803f', sectionId: 'phap-ly-tai-chinh' },
+    media_posts:            { label: 'Kiến thức & Media',        color: '#062A55', sectionId: 'kien-thuc-media' }
+  };
+  const ASSET_STATUS_LABELS = { approved: 'Đã duyệt', pending: 'Chờ duyệt', rejected: 'Từ chối' };
+
+  // Danh sách tỉnh/thành → vùng miền, LẤY ĐÚNG theo các khối "region-card" đã có sẵn
+  // trên trang chủ (index.html, mục BĐS công nghiệp/dân dụng) — không tự bịa thêm
+  // tỉnh nào ngoài danh sách đó, để nhất quán với dữ liệu vùng miền đã dùng cho các
+  // nút "Xem các KCN [Khu vực]" trên website.
+  const REGION_LABELS = {
+    mien_bac: 'Miền Bắc', mien_trung: 'Miền Trung', dong_nam_bo: 'Đông Nam Bộ',
+    tay_nguyen: 'Tây Nguyên', dbscl: 'Đồng bằng sông Cửu Long'
+  };
+  // Mỗi khoá là một cách viết (kể cả viết tắt) có thể gặp trong ô "Khu vực" khách tự gõ;
+  // giá trị là [vùng miền, nhãn tỉnh/thành hiển thị đẹp] — nhiều khoá có thể trỏ về cùng
+  // 1 nhãn (VD "hcm" và "tp hồ chí minh" đều hiển thị "TP. Hồ Chí Minh").
+  const PROVINCE_REGION_MAP = {
+    'hà nội': ['mien_bac', 'Hà Nội'], 'vĩnh phúc': ['mien_bac', 'Vĩnh Phúc'], 'phú thọ': ['mien_bac', 'Vĩnh Phúc'],
+    'hải phòng': ['mien_bac', 'Hải Phòng'], 'thái nguyên': ['mien_bac', 'Thái Nguyên'], 'bắc ninh': ['mien_bac', 'Bắc Ninh'],
+    'bắc giang': ['mien_bac', 'Bắc Giang'], 'hưng yên': ['mien_bac', 'Hưng Yên'], 'quảng ninh': ['mien_bac', 'Quảng Ninh'],
+    'hải dương': ['mien_bac', 'Hải Dương'],
+    'thanh hóa': ['mien_trung', 'Thanh Hóa'], 'quảng ngãi': ['mien_trung', 'Quảng Ngãi'], 'nghệ an': ['mien_trung', 'Nghệ An'],
+    'bình định': ['mien_trung', 'Bình Định'], 'hà tĩnh': ['mien_trung', 'Hà Tĩnh'], 'phú yên': ['mien_trung', 'Phú Yên'],
+    'quảng bình': ['mien_trung', 'Quảng Bình'], 'quảng trị': ['mien_trung', 'Quảng Trị'], 'khánh hòa': ['mien_trung', 'Khánh Hòa'],
+    'đà nẵng': ['mien_trung', 'Đà Nẵng'],
+    'hồ chí minh': ['dong_nam_bo', 'TP. Hồ Chí Minh'], 'tp. hồ chí minh': ['dong_nam_bo', 'TP. Hồ Chí Minh'],
+    'tp hồ chí minh': ['dong_nam_bo', 'TP. Hồ Chí Minh'], 'hcm': ['dong_nam_bo', 'TP. Hồ Chí Minh'],
+    'đồng nai': ['dong_nam_bo', 'Đồng Nai'], 'tây ninh': ['dong_nam_bo', 'Tây Ninh'], 'long an': ['dong_nam_bo', 'Long An'],
+    'bình dương': ['dong_nam_bo', 'Bình Dương'], 'bà rịa': ['dong_nam_bo', 'Bà Rịa – Vũng Tàu'],
+    'vũng tàu': ['dong_nam_bo', 'Bà Rịa – Vũng Tàu'],
+    'đắk lắk': ['tay_nguyen', 'Đắk Lắk'], 'đắc lắc': ['tay_nguyen', 'Đắk Lắk'], 'lâm đồng': ['tay_nguyen', 'Lâm Đồng'],
+    'gia lai': ['tay_nguyen', 'Gia Lai'], 'đắk nông': ['tay_nguyen', 'Đắk Nông'], 'kon tum': ['tay_nguyen', 'Kon Tum'],
+    'cần thơ': ['dbscl', 'Cần Thơ'], 'kiên giang': ['dbscl', 'Kiên Giang'], 'an giang': ['dbscl', 'An Giang'],
+    'hậu giang': ['dbscl', 'Hậu Giang'], 'đồng tháp': ['dbscl', 'Đồng Tháp'], 'sóc trăng': ['dbscl', 'Sóc Trăng'],
+    'vĩnh long': ['dbscl', 'Vĩnh Long'], 'bạc liêu': ['dbscl', 'Bạc Liêu'], 'cà mau': ['dbscl', 'Cà Mau']
+  };
+  // Khớp chuỗi "location" tự do (khách tự gõ khi đăng tin) với tỉnh/thành đã biết —
+  // so khớp theo chuỗi con, không phân biệt hoa/thường/dấu, ưu tiên khoá DÀI hơn trước
+  // (để "tp hồ chí minh" khớp trước "hcm" khi cả hai cùng xuất hiện). Nếu không khớp
+  // được tỉnh nào, trả về vùng "khac".
+  const PROVINCE_KEYS_BY_LENGTH = Object.keys(PROVINCE_REGION_MAP).sort((a, b) => b.length - a.length);
+  function classifyLocation(locationText){
+    const raw = (locationText || '').toLowerCase();
+    if (!raw) return { province: '', region: 'khac' };
+    for (const key of PROVINCE_KEYS_BY_LENGTH){
+      if (raw.indexOf(key) !== -1){
+        const [region, label] = PROVINCE_REGION_MAP[key];
+        return { province: label, region: region };
+      }
+    }
+    return { province: '', region: 'khac' };
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function friendlyTime(iso){
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const diffMs = Date.now() - d.getTime();
+    const min = Math.floor(diffMs / 60000);
+    if (min < 1) return 'vừa xong';
+    if (min < 60) return min + ' phút trước';
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return hr + ' giờ trước';
+    const day = Math.floor(hr / 24);
+    if (day < 7) return day + ' ngày trước';
+    return fullDateTime(iso);
+  }
+  function fullDateTime(iso){
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mi = String(d.getMinutes()).padStart(2,'0');
+    return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+  }
+  function newId(prefix){
+    return prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  }
+
+  // ---- DOM refs ----
+  const loginView = document.getElementById('login-view');
+  const dashboardView = document.getElementById('dashboard-view');
+  const loginForm = document.getElementById('login-form');
+  const loginError = document.getElementById('login-error');
+  const loginSubmit = document.getElementById('login-submit');
+  const logoutBtn = document.getElementById('logout-btn');
+  const refreshBtn = document.getElementById('refresh-btn');
+  const listContainer = document.getElementById('list-container');
+  const globalError = document.getElementById('global-error');
+  const reminderBanner = document.getElementById('reminder-banner');
+  const reminderList = document.getElementById('reminder-list');
+  const stagePills = document.getElementById('stage-pills');
+  const addContactBtn = document.getElementById('add-contact-btn');
+  const newContactCard = document.getElementById('new-contact-card');
+  const newContactForm = document.getElementById('new-contact-form');
+  const ncCancel = document.getElementById('nc-cancel');
+  const ncError = document.getElementById('nc-error');
+  const listingOptions = document.getElementById('listing-options');
+  const tabBar = document.getElementById('tab-bar');
+  const tabBarWrap = document.getElementById('tab-bar-wrap');
+  const leadsBadge = document.getElementById('leads-badge');
+  const leadsContainer = document.getElementById('leads-container');
+  const leadsRefreshBtn = document.getElementById('leads-refresh-btn');
+
+  let allContacts = [];
+  let listingsCache = []; // [{id, title}]
+  let activeStage = 'all';
+  const expandedIds = new Set();
+  const activitiesCache = {}; // contactId -> [activities]
+
+  function showLogin(){ loginView.style.display = 'flex'; dashboardView.style.display = 'none'; }
+  function showDashboard(){
+    loginView.style.display = 'none'; dashboardView.style.display = 'block';
+    // Thanh tab chỉ có kích thước thật sau khi dashboard hiện ra — tính lại mờ mép ở đây
+    requestAnimationFrame(() => { if (typeof updateTabBarFade === 'function') updateTabBarFade(); });
+  }
+  function showGlobalError(msg){ globalError.textContent = msg; globalError.classList.add('show'); }
+  function clearGlobalError(){ globalError.classList.remove('show'); globalError.textContent = ''; }
+
+  // ---- Load danh sách tin đăng để làm gợi ý liên kết (dùng chung cho form
+  // "Thêm khách hàng" VÀ form "Thêm giao dịch" ở tab Tài chính) ----
+  async function loadListingsForPicker(){
+    try {
+      const { data, error } = await sb.from(LISTINGS_TABLE).select('id, collection, data, created_at').order('created_at', { ascending: false }).limit(150);
+      if (error) throw error;
+      listingsCache = (data || []).map(r => ({ id: r.id, collection: r.collection, title: (r.data && r.data.title) || r.id }));
+      const optionsHtml = listingsCache.map(l => `<option value="${escapeHtml(l.title)}" data-id="${escapeHtml(l.id)}"></option>`).join('');
+      listingOptions.innerHTML = optionsHtml;
+      const financeListingOptions = document.getElementById('finance-listing-options');
+      if (financeListingOptions) financeListingOptions.innerHTML = optionsHtml;
+    } catch(err){ /* không chặn luồng chính nếu lỗi */ }
+  }
+  function findListingIdByTitle(title){
+    const hit = listingsCache.find(l => l.title === title);
+    return hit ? hit.id : null;
+  }
+  function findListingByTitle(title){
+    return listingsCache.find(l => l.title === title) || null;
+  }
+  // ---- Gợi ý khách hàng cho form "Thêm giao dịch" — dựng lại từ allContacts
+  // đã có sẵn (tab Khách hàng đã tải sẵn khi đăng nhập), không gọi thêm API. ----
+  function populateContactOptions(){
+    const el = document.getElementById('finance-contact-options');
+    if (!el) return;
+    el.innerHTML = allContacts.map(c => `<option value="${escapeHtml(c.name)}" data-id="${escapeHtml(c.id)}"></option>`).join('');
+  }
+  function findContactByName(name){
+    return allContacts.find(c => c.name === name) || null;
+  }
+
+  // ---- Load contacts ----
+  async function loadContacts(){
+    clearGlobalError();
+    listContainer.innerHTML = `<div class="load-state">Đang tải danh sách…</div>`;
+    try {
+      const { data, error } = await sb.from(CONTACTS_TABLE).select('*').order('updated_at', { ascending: false });
+      if (error) throw error;
+      allContacts = data || [];
+      renderList();
+      loadReminders();
+    } catch(err){
+      listContainer.innerHTML = '';
+      showGlobalError('Không tải được danh sách khách hàng. Vui lòng thử "Làm mới" hoặc kiểm tra bảng crm_contacts đã được tạo trong Supabase chưa.');
+    }
+  }
+
+  // ---- Nhắc việc: hoạt động chưa done, follow_up_at đã tới hoặc quá hạn ----
+  async function loadReminders(){
+    try {
+      const nowIso = new Date().toISOString();
+      const { data, error } = await sb.from(ACTIVITIES_TABLE)
+        .select('id, contact_id, note, follow_up_at, type')
+        .eq('done', false)
+        .not('follow_up_at', 'is', null)
+        .lte('follow_up_at', nowIso)
+        .order('follow_up_at', { ascending: true });
+      if (error) throw error;
+      const items = data || [];
+      if (!items.length){ reminderBanner.classList.remove('show'); return; }
+      reminderList.innerHTML = items.map(a => {
+        const contact = allContacts.find(c => c.id === a.contact_id);
+        const contactName = contact ? contact.name : '(khách hàng đã xoá)';
+        return `<div class="reminder-item">
+          <span class="overdue">${escapeHtml(contactName)}</span> — ${escapeHtml(a.note || ACTIVITY_TYPE_LABELS[a.type] || '')} (${fullDateTime(a.follow_up_at)})
+          <button type="button" data-open-contact="${escapeHtml(a.contact_id)}">Xem</button>
+        </div>`;
+      }).join('');
+      reminderBanner.classList.add('show');
+    } catch(err){ /* im lặng nếu lỗi, không chặn trang chính */ }
+  }
+
+  function filteredContacts(){
+    if (activeStage === 'all') return allContacts;
+    return allContacts.filter(c => c.stage === activeStage);
+  }
+
+  function renderContactCard(c){
+    const stageLabel = STAGE_LABELS[c.stage] || c.stage;
+    const stageColor = STAGE_COLORS[c.stage] || '#5f6784';
+    const sourceLabel = SOURCE_LABELS[c.source] || c.source;
+    const phoneHtml = c.phone
+      ? `<a class="phone-link" href="tel:${escapeHtml(String(c.phone).replace(/\s/g,''))}">📞 ${escapeHtml(c.phone)}</a>`
+      : '';
+    const listingHtml = c.listing_id
+      ? `<div><span class="listing-chip">🏷️ ${escapeHtml(c.listing_title || c.listing_id)}</span></div>`
+      : '';
+    const isOpen = expandedIds.has(c.id);
+
+    return `
+    <div class="card" data-id="${escapeHtml(c.id)}">
+      <div class="card-top">
+        <span class="stage-badge" style="background:${stageColor};">${escapeHtml(stageLabel)}</span>
+        <span class="card-time">${escapeHtml(friendlyTime(c.updated_at || c.created_at))}</span>
+      </div>
+      <h3>${escapeHtml(c.name)}</h3>
+      <div class="detail-lines"><span>Nguồn: ${escapeHtml(sourceLabel)}</span></div>
+      ${phoneHtml}
+      ${listingHtml}
+      ${c.notes ? `<p style="font-size:0.85rem; color:var(--text); line-height:1.5; margin:8px 0;">${escapeHtml(c.notes)}</p>` : ''}
+      <div class="card-err" data-role="card-err"></div>
+      <div class="card-actions">
+        <button type="button" class="act-btn expand" data-action="toggle-detail">${isOpen ? '▲ Thu gọn' : '▼ Chi tiết & lịch sử'}</button>
+      </div>
+      <button type="button" class="del-btn" data-action="delete">🗑 Xoá khách hàng này</button>
+
+      <div class="detail-panel ${isOpen ? 'open' : ''}" data-role="detail-panel">
+        <h4>Giai đoạn</h4>
+        <div class="stage-select-row">
+          <select data-role="stage-select">
+            ${Object.keys(STAGE_LABELS).map(k => `<option value="${k}" ${k === c.stage ? 'selected' : ''}>${STAGE_LABELS[k]}</option>`).join('')}
+          </select>
+          <button type="button" class="btn ghost small" data-action="save-stage">Lưu</button>
+        </div>
+        <h4>Lịch sử tương tác</h4>
+        <div data-role="activity-list"><div class="no-activity">Đang tải…</div></div>
+        <div class="add-activity-form">
+          <h4>+ Thêm tương tác mới</h4>
+          <div class="form-row-2">
+            <div class="field" style="margin-bottom:8px;">
+              <label>Loại</label>
+              <select data-role="new-activity-type">
+                <option value="call">📞 Gọi điện</option>
+                <option value="message">💬 Nhắn tin</option>
+                <option value="meeting">🤝 Gặp mặt</option>
+                <option value="note" selected>📝 Ghi chú</option>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:8px;">
+              <label>Nhắc lại lúc (tuỳ chọn)</label>
+              <input type="datetime-local" data-role="new-activity-followup">
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:8px;">
+            <label>Nội dung</label>
+            <textarea data-role="new-activity-note" placeholder="Ghi lại nội dung trao đổi…"></textarea>
+          </div>
+          <button type="button" class="btn ghost small" data-action="add-activity">Lưu tương tác</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderList(){
+    const rows = filteredContacts();
+    if (!rows.length){
+      listContainer.innerHTML = `<div class="empty-state"><span class="emoji">👥</span>Chưa có khách hàng nào${activeStage !== 'all' ? ' ở giai đoạn này' : ''}.</div>`;
+      return;
+    }
+    listContainer.innerHTML = rows.map(renderContactCard).join('');
+    // sau khi render, nạp lại lịch sử cho các card đang mở
+    expandedIds.forEach(id => { if (rows.find(r => r.id === id)) renderActivitiesFor(id); });
+  }
+
+  async function loadActivitiesFor(contactId){
+    if (activitiesCache[contactId]) return activitiesCache[contactId];
+    const { data, error } = await sb.from(ACTIVITIES_TABLE).select('*').eq('contact_id', contactId).order('created_at', { ascending: false });
+    if (error) { activitiesCache[contactId] = []; return []; }
+    activitiesCache[contactId] = data || [];
+    return activitiesCache[contactId];
+  }
+
+  async function renderActivitiesFor(contactId){
+    const cardEl = listContainer.querySelector(`.card[data-id="${CSS.escape(contactId)}"]`);
+    if (!cardEl) return;
+    const listEl = cardEl.querySelector('[data-role="activity-list"]');
+    const activities = await loadActivitiesFor(contactId);
+    if (!activities.length){
+      listEl.innerHTML = `<div class="no-activity">Chưa có tương tác nào được ghi lại.</div>`;
+      return;
+    }
+    listEl.innerHTML = activities.map(a => `
+      <div class="activity-item">
+        <div class="a-top">
+          <span class="a-type">${ACTIVITY_TYPE_LABELS[a.type] || a.type}</span>
+          <span class="a-time">${fullDateTime(a.created_at)}</span>
+        </div>
+        ${a.note ? `<div class="a-note">${escapeHtml(a.note)}</div>` : ''}
+        ${a.follow_up_at ? `<div class="a-followup">⏰ Nhắc lại: ${fullDateTime(a.follow_up_at)}${a.done ? ' — đã xong' : ''}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  function setCardBusy(cardEl, busy){ cardEl.querySelectorAll('button, select').forEach(b => { b.disabled = busy; }); }
+  function showCardError(cardEl, msg){
+    const errEl = cardEl.querySelector('[data-role="card-err"]');
+    if (errEl){ errEl.textContent = msg; errEl.classList.add('show'); }
+  }
+
+  async function handleDeleteContact(id, cardEl){
+    if (!confirm('Xoá vĩnh viễn khách hàng này và toàn bộ lịch sử tương tác? Không thể hoàn tác.')) return;
+    setCardBusy(cardEl, true);
+    try {
+      const { error } = await sb.from(CONTACTS_TABLE).delete().eq('id', id);
+      if (error) throw error;
+      allContacts = allContacts.filter(c => c.id !== id);
+      delete activitiesCache[id];
+      expandedIds.delete(id);
+      renderList();
+    } catch(err){
+      setCardBusy(cardEl, false);
+      showCardError(cardEl, 'Không xoá được khách hàng này, vui lòng thử lại.');
+    }
+  }
+
+  async function handleSaveStage(id, cardEl){
+    const sel = cardEl.querySelector('[data-role="stage-select"]');
+    const newStage = sel.value;
+    setCardBusy(cardEl, true);
+    try {
+      const { error } = await sb.from(CONTACTS_TABLE).update({ stage: newStage, updated_at: new Date().toISOString() }).eq('id', id);
+      if (error) throw error;
+      const c = allContacts.find(x => x.id === id);
+      if (c){ c.stage = newStage; c.updated_at = new Date().toISOString(); }
+      renderList();
+    } catch(err){
+      setCardBusy(cardEl, false);
+      showCardError(cardEl, 'Không lưu được giai đoạn mới, vui lòng thử lại.');
+    }
+  }
+
+  async function handleAddActivity(id, cardEl){
+    const typeSel = cardEl.querySelector('[data-role="new-activity-type"]');
+    const noteEl = cardEl.querySelector('[data-role="new-activity-note"]');
+    const followEl = cardEl.querySelector('[data-role="new-activity-followup"]');
+    const note = noteEl.value.trim();
+    const followUpLocal = followEl.value;
+    if (!note && !followUpLocal){
+      showCardError(cardEl, 'Nhập nội dung hoặc chọn thời gian nhắc trước khi lưu.');
+      return;
+    }
+    setCardBusy(cardEl, true);
+    try {
+      const payload = {
+        contact_id: id,
+        type: typeSel.value,
+        note: note || null,
+        follow_up_at: followUpLocal ? new Date(followUpLocal).toISOString() : null,
+        done: false
+      };
+      const { error } = await sb.from(ACTIVITIES_TABLE).insert(payload);
+      if (error) throw error;
+      const { error: updErr } = await sb.from(CONTACTS_TABLE).update({ updated_at: new Date().toISOString() }).eq('id', id);
+      if (!updErr){ const c = allContacts.find(x => x.id === id); if (c) c.updated_at = new Date().toISOString(); }
+      delete activitiesCache[id];
+      noteEl.value = ''; followEl.value = '';
+      setCardBusy(cardEl, false);
+      await renderActivitiesFor(id);
+      loadReminders();
+    } catch(err){
+      setCardBusy(cardEl, false);
+      showCardError(cardEl, 'Không lưu được tương tác này, vui lòng thử lại.');
+    }
+  }
+
+  listContainer.addEventListener('click', (e) => {
+    const openBtn = e.target.closest('button[data-open-contact]');
+    if (openBtn){
+      const id = openBtn.getAttribute('data-open-contact');
+      expandedIds.add(id);
+      activeStage = 'all';
+      stagePills.querySelectorAll('.stage-pill').forEach(p => p.classList.toggle('active', p.dataset.stage === 'all'));
+      renderList();
+      const el = listContainer.querySelector(`.card[data-id="${CSS.escape(id)}"]`);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    const cardEl = btn.closest('.card');
+    const id = cardEl.getAttribute('data-id');
+
+    if (action === 'toggle-detail'){
+      if (expandedIds.has(id)) expandedIds.delete(id); else { expandedIds.add(id); renderActivitiesFor(id); }
+      renderList();
+    } else if (action === 'delete'){
+      handleDeleteContact(id, cardEl);
+    } else if (action === 'save-stage'){
+      handleSaveStage(id, cardEl);
+    } else if (action === 'add-activity'){
+      handleAddActivity(id, cardEl);
+    }
+  });
+
+  stagePills.addEventListener('click', (e) => {
+    const btn = e.target.closest('.stage-pill');
+    if (!btn) return;
+    activeStage = btn.dataset.stage;
+    stagePills.querySelectorAll('.stage-pill').forEach(p => p.classList.toggle('active', p === btn));
+    renderList();
+  });
+
+  reminderList.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-open-contact]');
+    if (!btn) return;
+    const id = btn.getAttribute('data-open-contact');
+    expandedIds.add(id);
+    activeStage = 'all';
+    stagePills.querySelectorAll('.stage-pill').forEach(p => p.classList.toggle('active', p.dataset.stage === 'all'));
+    renderList();
+    renderActivitiesFor(id);
+    const el = listContainer.querySelector(`.card[data-id="${CSS.escape(id)}"]`);
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+
+  refreshBtn.addEventListener('click', loadContacts);
+
+  // ---- Thêm khách hàng mới ----
+  addContactBtn.addEventListener('click', () => {
+    newContactCard.classList.toggle('show');
+    if (newContactCard.classList.contains('show')) loadListingsForPicker();
+  });
+  ncCancel.addEventListener('click', () => { newContactCard.classList.remove('show'); newContactForm.reset(); ncError.classList.remove('show'); });
+
+  newContactForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    ncError.classList.remove('show');
+    const name = document.getElementById('nc-name').value.trim();
+    const phone = document.getElementById('nc-phone').value.trim();
+    const source = document.getElementById('nc-source').value;
+    const stage = document.getElementById('nc-stage').value;
+    const listingTitleInput = document.getElementById('nc-listing').value.trim();
+    const notes = document.getElementById('nc-notes').value.trim();
+    if (!name){ ncError.textContent = 'Vui lòng nhập tên khách hàng.'; ncError.classList.add('show'); return; }
+
+    const listingId = listingTitleInput ? findListingIdByTitle(listingTitleInput) : null;
+
+    const submitBtn = document.getElementById('nc-submit');
+    submitBtn.disabled = true; submitBtn.textContent = 'Đang lưu…';
+    try {
+      const payload = {
+        id: newId('cust'),
+        name, phone: phone || null, source, stage,
+        notes: notes || null,
+        listing_id: listingId,
+        listing_title: listingId ? listingTitleInput : null,
+        updated_at: new Date().toISOString()
+      };
+      const { error } = await sb.from(CONTACTS_TABLE).insert(payload);
+      if (error) throw error;
+      newContactForm.reset();
+      newContactCard.classList.remove('show');
+      loadContacts();
+    } catch(err){
+      ncError.textContent = 'Không lưu được khách hàng này, vui lòng thử lại.';
+      ncError.classList.add('show');
+    } finally {
+      submitBtn.disabled = false; submitBtn.textContent = 'Lưu khách hàng';
+    }
+  });
+
+  // ---- Tab "Tài chính": thêm / xoá giao dịch ----
+  const newDealCard = document.getElementById('new-deal-card');
+  const newDealForm = document.getElementById('new-deal-form');
+  const ndError = document.getElementById('nd-error');
+  document.getElementById('add-deal-btn').addEventListener('click', () => {
+    newDealCard.classList.toggle('show');
+    if (newDealCard.classList.contains('show')){
+      loadListingsForPicker();
+      populateContactOptions();
+    }
+  });
+  document.getElementById('nd-cancel').addEventListener('click', () => {
+    newDealCard.classList.remove('show'); newDealForm.reset(); ndError.classList.remove('show');
+  });
+
+  newDealForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    ndError.classList.remove('show');
+    const title = document.getElementById('nd-title').value.trim();
+    const listingTitleInput = document.getElementById('nd-listing').value.trim();
+    const contactNameInput = document.getElementById('nd-contact').value.trim();
+    const revenue = Number(document.getElementById('nd-revenue').value || 0);
+    const cost = Number(document.getElementById('nd-cost').value || 0);
+    const dealDate = document.getElementById('nd-date').value || null;
+    const notes = document.getElementById('nd-notes').value.trim();
+    if (!title){ ndError.textContent = 'Vui lòng nhập tên dự án / giao dịch.'; ndError.classList.add('show'); return; }
+
+    const matchedListing = listingTitleInput ? findListingByTitle(listingTitleInput) : null;
+    const matchedContact = contactNameInput ? findContactByName(contactNameInput) : null;
+
+    const submitBtn = document.getElementById('nd-submit');
+    submitBtn.disabled = true; submitBtn.textContent = 'Đang lưu…';
+    try {
+      const payload = {
+        title,
+        listing_id: matchedListing ? matchedListing.id : null,
+        listing_collection: matchedListing ? matchedListing.collection : null,
+        listing_title: matchedListing ? matchedListing.title : null,
+        contact_id: matchedContact ? matchedContact.id : null,
+        contact_name: matchedContact ? matchedContact.name : null,
+        revenue: revenue, cost: cost,
+        notes: notes || null
+      };
+      if (dealDate) payload.deal_date = dealDate;
+      const { error } = await sb.from(DEALS_TABLE).insert(payload);
+      if (error) throw error;
+      newDealForm.reset();
+      newDealCard.classList.remove('show');
+      loadDeals();
+    } catch(err){
+      ndError.textContent = 'Không lưu được giao dịch này, vui lòng thử lại.';
+      ndError.classList.add('show');
+    } finally {
+      submitBtn.disabled = false; submitBtn.textContent = 'Lưu giao dịch';
+    }
+  });
+
+  document.getElementById('deals-list').addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-action="delete-deal"]');
+    if (!btn) return;
+    const cardEl = btn.closest('.deal-card');
+    const id = cardEl.getAttribute('data-id');
+    if (!confirm('Xoá giao dịch này? Không thể hoàn tác.')) return;
+    btn.disabled = true;
+    try {
+      const { error } = await sb.from(DEALS_TABLE).delete().eq('id', id);
+      if (error) throw error;
+      loadDeals();
+    } catch(err){
+      btn.disabled = false;
+      alert('Không xoá được, vui lòng thử lại.');
+    }
+  });
+
+  document.getElementById('finance-refresh-btn').addEventListener('click', loadDeals);
+
+  // =========================================================================
+  // TABS
+  // =========================================================================
+  const tabLoaders = { overview: false, contacts: false, leads: false, assets: false, finance: false };
+  function switchTab(name){
+    const activeBtn = Array.from(tabBar.querySelectorAll('.tab-btn')).find(b => b.dataset.tab === name);
+    tabBar.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+    if (activeBtn && activeBtn.scrollIntoView){
+      // Đảm bảo tab vừa bấm luôn hiện trọn vẹn trên màn hình điện thoại, kể cả khi đang bị che 1 phần ở mép phải/trái
+      activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+    }
+    if (name === 'overview' && !tabLoaders.overview){ tabLoaders.overview = true; loadOverview(); }
+    if (name === 'leads' && !tabLoaders.leads){ tabLoaders.leads = true; loadWebLeads(); }
+    if (name === 'assets' && !tabLoaders.assets){ tabLoaders.assets = true; loadAssets(); }
+    if (name === 'finance' && !tabLoaders.finance){ tabLoaders.finance = true; loadDeals(); }
+  }
+  tabBar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn) return;
+    switchTab(btn.dataset.tab);
+  });
+  // Mờ dần mép trái/phải của thanh tab để gợi ý còn tab đang bị ẩn, cập nhật theo vị trí cuộn thực tế
+  function updateTabBarFade(){
+    if (!tabBar || !tabBarWrap) return;
+    const max = tabBar.scrollWidth - tabBar.clientWidth;
+    if (max <= 2){ tabBarWrap.classList.remove('scroll-start','scroll-mid','scroll-end'); return; }
+    const x = tabBar.scrollLeft;
+    tabBarWrap.classList.remove('scroll-start','scroll-mid','scroll-end');
+    if (x <= 2) tabBarWrap.classList.add('scroll-start');
+    else if (x >= max - 2) tabBarWrap.classList.add('scroll-end');
+    else tabBarWrap.classList.add('scroll-mid');
+  }
+  tabBar.addEventListener('scroll', updateTabBarFade, { passive: true });
+  window.addEventListener('resize', updateTabBarFade);
+  updateTabBarFade();
+  function initDashboardData(){
+    tabLoaders.contacts = true;
+    loadContacts();
+    tabLoaders.overview = true;
+    loadOverview();
+  }
+
+  // =========================================================================
+  // BIỂU ĐỒ ĐƯỜNG — vẽ tay bằng SVG, không phụ thuộc thư viện ngoài.
+  // Theo hệ màu 1-hue tuần tự của hệ thống (xanh dương / hổ phách), có
+  // đường lưới mảnh, điểm cuối có nhãn giá trị, và hover hiện tooltip.
+  // =========================================================================
+  function niceMax(v){
+    if (v <= 0) return 4;
+    const mag = Math.pow(10, Math.floor(Math.log10(v)));
+    const norm = v / mag;
+    let step;
+    if (norm <= 1) step = 1; else if (norm <= 2) step = 2; else if (norm <= 5) step = 5; else step = 10;
+    return step * mag;
+  }
+  function fmtShortDate(d){
+    return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0');
+  }
+  function renderLineChart(containerEl, points, color){
+    // points: [{date: Date, value: number}], đã đủ 1 điểm/ngày liên tục
+    containerEl.innerHTML = '';
+    if (!points.length || points.every(p => p.value === 0)){
+      containerEl.innerHTML = '<div class="chart-empty">Chưa có dữ liệu trong khoảng thời gian này.</div>';
+      return;
+    }
+    const W = 600, H = 190, padL = 34, padR = 10, padT = 14, padB = 22;
+    const innerW = W - padL - padR, innerH = H - padT - padB;
+    const maxVal = niceMax(Math.max(...points.map(p => p.value)));
+    const n = points.length;
+    const xAt = (i) => padL + (n === 1 ? innerW / 2 : (innerW * i) / (n - 1));
+    const yAt = (v) => padT + innerH - (innerH * v) / maxVal;
+
+    const gridSteps = 4;
+    let gridSvg = '';
+    let yLabelsSvg = '';
+    for (let s = 0; s <= gridSteps; s++){
+      const v = Math.round((maxVal * s) / gridSteps);
+      const y = yAt(v);
+      gridSvg += `<line class="chart-gridline" x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}"></line>`;
+      yLabelsSvg += `<text x="${padL - 6}" y="${y + 3}" font-size="9" text-anchor="end" fill="var(--muted)">${v}</text>`;
+    }
+
+    const linePts = points.map((p, i) => `${xAt(i)},${yAt(p.value)}`).join(' ');
+    const areaPts = `${padL},${padT + innerH} ${linePts} ${xAt(n - 1)},${padT + innerH}`;
+
+    // Trục ngày: hiện ~5 mốc để tránh chồng chữ
+    const xLabelIdx = [];
+    const labelCount = Math.min(5, n);
+    for (let k = 0; k < labelCount; k++){
+      xLabelIdx.push(Math.round((k * (n - 1)) / Math.max(1, labelCount - 1)));
+    }
+    let xLabelsSvg = '';
+    xLabelIdx.forEach(i => {
+      xLabelsSvg += `<text x="${xAt(i)}" y="${H - 4}" font-size="9" text-anchor="middle" fill="var(--muted)">${fmtShortDate(points[i].date)}</text>`;
+    });
+
+    const last = points[n - 1];
+    const endLabel = `<text x="${xAt(n-1)}" y="${yAt(last.value) - 10}" font-size="10" font-weight="700" text-anchor="end" fill="var(--navy)">${last.value}</text>`;
+
+    containerEl.innerHTML = `
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Biểu đồ đường">
+        ${gridSvg}
+        ${yLabelsSvg}
+        <polygon points="${areaPts}" fill="${color}" opacity="0.1"></polygon>
+        <polyline points="${linePts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></polyline>
+        <circle cx="${xAt(n-1)}" cy="${yAt(last.value)}" r="4" fill="${color}" stroke="#fff" stroke-width="2"></circle>
+        ${endLabel}
+        ${xLabelsSvg}
+        <line class="chart-crosshair" x1="0" y1="${padT}" x2="0" y2="${padT+innerH}" stroke="var(--muted)" stroke-width="1" opacity="0"></line>
+      </svg>
+      <div class="chart-tooltip" data-role="tooltip"></div>
+    `;
+
+    const svg = containerEl.querySelector('svg');
+    const crosshair = containerEl.querySelector('.chart-crosshair');
+    const tooltip = containerEl.querySelector('[data-role="tooltip"]');
+    function showAt(i){
+      const p = points[i];
+      const px = xAt(i);
+      crosshair.setAttribute('x1', px); crosshair.setAttribute('x2', px); crosshair.setAttribute('opacity', '1');
+      const rect = svg.getBoundingClientRect();
+      const leftPct = (px / W) * rect.width;
+      tooltip.style.left = leftPct + 'px';
+      tooltip.style.top = ((yAt(p.value) / H) * rect.height) + 'px';
+      tooltip.innerHTML = '<b>' + p.value + '</b> · ' + fmtShortDate(p.date);
+      tooltip.classList.add('show');
+    }
+    function hide(){ crosshair.setAttribute('opacity', '0'); tooltip.classList.remove('show'); }
+    function handleMove(clientX){
+      const rect = svg.getBoundingClientRect();
+      const relX = ((clientX - rect.left) / rect.width) * W;
+      let nearest = 0, best = Infinity;
+      for (let i = 0; i < n; i++){ const d = Math.abs(xAt(i) - relX); if (d < best){ best = d; nearest = i; } }
+      showAt(nearest);
+    }
+    svg.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse' || e.pointerType === '') handleMove(e.clientX); });
+    svg.addEventListener('pointerleave', hide);
+    svg.addEventListener('pointerdown', (e) => handleMove(e.clientX));
+  }
+
+  function lastNDays(n){
+    const days = [];
+    const now = new Date();
+    for (let i = n - 1; i >= 0; i--){
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      days.push(d);
+    }
+    return days;
+  }
+  function dayKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+  function bucketByDay(rows, days){
+    const counts = {};
+    days.forEach(d => { counts[dayKey(d)] = 0; });
+    rows.forEach(r => {
+      const t = r.created_at ? new Date(r.created_at) : null;
+      if (!t || isNaN(t.getTime())) return;
+      const k = dayKey(t);
+      if (k in counts) counts[k]++;
+    });
+    return days.map(d => ({ date: d, value: counts[dayKey(d)] }));
+  }
+
+  function renderTopList(containerEl, rows, opts){
+    // rows: [{label, value, sub, color}] — color (tuỳ chọn) tô riêng thanh của dòng đó,
+    // không có thì dùng màu mặc định var(--blue) từ CSS .toplist-bar.
+    if (!rows.length){ containerEl.innerHTML = '<div class="chart-empty">Chưa có dữ liệu.</div>'; return; }
+    const max = Math.max(...rows.map(r => r.value), 1);
+    containerEl.innerHTML = rows.map(r => `
+      <div class="toplist-row">
+        <div class="toplist-top">
+          <span class="toplist-label" title="${escapeHtml(r.label)}">${r.color ? `<span class="stat-legend-swatch" style="background:${r.color};display:inline-block;margin-right:6px;vertical-align:middle;"></span>` : ''}${escapeHtml(r.label)}</span>
+          <span class="toplist-value">${escapeHtml(String(r.value))}${r.sub ? ` <span class="toplist-sub">${escapeHtml(r.sub)}</span>` : ''}</span>
+        </div>
+        <div class="toplist-bar-wrap"><div class="toplist-bar" style="width:${Math.round((r.value / max) * 100)}%;${r.color ? `background:${r.color};` : ''}"></div></div>
+      </div>
+    `).join('');
+  }
+
+  // =========================================================================
+  // TAB TỔNG QUAN — KPI, 2 biểu đồ đường, 3 bảng xếp hạng
+  // =========================================================================
+  async function loadOverview(){
+    const days30 = lastNDays(30);
+    const since30 = days30[0].toISOString();
+    const since7 = new Date(Date.now() - 7*24*3600*1000).toISOString();
+
+    // ---- KPI: khách hàng, tỷ lệ chốt ----
+    try {
+      const { count: totalContacts } = await sb.from(CONTACTS_TABLE).select('id', { count: 'exact', head: true });
+      document.getElementById('kpi-contacts').textContent = totalContacts != null ? totalContacts : '–';
+      const { data: stageRows } = await sb.from(CONTACTS_TABLE).select('stage');
+      if (stageRows){
+        const won = stageRows.filter(r => r.stage === 'thanh_cong').length;
+        const lost = stageRows.filter(r => r.stage === 'khong_thanh').length;
+        const decided = won + lost;
+        document.getElementById('kpi-winrate').textContent = decided ? Math.round((won / decided) * 100) + '%' : '—';
+      }
+    } catch(err){ /* để nguyên "–" nếu lỗi */ }
+
+    // ---- KPI: tin chờ duyệt ----
+    try {
+      const { count } = await sb.from(LISTINGS_TABLE).select('id', { count: 'exact', head: true }).eq('status', 'pending');
+      document.getElementById('kpi-pending-listings').textContent = count != null ? count : '–';
+    } catch(err){}
+
+    // ---- KPI + biểu đồ: lead mới, lượt xem, bấm gọi ----
+    try {
+      const { count: newLeadsCount } = await sb.from(WEB_LEADS_TABLE).select('id', { count: 'exact', head: true }).eq('status', 'new');
+      document.getElementById('kpi-leads-new').textContent = newLeadsCount != null ? newLeadsCount : '–';
+      updateLeadsBadge(newLeadsCount || 0);
+    } catch(err){}
+
+    try {
+      const { data: leadRows } = await sb.from(WEB_LEADS_TABLE).select('created_at').gte('created_at', since30);
+      renderLineChart(document.getElementById('chart-leads'), bucketByDay(leadRows || [], days30), 'var(--gold)');
+    } catch(err){
+      document.getElementById('chart-leads').innerHTML = '<div class="chart-empty">Không tải được dữ liệu.</div>';
+    }
+
+    try {
+      const { data: evRows } = await sb.from(SITE_EVENTS_TABLE)
+        .select('type,created_at,listing_id,listing_title')
+        .in('type', ['pageview','view_listing'])
+        .gte('created_at', since30)
+        .limit(20000);
+      const rows = evRows || [];
+      renderLineChart(document.getElementById('chart-views'), bucketByDay(rows, days30), 'var(--blue)');
+      const views7d = rows.filter(r => r.created_at >= since7).length;
+      document.getElementById('kpi-views-7d').textContent = views7d;
+
+      // ---- Top tin được xem nhiều nhất ----
+      const byListing = {};
+      rows.forEach(r => {
+        if (r.type !== 'view_listing' || !r.listing_id) return;
+        if (!byListing[r.listing_id]) byListing[r.listing_id] = { label: r.listing_title || r.listing_id, value: 0 };
+        byListing[r.listing_id].value++;
+      });
+      const topListings = Object.values(byListing).sort((a,b) => b.value - a.value).slice(0, 6);
+      renderTopList(document.getElementById('top-listings'), topListings.map(x => ({ label: x.label, value: x.value })));
+    } catch(err){
+      document.getElementById('chart-views').innerHTML = '<div class="chart-empty">Không tải được dữ liệu.</div>';
+      document.getElementById('top-listings').innerHTML = '<div class="chart-empty">Không tải được dữ liệu.</div>';
+    }
+
+    try {
+      const { count: calls7d } = await sb.from(SITE_EVENTS_TABLE).select('id', { count: 'exact', head: true }).eq('type', 'call_click').gte('created_at', since7);
+      document.getElementById('kpi-calls-7d').textContent = calls7d != null ? calls7d : '–';
+    } catch(err){}
+
+    // ---- Top khu vực & top người đăng tin (khai thác từ chính các tin đăng) ----
+    try {
+      const { data: listingRows } = await sb.from(LISTINGS_TABLE).select('data,created_at').limit(5000);
+      const rows = listingRows || [];
+      const byLocation = {};
+      const byPhone = {};
+      rows.forEach(r => {
+        const d = r.data || {};
+        const loc = (d.location || '').toString().trim();
+        if (loc){
+          const key = loc.toLowerCase();
+          if (!byLocation[key]) byLocation[key] = { label: loc, value: 0 };
+          byLocation[key].value++;
+        }
+        const phone = (d.phone || '').toString().trim();
+        if (phone){
+          if (!byPhone[phone]) byPhone[phone] = { label: phone, value: 0, last: r.created_at };
+          byPhone[phone].value++;
+          if (r.created_at > byPhone[phone].last) byPhone[phone].last = r.created_at;
+        }
+      });
+      const topLocations = Object.values(byLocation).sort((a,b) => b.value - a.value).slice(0, 6);
+      renderTopList(document.getElementById('top-locations'), topLocations);
+      const topPosters = Object.values(byPhone).sort((a,b) => b.value - a.value).slice(0, 6)
+        .map(x => ({ label: x.label, value: x.value, sub: x.last ? friendlyTime(x.last) : '' }));
+      renderTopList(document.getElementById('top-posters'), topPosters);
+    } catch(err){
+      document.getElementById('top-locations').innerHTML = '<div class="chart-empty">Không tải được dữ liệu.</div>';
+      document.getElementById('top-posters').innerHTML = '<div class="chart-empty">Không tải được dữ liệu.</div>';
+    }
+  }
+
+  // =========================================================================
+  // TAB "TÀI SẢN / DỰ ÁN" — đọc trực tiếp từ lht_listings (bảng đã có sẵn,
+  // không tạo bảng mới), gộp cả 7 ngành nghề vào một danh sách duyệt được,
+  // lọc theo ngành nghề / vùng miền / trạng thái, tìm theo từ khoá.
+  // =========================================================================
+  let allAssets = [];
+  let assetsLoaded = false;
+
+  function normalizeAsset(row){
+    const d = row.data || {};
+    const meta = ASSET_COLLECTIONS[row.collection] || { label: row.collection || 'Khác', color: '#5f6784', sectionId: '' };
+    const loc = classifyLocation(d.location || '');
+    // Chỉ tiêu số liệu chính — khác nhau tuỳ ngành (BĐS có diện tích/đơn giá,
+    // Media có từ khoá/đường dẫn...), hiển thị cái nào có sẵn trong dữ liệu.
+    const metrics = [];
+    if (d.totalArea) metrics.push(Number(d.totalArea).toLocaleString('vi-VN') + ' m²');
+    if (d.pricePerM2) metrics.push(Number(d.pricePerM2).toLocaleString('vi-VN') + ' đ/m²/tháng');
+    if (d.propertyType) metrics.push(d.propertyType);
+    if (d.contentType) metrics.push(d.contentType);
+    if (d.tags) metrics.push('#' + String(d.tags).split(',').map(s => s.trim()).filter(Boolean).slice(0,3).join(' #'));
+    // Thông tin NGUỒN (nội bộ) — đến từ bảng riêng lht_listing_sources (embed qua FK), không
+    // nằm trong `data`. Chỉ hiển thị ở CRM để bạn quản lý, không xuất hiện trên website/Facebook.
+    const srcRaw = Array.isArray(row.lht_listing_sources) ? row.lht_listing_sources[0] : row.lht_listing_sources;
+    const src = srcRaw || {};
+    // Loại giao dịch — 1 tin có thể chọn nhiều loại cùng lúc (data.txnTypes, mảng); tin cũ
+    // hơn chỉ có 1 loại lưu ở data.txnType. Dùng cho biểu đồ "Theo loại giao dịch" và để biết
+    // đơn giá (pricePerM2/pricePerUnit) là giá THUÊ (theo tháng) hay giá BÁN (một lần).
+    const txnTypes = Array.isArray(d.txnTypes) && d.txnTypes.length ? d.txnTypes : (d.txnType ? [d.txnType] : []);
+    return {
+      id: row.id,
+      collection: row.collection,
+      industryLabel: meta.label,
+      industryColor: meta.color,
+      sectionId: meta.sectionId,
+      status: row.status || 'pending',
+      title: d.title || '(Chưa có tiêu đề)',
+      location: d.location || '',
+      province: loc.province,
+      region: loc.region,
+      phone: d.phone || '',
+      metrics: metrics,
+      createdAt: row.created_at,
+      assetCode: row.asset_code || '',
+      description: d.description || '',
+      sourceName: src.source_name || '',
+      sourcePhone: src.source_phone || '',
+      sourceChannel: src.source_channel || '',
+      txnTypes: txnTypes,
+      totalArea: Number(d.totalArea) || 0,
+      pricePerM2: Number(d.pricePerM2) || 0,
+      totalQty: Number(d.totalQty) || 0,
+      pricePerUnit: Number(d.pricePerUnit) || 0
+    };
+  }
+
+  async function loadAssets(){
+    const listEl = document.getElementById('assets-list');
+    listEl.innerHTML = '<div class="load-state">Đang tải…</div>';
+    try {
+      const { data, error } = await sb.from(LISTINGS_TABLE)
+        .select('id,collection,data,status,created_at,asset_code,lht_listing_sources(source_name,source_phone,source_channel)')
+        .order('created_at', { ascending: false })
+        .limit(3000);
+      if (error) throw error;
+      allAssets = (data || []).map(normalizeAsset);
+      assetsLoaded = true;
+      populateAssetFilters();
+      renderAssetKpis();
+      renderAssets();
+      renderAssetStats();
+    } catch(err){
+      listEl.innerHTML = '<div class="empty-state"><span class="emoji">⚠️</span>Không tải được danh sách tài sản / dự án.</div>';
+    }
+  }
+
+  function populateAssetFilters(){
+    const industrySel = document.getElementById('asset-filter-industry');
+    if (industrySel.options.length <= 1){
+      Object.keys(ASSET_COLLECTIONS).forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key; opt.textContent = ASSET_COLLECTIONS[key].label;
+        industrySel.appendChild(opt);
+      });
+    }
+    const regionSel = document.getElementById('asset-filter-region');
+    if (regionSel.options.length <= 1){
+      Object.keys(REGION_LABELS).forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key; opt.textContent = REGION_LABELS[key];
+        regionSel.appendChild(opt);
+      });
+      const optOther = document.createElement('option');
+      optOther.value = 'khac'; optOther.textContent = 'Khác / chưa xác định';
+      regionSel.appendChild(optOther);
+    }
+  }
+
+  function renderAssetKpis(){
+    const total = allAssets.length;
+    const approved = allAssets.filter(a => a.status === 'approved').length;
+    const pending = allAssets.filter(a => a.status === 'pending').length;
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const thisMonth = allAssets.filter(a => a.createdAt && new Date(a.createdAt) >= monthStart).length;
+    document.getElementById('kpi-assets-total').textContent = total;
+    document.getElementById('kpi-assets-approved').textContent = approved;
+    document.getElementById('kpi-assets-pending').textContent = pending;
+    document.getElementById('kpi-assets-month').textContent = thisMonth;
+  }
+
+  // =========================================================================
+  // THỐNG KÊ TỔNG QUAN (tab Tài sản/Dự án) — giá trị ước tính, phân bổ theo
+  // ngành nghề / khu vực / loại giao dịch. Chỉ tính trên tin ĐÃ DUYỆT.
+  // Bảng màu 7 ngành nghề dưới đây là bảng màu ĐÃ KIỂM TRA phân biệt được cả với
+  // người mù màu (không dùng lại màu badge cũ ở ASSET_COLLECTIONS vì 2 màu trong
+  // đó trùng nhau — "Dự án & đầu tư" và "BĐS dân dụng" cùng là #7a3fa0).
+  // =========================================================================
+  const STAT_INDUSTRY_COLORS = {
+    bds_listings:         '#2a78d6', // xanh dương
+    xn_listings:           '#eb6834', // cam
+    logistics_listings:   '#1baf7a', // xanh ngọc
+    pl_listings:            '#eda100', // vàng
+    bds_dandung_listings: '#e87ba4', // hồng
+    da_listings:            '#008300', // xanh lá
+    media_posts:            '#4a3aa7'  // tím
+  };
+  const TXN_RENT_TYPES = new Set(['cho_thue', 'can_thue']);
+  const TXN_SALE_TYPES = new Set(['ban', 'can_mua']);
+  const TXN_KYGUI_TYPES = new Set(['ky_gui']);
+  const VALUE_ELIGIBLE_COLLECTIONS = new Set(['bds_listings', 'bds_dandung_listings', 'xn_listings']);
+  // 4 loại giao dịch có "giá" thực sự để so Thấp nhất/Trung bình/Cao nhất — chỉ 3 ngành
+  // BĐS công nghiệp, BĐS dân dụng, Xe nâng & thiết bị dùng đúng 4 mã này (bds/bds2/xn),
+  // các ngành khác (logistics/dự án/pháp lý) dùng mã loại giao dịch riêng nên tự động
+  // không lọt vào đây — không cần lọc collection thủ công.
+  const PRICE_RANGE_TYPES = ['ban', 'cho_thue', 'ky_gui', 'can_mua'];
+  const PRICE_RANGE_LABELS = { ban: 'Giá Bán', cho_thue: 'Giá Cho Thuê', ky_gui: 'Ký Gửi', can_mua: 'Giá Mua' };
+
+  function formatVND(n){
+    n = Number(n) || 0;
+    if (n >= 1e9) return (n / 1e9).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + ' tỷ đ';
+    if (n >= 1e6) return (n / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + ' triệu đ';
+    if (n >= 1e3) return (n / 1e3).toLocaleString('vi-VN', { maximumFractionDigits: 0 }) + ' nghìn đ';
+    return n.toLocaleString('vi-VN') + ' đ';
+  }
+
+  function assetUnitValue(a){
+    // Giá trị 1 lần cho toàn bộ tin — chỉ tính được khi có đủ diện tích/số lượng VÀ đơn giá.
+    if (a.totalArea && a.pricePerM2) return a.totalArea * a.pricePerM2;
+    if (a.totalQty && a.pricePerUnit) return a.totalQty * a.pricePerUnit;
+    return 0;
+  }
+
+  function unitPriceOf(a){
+    // Đơn giá THỰC đã nhập khi đăng tin (đ/m² với BĐS, đ/đơn vị với ngành khác) — dùng cho
+    // khoảng giá Thấp nhất/Trung bình/Cao nhất, KHÁC với assetUnitValue() (giá trị TOÀN BỘ tin).
+    return a.pricePerM2 || a.pricePerUnit || 0;
+  }
+
+  function computePriceRangeStats(approvedAssets){
+    const values = {};
+    PRICE_RANGE_TYPES.forEach(t => { values[t] = []; });
+    approvedAssets.forEach(a => {
+      const up = unitPriceOf(a);
+      if (!up) return; // không có đơn giá thực — bỏ qua, không tính là 0
+      (a.txnTypes || []).forEach(t => { if (values[t]) values[t].push(up); });
+    });
+    const stats = {};
+    PRICE_RANGE_TYPES.forEach(t => {
+      const arr = values[t];
+      if (!arr.length){ stats[t] = null; return; }
+      const sum = arr.reduce((s, v) => s + v, 0);
+      stats[t] = { min: Math.min(...arr), max: Math.max(...arr), avg: sum / arr.length, count: arr.length };
+    });
+    return stats;
+  }
+
+  function computeAssetStats(assets){
+    const approved = assets.filter(a => a.status === 'approved');
+    let saleValue = 0, rentValue = 0;
+    const byIndustry = {};
+    const byRegionIndustry = {};
+    const byTxn = { cho_thue: 0, ban: 0, ky_gui: 0, dich_vu: 0 };
+
+    approved.forEach(a => {
+      byIndustry[a.collection] = (byIndustry[a.collection] || 0) + 1;
+      const region = a.region || 'khac';
+      if (!byRegionIndustry[region]) byRegionIndustry[region] = {};
+      byRegionIndustry[region][a.collection] = (byRegionIndustry[region][a.collection] || 0) + 1;
+
+      const canValue = VALUE_ELIGIBLE_COLLECTIONS.has(a.collection);
+      const unitVal = canValue ? assetUnitValue(a) : 0;
+      const types = a.txnTypes.length ? a.txnTypes : [];
+      let matched = false;
+      types.forEach(t => {
+        if (TXN_RENT_TYPES.has(t)){ byTxn.cho_thue++; matched = true; if (unitVal) rentValue += unitVal; }
+        else if (TXN_SALE_TYPES.has(t)){ byTxn.ban++; matched = true; if (unitVal) saleValue += unitVal; }
+        else if (TXN_KYGUI_TYPES.has(t)){ byTxn.ky_gui++; matched = true; if (unitVal) saleValue += unitVal; }
+        else { byTxn.dich_vu++; matched = true; }
+      });
+      if (!matched) byTxn.dich_vu++; // thiếu dữ liệu loại giao dịch — vẫn đếm, không bỏ sót tin
+    });
+
+    const priceRanges = computePriceRangeStats(approved);
+
+    return { approvedCount: approved.length, saleValue, rentValue, byIndustry, byRegionIndustry, byTxn, priceRanges };
+  }
+
+  function renderAssetStats(){
+    const stats = computeAssetStats(allAssets);
+
+    document.getElementById('kpi-value-sale').textContent = formatVND(stats.saleValue);
+    document.getElementById('kpi-value-rent').textContent = formatVND(stats.rentValue);
+
+    // ---- Theo ngành nghề ----
+    const industryRows = Object.keys(stats.byIndustry)
+      .map(key => ({
+        label: (ASSET_COLLECTIONS[key] && ASSET_COLLECTIONS[key].label) || key,
+        value: stats.byIndustry[key],
+        color: STAT_INDUSTRY_COLORS[key] || '#8a8f99'
+      }))
+      .sort((x, y) => y.value - x.value);
+    renderTopList(document.getElementById('stat-by-industry'), industryRows);
+
+    // ---- Theo loại giao dịch ----
+    const TXN_BUCKET_LABELS = { cho_thue: 'Cho thuê / cần thuê', ban: 'Bán / cần mua', ky_gui: 'Ký gửi', dich_vu: 'Dịch vụ / hợp tác / đầu tư' };
+    const txnRows = Object.keys(TXN_BUCKET_LABELS)
+      .map(key => ({ label: TXN_BUCKET_LABELS[key], value: stats.byTxn[key] || 0 }))
+      .filter(r => r.value > 0)
+      .sort((x, y) => y.value - x.value);
+    renderTopList(document.getElementById('stat-by-txn'), txnRows);
+
+    // ---- Theo khu vực & ngành nghề (thanh xếp chồng, 1 thanh / vùng miền) ----
+    const REGION_ORDER = ['mien_bac', 'mien_trung', 'dong_nam_bo', 'tay_nguyen', 'dbscl', 'khac'];
+    const regionLabelOf = (key) => key === 'khac' ? 'Khác / chưa xác định' : (REGION_LABELS[key] || key);
+    const regionEl = document.getElementById('stat-by-region');
+    const regionsWithData = REGION_ORDER.filter(r => stats.byRegionIndustry[r]);
+    if (!regionsWithData.length){
+      regionEl.innerHTML = '<div class="chart-empty">Chưa có dữ liệu.</div>';
+    } else {
+      const industriesUsed = {}; // để vẽ chú thích — chỉ liệt kê ngành nào thực sự có dữ liệu
+      const rowsHtml = regionsWithData.map(region => {
+        const byInd = stats.byRegionIndustry[region];
+        const total = Object.values(byInd).reduce((s, v) => s + v, 0);
+        const segsHtml = Object.keys(byInd)
+          .sort((x, y) => byInd[y] - byInd[x])
+          .map(key => {
+            industriesUsed[key] = true;
+            const pct = (byInd[key] / total) * 100;
+            const label = (ASSET_COLLECTIONS[key] && ASSET_COLLECTIONS[key].label) || key;
+            const color = STAT_INDUSTRY_COLORS[key] || '#8a8f99';
+            return `<div class="region-stack-seg" style="width:${pct}%;background:${color};" title="${escapeHtml(label)}: ${byInd[key]}"></div>`;
+          }).join('');
+        return `
+        <div class="region-stack-row">
+          <div class="region-stack-top">
+            <span class="region-stack-label">${escapeHtml(regionLabelOf(region))}</span>
+            <span class="region-stack-total">${total} tin</span>
+          </div>
+          <div class="region-stack-track">${segsHtml}</div>
+        </div>`;
+      }).join('');
+      const legendHtml = Object.keys(industriesUsed).sort().map(key => {
+        const label = (ASSET_COLLECTIONS[key] && ASSET_COLLECTIONS[key].label) || key;
+        const color = STAT_INDUSTRY_COLORS[key] || '#8a8f99';
+        return `<span class="stat-legend-item"><span class="stat-legend-swatch" style="background:${color};"></span>${escapeHtml(label)}</span>`;
+      }).join('');
+      regionEl.innerHTML = rowsHtml + `<div class="stat-legend">${legendHtml}</div>`;
+    }
+
+    // ---- Khoảng giá theo loại giao dịch (Thấp nhất / Trung bình / Cao nhất, từ số thực) ----
+    const priceEl = document.getElementById('stat-by-price');
+    const priceRowsHtml = PRICE_RANGE_TYPES.map(t => {
+      const r = stats.priceRanges[t];
+      const label = PRICE_RANGE_LABELS[t];
+      if (!r){
+        return `
+        <div class="price-range-row">
+          <div class="price-range-label">${escapeHtml(label)}</div>
+          <div class="price-range-figures"><span class="chart-empty" style="padding:0;">Chưa có dữ liệu</span></div>
+        </div>`;
+      }
+      return `
+      <div class="price-range-row">
+        <div class="price-range-label">${escapeHtml(label)} <span class="price-range-count">(${r.count} tin có giá)</span></div>
+        <div class="price-range-figures">
+          <div class="price-range-item"><span class="k">Thấp nhất</span><span class="v">${formatVND(r.min)}</span></div>
+          <div class="price-range-item mid"><span class="k">Trung bình</span><span class="v">${formatVND(r.avg)}</span></div>
+          <div class="price-range-item"><span class="k">Cao nhất</span><span class="v">${formatVND(r.max)}</span></div>
+        </div>
+      </div>`;
+    }).join('');
+    priceEl.innerHTML = priceRowsHtml;
+  }
+
+  // Link để COPY gửi khách: ưu tiên /tin/<id> nếu đã có trang tĩnh (window.LHT_TIN_IDS, nạp từ
+  // /tin/manifest.js) — dán vào Zalo/Facebook sẽ hiện ảnh/tiêu đề/mô tả riêng của đúng tin đó.
+  // Nếu tin chưa có trang tĩnh, dùng link /?id=... (vẫn mở đúng tin khi bấm, chỉ là chưa có
+  // preview riêng cho tới lần build /tin/ kế tiếp).
+  function shareUrlFor(a){
+    if (!a.id) return '';
+    const hasStaticPage = window.LHT_TIN_IDS && window.LHT_TIN_IDS[a.id];
+    if (hasStaticPage) return 'https://lehoaithanh.org/tin/' + encodeURIComponent(a.id);
+    return a.sectionId ? ('https://lehoaithanh.org/?id=' + encodeURIComponent(a.id) + '#' + a.sectionId) : '';
+  }
+  function renderAssetCard(a){
+    const url = a.sectionId ? ('https://lehoaithanh.org/?id=' + encodeURIComponent(a.id) + '#' + a.sectionId) : '';
+    const shareUrl = shareUrlFor(a);
+    const sourceHtml = (a.sourceName || a.sourcePhone || a.sourceChannel)
+      ? `<div class="asset-source">
+           <span class="asset-source-label">🔒 Nguồn</span>
+           ${a.sourceName ? `<span>👤 ${escapeHtml(a.sourceName)}</span>` : ''}
+           ${a.sourcePhone ? `<span>📞 ${escapeHtml(a.sourcePhone)}</span>` : ''}
+           ${a.sourceChannel ? `<span>📡 ${escapeHtml(a.sourceChannel)}</span>` : ''}
+         </div>`
+      : '';
+    return `
+    <div class="asset-card">
+      <div class="card-top">
+        <div class="asset-badges">
+          <span class="asset-pill" style="background:${a.industryColor};">${escapeHtml(a.industryLabel)}</span>
+          ${a.region !== 'khac' ? `<span class="asset-pill region">${escapeHtml(REGION_LABELS[a.region] || a.region)}</span>` : ''}
+          <span class="asset-status ${a.status}">${escapeHtml(ASSET_STATUS_LABELS[a.status] || a.status)}</span>
+        </div>
+      </div>
+      <h3>${escapeHtml(a.title)}</h3>
+      ${a.assetCode ? `<div class="asset-code-line">Mã tài sản: <b>${escapeHtml(a.assetCode)}</b> <button type="button" class="copy-chip" data-copy="${escapeHtml(a.assetCode)}" title="Copy mã tài sản">📋 Copy mã</button></div>` : ''}
+      ${a.location ? `<div class="asset-loc">📍 ${escapeHtml(a.location)}${a.province ? ' · ' + escapeHtml(a.province) : ''}</div>` : ''}
+      ${a.metrics.length ? `<div class="asset-metrics">${a.metrics.map(m => `<span>${escapeHtml(m)}</span>`).join('')}</div>` : ''}
+      ${sourceHtml}
+      <div class="asset-foot">
+        <span class="asset-time">${escapeHtml(friendlyTime(a.createdAt))}${a.phone ? ' · 📞 ' + escapeHtml(a.phone) : ''}</span>
+        <div class="asset-links">
+          ${a.phone ? `<a href="tel:${escapeHtml(a.phone.replace(/\s/g,''))}">Gọi</a>` : ''}
+          ${url ? `<a href="${url}" target="_blank" rel="noopener">Xem trên web →</a>` : ''}
+          ${shareUrl ? `<button type="button" data-copy="${escapeHtml(shareUrl)}" title="Copy link để gửi cho khách — ưu tiên link có ảnh/tiêu đề riêng nếu đã có">🔗 Copy link</button>` : ''}
+          <a href="admin.html">Duyệt tin →</a>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderAssets(){
+    const listEl = document.getElementById('assets-list');
+    const q = (document.getElementById('asset-search').value || '').trim().toLowerCase();
+    const industryFilter = document.getElementById('asset-filter-industry').value;
+    const regionFilter = document.getElementById('asset-filter-region').value;
+    const statusFilter = document.getElementById('asset-filter-status').value;
+
+    const filtered = allAssets.filter(a => {
+      if (industryFilter !== 'all' && a.collection !== industryFilter) return false;
+      if (regionFilter !== 'all' && a.region !== regionFilter) return false;
+      if (statusFilter !== 'all' && a.status !== statusFilter) return false;
+      if (q){
+        const hay = [a.title, a.location, a.phone, a.assetCode].join(' ').toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+
+    if (!filtered.length){
+      listEl.innerHTML = '<div class="empty-state"><span class="emoji">📭</span>Không có tài sản / dự án nào khớp với bộ lọc.</div>';
+      return;
+    }
+    listEl.innerHTML = filtered.map(renderAssetCard).join('');
+  }
+
+  // =========================================================================
+  // TAB "TÀI CHÍNH" — bảng mới crm_deals: doanh thu / chi phí / lãi-lỗ theo
+  // từng dự án hoặc giao dịch, liên kết TUỲ CHỌN tới 1 tin đăng (lht_listings)
+  // và/hoặc 1 khách hàng (crm_contacts) đã có sẵn.
+  // =========================================================================
+  let allDeals = [];
+
+  function money(n){
+    return Number(n || 0).toLocaleString('vi-VN') + ' đ';
+  }
+  function fmtDateOnly(dateStr){
+    // deal_date là cột "date" thuần (không có giờ) — tự ghép dd/mm/yyyy từ chuỗi
+    // "YYYY-MM-DD" thay vì new Date(...) để tránh lệch múi giờ hiển thị giờ vô nghĩa.
+    if (!dateStr) return '';
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(dateStr));
+    return m ? `${m[3]}/${m[2]}/${m[1]}` : String(dateStr);
+  }
+  function last12Months(){
+    const months = [];
+    const now = new Date();
+    for (let i = 11; i >= 0; i--){
+      months.push(new Date(now.getFullYear(), now.getMonth() - i, 1));
+    }
+    return months;
+  }
+  function monthKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+  function bucketByMonth(rows, months, field){
+    const sums = {};
+    months.forEach(m => { sums[monthKey(m)] = 0; });
+    rows.forEach(r => {
+      const t = r.deal_date ? new Date(r.deal_date) : null;
+      if (!t || isNaN(t.getTime())) return;
+      const k = monthKey(t);
+      if (k in sums) sums[k] += Number(r[field] || 0);
+    });
+    return months.map(m => ({ date: m, value: Math.round(sums[monthKey(m)]) }));
+  }
+
+  async function loadDeals(){
+    const listEl = document.getElementById('deals-list');
+    listEl.innerHTML = '<div class="load-state">Đang tải…</div>';
+    try {
+      const { data, error } = await sb.from(DEALS_TABLE).select('*').order('deal_date', { ascending: false }).limit(2000);
+      if (error) throw error;
+      allDeals = data || [];
+      renderFinanceKpis();
+      renderFinanceCharts();
+      renderDeals();
+    } catch(err){
+      listEl.innerHTML = '<div class="empty-state"><span class="emoji">⚠️</span>Không tải được danh sách giao dịch. Kiểm tra bảng crm_deals đã được tạo trong Supabase chưa.</div>';
+    }
+  }
+
+  function renderFinanceKpis(){
+    const revenue = allDeals.reduce((s, d) => s + Number(d.revenue || 0), 0);
+    const cost = allDeals.reduce((s, d) => s + Number(d.cost || 0), 0);
+    const profit = revenue - cost;
+    document.getElementById('kpi-finance-revenue').textContent = money(revenue);
+    document.getElementById('kpi-finance-cost').textContent = money(cost);
+    const profitEl = document.getElementById('kpi-finance-profit');
+    profitEl.textContent = money(profit);
+    profitEl.style.color = profit < 0 ? 'var(--red)' : 'var(--green)';
+    document.getElementById('kpi-finance-count').textContent = allDeals.length;
+  }
+
+  function renderFinanceCharts(){
+    const months = last12Months();
+    renderLineChart(document.getElementById('chart-finance-revenue'), bucketByMonth(allDeals, months, 'revenue'), 'var(--blue)');
+    renderLineChart(document.getElementById('chart-finance-profit'), bucketByMonth(allDeals, months, 'profit'), 'var(--green)');
+
+    const byIndustry = {};
+    allDeals.forEach(d => {
+      const key = d.listing_collection || 'khac';
+      const label = (ASSET_COLLECTIONS[key] && ASSET_COLLECTIONS[key].label) || 'Khác / Chưa gắn ngành';
+      if (!byIndustry[key]) byIndustry[key] = { label: label, value: 0 };
+      byIndustry[key].value += Number(d.profit || 0);
+    });
+    const rows = Object.values(byIndustry).filter(r => r.value !== 0).sort((a,b) => b.value - a.value).slice(0, 8)
+      .map(r => ({ label: r.label, value: money(r.value) }));
+    renderTopList(document.getElementById('finance-by-industry'), rows);
+  }
+
+  function renderDealCard(d){
+    const profit = Number(d.profit != null ? d.profit : (Number(d.revenue||0) - Number(d.cost||0)));
+    return `
+    <div class="deal-card" data-id="${escapeHtml(d.id)}">
+      <h3>${escapeHtml(d.title)}</h3>
+      <div class="deal-tags">
+        ${d.listing_collection && ASSET_COLLECTIONS[d.listing_collection] ? `<span>${escapeHtml(ASSET_COLLECTIONS[d.listing_collection].label)}</span>` : ''}
+        ${d.listing_title ? `<span>🏷️ ${escapeHtml(d.listing_title)}</span>` : ''}
+        ${d.contact_name ? `<span>👤 ${escapeHtml(d.contact_name)}</span>` : ''}
+      </div>
+      <div class="deal-figures">
+        <div>Doanh thu<b>${money(d.revenue)}</b></div>
+        <div>Chi phí<b>${money(d.cost)}</b></div>
+        <div>Lãi / Lỗ<b class="${profit < 0 ? 'profit-neg' : 'profit-pos'}">${money(profit)}</b></div>
+      </div>
+      ${d.notes ? `<div class="deal-notes">${escapeHtml(d.notes)}</div>` : ''}
+      <div class="deal-foot">
+        <span class="deal-time">${escapeHtml(fmtDateOnly(d.deal_date))}</span>
+        <button type="button" class="del-btn" data-action="delete-deal">Xoá</button>
+      </div>
+    </div>`;
+  }
+
+  function renderDeals(){
+    const listEl = document.getElementById('deals-list');
+    if (!allDeals.length){
+      listEl.innerHTML = '<div class="empty-state"><span class="emoji">💰</span>Chưa có giao dịch nào được ghi nhận.</div>';
+      return;
+    }
+    listEl.innerHTML = allDeals.map(renderDealCard).join('');
+  }
+
+  // =========================================================================
+  // TAB LEAD MỚI — hàng chờ từ form "Yêu cầu tư vấn" trên web
+  // =========================================================================
+  function updateLeadsBadge(n){
+    if (n > 0){ leadsBadge.textContent = n > 99 ? '99+' : String(n); leadsBadge.hidden = false; }
+    else { leadsBadge.hidden = true; }
+  }
+
+  function renderLeadCard(lead){
+    return `
+    <div class="lead-card" data-id="${escapeHtml(lead.id)}" data-name="${escapeHtml(lead.name || '')}" data-phone="${escapeHtml(lead.phone || '')}" data-message="${escapeHtml(lead.message || '')}" data-listing-id="${escapeHtml(lead.listing_id || '')}" data-listing-title="${escapeHtml(lead.listing_title || '')}">
+      <div class="card-top">
+        <span class="stage-badge" style="background:var(--gold); color:var(--deep);">Lead mới</span>
+        <span class="card-time">${escapeHtml(friendlyTime(lead.created_at))}</span>
+      </div>
+      <h3>${escapeHtml(lead.name)}</h3>
+      <a class="phone-link" href="tel:${escapeHtml(String(lead.phone).replace(/\s/g,''))}">📞 ${escapeHtml(lead.phone)}</a>
+      ${lead.listing_id ? `<div><span class="listing-chip">🏷️ ${escapeHtml(lead.listing_title || lead.listing_id)}</span></div>` : ''}
+      ${lead.message ? `<div class="lead-msg">${escapeHtml(lead.message)}</div>` : ''}
+      <div class="card-err" data-role="lead-err"></div>
+      <div class="card-actions">
+        <button type="button" class="act-btn accept" data-action="accept">✓ Thêm vào CRM</button>
+        <button type="button" class="act-btn dismiss" data-action="dismiss">Bỏ qua</button>
+      </div>
+    </div>`;
+  }
+
+  async function loadWebLeads(){
+    leadsContainer.innerHTML = '<div class="load-state">Đang tải…</div>';
+    try {
+      const { data, error } = await sb.from(WEB_LEADS_TABLE).select('*').eq('status', 'new').order('created_at', { ascending: false });
+      if (error) throw error;
+      const rows = data || [];
+      updateLeadsBadge(rows.length);
+      if (!rows.length){
+        leadsContainer.innerHTML = '<div class="empty-state"><span class="emoji">📭</span>Chưa có lead mới nào từ website.</div>';
+        return;
+      }
+      leadsContainer.innerHTML = rows.map(renderLeadCard).join('');
+    } catch(err){
+      leadsContainer.innerHTML = '';
+      showGlobalError('Không tải được danh sách lead. Kiểm tra bảng web_leads đã được tạo trong Supabase chưa.');
+    }
+  }
+
+  leadsContainer.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const cardEl = btn.closest('.lead-card');
+    const id = cardEl.getAttribute('data-id');
+    const errEl = cardEl.querySelector('[data-role="lead-err"]');
+    cardEl.querySelectorAll('button').forEach(b => b.disabled = true);
+    try {
+      if (btn.dataset.action === 'accept'){
+        const ds = cardEl.dataset;
+        const { error: insErr } = await sb.from(CONTACTS_TABLE).insert({
+          id: newId('cust'),
+          name: ds.name || '',
+          phone: ds.phone || '',
+          source: 'web',
+          stage: 'moi',
+          notes: ds.message || null,
+          listing_id: ds.listingId || null,
+          listing_title: ds.listingTitle || null,
+          updated_at: new Date().toISOString()
+        });
+        if (insErr) throw insErr;
+        const { error: updErr } = await sb.from(WEB_LEADS_TABLE).update({ status: 'added' }).eq('id', id);
+        if (updErr) throw updErr;
+      } else if (btn.dataset.action === 'dismiss'){
+        const { error } = await sb.from(WEB_LEADS_TABLE).update({ status: 'dismissed' }).eq('id', id);
+        if (error) throw error;
+      }
+      cardEl.remove();
+      const { count } = await sb.from(WEB_LEADS_TABLE).select('id', { count: 'exact', head: true }).eq('status', 'new');
+      updateLeadsBadge(count || 0);
+      if (!leadsContainer.querySelector('.lead-card')){
+        leadsContainer.innerHTML = '<div class="empty-state"><span class="emoji">📭</span>Chưa có lead mới nào từ website.</div>';
+      }
+      if (tabLoaders.overview) loadOverview();
+      if (tabLoaders.contacts) loadContacts();
+    } catch(err){
+      cardEl.querySelectorAll('button').forEach(b => b.disabled = false);
+      if (errEl){ errEl.textContent = 'Có lỗi khi xử lý, vui lòng thử lại.'; errEl.classList.add('show'); }
+    }
+  });
+
+  leadsRefreshBtn.addEventListener('click', loadWebLeads);
+
+  // ---- Tab "Tài sản / Dự án": làm mới + các bộ lọc ----
+  document.getElementById('assets-refresh-btn').addEventListener('click', loadAssets);
+
+  // ---- Copy nhanh Mã tài sản / Link xem trên web ngay trên từng thẻ ----
+  // Dùng khi khách nhắn mã tài sản qua Zalo/tin nhắn: gõ mã đó vào ô tìm kiếm ở trên để
+  // lọc ra đúng thẻ, rồi bấm "🔗 Copy link" để lấy link gửi thẳng cho khách xem chi tiết.
+  // Dùng event delegation vì các thẻ được vẽ lại bằng innerHTML mỗi khi lọc/tìm kiếm.
+  async function copyTextToClipboard(text){
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch(e){
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        return true;
+      } catch(e2){
+        return false;
+      }
+    }
+  }
+  document.getElementById('assets-list').addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-copy]');
+    if (!btn) return;
+    const text = btn.getAttribute('data-copy') || '';
+    if (!text) return;
+    const original = btn.textContent;
+    const ok = await copyTextToClipboard(text);
+    btn.textContent = ok ? '✅ Đã copy!' : '⚠️ Không copy được';
+    btn.classList.toggle('is-copied', ok);
+    setTimeout(() => { btn.textContent = original; btn.classList.remove('is-copied'); }, 1800);
+  });
+
+  // ---- Ẩn/hiện khối "Thống kê tổng quan" ----
+  document.getElementById('asset-stats-toggle-btn').addEventListener('click', () => {
+    const body = document.getElementById('asset-stats-body');
+    const collapsed = body.classList.toggle('is-collapsed');
+    document.getElementById('asset-stats-toggle-btn').textContent = collapsed ? 'Hiện thống kê' : 'Ẩn thống kê';
+  });
+
+  // ---- Chia sẻ danh sách công khai (portfolio.html) ----
+  // Chỉ hiện/copy link — trang portfolio.html tự truy vấn dữ liệu công khai riêng của nó
+  // (không đọc lht_listing_sources), nên không có thông tin Nguồn/SĐT nguồn nào được gửi đi ở đây.
+  const SHARE_URL = 'https://lehoaithanh.org/portfolio.html';
+  document.getElementById('assets-share-btn').addEventListener('click', () => {
+    const panel = document.getElementById('assets-share-panel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  });
+  document.getElementById('assets-share-copy-btn').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    const original = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(SHARE_URL);
+      btn.textContent = '✅ Đã copy!';
+    } catch {
+      document.getElementById('assets-share-url').select();
+      document.execCommand('copy');
+      btn.textContent = '✅ Đã copy!';
+    }
+    setTimeout(() => { btn.textContent = original; }, 2000);
+  });
+
+  // ---- Chia sẻ link bot Telegram đăng tin — gửi cho nhân viên/cộng tác viên để họ tự soạn tin ----
+  const BOT_URL = 'https://t.me/lehoaithanh_dangtin_bot';
+  document.getElementById('assets-bot-btn').addEventListener('click', () => {
+    const panel = document.getElementById('assets-bot-panel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  });
+  document.getElementById('assets-bot-copy-btn').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    const original = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(BOT_URL);
+      btn.textContent = '✅ Đã copy!';
+    } catch {
+      document.getElementById('assets-bot-url').select();
+      document.execCommand('copy');
+      btn.textContent = '✅ Đã copy!';
+    }
+    setTimeout(() => { btn.textContent = original; }, 2000);
+  });
+
+  // ---- Xuất Excel (.xlsx) đầy đủ dữ liệu — lưu trữ nội bộ, in giấy, khai báo sau này ----
+  // Khác với portfolio.html (công khai), file Excel này CHỈ tải thẳng về máy người bấm nút,
+  // không đăng lên đâu cả — nên vẫn đọc kèm thông tin Nguồn tin (nội bộ) cho đầy đủ hồ sơ.
+  // Chỉ ĐỌC tên người duyệt đã lưu sẵn (nếu có, dùng chung key với admin.html) — KHÔNG hỏi
+  // lại qua popup, để bấm "Xuất Excel" là xuất ngay lập tức, không có bước nào chặn giữa chừng.
+  const EXPORT_NAME_KEY = 'lht_admin_name'; // dùng chung với "Tên người duyệt" ở admin.html (cùng domain nên chia sẻ được localStorage)
+  function getExporterName(){
+    let name = '';
+    try { name = (localStorage.getItem(EXPORT_NAME_KEY) || '').trim(); } catch(e){}
+    return name;
+  }
+
+  async function exportAssetsExcel(btnEl){
+    if (typeof XLSX === 'undefined'){
+      alert('Không tải được thư viện xuất Excel (kiểm tra kết nối mạng) — vui lòng thử lại.');
+      return;
+    }
+    const exporterName = getExporterName() || '(chưa rõ)';
+    const original = btnEl.textContent;
+    btnEl.disabled = true;
+    btnEl.textContent = '⏳ Đang tạo file...';
+    try {
+      const { data, error } = await sb.from(LISTINGS_TABLE)
+        .select('id,collection,data,status,created_at,asset_code,posted_by,approved_by,approved_at,lht_listing_sources(source_name,source_phone,source_channel)')
+        .order('created_at', { ascending: false })
+        .limit(5000);
+      if (error) throw error;
+
+      const rows = (data || []).map(row => {
+        const d = row.data || {};
+        const meta = ASSET_COLLECTIONS[row.collection] || { label: row.collection || 'Khác', sectionId: '' };
+        const loc = classifyLocation(d.location || '');
+        const srcRaw = Array.isArray(row.lht_listing_sources) ? row.lht_listing_sources[0] : row.lht_listing_sources;
+        const src = srcRaw || {};
+        const scale = d.totalArea || d.totalQty || '';
+        const unit = d.totalArea ? 'm²' : (d.unit || '');
+        const unitPrice = d.pricePerM2 || d.pricePerUnit || '';
+        const category = d.propertyType || d.category || d.contentType || '';
+        const amenities = Array.isArray(d.amenities) ? d.amenities.join(', ') : '';
+        const url = meta.sectionId ? ('https://lehoaithanh.org/?id=' + row.id + '#' + meta.sectionId) : '';
+        return [
+          row.asset_code || '',
+          d.title || '',
+          meta.label || row.collection || '',
+          ASSET_STATUS_LABELS[row.status] || row.status || '',
+          d.location || '',
+          loc.province || '',
+          category,
+          scale,
+          unit,
+          unitPrice,
+          d.phone || '',
+          d.description || '',
+          amenities,
+          src.source_name || '',
+          src.source_phone || '',
+          src.source_channel || '',
+          fullDateTime(row.created_at),
+          row.posted_by || '',
+          row.approved_at ? fullDateTime(row.approved_at) : '',
+          row.approved_by || '',
+          row.id,
+          url
+        ];
+      });
+
+      const now = new Date();
+      const exportTime = fullDateTime(now.toISOString());
+      const header = [
+        'Mã tài sản', 'Tên tài sản / dự án', 'Ngành nghề', 'Trạng thái',
+        'Khu vực', 'Tỉnh/Thành', 'Loại tài sản / Danh mục', 'Quy mô', 'Đơn vị', 'Đơn giá',
+        'SĐT liên hệ', 'Nội dung mô tả', 'Tiện ích / Ghi chú',
+        'Tên nguồn (nội bộ)', 'SĐT nguồn (nội bộ)', 'Thu thập qua (nội bộ)',
+        'Ngày giờ đăng tin', 'Người đăng tin', 'Ngày giờ duyệt', 'Người duyệt',
+        'ID nội bộ', 'Link xem trên web'
+      ];
+      const aoa = [
+        ['DANH SÁCH TÀI SẢN / DỰ ÁN — LÊ HOÀI THANH'],
+        ['Ngày giờ xuất file:', exportTime],
+        ['Người xuất file:', exporterName],
+        ['Tổng số tài sản / dự án:', rows.length],
+        ['LƯU Ý: file này có thông tin Nguồn tin nội bộ — chỉ lưu trữ nội bộ, không đăng công khai.'],
+        [],
+        header,
+        ...rows
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      ws['!cols'] = [
+        {wch:12},{wch:32},{wch:22},{wch:12},
+        {wch:22},{wch:16},{wch:20},{wch:10},{wch:8},{wch:12},
+        {wch:14},{wch:40},{wch:24},
+        {wch:20},{wch:14},{wch:16},
+        {wch:16},{wch:20},{wch:16},{wch:20},
+        {wch:20},{wch:40}
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Tài sản - Dự án');
+      const fileStamp = now.toISOString().slice(0,10);
+      XLSX.writeFile(wb, 'lht-danh-sach-tai-san_' + fileStamp + '.xlsx');
+    } catch(err){
+      alert('Có lỗi khi xuất file Excel, vui lòng thử lại. (' + (err && err.message || 'lỗi không xác định') + ')');
+    } finally {
+      btnEl.disabled = false;
+      btnEl.textContent = original;
+    }
+  }
+  document.getElementById('assets-export-excel-btn').addEventListener('click', (e) => exportAssetsExcel(e.currentTarget));
+
+  document.getElementById('asset-search').addEventListener('input', renderAssets);
+  document.getElementById('asset-filter-industry').addEventListener('change', renderAssets);
+  document.getElementById('asset-filter-region').addEventListener('change', renderAssets);
+  document.getElementById('asset-filter-status').addEventListener('change', renderAssets);
+
+  // ---- Auth (dùng chung tài khoản với admin.html) ----
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.classList.remove('show');
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    loginSubmit.disabled = true;
+    loginSubmit.textContent = 'Đang đăng nhập…';
+    try {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error){
+        loginError.textContent = 'Sai email hoặc mật khẩu.';
+        loginError.classList.add('show');
+        return;
+      }
+      loginForm.reset();
+      showDashboard();
+      initDashboardData();
+    } catch(err){
+      loginError.textContent = 'Không thể đăng nhập lúc này, vui lòng thử lại.';
+      loginError.classList.add('show');
+    } finally {
+      loginSubmit.disabled = false;
+      loginSubmit.textContent = 'Đăng nhập';
+    }
+  });
+
+  logoutBtn.addEventListener('click', async () => {
+    try { await sb.auth.signOut(); } catch(err){ /* vẫn quay về màn hình đăng nhập */ }
+    allContacts = [];
+    listContainer.innerHTML = '';
+    allAssets = []; assetsLoaded = false;
+    allDeals = [];
+    tabLoaders.overview = false; tabLoaders.contacts = false; tabLoaders.leads = false; tabLoaders.assets = false; tabLoaders.finance = false;
+    switchTab('overview');
+    showLogin();
+  });
+
+  // ---- Boot: reuse a persisted session if one already exists (same as admin.html) ----
+  (async function boot(){
+    try {
+      const { data } = await sb.auth.getSession();
+      if (data && data.session){
+        showDashboard();
+        initDashboardData();
+      } else {
+        showLogin();
+      }
+    } catch(err){
+      showLogin();
+    }
+  })();
+})();
+</script>
+</body></html>

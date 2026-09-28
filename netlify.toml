@@ -1,0 +1,74 @@
+# netlify.toml — lehoaithanh.org
+#
+# IMPORTANT — read before relying on the edge function below:
+#
+# Netlify Edge Functions are NOT executed for sites deployed via a plain
+# drag-and-drop / manual ZIP upload in the Netlify UI ("Production deploys"
+# panel with no linked Git repo and no CLI). That deploy method uploads
+# static files only and does not run Netlify's build/bundling step, which is
+# what discovers and deploys anything under netlify/edge-functions/. This is
+# confirmed by Netlify's own docs ("Use continuous deployment or Netlify CLI
+# manual deploys to deploy your edge functions" —
+# docs.netlify.com/api-and-cli-guides/cli-guides/get-started-with-cli) and by
+# Netlify support on the community forum (e.g.
+# answers.netlify.com/t/edge-functions-not-detected-during-deploys/124223,
+# Aug 2024: "drag-and-drop is not supported for edge functions... do not
+# generate deploy logs... don't actually build anything").
+#
+# For the "share-meta" edge function declared below to actually run, this
+# site needs to be deployed with ONE of:
+#   (a) Netlify CLI manual deploys — e.g. `netlify deploy --prod` run from
+#       this folder (requires Netlify CLI >= 12.2.8), or
+#   (b) continuous deployment from a connected Git repository.
+# A plain ZIP dragged into the Netlify UI will silently ignore this file and
+# the netlify/edge-functions/ folder — the site will still deploy and work,
+# it just won't get the listing-specific share previews.
+#
+# See netlify/edge-functions/share-meta.js for the function itself.
+
+[[edge_functions]]
+  path = "/"
+  function = "share-meta"
+
+[[edge_functions]]
+  path = "/index.html"
+  function = "share-meta"
+
+# ---------------------------------------------------------------------------
+# [[redirects]] below is a DIFFERENT Netlify feature from [[edge_functions]]
+# above — this one IS a plain static config file that Netlify's CDN reads
+# directly, with no build/bundling step involved, so it works fine even with
+# a drag-and-drop ZIP deploy (unlike the edge_functions block above).
+#
+# Mục đích: mỗi tin đăng (BĐS, logistics, xe nâng, dự án, pháp lý, Kiến thức
+# & Media) có 1 trang riêng, có sẵn nội dung/tiêu đề trong HTML (không cần
+# chờ JavaScript tải), để Google có thể index và xếp hạng riêng từng tin —
+# đây là phần "Giai đoạn 2" của kế hoạch SEO.
+#
+# /sitemap.xml  -> render bởi Supabase Edge Function "sitemap-xml", luôn cập
+#                  nhật tự động theo dữ liệu mới nhất trong lht_listings
+#                  (force = true để đè lên file sitemap.xml tĩnh ở cùng thư
+#                  mục — file tĩnh đó chỉ còn là bản dự phòng).
+#
+# LƯU Ý: trang riêng cho từng tin (/tin/<id>) KHÔNG dùng redirect sang Supabase
+# Edge Function nữa — đã thử và bị chặn: Supabase ép mọi Edge Function công khai
+# trả về content-type "text/plain" kèm "X-Content-Type-Options: nosniff", nên
+# trình duyệt không bao giờ hiển thị được như 1 trang web thật (đây là giới hạn
+# bảo mật cố định của Supabase, không phải lỗi cấu hình có thể sửa). Thay vào
+# đó, các trang /tin/<id>.html là file HTML TĨNH thật, nằm ngay trong thư mục
+# tin/ (được tạo sẵn bằng script và đóng gói cùng zip). Redirect bên dưới chỉ
+# đơn thuần bỏ đuôi ".html" cho đẹp URL (/tin/<id> thay vì /tin/<id>.html) —
+# đây là rewrite NỘI BỘ trong cùng site, không proxy ra ngoài, nên luôn hoạt
+# động bình thường với deploy kéo-thả, không bị giới hạn gì như trên.
+# ---------------------------------------------------------------------------
+
+[[redirects]]
+  from = "/tin/:id"
+  to = "/tin/:id.html"
+  status = 200
+
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "https://kbpcmifwplbtggfcnfrx.supabase.co/functions/v1/sitemap-xml"
+  status = 200
+  force = true

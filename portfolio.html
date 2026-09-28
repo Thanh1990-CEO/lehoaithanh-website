@@ -1,0 +1,263 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Danh mục Tài sản — Lê Hoài Thanh</title>
+<meta name="description" content="Danh mục tài sản, dự án và dịch vụ đang được Lê Hoài Thanh tư vấn đầu tư & môi giới — bất động sản công nghiệp, logistics, xe nâng thiết bị và dự án đầu tư trên khắp Việt Nam.">
+<link rel="canonical" href="https://lehoaithanh.org/portfolio.html">
+<meta property="og:title" content="Danh mục Tài sản — Lê Hoài Thanh">
+<meta property="og:description" content="Toàn bộ tài sản, dự án và dịch vụ đang được tư vấn — bấm để xem chi tiết từng mục.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lehoaithanh.org/portfolio.html">
+<meta property="og:image" content="https://lehoaithanh.org/images/logo.jpg">
+<link rel="icon" href="images/logo.jpg" type="image/jpeg">
+<style>
+  :root{
+    /* Xanh Dương Đậm & Vàng Kim — đồng bộ với index.html/admin.html/crm.html */
+    --navy:#062A55; --blue:#0B5C91; --gold:#D9A62E; --muted:#66787F; --border:#DCE3E6; --bg:#faf9f5;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--navy);}
+  header{background:var(--navy);color:#fff;padding:22px 20px 18px;position:sticky;top:0;z-index:5;}
+  header .wrap{max-width:760px;margin:0 auto;}
+  header h1{font-size:1.25rem;margin:0 0 4px;}
+  header p{margin:0;font-size:0.85rem;color:#B0BEC5;}
+  .count-badge{display:inline-block;margin-top:8px;background:var(--gold);color:var(--navy);font-weight:700;font-size:0.78rem;padding:4px 12px;border-radius:20px;}
+  .toolbar{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .toolbar button{
+    font:inherit;font-size:0.8rem;font-weight:600;padding:9px 14px;border-radius:8px;border:1px solid var(--blue);
+    background:var(--navy);color:#fff;cursor:pointer;
+  }
+  .toolbar button:hover{background:var(--blue);}
+  .toolbar .toast{font-size:0.78rem;color:var(--gold);align-self:center;}
+
+  .filters{max-width:760px;margin:14px auto 0;padding:0 20px;display:flex;gap:6px;flex-wrap:wrap;}
+  .filters button{
+    font:inherit;font-size:0.75rem;font-weight:600;padding:6px 12px;border-radius:20px;border:1px solid var(--border);
+    background:#fff;color:var(--navy);cursor:pointer;
+  }
+  .filters button.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+  main{max-width:760px;margin:0 auto;padding:16px 20px 60px;}
+  .load-state, .empty-state{text-align:center;color:var(--muted);padding:40px 0;font-size:0.9rem;}
+
+  .asset{
+    display:flex;gap:12px;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:12px;margin-bottom:10px;text-decoration:none;color:inherit;
+  }
+  .asset img{width:76px;height:76px;border-radius:8px;object-fit:cover;flex:none;background:var(--border);}
+  .asset .no-img{width:76px;height:76px;border-radius:8px;flex:none;background:var(--border);}
+  .asset-body{flex:1;min-width:0;}
+  .asset-badge{display:inline-block;font-size:0.66rem;font-weight:700;color:#fff;padding:2px 9px;border-radius:20px;margin-bottom:4px;}
+  .asset-top-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+  .asset-top-row .asset-badge{margin-bottom:0;}
+  .asset-code{
+    font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:0.7rem; font-weight:700;
+    color:var(--navy); background:var(--bg); border:1px solid var(--border); border-radius:6px;
+    padding:2px 8px; letter-spacing:.02em;
+  }
+  .asset-body h3{margin:0 0 4px;font-size:0.95rem;line-height:1.35;}
+  .asset-loc{font-size:0.78rem;color:var(--muted);margin-bottom:4px;}
+  .asset-metrics{font-size:0.78rem;color:var(--navy);display:flex;flex-wrap:wrap;gap:6px;}
+  .asset-metrics span{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;}
+  .asset-desc{font-size:0.78rem;color:var(--navy);margin:6px 0 0;line-height:1.42;}
+  .asset-cta{font-size:0.74rem;color:var(--gold);font-weight:700;margin-top:6px;}
+
+  footer{max-width:760px;margin:0 auto;padding:10px 20px 40px;text-align:center;font-size:0.8rem;color:var(--muted);}
+  footer a{color:var(--navy);font-weight:600;text-decoration:none;}
+
+  @media print{
+    header{position:static;background:#fff !important;color:var(--navy) !important;border-bottom:2px solid var(--navy);}
+    header p, .count-badge{color:var(--navy) !important;background:none !important;}
+    .toolbar, .filters{display:none !important;}
+    .asset{break-inside:avoid;border-color:#ccc;}
+    .asset-cta{display:none;}
+    a[href]:after{content:"";}
+    body{background:#fff;}
+  }
+</style>
+</head><body>
+
+<header>
+  <div class="wrap">
+    <h1>📋 Danh mục Tài sản &amp; Dự án — Lê Hoài Thanh</h1>
+    <p>Tư vấn đầu tư &amp; môi giới BĐS công nghiệp, logistics, xe nâng thiết bị và dự án đầu tư</p>
+    <span class="count-badge" id="count-badge">Đang tải…</span>
+    <div class="toolbar">
+      <button type="button" id="btn-print">🖨️ Xuất PDF / In danh sách</button>
+      <button type="button" id="btn-copy">🔗 Copy link chia sẻ</button>
+      <span class="toast" id="toast"></span>
+    </div>
+  </div>
+</header>
+
+<div class="filters" id="filters"></div>
+
+<main>
+  <div class="load-state" id="state">Đang tải danh mục…</div>
+  <div id="list"></div>
+</main>
+
+<footer>
+  Quan tâm mục nào, liên hệ trực tiếp: <a href="tel:0399831228">📞 0399 831 228</a> ·
+  <a href="https://zalo.me/0399831228" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;vertical-align:middle;">
+    <svg width="16" height="16" viewBox="0 0 48 48" role="img" aria-label="Zalo" style="flex:none;"><rect width="48" height="48" rx="13" fill="#0068FF"/><path d="M6 44 L6 35 Q6 30 11 30 L11 39 Q11 44 6 44 Z" fill="#0068FF"/><text x="24" y="30.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="16" letter-spacing="-0.5" fill="#fff">Zalo</text></svg>
+    Zalo
+  </a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Trang danh mục CÔNG KHAI, dùng để chia sẻ link/PDF cho người ngoài xem lướt toàn bộ tài
+  // sản đã duyệt. CHỈ đọc bảng lht_listings (status='approved') — cố tình KHÔNG bao giờ đụng
+  // tới bảng lht_listing_sources (thông tin Nguồn/SĐT nguồn nội bộ), nên không có cách nào lộ
+  // thông tin đó ra ở đây, kể cả khi xem mã nguồn hay dữ liệu trả về.
+  const SUPABASE_URL = 'https://kbpcmifwplbtggfcnfrx.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_buS_4Iky59zQlMME9dn2NQ_1FqIwlVt';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const COLLECTIONS = {
+    bds_listings:         { label: 'BĐS công nghiệp',           color: '#2b6fb0', sectionId: 'bds-cong-nghiep' },
+    bds_dandung_listings: { label: 'BĐS dân dụng & thương mại', color: '#7a3fa0', sectionId: 'bds-dan-dung' },
+    logistics_listings:   { label: 'Logistics & sản xuất',      color: '#2f7d4f', sectionId: 'logistics-san-xuat' },
+    xn_listings:          { label: 'Xe nâng & thiết bị',        color: '#b06a2b', sectionId: 'xe-nang-thiet-bi' },
+    da_listings:          { label: 'Dự án & đầu tư',            color: '#7a3fa0', sectionId: 'du-an-dau-tu' },
+    pl_listings:          { label: 'Pháp lý & tài chính',       color: '#a3803f', sectionId: 'phap-ly-tai-chinh' },
+    media_posts:          { label: 'Kiến thức & Media',         color: '#062A55', sectionId: 'kien-thuc-media' }
+  };
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // Nhận diện tỉnh/thành từ ô "Khu vực" tự do (khách/CTV tự gõ khi đăng tin) — cùng bảng
+  // ánh xạ với crm.html để hiển thị nhất quán "thuộc tỉnh - khu vực nào" trên danh mục này.
+  const PROVINCE_REGION_MAP = {
+    'hà nội': 'Hà Nội', 'vĩnh phúc': 'Vĩnh Phúc', 'phú thọ': 'Vĩnh Phúc', 'hải phòng': 'Hải Phòng',
+    'thái nguyên': 'Thái Nguyên', 'bắc ninh': 'Bắc Ninh', 'bắc giang': 'Bắc Giang', 'hưng yên': 'Hưng Yên',
+    'quảng ninh': 'Quảng Ninh', 'hải dương': 'Hải Dương',
+    'thanh hóa': 'Thanh Hóa', 'quảng ngãi': 'Quảng Ngãi', 'nghệ an': 'Nghệ An', 'bình định': 'Bình Định',
+    'hà tĩnh': 'Hà Tĩnh', 'phú yên': 'Phú Yên', 'quảng bình': 'Quảng Bình', 'quảng trị': 'Quảng Trị',
+    'khánh hòa': 'Khánh Hòa', 'đà nẵng': 'Đà Nẵng',
+    'hồ chí minh': 'TP. Hồ Chí Minh', 'tp. hồ chí minh': 'TP. Hồ Chí Minh', 'tp hồ chí minh': 'TP. Hồ Chí Minh',
+    'hcm': 'TP. Hồ Chí Minh', 'đồng nai': 'Đồng Nai', 'tây ninh': 'Tây Ninh', 'long an': 'Long An',
+    'bình dương': 'Bình Dương', 'bà rịa': 'Bà Rịa – Vũng Tàu', 'vũng tàu': 'Bà Rịa – Vũng Tàu',
+    'đắk lắk': 'Đắk Lắk', 'đắc lắc': 'Đắk Lắk', 'lâm đồng': 'Lâm Đồng', 'gia lai': 'Gia Lai',
+    'đắk nông': 'Đắk Nông', 'kon tum': 'Kon Tum',
+    'cần thơ': 'Cần Thơ', 'kiên giang': 'Kiên Giang', 'an giang': 'An Giang', 'hậu giang': 'Hậu Giang',
+    'đồng tháp': 'Đồng Tháp', 'sóc trăng': 'Sóc Trăng', 'vĩnh long': 'Vĩnh Long', 'bạc liêu': 'Bạc Liêu',
+    'cà mau': 'Cà Mau'
+  };
+  const PROVINCE_KEYS_BY_LENGTH = Object.keys(PROVINCE_REGION_MAP).sort((a, b) => b.length - a.length);
+  function detectProvince(locationText){
+    const raw = (locationText || '').toLowerCase();
+    if (!raw) return '';
+    for (const key of PROVINCE_KEYS_BY_LENGTH){
+      if (raw.indexOf(key) !== -1) return PROVINCE_REGION_MAP[key];
+    }
+    return '';
+  }
+
+  let allAssets = [];
+  let activeFilter = 'all';
+
+  function normalize(row){
+    const d = row.data || {};
+    const meta = COLLECTIONS[row.collection] || { label: row.collection || 'Khác', color: '#5f6784', sectionId: '' };
+    const metrics = [];
+    if (d.totalArea) metrics.push(Number(d.totalArea).toLocaleString('vi-VN') + ' m²');
+    if (d.pricePerM2) metrics.push(Number(d.pricePerM2).toLocaleString('vi-VN') + ' đ/m²/tháng');
+    if (d.propertyType) metrics.push(d.propertyType);
+    if (d.category) metrics.push(d.category);
+    if (d.contentType) metrics.push(d.contentType);
+    const img = Array.isArray(d.imageIds) && d.imageIds.length ? d.imageIds[0] : '';
+    const descFlat = (d.description || '').toString().replace(/\s+/g, ' ').trim();
+    const descExcerpt = descFlat.length > 170 ? descFlat.slice(0, 167) + '…' : descFlat;
+    return {
+      id: row.id, collection: row.collection,
+      label: meta.label, color: meta.color, sectionId: meta.sectionId,
+      assetCode: row.asset_code || '',
+      title: d.title || '(Chưa có tiêu đề)', location: d.location || '',
+      province: detectProvince(d.location || ''),
+      descExcerpt,
+      metrics, img
+    };
+  }
+
+  function renderFilters(){
+    const counts = {};
+    allAssets.forEach(a => { counts[a.collection] = (counts[a.collection] || 0) + 1; });
+    const usedKeys = Object.keys(COLLECTIONS).filter(k => counts[k]);
+    let html = `<button type="button" data-key="all" class="active">Tất cả (${allAssets.length})</button>`;
+    usedKeys.forEach(k => {
+      html += `<button type="button" data-key="${k}">${escapeHtml(COLLECTIONS[k].label)} (${counts[k]})</button>`;
+    });
+    const el = document.getElementById('filters');
+    el.innerHTML = html;
+    el.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeFilter = btn.dataset.key;
+        el.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+        renderList();
+      });
+    });
+  }
+
+  function renderList(){
+    const items = activeFilter === 'all' ? allAssets : allAssets.filter(a => a.collection === activeFilter);
+    const listEl = document.getElementById('list');
+    if (!items.length){
+      listEl.innerHTML = '<div class="empty-state">Chưa có tài sản nào trong mục này.</div>';
+      return;
+    }
+    listEl.innerHTML = items.map(a => {
+      const url = a.sectionId ? ('https://lehoaithanh.org/?id=' + encodeURIComponent(a.id) + '#' + a.sectionId) : 'https://lehoaithanh.org/';
+      const thumb = a.img ? `<img src="${escapeHtml(a.img)}" alt="${escapeHtml(a.title)}" loading="lazy">` : '<div class="no-img"></div>';
+      return `<a class="asset" href="${url}" target="_blank" rel="noopener">
+        ${thumb}
+        <div class="asset-body">
+          <div class="asset-top-row">
+            <span class="asset-badge" style="background:${a.color};">${escapeHtml(a.label)}</span>
+            ${a.assetCode ? `<span class="asset-code">${escapeHtml(a.assetCode)}</span>` : ''}
+          </div>
+          <h3>${escapeHtml(a.title)}</h3>
+          ${(a.location || a.province) ? `<div class="asset-loc">📍 ${escapeHtml(a.location)}${a.province ? ' · ' + escapeHtml(a.province) : ''}</div>` : ''}
+          ${a.metrics.length ? `<div class="asset-metrics">${a.metrics.map(m => `<span>${escapeHtml(m)}</span>`).join('')}</div>` : ''}
+          ${a.descExcerpt ? `<p class="asset-desc">${escapeHtml(a.descExcerpt)}</p>` : ''}
+          <div class="asset-cta">Xem chi tiết trên website →</div>
+        </div>
+      </a>`;
+    }).join('');
+  }
+
+  async function load(){
+    try {
+      const { data, error } = await sb.from('lht_listings')
+        .select('id,collection,data,created_at,asset_code')
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false })
+        .limit(3000);
+      if (error) throw error;
+      allAssets = (data || []).map(normalize);
+      document.getElementById('state').style.display = 'none';
+      document.getElementById('count-badge').textContent = allAssets.length + ' tài sản / dự án';
+      renderFilters();
+      renderList();
+    } catch (err) {
+      document.getElementById('state').textContent = '⚠️ Không tải được danh mục. Vui lòng thử lại sau.';
+    }
+  }
+
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+  document.getElementById('btn-copy').addEventListener('click', async () => {
+    const toast = document.getElementById('toast');
+    try {
+      await navigator.clipboard.writeText('https://lehoaithanh.org/portfolio.html');
+      toast.textContent = '✅ Đã copy link!';
+    } catch {
+      toast.textContent = 'https://lehoaithanh.org/portfolio.html';
+    }
+    setTimeout(() => { toast.textContent = ''; }, 3000);
+  });
+
+  load();
+</script>
+</body></html>
