@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /crm.html
+
+Sitemap: https://lehoaithanh.org/sitemap.xml
