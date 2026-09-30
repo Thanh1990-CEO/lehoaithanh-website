@@ -1417,6 +1417,13 @@
     .ofi-title{font-size:.92rem;}
     .ofi-desc{font-size:.78rem;}
   }
+
+  /* ---------------- Logistics & Xe nâng - thiết bị: gộp 2 mục cũ vào 1 khối liền mạch (30/09/2026) ---------------- */
+  .pillar-section-group{padding-top:52px; border-top:2px solid var(--paper-2); scroll-margin-top:76px; position:relative;}
+  .pillar-section-group .group-intro-wrap{padding-bottom:4px;}
+  .pillar-section-group .pillar-section.group-sub{border-top:1px solid var(--paper-2); padding-block:32px 52px; margin:0;}
+  .pillar-section-group .pillar-section.group-sub.on-navy{border-top-color:var(--rule);}
+  .pillar-section-group .pillar-section.group-sub-first{border-top:none; padding-top:0;}
 </style>
 
 <header class="site">
@@ -1433,8 +1440,7 @@
       <a href="#" class="active" data-i18n="nav.home">Trang chủ</a>
       <a href="#ve-le-hoai-thanh" class="nav-standout" data-i18n="nav.about">Về Lê Hoài Thanh</a>
       <a href="#bds-cong-nghiep" data-i18n="nav.industrial-re">BĐS công nghiệp</a>
-      <a href="#logistics-san-xuat" data-i18n="nav.logistics">Logistics</a>
-      <a href="#xe-nang-thiet-bi" data-i18n="nav.forklift">Xe nâng &amp; thiết bị</a>
+      <a href="#logistics-xe-nang" data-i18n="nav.logistics-forklift">Logistics &amp; Xe nâng - thiết bị</a>
       <a href="#lien-he" data-i18n="nav.contact">Tin tức &amp; Liên hệ</a>
     </nav>
     <!-- Đã ẩn khỏi menu chính (gộp theo cấu trúc 4 mục, 30/09/2026): BĐS dân dụng & thương mại (#bds-dan-dung),
@@ -1485,8 +1491,7 @@
       <h2 class="sub" data-i18n="hero.subtitle">Tư vấn &amp; môi giới bất động sản công nghiệp · Logistics</h2>
       <div class="pill-line">
         <a href="#bds-cong-nghiep"><span class="n">01</span> <span data-i18n="nav.industrial-re">BĐS công nghiệp</span></a>
-        <a href="#logistics-san-xuat"><span class="n">02</span> <span data-i18n="nav.logistics">Logistics</span></a>
-        <a href="#xe-nang-thiet-bi"><span class="n">03</span> <span data-i18n="nav.forklift">Xe nâng &amp; thiết bị</span></a>
+        <a href="#logistics-xe-nang"><span class="n">02</span> <span data-i18n="nav.logistics-forklift">Logistics &amp; Xe nâng - thiết bị</span></a>
       </div>
       <p class="lede" data-i18n="hero.lede">Tôi tư vấn và kết nối chủ tài sản, doanh nghiệp và nhà đầu tư trong các cơ hội liên quan đến bất động sản công nghiệp, logistics, kho xưởng và các dự án quy mô từ 1 ha, đồng thời kết nối hệ sinh thái nguồn lực cần thiết để tài sản và doanh nghiệp được khai thác hiệu quả hơn.</p>
       <div class="hero-ctas">
@@ -1678,39 +1683,18 @@
       <a class="go" href="#bds-dan-dung" data-i18n="pillar.go">Xem chi tiết →</a>
     </div>
     <div class="pillar-card" style="--accent:#5E35B1;">
-      <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="8" width="15" height="10"/><path d="M16 12h4l3 3v3h-7z"/><circle cx="6" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/></svg></span>
-      <div class="num">03</div>
-      <h3 data-i18n="nav.logistics">Logistics &amp; sản xuất</h3>
-      <p data-i18n="pillar.logistics.desc">Nguyên liệu · Sản xuất · Kho vận · Xuất khẩu</p>
-      <a class="go" href="#logistics-san-xuat" data-i18n="pillar.go">Xem chi tiết →</a>
-    </div>
-    <div class="pillar-card" style="--accent:#1E88E5;">
       <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20V9l5-3v3l5-3v3l5-3v14H3z"/><path d="M8 20v-5h4v5"/></svg></span>
-      <div class="num">04</div>
-      <h3 data-i18n="nav.forklift">Xe nâng &amp; thiết bị</h3>
-      <p data-i18n="pillar.forklift.desc">Xe nâng điện, dầu, tay · Phụ tùng · Thiết bị kho xưởng</p>
-      <a class="go" href="#xe-nang-thiet-bi" data-i18n="pillar.go">Xem chi tiết →</a>
-    </div>
-    <div class="pillar-card" style="--accent:#43A047;">
-      <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span>
-      <div class="num">05</div>
-      <h3 data-i18n="nav.projects">Dự án &amp; đầu tư</h3>
-      <p data-i18n="pillar.projects.desc">Dự án &gt; 1 ha · Nông nghiệp giá trị cao · Hợp tác đầu tư</p>
-      <a class="go" href="#du-an-dau-tu" data-i18n="pillar.go">Xem chi tiết →</a>
-    </div>
-    <div class="pillar-card" style="--accent:#E53935;">
-      <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 3.5L4 7l5 3.5M15 3.5l5 3.5-5 3.5"/></svg></span>
-      <div class="num">06</div>
-      <h3 data-i18n="nav.legal-finance">Pháp lý &amp; tài chính</h3>
-      <p data-i18n="pillar.legal.desc">Pháp lý doanh nghiệp &amp; BĐS · Tài chính · Thuế</p>
-      <a class="go" href="#phap-ly-tai-chinh" data-i18n="pillar.go">Xem chi tiết →</a>
+      <div class="num">03</div>
+      <h3 data-i18n="nav.logistics-forklift">Logistics &amp; Xe nâng - thiết bị</h3>
+      <p data-i18n="pillar.logxn.desc">Nguyên liệu · Sản xuất · Kho vận · Xe nâng, thiết bị kho xưởng</p>
+      <a class="go" href="#logistics-xe-nang" data-i18n="pillar.go">Xem chi tiết →</a>
     </div>
     <div class="pillar-card" style="--accent:#6D4C41;">
-      <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h11l5 5v11H4z"/><path d="M15 4v5h5M8 13h8M8 17h5"/></svg></span>
-      <div class="num">07</div>
-      <h3 data-i18n="nav.knowledge-media">Kiến thức &amp; Media</h3>
-      <p data-i18n="pillar.media.desc">Video · Bài viết · Podcast · Tin tức thị trường</p>
-      <a class="go" href="#kien-thuc-media" data-i18n="pillar.go">Xem chi tiết →</a>
+      <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M4 9.5h16M9.5 9.5V20"/></svg></span>
+      <div class="num">04</div>
+      <h3 data-i18n="pillar.other.title">Lĩnh vực khác</h3>
+      <p data-i18n="pillar.other.desc">Dự án &amp; đầu tư · Pháp lý &amp; tài chính · Kiến thức &amp; Media</p>
+      <a class="go" href="#linh-vuc-khac" data-i18n="pillar.go">Xem chi tiết →</a>
     </div>
   </div>
   </div>
@@ -1886,8 +1870,189 @@
     </div>
   </div>
 </section>
-<!-- ============ 02. LOGISTICS & SẢN XUẤT ============ -->
-<section class="pillar-section on-navy" id="logistics-san-xuat">
+<!-- ============ 01b. BĐS DÂN DỤNG & THƯƠNG MẠI ============ -->
+<section class="pillar-section" id="bds-dan-dung">
+  <div class="wrap">
+    <div class="pillar-head">
+      <div>
+        <div class="kicker" data-i18n="section.bds2.kicker">02 · Bất động sản dân dụng &amp; thương mại</div>
+        <h2 data-i18n="section.bds2.title">BĐS dân dụng &amp; thương mại</h2>
+        <p class="desc" data-i18n="section.bds2.intro">Nhà phố, căn hộ, đất nền và mặt bằng kinh doanh — cập nhật liên tục, kết nối nhanh chủ tài sản với người mua/thuê thật.</p>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input type="text" id="bds2-search-input" placeholder="Bạn đang tìm nhà phố, căn hộ, mặt bằng ở đâu?" aria-label="Tìm nhà xưởng, đất KCN" data-i18n-placeholder="section.bds2.search-ph">
+      <button type="button" id="bds2-search-clear" class="search-clear-btn" hidden aria-label="Xóa tìm kiếm">✕</button>
+      <button type="button" id="bds2-search-btn" class="btn primary" style="padding:9px 18px;" data-i18n="toolbar.search-btn">Tìm kiếm ngay →</button>
+      <div class="chip-wrap">
+        <button type="button" class="chip" id="bds2-chip1-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.bds2.chip1">Loại tài sản</span><span class="chip-count" hidden></span></button>
+        <div class="chip-menu" id="bds2-chip1-menu" hidden role="menu" aria-label="Loại tài sản"></div>
+      </div>
+      <div class="chip-wrap">
+        <button type="button" class="chip" id="bds2-chip2-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.bds2.chip2">Diện tích</span><span class="chip-count" hidden></span></button>
+        <div class="chip-menu" id="bds2-chip2-menu" hidden role="menu" aria-label="Diện tích"></div>
+      </div>
+      <div class="chip-wrap">
+        <button type="button" class="chip" id="bds2-chip3-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.bds2.chip3">Giá thuê / bán</span><span class="chip-count" hidden></span></button>
+        <div class="chip-menu" id="bds2-chip3-menu" hidden role="menu" aria-label="Giá thuê / bán"></div>
+      </div>
+      <div class="chip-wrap">
+        <button type="button" class="chip" id="bds2-chip4-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.bds2.chip4">Mục đích</span><span class="chip-count" hidden></span></button>
+        <div class="chip-menu" id="bds2-chip4-menu" hidden role="menu" aria-label="Ngành nghề"></div>
+      </div>
+    </div>
+
+    <div class="listing-head-row">
+      <span class="listing-flag" tabindex="0" role="button">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.3 4.6 2.4 7.4L12 16.8 5.9 21.4l2.4-7.4L2 9.4h7.6z"/></svg>
+        <span data-i18n="listing.bds2.flag">Tin đăng bất động sản dân dụng &amp; thương mại</span>
+      </span>
+      <button type="button" id="bds2-listing-form-toggle" class="btn primary" hidden data-i18n="form.common.btn-add-new">+ Đăng tin mới</button>
+    </div>
+
+    <div id="bds2-listing-form-panel" class="listing-form-panel" hidden>
+      <h4 data-i18n="form.common.panel-heading">Đăng tin mới</h4>
+      <p class="form-hint" data-i18n="form.bds.panel-hint">Cho mình biết bạn cần gì trước — form và bảng giá sẽ hiển thị đúng theo nhu cầu đó, tránh rối thông tin.</p>
+      <form id="bds2-listing-form">
+        <div class="field txn-field" style="margin-bottom:18px;">
+          <label class="group-label" data-i18n-html="form.common.group-label">Bạn muốn đăng tin dạng nào? <span style="color:#c0392b;">*</span></label>
+          <div class="txn-pills" role="group" aria-label="Loại giao dịch (có thể chọn nhiều)">
+            <label class="txn-pill" data-type="cho_thue" style="--txn-color:#2b6fb0;"><input type="checkbox" name="txnTypes" value="cho_thue" checked><span data-i18n="txn.cho-thue">Cho thuê</span></label>
+            <label class="txn-pill" data-type="can_thue" style="--txn-color:#2f7d4f;"><input type="checkbox" name="txnTypes" value="can_thue"><span data-i18n="txn.can-thue">Cần thuê</span></label>
+            <label class="txn-pill" data-type="ban" style="--txn-color:#a3803f;"><input type="checkbox" name="txnTypes" value="ban"><span data-i18n="txn.ban">Bán</span></label>
+            <label class="txn-pill" data-type="can_mua" style="--txn-color:#7a3fa0;"><input type="checkbox" name="txnTypes" value="can_mua"><span data-i18n="txn.can-mua">Cần mua</span></label>
+            <label class="txn-pill" data-type="ky_gui" style="--txn-color:#b06a2b;"><input type="checkbox" name="txnTypes" value="ky_gui"><span data-i18n="txn.ky-gui">Ký gửi</span></label>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label for="bds2-lf-title" data-i18n="form.common.label-title">Tiêu đề tin</label><input id="bds2-lf-title" name="title" type="text" required placeholder="VD: Cho thuê kho Sóng Thần 1" data-i18n-placeholder="form.bds.ph-title"></div>
+          <div class="field"><label for="bds2-lf-location" data-i18n="form.bds.label-location">Khu vực / KCN</label><input id="bds2-lf-location" name="location" type="text" required placeholder="VD: Quận 7, TP.HCM" data-i18n-placeholder="form.bds2.ph-location"></div>
+          <div class="field"><label for="bds2-lf-type" data-i18n="form.bds2.label-type">Loại tài sản</label>
+            <select id="bds2-lf-type" name="propertyType">
+              <option data-i18n="form.bds2.opt-townhouse">Nhà phố</option><option data-i18n="form.bds2.opt-apartment">Căn hộ</option><option data-i18n="form.bds2.opt-land">Đất nền</option><option data-i18n="form.bds2.opt-villa">Biệt thự</option><option data-i18n="form.bds2.opt-commercial">Mặt bằng kinh doanh</option><option data-i18n="form.bds2.opt-office">Văn phòng</option>
+            </select>
+          </div>
+          <div class="field"><label for="bds2-lf-total" data-i18n="form.bds.label-total">Tổng diện tích (m²)</label><input id="bds2-lf-total" name="totalArea" type="number" min="0" required placeholder="VD: 23000" data-i18n-placeholder="form.bds.ph-total"></div>
+          <div class="field"><label id="bds2-lf-areas-label" for="bds2-lf-areas" data-i18n="form.bds.label-areas">Các mức diện tích cho thuê (m², cách nhau bởi dấu phẩy)</label><input id="bds2-lf-areas" name="areas" type="text" required placeholder="VD: 800, 1600, 3200" data-i18n-placeholder="form.bds.ph-areas"></div>
+          <div class="field"><label id="bds2-lf-price-label" for="bds2-lf-price" data-i18n="form.bds.label-price">Đơn giá thuê (đ/m²/tháng, chưa VAT)</label><input id="bds2-lf-price" name="pricePerM2" type="number" min="0" required placeholder="VD: 95000" data-i18n-placeholder="form.bds.ph-price"></div>
+          <div class="field"><label for="bds2-lf-electricity" data-i18n="form.bds.label-electricity">Đơn giá điện</label><input id="bds2-lf-electricity" name="electricity" type="text" placeholder="VD: 5.000 đ/kWh" data-i18n-placeholder="form.bds.ph-electricity"></div>
+          <div class="field"><label for="bds2-lf-water" data-i18n="form.bds.label-water">Đơn giá nước</label><input id="bds2-lf-water" name="water" type="text" placeholder="VD: 17.000 đ/m³" data-i18n-placeholder="form.bds.ph-water"></div>
+          <div class="field"><label for="bds2-lf-phone" data-i18n="form.common.label-phone">Số điện thoại liên hệ</label><input id="bds2-lf-phone" name="phone" type="text" required placeholder="VD: 0399 831 228" data-i18n-placeholder="form.common.placeholder-phone"></div>
+          <div class="field"><label for="bds2-lf-amenities" data-i18n="form.bds.label-amenities">Tiện ích (cách nhau bởi dấu phẩy)</label><input id="bds2-lf-amenities" name="amenities" type="text" placeholder="VD: Có PCCC, Có văn phòng, Sân bãi rộng" data-i18n-placeholder="form.bds.ph-amenities"></div>
+          <div class="field" style="grid-column:1/-1;"><label for="bds2-lf-desc" data-i18n="form.common.label-desc">Mô tả thêm (không bắt buộc — hệ thống sẽ tối ưu giúp bạn)</label><textarea id="bds2-lf-desc" name="description" placeholder="Ghi vài ý cơ bản, hệ thống sẽ viết lại cho chuyên nghiệp và đầy đủ hơn" data-i18n-placeholder="form.common.placeholder-desc"></textarea></div>
+          <div class="field" style="grid-column:1/-1;"><label for="bds2-lf-images" data-i18n="form.common.label-images">Hình ảnh (có thể chọn nhiều)</label><input id="bds2-lf-images" name="images" type="file" accept="image/*" multiple></div>
+        </div>
+        <div class="listing-form-actions">
+          <button type="submit" class="btn primary" data-i18n="form.common.btn-submit">Đăng tin ngay</button>
+          <button type="button" id="bds2-listing-form-cancel" class="btn outline-navy" data-i18n="form.common.btn-cancel">Hủy</button>
+          <span id="bds2-listing-form-status" class="form-status"></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="txn-tabs" id="bds2-txn-filter" role="tablist" aria-label="Lọc theo nhu cầu" hidden>
+      <button type="button" class="txn-tab active" data-filter="all" style="--txn-color:var(--gold);" data-i18n-html="txn.all-tab">Tất cả <span class="cnt"></span></button>
+      <button type="button" class="txn-tab" data-filter="cho_thue" style="--txn-color:#2b6fb0;" data-i18n-html="txn.cho-thue-tab">Cho thuê <span class="cnt"></span></button>
+      <button type="button" class="txn-tab" data-filter="can_thue" style="--txn-color:#2f7d4f;" data-i18n-html="txn.can-thue-tab">Cần thuê <span class="cnt"></span></button>
+      <button type="button" class="txn-tab" data-filter="ban" style="--txn-color:#a3803f;" data-i18n-html="txn.ban-tab">Bán <span class="cnt"></span></button>
+      <button type="button" class="txn-tab" data-filter="can_mua" style="--txn-color:#7a3fa0;" data-i18n-html="txn.can-mua-tab">Cần mua <span class="cnt"></span></button>
+      <button type="button" class="txn-tab" data-filter="ky_gui" style="--txn-color:#b06a2b;" data-i18n-html="txn.ky-gui-tab">Ký gửi <span class="cnt"></span></button>
+    </div>
+    <div id="bds2-listings-feed" class="listings-feed">
+      <div class="form-hint" style="text-align:center;padding:32px 16px;" data-feed-state="emptyGeneric">
+        <p style="margin:0 0 14px;" data-i18n="feed.common.empty-intro">Danh sách được cập nhật liên tục — liên hệ trực tiếp để nhận thông tin mới nhất, phù hợp đúng nhu cầu của bạn.</p>
+        <a class="btn primary" href="tel:0399831228" data-i18n="feed.common.call-now">Gọi ngay: 0399 831 228</a>
+        <a class="btn outline-navy" href="https://zalo.me/0399831228" target="_blank" rel="noopener" data-i18n="common.zalo-label">Nhắn Zalo</a>
+      </div>
+    </div>
+
+    <div class="region-grid" style="margin-bottom:16px;">
+      <div class="region-card" style="--accent:#2f7d4f;">
+        <h3 data-i18n="region.north.name">Miền Bắc</h3>
+        <div class="tag" data-i18n="region.north.tag">Công nghiệp công nghệ cao · Kết nối quốc tế</div>
+        <ul>
+          <li>Hà Nội</li><li>Vĩnh Phúc (Phú Thọ)</li>
+          <li>Hải Phòng</li><li>Thái Nguyên</li>
+          <li>Bắc Ninh</li><li>Bắc Giang</li>
+          <li>Hưng Yên</li><li>Quảng Ninh</li>
+          <li>Hải Dương</li><li>Các tỉnh khác</li>
+        </ul>
+        <button type="button" class="btn region-search-btn" data-region-keywords="Hà Nội,Vĩnh Phúc,Phú Thọ,Hải Phòng,Thái Nguyên,Bắc Ninh,Bắc Giang,Hưng Yên,Quảng Ninh,Hải Dương" data-i18n="region.north.cta">Xem các KCN Miền Bắc →</button>
+      </div>
+      <div class="region-card" style="--accent:#2b6fb0;">
+        <h3 data-i18n="region.central.name">Miền Trung</h3>
+        <div class="tag" data-i18n="region.central.tag">Cửa ngõ biển · Hành lang kinh tế</div>
+        <ul>
+          <li>Thanh Hóa</li><li>Quảng Ngãi</li>
+          <li>Nghệ An</li><li>Bình Định (Gia Lai)</li>
+          <li>Hà Tĩnh</li><li>Phú Yên (Đắk Lắk)</li>
+          <li>Quảng Bình (Quảng Trị)</li><li>Khánh Hòa</li>
+          <li>Đà Nẵng</li><li>Các tỉnh khác</li>
+        </ul>
+        <button type="button" class="btn region-search-btn" data-region-keywords="Thanh Hóa,Quảng Ngãi,Nghệ An,Bình Định,Gia Lai,Hà Tĩnh,Phú Yên,Đắk Lắk,Quảng Bình,Quảng Trị,Khánh Hòa,Đà Nẵng" data-i18n="region.central.cta">Xem các KCN Miền Trung →</button>
+      </div>
+      <div class="region-card" style="--accent:#b06a2b;">
+        <h3 data-i18n="region.southeast.name">Đông Nam Bộ</h3>
+        <div class="tag" data-i18n="region.southeast.tag">Trung tâm công nghiệp &amp; logistics lớn nhất Việt Nam</div>
+        <ul>
+          <li>TP. Hồ Chí Minh</li><li>Đồng Nai</li>
+          <li>Tây Ninh</li><li>Đồng Tháp (Long An)</li>
+          <li>Bình Dương (cũ)</li><li>Bà Rịa – Vũng Tàu</li>
+          <li style="grid-column:span 2;">Các khu công nghiệp trọng điểm</li>
+        </ul>
+        <button type="button" class="btn region-search-btn" data-region-keywords="Hồ Chí Minh,Đồng Nai,Tây Ninh,Đồng Tháp,Long An,Bình Dương,Bà Rịa,Vũng Tàu" data-i18n="region.southeast.cta">Xem các KCN Đông Nam Bộ →</button>
+      </div>
+      <div class="region-card" style="--accent:#7a5230;">
+        <h3 data-i18n="region.highlands.name">Tây Nguyên</h3>
+        <div class="tag" data-i18n="region.highlands.tag">Tài nguyên · Nông nghiệp công nghệ cao</div>
+        <ul>
+          <li>Đắk Lắk</li><li>Lâm Đồng</li>
+          <li>Gia Lai</li><li>Đắk Nông (cũ)</li>
+          <li style="grid-column:span 2;">Kon Tum (cũ) · Các khu công nghiệp tiềm năng</li>
+        </ul>
+        <button type="button" class="btn region-search-btn" data-region-keywords="Đắk Lắk,Lâm Đồng,Gia Lai,Đắk Nông,Kon Tum" data-i18n="region.highlands.cta">Xem các KCN Tây Nguyên →</button>
+      </div>
+      <div class="region-card" style="--accent:#7a3fa0;">
+        <h3 data-i18n="region.mekong.name">Đồng bằng sông Cửu Long</h3>
+        <div class="tag" data-i18n="region.mekong.tag">Nông nghiệp · Chế biến · Xuất khẩu</div>
+        <ul>
+          <li>Cần Thơ</li><li>Kiên Giang</li>
+          <li>An Giang</li><li>Hậu Giang (cũ)</li>
+          <li>Đồng Tháp</li><li>Sóc Trăng (cũ)</li>
+          <li>Vĩnh Long</li><li>Bạc Liêu (cũ)</li>
+          <li>Cà Mau</li><li>Các tỉnh khác</li>
+        </ul>
+        <button type="button" class="btn region-search-btn" data-region-keywords="Cần Thơ,Kiên Giang,An Giang,Hậu Giang,Đồng Tháp,Sóc Trăng,Vĩnh Long,Bạc Liêu,Cà Mau" data-i18n="region.mekong.cta">Xem các KCN ĐBSCL →</button>
+      </div>
+    </div>
+    <div class="pillar-cols" style="grid-template-columns:1fr; margin-top:22px;">
+      <div class="side-card">
+        <h4 data-i18n="section.bds2.why-title">Vì sao chọn Lê Hoài Thanh?</h4>
+        <ul style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:9px;">
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why1">Dữ liệu thực tế — cập nhật liên tục</span></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why2">Kết nối nhanh chủ nhà — người mua, người thuê</span></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why3">Tư vấn đúng nhu cầu — đúng mục đích sử dụng</span></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why4">Hỗ trợ khảo sát — đàm phán — pháp lý</span></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why5">Mạng lưới rộng khắp khu dân cư, khu trung tâm</span></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why6">Đồng hành lâu dài — tạo giá trị bền vững</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02. LOGISTICS & XE NÂNG - THIẾT BỊ (gộp 2 mục, 30/09/2026) ============ -->
+<section class="pillar-section-group" id="logistics-xe-nang">
+  <div class="wrap group-intro-wrap">
+    <div class="pillar-head">
+      <div>
+        <div class="kicker">02 · Logistics &amp; xe nâng - thiết bị</div>
+        <h2 data-i18n="nav.logistics-forklift">Logistics &amp; Xe nâng - thiết bị</h2>
+        <p class="desc" data-i18n="pillar.logxn.intro">Hậu cần, sản xuất và thiết bị nâng hạ — hai mảng dịch vụ luôn song hành trong vận hành nhà xưởng, kho bãi, nay gộp chung một điểm tra cứu.</p>
+      </div>
+    </div>
+  </div>
+  <section class="pillar-section on-navy group-sub group-sub-first" id="logistics-san-xuat">
   <div class="wrap">
     <div class="pillar-head">
       <div>
@@ -2056,9 +2221,8 @@
     </div>
   </div>
 </section>
-
 <!-- ============ 03. XE NÂNG & THIẾT BỊ ============ -->
-<section class="pillar-section" id="xe-nang-thiet-bi">
+  <section class="pillar-section group-sub" id="xe-nang-thiet-bi">
   <div class="wrap">
     <div class="pillar-head">
       <div>
@@ -2239,6 +2403,7 @@
       </div>
     </div>
   </div>
+</section>
 </section>
 
 <section class="pillar-section other-fields-section" id="linh-vuc-khac">
@@ -2685,188 +2850,6 @@
 </section>
 
 </details>
-
-<details class="other-field-item" id="ofi-bds-dan-dung">
-<summary class="ofi-summary">
-  <span class="ofi-summary-text">
-    <span class="ofi-title">BĐS dân dụng &amp; thương mại</span>
-    <span class="ofi-desc">Nhà phố, căn hộ, đất nền và mặt bằng kinh doanh — cập nhật liên tục, kết nối nhanh chủ tài sản với người mua/thuê thật.</span>
-  </span>
-  <span class="ofi-chevron" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
-</summary>
-<!-- ============ 01b. BĐS DÂN DỤNG & THƯƠNG MẠI ============ -->
-<section class="pillar-section" id="bds-dan-dung">
-  <div class="wrap">
-    <div class="pillar-head">
-      <div>
-        <div class="kicker" data-i18n="section.bds2.kicker">02 · Bất động sản dân dụng &amp; thương mại</div>
-        <h2 data-i18n="section.bds2.title">BĐS dân dụng &amp; thương mại</h2>
-        <p class="desc" data-i18n="section.bds2.intro">Nhà phố, căn hộ, đất nền và mặt bằng kinh doanh — cập nhật liên tục, kết nối nhanh chủ tài sản với người mua/thuê thật.</p>
-      </div>
-    </div>
-    <div class="toolbar">
-      <input type="text" id="bds2-search-input" placeholder="Bạn đang tìm nhà phố, căn hộ, mặt bằng ở đâu?" aria-label="Tìm nhà xưởng, đất KCN" data-i18n-placeholder="section.bds2.search-ph">
-      <button type="button" id="bds2-search-clear" class="search-clear-btn" hidden aria-label="Xóa tìm kiếm">✕</button>
-      <button type="button" id="bds2-search-btn" class="btn primary" style="padding:9px 18px;" data-i18n="toolbar.search-btn">Tìm kiếm ngay →</button>
-      <div class="chip-wrap">
-        <button type="button" class="chip" id="bds2-chip1-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.bds2.chip1">Loại tài sản</span><span class="chip-count" hidden></span></button>
-        <div class="chip-menu" id="bds2-chip1-menu" hidden role="menu" aria-label="Loại tài sản"></div>
-      </div>
-      <div class="chip-wrap">
-        <button type="button" class="chip" id="bds2-chip2-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.bds2.chip2">Diện tích</span><span class="chip-count" hidden></span></button>
-        <div class="chip-menu" id="bds2-chip2-menu" hidden role="menu" aria-label="Diện tích"></div>
-      </div>
-      <div class="chip-wrap">
-        <button type="button" class="chip" id="bds2-chip3-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.bds2.chip3">Giá thuê / bán</span><span class="chip-count" hidden></span></button>
-        <div class="chip-menu" id="bds2-chip3-menu" hidden role="menu" aria-label="Giá thuê / bán"></div>
-      </div>
-      <div class="chip-wrap">
-        <button type="button" class="chip" id="bds2-chip4-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.bds2.chip4">Mục đích</span><span class="chip-count" hidden></span></button>
-        <div class="chip-menu" id="bds2-chip4-menu" hidden role="menu" aria-label="Ngành nghề"></div>
-      </div>
-    </div>
-
-    <div class="listing-head-row">
-      <span class="listing-flag" tabindex="0" role="button">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.3 4.6 2.4 7.4L12 16.8 5.9 21.4l2.4-7.4L2 9.4h7.6z"/></svg>
-        <span data-i18n="listing.bds2.flag">Tin đăng bất động sản dân dụng &amp; thương mại</span>
-      </span>
-      <button type="button" id="bds2-listing-form-toggle" class="btn primary" hidden data-i18n="form.common.btn-add-new">+ Đăng tin mới</button>
-    </div>
-
-    <div id="bds2-listing-form-panel" class="listing-form-panel" hidden>
-      <h4 data-i18n="form.common.panel-heading">Đăng tin mới</h4>
-      <p class="form-hint" data-i18n="form.bds.panel-hint">Cho mình biết bạn cần gì trước — form và bảng giá sẽ hiển thị đúng theo nhu cầu đó, tránh rối thông tin.</p>
-      <form id="bds2-listing-form">
-        <div class="field txn-field" style="margin-bottom:18px;">
-          <label class="group-label" data-i18n-html="form.common.group-label">Bạn muốn đăng tin dạng nào? <span style="color:#c0392b;">*</span></label>
-          <div class="txn-pills" role="group" aria-label="Loại giao dịch (có thể chọn nhiều)">
-            <label class="txn-pill" data-type="cho_thue" style="--txn-color:#2b6fb0;"><input type="checkbox" name="txnTypes" value="cho_thue" checked><span data-i18n="txn.cho-thue">Cho thuê</span></label>
-            <label class="txn-pill" data-type="can_thue" style="--txn-color:#2f7d4f;"><input type="checkbox" name="txnTypes" value="can_thue"><span data-i18n="txn.can-thue">Cần thuê</span></label>
-            <label class="txn-pill" data-type="ban" style="--txn-color:#a3803f;"><input type="checkbox" name="txnTypes" value="ban"><span data-i18n="txn.ban">Bán</span></label>
-            <label class="txn-pill" data-type="can_mua" style="--txn-color:#7a3fa0;"><input type="checkbox" name="txnTypes" value="can_mua"><span data-i18n="txn.can-mua">Cần mua</span></label>
-            <label class="txn-pill" data-type="ky_gui" style="--txn-color:#b06a2b;"><input type="checkbox" name="txnTypes" value="ky_gui"><span data-i18n="txn.ky-gui">Ký gửi</span></label>
-          </div>
-        </div>
-        <div class="form-grid">
-          <div class="field"><label for="bds2-lf-title" data-i18n="form.common.label-title">Tiêu đề tin</label><input id="bds2-lf-title" name="title" type="text" required placeholder="VD: Cho thuê kho Sóng Thần 1" data-i18n-placeholder="form.bds.ph-title"></div>
-          <div class="field"><label for="bds2-lf-location" data-i18n="form.bds.label-location">Khu vực / KCN</label><input id="bds2-lf-location" name="location" type="text" required placeholder="VD: Quận 7, TP.HCM" data-i18n-placeholder="form.bds2.ph-location"></div>
-          <div class="field"><label for="bds2-lf-type" data-i18n="form.bds2.label-type">Loại tài sản</label>
-            <select id="bds2-lf-type" name="propertyType">
-              <option data-i18n="form.bds2.opt-townhouse">Nhà phố</option><option data-i18n="form.bds2.opt-apartment">Căn hộ</option><option data-i18n="form.bds2.opt-land">Đất nền</option><option data-i18n="form.bds2.opt-villa">Biệt thự</option><option data-i18n="form.bds2.opt-commercial">Mặt bằng kinh doanh</option><option data-i18n="form.bds2.opt-office">Văn phòng</option>
-            </select>
-          </div>
-          <div class="field"><label for="bds2-lf-total" data-i18n="form.bds.label-total">Tổng diện tích (m²)</label><input id="bds2-lf-total" name="totalArea" type="number" min="0" required placeholder="VD: 23000" data-i18n-placeholder="form.bds.ph-total"></div>
-          <div class="field"><label id="bds2-lf-areas-label" for="bds2-lf-areas" data-i18n="form.bds.label-areas">Các mức diện tích cho thuê (m², cách nhau bởi dấu phẩy)</label><input id="bds2-lf-areas" name="areas" type="text" required placeholder="VD: 800, 1600, 3200" data-i18n-placeholder="form.bds.ph-areas"></div>
-          <div class="field"><label id="bds2-lf-price-label" for="bds2-lf-price" data-i18n="form.bds.label-price">Đơn giá thuê (đ/m²/tháng, chưa VAT)</label><input id="bds2-lf-price" name="pricePerM2" type="number" min="0" required placeholder="VD: 95000" data-i18n-placeholder="form.bds.ph-price"></div>
-          <div class="field"><label for="bds2-lf-electricity" data-i18n="form.bds.label-electricity">Đơn giá điện</label><input id="bds2-lf-electricity" name="electricity" type="text" placeholder="VD: 5.000 đ/kWh" data-i18n-placeholder="form.bds.ph-electricity"></div>
-          <div class="field"><label for="bds2-lf-water" data-i18n="form.bds.label-water">Đơn giá nước</label><input id="bds2-lf-water" name="water" type="text" placeholder="VD: 17.000 đ/m³" data-i18n-placeholder="form.bds.ph-water"></div>
-          <div class="field"><label for="bds2-lf-phone" data-i18n="form.common.label-phone">Số điện thoại liên hệ</label><input id="bds2-lf-phone" name="phone" type="text" required placeholder="VD: 0399 831 228" data-i18n-placeholder="form.common.placeholder-phone"></div>
-          <div class="field"><label for="bds2-lf-amenities" data-i18n="form.bds.label-amenities">Tiện ích (cách nhau bởi dấu phẩy)</label><input id="bds2-lf-amenities" name="amenities" type="text" placeholder="VD: Có PCCC, Có văn phòng, Sân bãi rộng" data-i18n-placeholder="form.bds.ph-amenities"></div>
-          <div class="field" style="grid-column:1/-1;"><label for="bds2-lf-desc" data-i18n="form.common.label-desc">Mô tả thêm (không bắt buộc — hệ thống sẽ tối ưu giúp bạn)</label><textarea id="bds2-lf-desc" name="description" placeholder="Ghi vài ý cơ bản, hệ thống sẽ viết lại cho chuyên nghiệp và đầy đủ hơn" data-i18n-placeholder="form.common.placeholder-desc"></textarea></div>
-          <div class="field" style="grid-column:1/-1;"><label for="bds2-lf-images" data-i18n="form.common.label-images">Hình ảnh (có thể chọn nhiều)</label><input id="bds2-lf-images" name="images" type="file" accept="image/*" multiple></div>
-        </div>
-        <div class="listing-form-actions">
-          <button type="submit" class="btn primary" data-i18n="form.common.btn-submit">Đăng tin ngay</button>
-          <button type="button" id="bds2-listing-form-cancel" class="btn outline-navy" data-i18n="form.common.btn-cancel">Hủy</button>
-          <span id="bds2-listing-form-status" class="form-status"></span>
-        </div>
-      </form>
-    </div>
-
-    <div class="txn-tabs" id="bds2-txn-filter" role="tablist" aria-label="Lọc theo nhu cầu" hidden>
-      <button type="button" class="txn-tab active" data-filter="all" style="--txn-color:var(--gold);" data-i18n-html="txn.all-tab">Tất cả <span class="cnt"></span></button>
-      <button type="button" class="txn-tab" data-filter="cho_thue" style="--txn-color:#2b6fb0;" data-i18n-html="txn.cho-thue-tab">Cho thuê <span class="cnt"></span></button>
-      <button type="button" class="txn-tab" data-filter="can_thue" style="--txn-color:#2f7d4f;" data-i18n-html="txn.can-thue-tab">Cần thuê <span class="cnt"></span></button>
-      <button type="button" class="txn-tab" data-filter="ban" style="--txn-color:#a3803f;" data-i18n-html="txn.ban-tab">Bán <span class="cnt"></span></button>
-      <button type="button" class="txn-tab" data-filter="can_mua" style="--txn-color:#7a3fa0;" data-i18n-html="txn.can-mua-tab">Cần mua <span class="cnt"></span></button>
-      <button type="button" class="txn-tab" data-filter="ky_gui" style="--txn-color:#b06a2b;" data-i18n-html="txn.ky-gui-tab">Ký gửi <span class="cnt"></span></button>
-    </div>
-    <div id="bds2-listings-feed" class="listings-feed">
-      <div class="form-hint" style="text-align:center;padding:32px 16px;" data-feed-state="emptyGeneric">
-        <p style="margin:0 0 14px;" data-i18n="feed.common.empty-intro">Danh sách được cập nhật liên tục — liên hệ trực tiếp để nhận thông tin mới nhất, phù hợp đúng nhu cầu của bạn.</p>
-        <a class="btn primary" href="tel:0399831228" data-i18n="feed.common.call-now">Gọi ngay: 0399 831 228</a>
-        <a class="btn outline-navy" href="https://zalo.me/0399831228" target="_blank" rel="noopener" data-i18n="common.zalo-label">Nhắn Zalo</a>
-      </div>
-    </div>
-
-    <div class="region-grid" style="margin-bottom:16px;">
-      <div class="region-card" style="--accent:#2f7d4f;">
-        <h3 data-i18n="region.north.name">Miền Bắc</h3>
-        <div class="tag" data-i18n="region.north.tag">Công nghiệp công nghệ cao · Kết nối quốc tế</div>
-        <ul>
-          <li>Hà Nội</li><li>Vĩnh Phúc (Phú Thọ)</li>
-          <li>Hải Phòng</li><li>Thái Nguyên</li>
-          <li>Bắc Ninh</li><li>Bắc Giang</li>
-          <li>Hưng Yên</li><li>Quảng Ninh</li>
-          <li>Hải Dương</li><li>Các tỉnh khác</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Hà Nội,Vĩnh Phúc,Phú Thọ,Hải Phòng,Thái Nguyên,Bắc Ninh,Bắc Giang,Hưng Yên,Quảng Ninh,Hải Dương" data-i18n="region.north.cta">Xem các KCN Miền Bắc →</button>
-      </div>
-      <div class="region-card" style="--accent:#2b6fb0;">
-        <h3 data-i18n="region.central.name">Miền Trung</h3>
-        <div class="tag" data-i18n="region.central.tag">Cửa ngõ biển · Hành lang kinh tế</div>
-        <ul>
-          <li>Thanh Hóa</li><li>Quảng Ngãi</li>
-          <li>Nghệ An</li><li>Bình Định (Gia Lai)</li>
-          <li>Hà Tĩnh</li><li>Phú Yên (Đắk Lắk)</li>
-          <li>Quảng Bình (Quảng Trị)</li><li>Khánh Hòa</li>
-          <li>Đà Nẵng</li><li>Các tỉnh khác</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Thanh Hóa,Quảng Ngãi,Nghệ An,Bình Định,Gia Lai,Hà Tĩnh,Phú Yên,Đắk Lắk,Quảng Bình,Quảng Trị,Khánh Hòa,Đà Nẵng" data-i18n="region.central.cta">Xem các KCN Miền Trung →</button>
-      </div>
-      <div class="region-card" style="--accent:#b06a2b;">
-        <h3 data-i18n="region.southeast.name">Đông Nam Bộ</h3>
-        <div class="tag" data-i18n="region.southeast.tag">Trung tâm công nghiệp &amp; logistics lớn nhất Việt Nam</div>
-        <ul>
-          <li>TP. Hồ Chí Minh</li><li>Đồng Nai</li>
-          <li>Tây Ninh</li><li>Đồng Tháp (Long An)</li>
-          <li>Bình Dương (cũ)</li><li>Bà Rịa – Vũng Tàu</li>
-          <li style="grid-column:span 2;">Các khu công nghiệp trọng điểm</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Hồ Chí Minh,Đồng Nai,Tây Ninh,Đồng Tháp,Long An,Bình Dương,Bà Rịa,Vũng Tàu" data-i18n="region.southeast.cta">Xem các KCN Đông Nam Bộ →</button>
-      </div>
-      <div class="region-card" style="--accent:#7a5230;">
-        <h3 data-i18n="region.highlands.name">Tây Nguyên</h3>
-        <div class="tag" data-i18n="region.highlands.tag">Tài nguyên · Nông nghiệp công nghệ cao</div>
-        <ul>
-          <li>Đắk Lắk</li><li>Lâm Đồng</li>
-          <li>Gia Lai</li><li>Đắk Nông (cũ)</li>
-          <li style="grid-column:span 2;">Kon Tum (cũ) · Các khu công nghiệp tiềm năng</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Đắk Lắk,Lâm Đồng,Gia Lai,Đắk Nông,Kon Tum" data-i18n="region.highlands.cta">Xem các KCN Tây Nguyên →</button>
-      </div>
-      <div class="region-card" style="--accent:#7a3fa0;">
-        <h3 data-i18n="region.mekong.name">Đồng bằng sông Cửu Long</h3>
-        <div class="tag" data-i18n="region.mekong.tag">Nông nghiệp · Chế biến · Xuất khẩu</div>
-        <ul>
-          <li>Cần Thơ</li><li>Kiên Giang</li>
-          <li>An Giang</li><li>Hậu Giang (cũ)</li>
-          <li>Đồng Tháp</li><li>Sóc Trăng (cũ)</li>
-          <li>Vĩnh Long</li><li>Bạc Liêu (cũ)</li>
-          <li>Cà Mau</li><li>Các tỉnh khác</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Cần Thơ,Kiên Giang,An Giang,Hậu Giang,Đồng Tháp,Sóc Trăng,Vĩnh Long,Bạc Liêu,Cà Mau" data-i18n="region.mekong.cta">Xem các KCN ĐBSCL →</button>
-      </div>
-    </div>
-    <div class="pillar-cols" style="grid-template-columns:1fr; margin-top:22px;">
-      <div class="side-card">
-        <h4 data-i18n="section.bds2.why-title">Vì sao chọn Lê Hoài Thanh?</h4>
-        <ul style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:9px;">
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why1">Dữ liệu thực tế — cập nhật liên tục</span></li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why2">Kết nối nhanh chủ nhà — người mua, người thuê</span></li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why3">Tư vấn đúng nhu cầu — đúng mục đích sử dụng</span></li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why4">Hỗ trợ khảo sát — đàm phán — pháp lý</span></li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why5">Mạng lưới rộng khắp khu dân cư, khu trung tâm</span></li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="section.bds2.why6">Đồng hành lâu dài — tạo giá trị bền vững</span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-</details>
-
     </div>
   </div>
 </section>
@@ -3344,14 +3327,16 @@
   })();
 
   // =========================================================================
-  // 4 mục trong "Lĩnh vực khác" (BĐS dân dụng, Dự án & đầu tư, Pháp lý & tài
-  // chính, Kiến thức & Media) nay nằm trong <details> đóng sẵn. Khi có link
-  // trỏ thẳng tới id bên trong (menu cũ, thẻ "Xem chi tiết →", hoặc mở link
-  // có #hash sẵn), tự mở đúng khối rồi cuộn tới, không chỉ tự tự cuộn tới một
-  // khối đang đóng.
+  // 3 mục trong "Lĩnh vực khác" (Dự án & đầu tư, Pháp lý & tài chính, Kiến
+  // thức & Media) nằm trong <details> đóng sẵn. Khi có link trỏ thẳng tới id
+  // bên trong (menu cũ, thẻ "Xem chi tiết →", hoặc mở link có #hash sẵn), tự
+  // mở đúng khối rồi cuộn tới, không chỉ tự tự cuộn tới một khối đang đóng.
+  // (BĐS dân dụng đã tách ra thành mục đứng riêng, không còn trong khối này
+  // — gộp lại 30/09/2026: Logistics + Xe nâng thành 1 mục, BĐS dân dụng lên
+  // đứng riêng.)
   // =========================================================================
   (function initOtherFieldsReveal(){
-    var ids = ['bds-dan-dung','du-an-dau-tu','phap-ly-tai-chinh','kien-thuc-media'];
+    var ids = ['du-an-dau-tu','phap-ly-tai-chinh','kien-thuc-media'];
     function openAndScroll(id, doPushState){
       var target = document.getElementById(id);
       if (!target) return;
