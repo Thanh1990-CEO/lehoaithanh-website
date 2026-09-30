@@ -97,9 +97,10 @@ function buildOgDescription(data) {
     // media_posts (and any listing without amenities) fall back to its own description.
     parts.push(String(data.description).trim());
   }
-  if (data && data.phone) {
-    parts.push('Liên hệ: ' + String(data.phone).trim());
-  }
+  // Always show the agency's own contact number in share previews — never
+  // the source/seller's phone captured into the listing data (that value
+  // stays in Supabase/CRM for internal reference only, never shown publicly).
+  parts.push('Liên hệ: 0399 831 228');
   const combined = parts.filter(Boolean).join(' · ');
   return truncate(combined, 160);
 }
