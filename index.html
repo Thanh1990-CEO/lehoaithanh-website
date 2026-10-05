@@ -401,7 +401,7 @@
     position:absolute; inset:0;
     background:
       linear-gradient(180deg, rgba(62,39,35,0) 52%, rgba(62,39,35,0.55) 100%),
-      linear-gradient(100deg, rgba(255,193,7,0.16), transparent 45%);
+      linear-gradient(100deg, rgba(255,122,0,0.16), transparent 45%);
     pointer-events:none;
   }
   .portrait-frame svg{ width:78%; }
@@ -515,7 +515,7 @@
   .side-item:last-child{border-bottom:none;}
   .side-item .ic{
     width:30px; height:30px; border-radius:6px;
-    background:rgba(255,193,7,0.14);
+    background:rgba(255,122,0,0.14);
     display:flex; align-items:center; justify-content:center;
     color:var(--gold-light);
     flex:none;
@@ -558,7 +558,7 @@
   }
   .hero-scene-quote span{
     display:block; margin-top:10px; font-family:'Inter',sans-serif; font-size:0.74rem; font-weight:600;
-    letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,193,7,0.92);
+    letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,122,0,0.92);
     text-shadow:0 1px 6px rgba(0,0,0,.5);
   }
   @media (max-width:640px){
@@ -706,43 +706,6 @@
     border-top:1px solid var(--rule);
   }
 
-  /* ---------------- Pillar overview (6 mảng ngành nghề) ---------------- */
-  .pillar-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(200px,1fr));
-    gap:16px;
-  }
-  .pillar-card{
-    background:var(--lht-white);
-    border:1px solid var(--lht-border);
-    border-top:4px solid var(--accent, var(--lht-gold));
-    border-radius:var(--lht-radius);
-    box-shadow:var(--lht-shadow);
-    padding:22px 18px;
-    display:flex; flex-direction:column; gap:10px;
-    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-  }
-  .pillar-card:hover{
-    border-color:var(--lht-border);
-    border-top-color:var(--accent, var(--lht-gold));
-    box-shadow:0 14px 34px rgba(93,64,55,0.14);
-    transform:translateY(-4px);
-  }
-  .pillar-card .ic{
-    width:42px; height:42px; border-radius:8px;
-    background:var(--accent, var(--navy));
-    color:#fff;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .pillar-card .num{font-family:'Oswald',sans-serif; font-size:0.75rem; color:var(--accent, var(--gold)); font-weight:700;}
-  .pillar-card h3{font-size:0.95rem; color:var(--navy);}
-  .pillar-card p{font-size:0.78rem; color:var(--text-dim); line-height:1.5;}
-  .pillar-card a.go{
-    margin-top:auto; font-size:0.75rem; font-weight:700; color:var(--navy);
-    display:inline-flex; align-items:center; gap:5px;
-  }
-  .pillar-card a.go:hover{color:var(--gold-deep,#a3803f);}
-
   /* ---------------- Generic pillar detail section ---------------- */
   .pillar-section{padding-block:52px; border-top:2px solid var(--paper-2); scroll-margin-top:76px; position:relative;}
   .pillar-section::before{
@@ -798,13 +761,13 @@
   }
   .toolbar .chip svg{vertical-align:-2px; margin-right:4px;}
   .toolbar .chip:hover{border-color:var(--lht-gold); color:var(--navy);}
-  .toolbar .chip.has-selection{border-color:var(--lht-gold); background:rgba(255,193,7,0.14); color:var(--navy);}
+  .toolbar .chip.has-selection{border-color:var(--lht-gold); background:rgba(255,122,0,0.14); color:var(--navy);}
   .toolbar .chip .chip-count{font-weight:700; color:var(--gold-deep,#a3803f);}
   .pillar-section.on-navy .toolbar{background:var(--navy-2); border-color:var(--rule);}
   .pillar-section.on-navy .toolbar input{color:#fff;}
   .pillar-section.on-navy .toolbar input::placeholder{color:var(--ink-on-navy-dim);}
   .pillar-section.on-navy .toolbar .chip{background:var(--navy-2); border-color:var(--rule); color:var(--ink-on-navy);}
-  .pillar-section.on-navy .toolbar .chip.has-selection{border-color:var(--gold); background:rgba(255,193,7,0.16); color:#fff;}
+  .pillar-section.on-navy .toolbar .chip.has-selection{border-color:var(--gold); background:rgba(255,122,0,0.16); color:#fff;}
   .toolbar .btn{padding:9px 18px; white-space:nowrap;}
 
   /* thanh tra cứu theo Mã tài sản — độc lập với các thanh tìm kiếm theo mục ở dưới,
@@ -990,7 +953,7 @@
   .listing-cta .btn.listing-share-btn.is-copied{background:var(--gold); border-color:var(--gold); color:var(--navy);}
   .listing-card.lht-deep-link-highlight{
     outline:3px solid var(--lht-gold); outline-offset:3px;
-    box-shadow:0 0 0 8px rgba(255,193,7,0.22);
+    box-shadow:0 0 0 8px rgba(255,122,0,0.22);
     transition:outline-color .3s ease, box-shadow .3s ease;
   }
 
@@ -1018,6 +981,17 @@
     background:transparent; border:1.5px solid var(--gold); color:var(--navy); font-weight:700;
   }
   .feed-view-all-btn:hover{background:var(--lht-cream);}
+
+  /* ---- 05/10/2026: nút "Xem tất cả N tin →" khi mục đang bị giới hạn 5 kết quả mặc định ---- */
+  .feed-cap-view-all-btn{
+    display:block; width:100%; max-width:360px; margin:22px auto 4px; text-align:center;
+    padding:13px 22px; border-radius:999px; font-weight:800; letter-spacing:.01em;
+    border:2px solid var(--lht-gold); color:var(--lht-amber); background:#fff;
+    transition:background .15s, color .15s, transform .15s;
+  }
+  .feed-cap-view-all-btn:hover{background:var(--lht-gradient-gold); color:#fff; border-color:var(--lht-amber); transform:translateY(-1px);}
+  .pillar-section.on-navy .feed-cap-view-all-btn{background:transparent; color:var(--lht-gold-light); border-color:var(--lht-gold-light);}
+  .pillar-section.on-navy .feed-cap-view-all-btn:hover{background:var(--lht-gradient-gold); color:var(--navy); border-color:var(--lht-gold-light);}
 
   /* ---- Nút "Trang chủ" luôn hiển thị trên header, kể cả trên di động khi menu đầy đủ bị ẩn ---- */
   .home-btn{
@@ -1063,7 +1037,7 @@
   .listing-form-panel .field textarea{ min-height:90px; resize:vertical; font-family:inherit; }
   .listing-form-panel .field input:focus,
   .listing-form-panel .field textarea:focus,
-  .listing-form-panel select:focus{ outline:none; border-color:var(--lht-gold, #FFA000); }
+  .listing-form-panel select:focus{ outline:none; border-color:var(--lht-gold, #FF7A00); }
   .listing-form-actions{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:18px;}
   .form-status{font-size:0.8rem; color:var(--text-dim);}
 
@@ -1155,7 +1129,7 @@
     position:absolute; inset:0;
     background:
       linear-gradient(180deg, rgba(62,39,35,0) 55%, rgba(62,39,35,0.48) 100%),
-      linear-gradient(100deg, rgba(255,193,7,0.16), transparent 45%);
+      linear-gradient(100deg, rgba(255,122,0,0.16), transparent 45%);
     pointer-events:none;
   }
   .region-card h3{font-size:1rem; color:var(--navy);}
@@ -1347,7 +1321,7 @@
     cursor:pointer; transition:border-color .15s ease, background .15s ease, color .15s ease, transform .15s ease;
   }
   .brand-row button:hover, .brand-row button:focus-visible{
-    border-color:var(--lht-gold); background:rgba(255,193,7,0.12); color:var(--navy); transform:translateY(-1px);
+    border-color:var(--lht-gold); background:rgba(255,122,0,0.12); color:var(--navy); transform:translateY(-1px);
   }
 
   /* ---------------- Nav: nút nổi bật "Về Lê Hoài Thanh" ---------------- */
@@ -1640,34 +1614,6 @@
         </ul>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="cat-section" id="linh-vuc-hoat-dong">
-  <div class="wrap">
-  <div class="pillar-grid">
-    <div class="pillar-card" style="--accent:#FFA000;">
-      <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg></span>
-      <div class="num">01</div>
-      <h3 data-i18n="nav.industrial-re">Bất động sản công nghiệp</h3>
-      <p data-i18n="pillar.bds.desc">Đất KCN · Nhà xưởng · Kho · Dân dụng &amp; thương mại</p>
-      <a class="go" href="#bds-cong-nghiep" data-i18n="pillar.go">Xem chi tiết →</a>
-    </div>
-    <div class="pillar-card" style="--accent:#5E35B1;">
-      <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20V9l5-3v3l5-3v3l5-3v14H3z"/><path d="M8 20v-5h4v5"/></svg></span>
-      <div class="num">02</div>
-      <h3 data-i18n="nav.logistics-forklift">Logistics &amp; Xe nâng - thiết bị</h3>
-      <p data-i18n="pillar.logxn.desc">Nguyên liệu · Sản xuất · Kho vận · Xe nâng, thiết bị kho xưởng</p>
-      <a class="go" href="#logistics-xe-nang" data-i18n="pillar.go">Xem chi tiết →</a>
-    </div>
-    <div class="pillar-card" style="--accent:#6D4C41;">
-      <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M4 9.5h16M9.5 9.5V20"/></svg></span>
-      <div class="num">03</div>
-      <h3 data-i18n="pillar.other.title">Lĩnh vực khác</h3>
-      <p data-i18n="pillar.other.desc">Dự án &amp; đầu tư · Pháp lý &amp; tài chính · Kiến thức &amp; Media</p>
-      <a class="go" href="#linh-vuc-khac" data-i18n="pillar.go">Xem chi tiết →</a>
-    </div>
-  </div>
   </div>
 </section>
 
@@ -3706,6 +3652,7 @@
   let hasSearched = true; /* 05/10: hiện sẵn tin đăng mặc định thay vì bắt tìm kiếm trước */
   let chipFilters = null;
   let regionKeywords = null;
+  let capExpanded = false; /* 05/10: mặc định chỉ hiện LHT_FEED_CAP tin, bấm "Xem tất cả" mới mở hết */
 
   function matchesListingSearch(doc, query){
     if (!query) return true;
@@ -3810,8 +3757,13 @@
       return matchesTab && matchesRegion && matchesListingSearch(d.data, searchQuery) && (!chipFilters || chipFilters.matches(buildBdsChipCtx(d.data)));
     });
     const sorted = [...filtered].sort((a,b) => (b.data.createdAt || 0) - (a.data.createdAt || 0));
+    // 05/10: không lọc/tìm gì (mặc định) thì chỉ show tối đa CAP tin; đã lọc/tìm hoặc đã bấm "Xem tất cả" thì show hết.
+    const isFilteredView = currentFilter !== 'all' || !!searchQuery || !!regionKeywords || (chipFilters ? chipFilters.hasAny() : false);
+    const CAP = window.LHT_FEED_CAP || 5;
+    const shouldCap = !isFilteredView && !capExpanded && sorted.length > CAP;
+    const visible = shouldCap ? sorted.slice(0, CAP) : sorted;
     feedEl.innerHTML = sorted.length
-      ? sorted.map(d => renderCard({ ...d.data, _id: d.id, assetCode: d.assetCode })).join('')
+      ? visible.map(d => renderCard({ ...d.data, _id: d.id, assetCode: d.assetCode })).join('') + (shouldCap && window.lhtCapNoticeHtml ? window.lhtCapNoticeHtml(sorted.length - CAP) : '')
       : (window.lhtFeedHtml ? window.lhtFeedHtml('noResultsFilter') : '<p class="form-hint">Chưa có tin nào thuộc nhu cầu này — thử chọn "Tất cả" hoặc quay lại sau.</p>');
     updateTabCounts();
     applyDeepLinkHighlight(feedEl);
@@ -3906,6 +3858,14 @@
     const viewAllBtn = e.target.closest('[data-feed-view-all]');
     if (!viewAllBtn) return;
     hasSearched = true;
+    renderFeed();
+  });
+
+  // ---- Nút "Xem tất cả N tin →" khi mục đang bị giới hạn 5 tin mặc định (05/10) ----
+  feedEl.addEventListener('click', (e) => {
+    const capBtn = e.target.closest('[data-cap-view-all]');
+    if (!capBtn) return;
+    capExpanded = true;
     renderFeed();
   });
 
@@ -4165,6 +4125,7 @@
     let gSearchQuery = '';
     let gHasSearched = true; /* 05/10: hiện sẵn tin đăng mặc định thay vì bắt tìm kiếm trước */
     let gChipFilters = null;
+    let gCapExpanded = false; /* 05/10: mặc định chỉ hiện LHT_FEED_CAP tin, bấm "Xem tất cả" mới mở hết */
 
     function txLabel(type){ return txnInfo(type).label; }
     function txColor(type){ return txnInfo(type).color; }
@@ -4273,8 +4234,13 @@
         return matchesTab && matchesGenericSearch(d.data, gSearchQuery) && (!gChipFilters || gChipFilters.matches(buildGenericChipCtx(d.data)));
       });
       const sorted = [...filtered].sort((a,b) => (b.data.createdAt || 0) - (a.data.createdAt || 0));
+      // 05/10: không lọc/tìm gì (mặc định) thì chỉ show tối đa CAP tin; đã lọc/tìm hoặc đã bấm "Xem tất cả" thì show hết.
+      const isFilteredView = gFilter !== 'all' || !!gSearchQuery || (gChipFilters ? gChipFilters.hasAny() : false);
+      const CAP = window.LHT_FEED_CAP || 5;
+      const shouldCap = !isFilteredView && !gCapExpanded && sorted.length > CAP;
+      const visible = shouldCap ? sorted.slice(0, CAP) : sorted;
       feedEl.innerHTML = sorted.length
-        ? sorted.map(d => renderGenericCard({ ...d.data, _id: d.id, assetCode: d.assetCode })).join('')
+        ? visible.map(d => renderGenericCard({ ...d.data, _id: d.id, assetCode: d.assetCode })).join('') + (shouldCap && window.lhtCapNoticeHtml ? window.lhtCapNoticeHtml(sorted.length - CAP) : '')
         : (window.lhtFeedHtml ? window.lhtFeedHtml('noResultsFilter') : '<p class="form-hint">Chưa có tin nào thuộc nhu cầu này — thử chọn "Tất cả" hoặc quay lại sau.</p>');
       updateGenericCounts();
       applyDeepLinkHighlight(feedEl);
@@ -4372,6 +4338,14 @@
       const viewAllBtn = e.target.closest('[data-feed-view-all]');
       if (!viewAllBtn) return;
       gHasSearched = true;
+      renderGenericFeed();
+    });
+
+    // ---- Nút "Xem tất cả N tin →" khi mục đang bị giới hạn 5 tin mặc định (05/10) ----
+    feedEl.addEventListener('click', (e) => {
+      const capBtn = e.target.closest('[data-cap-view-all]');
+      if (!capBtn) return;
+      gCapExpanded = true;
       renderGenericFeed();
     });
 
@@ -4530,6 +4504,7 @@
     let mSearchQuery = '';
     let mHasSearched = true; /* 05/10: hiện sẵn tin đăng mặc định thay vì bắt tìm kiếm trước */
     let mChipFilters = null;
+    let mCapExpanded = false; /* 05/10: mặc định chỉ hiện LHT_FEED_CAP nội dung, bấm "Xem tất cả" mới mở hết */
 
     function matchesMediaSearch(doc, query){
       if (!query) return true;
@@ -4616,8 +4591,13 @@
         return matchesTab && matchesMediaSearch(d.data, mSearchQuery) && (!mChipFilters || mChipFilters.matches(buildMediaChipCtx(d.data)));
       });
       const sorted = [...filtered].sort((a,b) => (b.data.createdAt || 0) - (a.data.createdAt || 0));
+      // 05/10: không lọc/tìm gì (mặc định) thì chỉ show tối đa CAP nội dung; đã lọc/tìm hoặc đã bấm "Xem tất cả" thì show hết.
+      const isFilteredView = mFilter !== 'all' || !!mSearchQuery || (mChipFilters ? mChipFilters.hasAny() : false);
+      const CAP = window.LHT_FEED_CAP || 5;
+      const shouldCap = !isFilteredView && !mCapExpanded && sorted.length > CAP;
+      const visible = shouldCap ? sorted.slice(0, CAP) : sorted;
       feedEl.innerHTML = sorted.length
-        ? sorted.map(d => renderMediaCard({ ...d.data, _id: d.id, assetCode: d.assetCode })).join('')
+        ? visible.map(d => renderMediaCard({ ...d.data, _id: d.id, assetCode: d.assetCode })).join('') + (shouldCap && window.lhtCapNoticeHtml ? window.lhtCapNoticeHtml(sorted.length - CAP, null, true) : '')
         : (window.lhtFeedHtml ? window.lhtFeedHtml('noResultsFilterMedia') : '<p class="form-hint">Chưa có nội dung thuộc loại này — thử chọn "Tất cả" hoặc quay lại sau.</p>');
       updateMediaCounts();
       applyDeepLinkHighlight(feedEl);
@@ -4696,6 +4676,14 @@
       const viewAllBtn = e.target.closest('[data-feed-view-all]');
       if (!viewAllBtn) return;
       mHasSearched = true;
+      renderMediaFeed();
+    });
+
+    // ---- Nút "Xem tất cả N nội dung →" khi mục đang bị giới hạn 5 nội dung mặc định (05/10) ----
+    feedEl.addEventListener('click', (e) => {
+      const capBtn = e.target.closest('[data-cap-view-all]');
+      if (!capBtn) return;
+      mCapExpanded = true;
       renderMediaFeed();
     });
 
@@ -4871,8 +4859,8 @@
       const baseline = H - 20;
       const topPad = 16;
       const grad = ctx.createLinearGradient(0, topPad, 0, baseline);
-      grad.addColorStop(0, '#FFC107');
-      grad.addColorStop(1, '#FFA000');
+      grad.addColorStop(0, '#FF9D4D');
+      grad.addColorStop(1, '#E8690A');
       months.forEach((mo, i) => {
         const h = mo.count > 0 ? Math.max(5, Math.round((mo.count / max) * (baseline - topPad))) : 2;
         const x = gap + i * (barW + gap);
@@ -5051,6 +5039,8 @@
     "feed.common.no-results-category": "No listings in this category yet.",
     "feed.common.no-results-filter": "No listings match this need yet — try \"All\" or check back later.",
     "feed.common.search-prompt": "🔎 Enter a keyword (e.g. area name, property type, product...) and press \"Search now\" to see matching listings.",
+    "feed.common.view-all-cap": "View all {n} listings →",
+    "feed.md.view-all-cap": "View all {n} items →",
     "form.common.placeholder-phone": "e.g. 0399 831 228",
     "txn.all-tab": "All <span class=\"cnt\"></span>",
     "txn.cho-thue-tab": "For Rent <span class=\"cnt\"></span>",
@@ -5517,6 +5507,8 @@
     "feed.common.no-results-category": "此分類目前尚無刊登資訊。",
     "feed.common.no-results-filter": "目前沒有符合此需求的資訊 — 請嘗試「全部」或稍後再查看。",
     "feed.common.search-prompt": "🔎 請輸入關鍵字(例如:區域名稱、類型、產品...)並點擊「立即搜尋」以查看符合的刊登資訊。",
+    "feed.common.view-all-cap": "查看全部 {n} 則刊登 →",
+    "feed.md.view-all-cap": "查看全部 {n} 項內容 →",
     "form.common.placeholder-phone": "例:0399 831 228",
     "txn.all-tab": "全部 <span class=\"cnt\"></span>",
     "txn.cho-thue-tab": "出租 <span class=\"cnt\"></span>",
@@ -5951,7 +5943,9 @@
     'feed.md.no-results-filter': 'Chưa có nội dung thuộc loại này — thử chọn "Tất cả" hoặc quay lại sau.',
     'feed.md.search-prompt': '🔎 Nhập từ khoá (VD: chủ đề, loại nội dung...) và bấm "Tìm kiếm ngay" để xem nội dung phù hợp.',
     'feed.common.view-all': '📋 Xem tất cả tin trong mục này',
-    'feed.common.view-all-other': '📋 Xem tất cả tin khác trong mục này'
+    'feed.common.view-all-other': '📋 Xem tất cả tin khác trong mục này',
+    'feed.common.view-all-cap': 'Xem tất cả {n} tin →',
+    'feed.md.view-all-cap': 'Xem tất cả {n} nội dung →'
   };
   function lhtT(key, lang){
     lang = lang || window.LHT_CURRENT_LANG || 'vi';
@@ -5987,6 +5981,18 @@
       return '<div class="form-hint" style="text-align:center;padding:32px 16px;" data-feed-state="emptyMedia"><p style="margin:0 0 14px;">' + lhtT('feed.md.empty-intro', lang) + '</p>' + callBtn + ' ' + zaloBtn + '</div>';
     }
     return '<div class="form-hint" style="text-align:center;padding:32px 16px;" data-feed-state="emptyGeneric"><p style="margin:0 0 14px;">' + lhtT('feed.common.empty-intro', lang) + '</p>' + callBtn + ' ' + zaloBtn + '</div>';
+  };
+
+  /* ---- 05/10/2026: mỗi mục chỉ hiện sẵn tối đa LHT_FEED_CAP tin, phần còn lại
+     nằm sẵn trong data và chỉ hiện ra khi bấm "Xem tất cả" hoặc khi người dùng
+     chủ động tìm kiếm / lọc (áp dụng đồng nhất cho BĐS, Logistics & Xe nâng,
+     Dự án, Pháp lý, Kiến thức & Media). ---- */
+  window.LHT_FEED_CAP = 5;
+  window.lhtCapNoticeHtml = function(remaining, lang, isMedia){
+    lang = lang || window.LHT_CURRENT_LANG || 'vi';
+    var key = isMedia ? 'feed.md.view-all-cap' : 'feed.common.view-all-cap';
+    var txt = lhtT(key, lang).replace('{n}', String(remaining));
+    return '<button type="button" class="btn outline-navy feed-cap-view-all-btn" data-cap-view-all="1">' + txt + '</button>';
   };
 
   function refreshFeedFallbacks(lang){
