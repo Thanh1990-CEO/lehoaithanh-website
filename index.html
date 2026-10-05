@@ -1555,7 +1555,7 @@
       <a href="#" class="active" data-i18n="nav.home">Trang chủ</a>
       <a href="#ve-le-hoai-thanh" class="nav-standout" data-i18n="nav.about">Về Lê Hoài Thanh</a>
       <a href="#bds-cong-nghiep" data-i18n="nav.industrial-re">BĐS công nghiệp</a>
-      <a href="#logistics-xe-nang" data-i18n="nav.logistics-forklift">Logistics &amp; Xe nâng - thiết bị</a>
+      <a href="#logistics-xe-nang" data-i18n="nav.logistics-forklift">Logistics &amp; sản xuất</a>
       <a href="#lien-he" data-i18n="nav.contact">Tin tức &amp; Liên hệ</a>
     </nav>
     <!-- Đã ẩn khỏi menu chính (gộp theo cấu trúc 4 mục, 30/09/2026): BĐS dân dụng & thương mại (#bds-dan-dung),
@@ -1606,7 +1606,7 @@
       <h2 class="sub" data-i18n="hero.subtitle">Tư vấn &amp; môi giới bất động sản công nghiệp · Logistics</h2>
       <div class="pill-line">
         <a href="#bds-cong-nghiep"><span class="n">01</span> <span data-i18n="nav.industrial-re">BĐS công nghiệp</span></a>
-        <a href="#logistics-xe-nang"><span class="n">02</span> <span data-i18n="nav.logistics-forklift">Logistics &amp; Xe nâng - thiết bị</span></a>
+        <a href="#logistics-xe-nang"><span class="n">02</span> <span data-i18n="nav.logistics-forklift">Logistics &amp; sản xuất</span></a>
       </div>
       <p class="lede" data-i18n="hero.lede">Tôi tư vấn và kết nối chủ tài sản, doanh nghiệp và nhà đầu tư trong các cơ hội liên quan đến bất động sản công nghiệp, logistics, kho xưởng và các dự án quy mô từ 1 ha, đồng thời kết nối hệ sinh thái nguồn lực cần thiết để tài sản và doanh nghiệp được khai thác hiệu quả hơn.</p>
       <div class="hero-ctas">
@@ -1745,7 +1745,7 @@
       <div>
         <div class="kicker" data-i18n="section.bds.kicker">01 · Bất động sản</div>
         <h2 data-i18n="section.bds.title">Bất Động Sản Công Nghiệp &amp; Dân Dụng</h2>
-        <p class="desc" data-i18n="section.bds.intro">Dữ liệu thật — cơ hội thật — kết nối nhanh. Đất KCN, nhà xưởng, kho bãi trên khắp 5 vùng kinh tế trọng điểm, cùng nhà phố, căn hộ, mặt bằng kinh doanh.</p>
+        <p class="desc" data-i18n="section.bds.intro">Dữ liệu thật — cơ hội thật — kết nối nhanh. Đất KCN, nhà xưởng, kho bãi trên khắp 5 vùng kinh tế trọng điểm, cùng nhà phố, căn hộ, mặt bằng kinh doanh và xe nâng, thiết bị công nghiệp.</p>
       </div>
     </div>
   </div>
@@ -1970,16 +1970,206 @@
     </div>
   </div>
   </section>
+<!-- ============ 01c. XE NÂNG & THIẾT BỊ (gộp vào BĐS công nghiệp, 05/10/2026) ============
+     Theo yêu cầu: gộp toàn bộ mục "Xe nâng & thiết bị" vào chung mục "01. BẤT ĐỘNG SẢN" phía
+     trên (xem extraCollections trong mountBdsModule('bds',...) — đã thêm 'xn_listings'; renderCard
+     có nhánh riêng renderEquipmentStyleCard() để hiển thị đúng field vì xn_listings khác cấu trúc
+     dữ liệu BĐS). Mục này vẫn được mount nguyên vẹn (mountGenericModule prefix 'xn') để giữ
+     nguyên form + API đăng tin cũ (collection xn_listings, không đổi đấu nối insert/đọc dữ liệu),
+     chỉ ẩn phần hiển thị trùng lặp (tiêu đề, ảnh minh hoạ, toolbar, danh sách tin, quy trình,
+     thương hiệu) bằng display:none, không xoá khỏi DOM — cùng kiểu xử lý với mục Dân dụng & TM. -->
+  <section class="pillar-section group-sub" id="xe-nang-thiet-bi" style="padding-top:0;">
+  <div class="wrap">
+    <h3 style="margin:0 0 6px; display:none;" data-i18n="section.xn.title">Xe nâng &amp; thiết bị công nghiệp</h3>
+    <p class="desc" style="margin:0 0 18px; display:none;" data-i18n="section.xn.intro">Giải pháp toàn diện cho doanh nghiệp sản xuất, kho vận, logistics — từ tư vấn lựa chọn đến bảo trì lâu dài.</p>
+    <div class="region-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); margin-bottom:24px; display:none;">
+      <div class="region-card" style="--accent:#b06a2b; padding:0; overflow:hidden;">
+        <div class="lht-photo"><img src="images/forklift-1.jpg" alt="Xe nâng NOBLELIFT bàn giao thực tế" style="width:100%; aspect-ratio:4/3; object-fit:cover; display:block;"></div>
+        <div style="padding:14px 18px 18px;">
+          <h3 style="margin:0;" data-i18n="section.xn.photo1.title">Xe nâng NOBLELIFT — hàng thực tế</h3>
+          <div class="tag" data-i18n="section.xn.photo1.tag">Bàn giao tại kho khách hàng</div>
+        </div>
+      </div>
+      <div class="region-card" style="--accent:#b06a2b; padding:0; overflow:hidden;">
+        <div class="lht-photo"><img src="images/forklift-2.jpg" alt="Nội thất cabin xe nâng NOBLELIFT" style="width:100%; aspect-ratio:4/3; object-fit:cover; display:block;"></div>
+        <div style="padding:14px 18px 18px;">
+          <h3 style="margin:0;" data-i18n="section.xn.photo2.title">Cabin &amp; động cơ NOBLELIFT</h3>
+          <div class="tag" data-i18n="section.xn.photo2.tag">Kiểm tra kỹ thuật trước bàn giao</div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar" style="display:none;">
+      <input type="text" id="xn-search-input" placeholder="Tìm xe nâng, phụ tùng, thiết bị kho xưởng..." aria-label="Tìm xe nâng và thiết bị" data-i18n-placeholder="section.xn.search-ph">
+      <button type="button" id="xn-search-clear" class="search-clear-btn" hidden aria-label="Xóa tìm kiếm">✕</button>
+      <button type="button" id="xn-search-btn" class="btn primary" data-i18n="toolbar.search-btn">Tìm kiếm ngay →</button>
+      <div class="chip-wrap">
+        <button type="button" class="chip" id="xn-chip1-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.xn.chip1">Loại xe nâng</span><span class="chip-count" hidden></span></button>
+        <div class="chip-menu" id="xn-chip1-menu" hidden role="menu" aria-label="Loại xe nâng"></div>
+      </div>
+      <div class="chip-wrap">
+        <button type="button" class="chip" id="xn-chip2-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.xn.chip2">Tải trọng</span><span class="chip-count" hidden></span></button>
+        <div class="chip-menu" id="xn-chip2-menu" hidden role="menu" aria-label="Tải trọng"></div>
+      </div>
+      <div class="chip-wrap">
+        <button type="button" class="chip" id="xn-chip3-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.xn.chip3">Thương hiệu</span><span class="chip-count" hidden></span></button>
+        <div class="chip-menu" id="xn-chip3-menu" hidden role="menu" aria-label="Thương hiệu"></div>
+      </div>
+      <div class="chip-wrap">
+        <button type="button" class="chip" id="xn-chip4-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.xn.chip4">Mới / đã qua sử dụng</span><span class="chip-count" hidden></span></button>
+        <div class="chip-menu" id="xn-chip4-menu" hidden role="menu" aria-label="Mới / đã qua sử dụng"></div>
+      </div>
+    </div>
+
+    <div class="listing-head-row bds2-inline-prompt">
+      <span class="listing-flag" tabindex="0" role="button" style="display:none;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.3 4.6 2.4 7.4L12 16.8 5.9 21.4l2.4-7.4L2 9.4h7.6z"/></svg>
+        <span data-i18n="listing.xn.flag">Tin đăng xe nâng &amp; thiết bị</span>
+      </span>
+      <div class="bds2-inline-prompt-text">
+        <b data-i18n="section.xn.title">Xe nâng &amp; thiết bị công nghiệp</b>
+        <span>Xe nâng điện/dầu/tay, phụ tùng, thiết bị kho xưởng — tin đăng sẽ tự động hiện chung trong danh sách Bất Động Sản (BĐS công nghiệp) ở mục 01 phía trên.</span>
+      </div>
+      <button type="button" id="xn-listing-form-toggle" class="btn primary" hidden data-i18n="form.common.btn-add-new">+ Đăng tin mới</button>
+    </div>
+
+    <div id="xn-listing-form-panel" class="listing-form-panel" hidden>
+      <h4 data-i18n="form.common.panel-heading">Đăng tin mới</h4>
+      <p class="form-hint" data-i18n="form.common.panel-hint">Cho mình biết bạn cần gì trước — form sẽ hiển thị đúng theo nhu cầu đó.</p>
+      <form id="xn-listing-form">
+        <div class="field txn-field" style="margin-bottom:18px;">
+          <label class="group-label" data-i18n-html="form.common.group-label">Bạn muốn đăng tin dạng nào? <span style="color:#c0392b;">*</span></label>
+          <div class="txn-pills" role="group" aria-label="Loại giao dịch (có thể chọn nhiều)">
+            <label class="txn-pill" data-type="cho_thue" style="--txn-color:#2b6fb0;"><input type="checkbox" name="txnTypes" value="cho_thue" checked><span data-i18n="txn.cho-thue">Cho thuê</span></label>
+            <label class="txn-pill" data-type="can_thue" style="--txn-color:#2f7d4f;"><input type="checkbox" name="txnTypes" value="can_thue"><span data-i18n="txn.can-thue">Cần thuê</span></label>
+            <label class="txn-pill" data-type="ban" style="--txn-color:#a3803f;"><input type="checkbox" name="txnTypes" value="ban"><span data-i18n="txn.ban">Bán</span></label>
+            <label class="txn-pill" data-type="can_mua" style="--txn-color:#7a3fa0;"><input type="checkbox" name="txnTypes" value="can_mua"><span data-i18n="txn.can-mua">Cần mua</span></label>
+            <label class="txn-pill" data-type="ky_gui" style="--txn-color:#b06a2b;"><input type="checkbox" name="txnTypes" value="ky_gui"><span data-i18n="txn.ky-gui">Ký gửi</span></label>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label for="xn-title" data-i18n="form.common.label-title">Tiêu đề tin</label><input id="xn-title" name="title" type="text" required placeholder="VD: Bán xe nâng điện 2.5 tấn" data-i18n-placeholder="form.xn.ph-title"></div>
+          <div class="field"><label for="xn-location" data-i18n="form.common.label-location">Khu vực</label><input id="xn-location" name="location" type="text" required placeholder="VD: Bình Dương, TP.HCM..." data-i18n-placeholder="form.shared.ph-location-bd-hcm"></div>
+          <div class="field"><label for="xn-category" data-i18n="form.xn.label-category">Loại xe / thiết bị</label>
+            <select id="xn-category" name="category">
+              <option data-i18n="form.xn.opt-electric">Xe nâng điện</option>
+              <option data-i18n="form.xn.opt-diesel">Xe nâng dầu</option>
+              <option data-i18n="form.xn.opt-hand">Xe nâng tay</option>
+              <option data-i18n="form.xn.opt-special">Xe nâng chuyên dụng</option>
+              <option data-i18n="form.xn.opt-parts">Phụ tùng - ắc quy</option>
+              <option data-i18n="form.xn.opt-other">Thiết bị kho xưởng khác</option>
+            </select>
+          </div>
+          <div class="field"><label for="xn-unit" data-i18n="form.common.label-unit">Đơn vị tính</label><input id="xn-unit" name="unit" type="text" required placeholder="VD: chiếc, tấn tải trọng" data-i18n-placeholder="form.xn.ph-unit"></div>
+          <div class="field"><label for="xn-total" data-i18n="form.xn.label-total">Tổng số lượng</label><input id="xn-total" name="totalQty" type="number" min="0" placeholder="VD: 5" data-i18n-placeholder="form.xn.ph-total"></div>
+          <div class="field"><label id="xn-qty-label" for="xn-qtys" data-i18n="form.xn.label-qtys">Số lượng cho thuê (cách nhau bởi dấu phẩy)</label><input id="xn-qtys" name="qtys" type="text" required placeholder="VD: 1, 2, 3" data-i18n-placeholder="form.xn.ph-qtys"></div>
+          <div class="field"><label id="xn-price-label" for="xn-price" data-i18n="form.shared.label-price-unit">Đơn giá thuê (theo đơn vị tính, chưa VAT)</label><input id="xn-price" name="pricePerUnit" type="number" min="0" required placeholder="VD: 150000000" data-i18n-placeholder="form.xn.ph-price"></div>
+          <div class="field"><label for="xn-phone" data-i18n="form.common.label-phone">Số điện thoại liên hệ</label><input id="xn-phone" name="phone" type="text" required placeholder="VD: 0399 831 228" data-i18n-placeholder="form.common.placeholder-phone"></div>
+          <div class="field"><label for="xn-extra" data-i18n="form.common.label-extra-cost">Chi phí phát sinh (nếu có)</label><input id="xn-extra" name="extraCost" type="text" placeholder="VD: Phí vận chuyển, phí lắp đặt..." data-i18n-placeholder="form.xn.ph-extra"></div>
+          <div class="field"><label for="xn-amenities" data-i18n="form.xn.label-amenities">Đặc điểm / tình trạng nổi bật (cách nhau bởi dấu phẩy)</label><input id="xn-amenities" name="amenities" type="text" placeholder="VD: Mới 90%, bảo hành 6 tháng, đã kiểm định" data-i18n-placeholder="form.xn.ph-amenities"></div>
+          <div class="field" style="grid-column:1/-1;"><label for="xn-desc" data-i18n="form.common.label-desc">Mô tả thêm (không bắt buộc — hệ thống sẽ tối ưu giúp bạn)</label><textarea id="xn-desc" name="description" placeholder="Ghi vài ý cơ bản, hệ thống sẽ viết lại cho chuyên nghiệp và đầy đủ hơn" data-i18n-placeholder="form.common.placeholder-desc"></textarea></div>
+          <div class="field" style="grid-column:1/-1;"><label for="xn-images" data-i18n="form.common.label-images">Hình ảnh (có thể chọn nhiều)</label><input id="xn-images" name="images" type="file" accept="image/*" multiple></div>
+        </div>
+        <div class="listing-form-actions">
+          <button type="submit" class="btn primary" data-i18n="form.common.btn-submit">Đăng tin ngay</button>
+          <button type="button" id="xn-listing-form-cancel" class="btn outline-navy" data-i18n="form.common.btn-cancel">Hủy</button>
+          <span id="xn-listing-form-status" class="form-status"></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="txn-tabs" id="xn-txn-filter" role="tablist" aria-label="Lọc theo nhu cầu" hidden style="display:none;">
+      <button type="button" class="txn-tab active" data-filter="all" style="--txn-color:var(--gold);" data-i18n-html="txn.all-tab">Tất cả <span class="cnt"></span></button>
+      <button type="button" class="txn-tab" data-filter="cho_thue" style="--txn-color:#2b6fb0;" data-i18n-html="txn.cho-thue-tab">Cho thuê <span class="cnt"></span></button>
+      <button type="button" class="txn-tab" data-filter="can_thue" style="--txn-color:#2f7d4f;" data-i18n-html="txn.can-thue-tab">Cần thuê <span class="cnt"></span></button>
+      <button type="button" class="txn-tab" data-filter="ban" style="--txn-color:#a3803f;" data-i18n-html="txn.ban-tab">Bán <span class="cnt"></span></button>
+      <button type="button" class="txn-tab" data-filter="can_mua" style="--txn-color:#7a3fa0;" data-i18n-html="txn.can-mua-tab">Cần mua <span class="cnt"></span></button>
+      <button type="button" class="txn-tab" data-filter="ky_gui" style="--txn-color:#b06a2b;" data-i18n-html="txn.ky-gui-tab">Ký gửi <span class="cnt"></span></button>
+    </div>
+    <div id="xn-listings-feed" class="listings-feed" style="display:none;">
+      <div class="form-hint" style="text-align:center;padding:32px 16px;" data-feed-state="emptyGeneric">
+        <p style="margin:0 0 14px;" data-i18n="feed.common.empty-intro">Danh sách được cập nhật liên tục — liên hệ trực tiếp để nhận thông tin mới nhất, phù hợp đúng nhu cầu của bạn.</p>
+        <a class="btn primary" href="tel:0399831228" data-i18n="feed.common.call-now">Gọi ngay: 0399 831 228</a>
+        <a class="btn outline-navy" href="https://zalo.me/0399831228" target="_blank" rel="noopener" data-i18n="common.zalo-label">Nhắn Zalo</a>
+      </div>
+    </div>
+
+    <div class="proc-grid" style="margin-bottom:22px; display:none;">
+      <div class="proc-card">
+        <span class="badge">01</span><h3 data-i18n="form.xn.opt-electric">Xe nâng điện</h3>
+        <ul><li data-i18n="section.xn.proc1.li1">Xe nâng điện ngồi lái</li><li data-i18n="section.xn.proc1.li2">Xe nâng điện đứng lái</li><li data-i18n="section.xn.proc1.li3">Xe nâng reach truck</li></ul>
+      </div>
+      <div class="proc-card">
+        <span class="badge">02</span><h3 data-i18n="form.xn.opt-diesel">Xe nâng dầu</h3>
+        <ul><li data-i18n="section.xn.proc2.li1">Xe nâng dầu diesel</li><li data-i18n="section.xn.proc2.li2">Xe nâng dầu LPG</li><li data-i18n="section.xn.proc2.li3">Tải trọng 1 – 15 tấn</li></ul>
+      </div>
+      <div class="proc-card">
+        <span class="badge">03</span><h3 data-i18n="form.xn.opt-hand">Xe nâng tay</h3>
+        <ul><li data-i18n="section.xn.proc3.li1">Xe nâng tay thấp / cao</li><li data-i18n="section.xn.proc3.li2">Xe nâng tay điện</li><li data-i18n="section.xn.proc3.li3">Phù hợp kho nhỏ &amp; vừa</li></ul>
+      </div>
+      <div class="proc-card">
+        <span class="badge">04</span><h3 data-i18n="form.xn.opt-special">Xe nâng chuyên dụng</h3>
+        <ul><li data-i18n="section.xn.proc4.li1">Xe nâng order picker</li><li data-i18n="section.xn.proc4.li2">Xe nâng kẹp giấy, kẹp cuộn</li><li data-i18n="section.xn.proc4.li3">Giải pháp cho nhu cầu đặc thù</li></ul>
+      </div>
+      <div class="proc-card">
+        <span class="badge">05</span><h3 data-i18n="section.xn.proc5.title">Phụ tùng &amp; ắc quy</h3>
+        <ul><li data-i18n="section.xn.proc5.li1">Bình ắc quy, lốp xe nâng</li><li data-i18n="section.xn.proc5.li2">Càng nâng, xích, kẹp thủy lực</li><li data-i18n="section.xn.proc5.li3">Linh kiện chính hãng</li></ul>
+      </div>
+      <div class="proc-card">
+        <span class="badge">06</span><h3 data-i18n="form.xn.opt-other">Thiết bị công nghiệp khác</h3>
+        <ul><li data-i18n="section.xn.proc6.li1">Kệ kho công nghiệp</li><li data-i18n="section.xn.proc6.li2">Bàn nâng thủy lực, băng tải</li><li data-i18n="section.xn.proc6.li3">Pallet, thùng nhựa, xe đẩy</li></ul>
+      </div>
+    </div>
+    <div class="pillar-cols" style="display:none;">
+      <div class="side-card">
+        <h4 data-i18n="section.xn.process-title">Quy trình hỗ trợ</h4>
+        <div class="process-flow">
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 4h6a1 1 0 011 1v1h2a1 1 0 011 1v12a1 1 0 01-1 1H6a1 1 0 01-1-1V7a1 1 0 011-1h2V5a1 1 0 011-1z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg></span>
+            <div class="process-step-body" data-i18n-html="section.xn.process1"><span class="process-step-num">01</span><span class="process-step-title">Tiếp nhận nhu cầu</span></div>
+          </div>
+          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.5.4.8 1 .8 1.6V16h5.4v-.5c0-.6.3-1.2.8-1.6A6 6 0 0012 3z"/></svg></span>
+            <div class="process-step-body" data-i18n-html="section.xn.process2"><span class="process-step-num">02</span><span class="process-step-title">Tư vấn giải pháp</span></div>
+          </div>
+          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.6 12.6L13 20.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span>
+            <div class="process-step-body" data-i18n-html="section.xn.process3"><span class="process-step-num">03</span><span class="process-step-title">Báo giá minh bạch</span></div>
+          </div>
+          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8z"/><path d="M14 3v5h5"/><path d="M9 15l2 2 4-4"/></svg></span>
+            <div class="process-step-body" data-i18n-html="section.xn.process4"><span class="process-step-num">04</span><span class="process-step-title">Ký kết hợp đồng</span></div>
+          </div>
+          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="8" width="15" height="10"/><path d="M16 12h4l3 3v3h-7z"/><circle cx="6" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/></svg></span>
+            <div class="process-step-body" data-i18n-html="section.xn.process5"><span class="process-step-num">05</span><span class="process-step-title">Bàn giao &amp; hướng dẫn</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="side-card">
+        <h4 data-i18n="section.xn.brands-title">Thương hiệu phổ biến có thể tư vấn &amp; kết nối</h4>
+        <p style="font-size:0.76rem; color:var(--text-dim); margin:-6px 0 12px;" data-i18n="section.xn.brands-desc">Lê Hoài Thanh trực tiếp có hàng NOBLELIFT, đồng thời kết nối mua bán các thương hiệu xe nâng phổ biến khác theo nhu cầu khách hàng.</p>
+        <div class="brand-row" id="xn-brand-row">
+          <button type="button" class="brand-btn" data-brand="NOBLELIFT">NOBLELIFT</button><button type="button" class="brand-btn" data-brand="Toyota">Toyota</button><button type="button" class="brand-btn" data-brand="Komatsu">Komatsu</button><button type="button" class="brand-btn" data-brand="Mitsubishi">Mitsubishi</button><button type="button" class="brand-btn" data-brand="TCM">TCM</button><button type="button" class="brand-btn" data-brand="Nissan / UniCarriers">Nissan / UniCarriers</button><button type="button" class="brand-btn" data-brand="Hangcha">Hangcha</button><button type="button" class="brand-btn" data-brand="Heli">Heli</button><button type="button" class="brand-btn" data-brand="Linde">Linde</button><button type="button" class="brand-btn" data-brand="Yale">Yale</button><button type="button" class="brand-btn" data-brand="Hyster">Hyster</button><button type="button" class="brand-btn" data-brand="Crown">Crown</button><button type="button" class="brand-btn" data-brand="Jungheinrich">Jungheinrich</button><button type="button" class="brand-btn" data-brand="Hyundai">Hyundai</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 </section>
 
-<!-- ============ 02. LOGISTICS & XE NÂNG - THIẾT BỊ (gộp 2 mục, 30/09/2026) ============ -->
+<!-- ============ 02. LOGISTICS & SẢN XUẤT (05/10/2026: bỏ "Xe nâng & thiết bị" khỏi mục này —
+     đã gộp sang mục "01. BẤT ĐỘNG SẢN" phía trên, xem ghi chú ở đó) ============ -->
 <section class="pillar-section-group" id="logistics-xe-nang">
   <div class="wrap group-intro-wrap">
     <div class="pillar-head">
       <div>
-        <div class="kicker">02 · Logistics &amp; xe nâng - thiết bị</div>
-        <h2 data-i18n="nav.logistics-forklift">Logistics &amp; Xe nâng - thiết bị</h2>
-        <p class="desc" data-i18n="pillar.logxn.intro">Hậu cần, sản xuất và thiết bị nâng hạ — hai mảng dịch vụ luôn song hành trong vận hành nhà xưởng, kho bãi, nay gộp chung một điểm tra cứu.</p>
+        <div class="kicker">02 · Logistics &amp; sản xuất</div>
+        <h2 data-i18n="nav.logistics-forklift">Logistics &amp; sản xuất</h2>
+        <p class="desc" data-i18n="pillar.logxn.intro">Hậu cần và sản xuất — tối ưu chuỗi giá trị, từ nguồn nguyên liệu đến sản phẩm, từ nhà máy đến thị trường.</p>
       </div>
     </div>
   </div>
@@ -2148,183 +2338,6 @@
   </div>
 </section>
 <!-- ============ 03. XE NÂNG & THIẾT BỊ ============ -->
-  <section class="pillar-section group-sub" id="xe-nang-thiet-bi">
-  <div class="wrap">
-    <h3 style="margin:0 0 6px;" data-i18n="section.xn.title">Xe nâng &amp; thiết bị công nghiệp</h3>
-    <p class="desc" style="margin:0 0 18px;" data-i18n="section.xn.intro">Giải pháp toàn diện cho doanh nghiệp sản xuất, kho vận, logistics — từ tư vấn lựa chọn đến bảo trì lâu dài.</p>
-    <div class="region-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); margin-bottom:24px;">
-      <div class="region-card" style="--accent:#b06a2b; padding:0; overflow:hidden;">
-        <div class="lht-photo"><img src="images/forklift-1.jpg" alt="Xe nâng NOBLELIFT bàn giao thực tế" style="width:100%; aspect-ratio:4/3; object-fit:cover; display:block;"></div>
-        <div style="padding:14px 18px 18px;">
-          <h3 style="margin:0;" data-i18n="section.xn.photo1.title">Xe nâng NOBLELIFT — hàng thực tế</h3>
-          <div class="tag" data-i18n="section.xn.photo1.tag">Bàn giao tại kho khách hàng</div>
-        </div>
-      </div>
-      <div class="region-card" style="--accent:#b06a2b; padding:0; overflow:hidden;">
-        <div class="lht-photo"><img src="images/forklift-2.jpg" alt="Nội thất cabin xe nâng NOBLELIFT" style="width:100%; aspect-ratio:4/3; object-fit:cover; display:block;"></div>
-        <div style="padding:14px 18px 18px;">
-          <h3 style="margin:0;" data-i18n="section.xn.photo2.title">Cabin &amp; động cơ NOBLELIFT</h3>
-          <div class="tag" data-i18n="section.xn.photo2.tag">Kiểm tra kỹ thuật trước bàn giao</div>
-        </div>
-      </div>
-    </div>
-    <div class="toolbar">
-      <input type="text" id="xn-search-input" placeholder="Tìm xe nâng, phụ tùng, thiết bị kho xưởng..." aria-label="Tìm xe nâng và thiết bị" data-i18n-placeholder="section.xn.search-ph">
-      <button type="button" id="xn-search-clear" class="search-clear-btn" hidden aria-label="Xóa tìm kiếm">✕</button>
-      <button type="button" id="xn-search-btn" class="btn primary" data-i18n="toolbar.search-btn">Tìm kiếm ngay →</button>
-      <div class="chip-wrap">
-        <button type="button" class="chip" id="xn-chip1-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.xn.chip1">Loại xe nâng</span><span class="chip-count" hidden></span></button>
-        <div class="chip-menu" id="xn-chip1-menu" hidden role="menu" aria-label="Loại xe nâng"></div>
-      </div>
-      <div class="chip-wrap">
-        <button type="button" class="chip" id="xn-chip2-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.xn.chip2">Tải trọng</span><span class="chip-count" hidden></span></button>
-        <div class="chip-menu" id="xn-chip2-menu" hidden role="menu" aria-label="Tải trọng"></div>
-      </div>
-      <div class="chip-wrap">
-        <button type="button" class="chip" id="xn-chip3-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.xn.chip3">Thương hiệu</span><span class="chip-count" hidden></span></button>
-        <div class="chip-menu" id="xn-chip3-menu" hidden role="menu" aria-label="Thương hiệu"></div>
-      </div>
-      <div class="chip-wrap">
-        <button type="button" class="chip" id="xn-chip4-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="section.xn.chip4">Mới / đã qua sử dụng</span><span class="chip-count" hidden></span></button>
-        <div class="chip-menu" id="xn-chip4-menu" hidden role="menu" aria-label="Mới / đã qua sử dụng"></div>
-      </div>
-    </div>
-
-    <div class="listing-head-row">
-      <span class="listing-flag" tabindex="0" role="button">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.3 4.6 2.4 7.4L12 16.8 5.9 21.4l2.4-7.4L2 9.4h7.6z"/></svg>
-        <span data-i18n="listing.xn.flag">Tin đăng xe nâng &amp; thiết bị</span>
-      </span>
-      <button type="button" id="xn-listing-form-toggle" class="btn primary" hidden data-i18n="form.common.btn-add-new">+ Đăng tin mới</button>
-    </div>
-
-    <div id="xn-listing-form-panel" class="listing-form-panel" hidden>
-      <h4 data-i18n="form.common.panel-heading">Đăng tin mới</h4>
-      <p class="form-hint" data-i18n="form.common.panel-hint">Cho mình biết bạn cần gì trước — form sẽ hiển thị đúng theo nhu cầu đó.</p>
-      <form id="xn-listing-form">
-        <div class="field txn-field" style="margin-bottom:18px;">
-          <label class="group-label" data-i18n-html="form.common.group-label">Bạn muốn đăng tin dạng nào? <span style="color:#c0392b;">*</span></label>
-          <div class="txn-pills" role="group" aria-label="Loại giao dịch (có thể chọn nhiều)">
-            <label class="txn-pill" data-type="cho_thue" style="--txn-color:#2b6fb0;"><input type="checkbox" name="txnTypes" value="cho_thue" checked><span data-i18n="txn.cho-thue">Cho thuê</span></label>
-            <label class="txn-pill" data-type="can_thue" style="--txn-color:#2f7d4f;"><input type="checkbox" name="txnTypes" value="can_thue"><span data-i18n="txn.can-thue">Cần thuê</span></label>
-            <label class="txn-pill" data-type="ban" style="--txn-color:#a3803f;"><input type="checkbox" name="txnTypes" value="ban"><span data-i18n="txn.ban">Bán</span></label>
-            <label class="txn-pill" data-type="can_mua" style="--txn-color:#7a3fa0;"><input type="checkbox" name="txnTypes" value="can_mua"><span data-i18n="txn.can-mua">Cần mua</span></label>
-            <label class="txn-pill" data-type="ky_gui" style="--txn-color:#b06a2b;"><input type="checkbox" name="txnTypes" value="ky_gui"><span data-i18n="txn.ky-gui">Ký gửi</span></label>
-          </div>
-        </div>
-        <div class="form-grid">
-          <div class="field"><label for="xn-title" data-i18n="form.common.label-title">Tiêu đề tin</label><input id="xn-title" name="title" type="text" required placeholder="VD: Bán xe nâng điện 2.5 tấn" data-i18n-placeholder="form.xn.ph-title"></div>
-          <div class="field"><label for="xn-location" data-i18n="form.common.label-location">Khu vực</label><input id="xn-location" name="location" type="text" required placeholder="VD: Bình Dương, TP.HCM..." data-i18n-placeholder="form.shared.ph-location-bd-hcm"></div>
-          <div class="field"><label for="xn-category" data-i18n="form.xn.label-category">Loại xe / thiết bị</label>
-            <select id="xn-category" name="category">
-              <option data-i18n="form.xn.opt-electric">Xe nâng điện</option>
-              <option data-i18n="form.xn.opt-diesel">Xe nâng dầu</option>
-              <option data-i18n="form.xn.opt-hand">Xe nâng tay</option>
-              <option data-i18n="form.xn.opt-special">Xe nâng chuyên dụng</option>
-              <option data-i18n="form.xn.opt-parts">Phụ tùng - ắc quy</option>
-              <option data-i18n="form.xn.opt-other">Thiết bị kho xưởng khác</option>
-            </select>
-          </div>
-          <div class="field"><label for="xn-unit" data-i18n="form.common.label-unit">Đơn vị tính</label><input id="xn-unit" name="unit" type="text" required placeholder="VD: chiếc, tấn tải trọng" data-i18n-placeholder="form.xn.ph-unit"></div>
-          <div class="field"><label for="xn-total" data-i18n="form.xn.label-total">Tổng số lượng</label><input id="xn-total" name="totalQty" type="number" min="0" placeholder="VD: 5" data-i18n-placeholder="form.xn.ph-total"></div>
-          <div class="field"><label id="xn-qty-label" for="xn-qtys" data-i18n="form.xn.label-qtys">Số lượng cho thuê (cách nhau bởi dấu phẩy)</label><input id="xn-qtys" name="qtys" type="text" required placeholder="VD: 1, 2, 3" data-i18n-placeholder="form.xn.ph-qtys"></div>
-          <div class="field"><label id="xn-price-label" for="xn-price" data-i18n="form.shared.label-price-unit">Đơn giá thuê (theo đơn vị tính, chưa VAT)</label><input id="xn-price" name="pricePerUnit" type="number" min="0" required placeholder="VD: 150000000" data-i18n-placeholder="form.xn.ph-price"></div>
-          <div class="field"><label for="xn-phone" data-i18n="form.common.label-phone">Số điện thoại liên hệ</label><input id="xn-phone" name="phone" type="text" required placeholder="VD: 0399 831 228" data-i18n-placeholder="form.common.placeholder-phone"></div>
-          <div class="field"><label for="xn-extra" data-i18n="form.common.label-extra-cost">Chi phí phát sinh (nếu có)</label><input id="xn-extra" name="extraCost" type="text" placeholder="VD: Phí vận chuyển, phí lắp đặt..." data-i18n-placeholder="form.xn.ph-extra"></div>
-          <div class="field"><label for="xn-amenities" data-i18n="form.xn.label-amenities">Đặc điểm / tình trạng nổi bật (cách nhau bởi dấu phẩy)</label><input id="xn-amenities" name="amenities" type="text" placeholder="VD: Mới 90%, bảo hành 6 tháng, đã kiểm định" data-i18n-placeholder="form.xn.ph-amenities"></div>
-          <div class="field" style="grid-column:1/-1;"><label for="xn-desc" data-i18n="form.common.label-desc">Mô tả thêm (không bắt buộc — hệ thống sẽ tối ưu giúp bạn)</label><textarea id="xn-desc" name="description" placeholder="Ghi vài ý cơ bản, hệ thống sẽ viết lại cho chuyên nghiệp và đầy đủ hơn" data-i18n-placeholder="form.common.placeholder-desc"></textarea></div>
-          <div class="field" style="grid-column:1/-1;"><label for="xn-images" data-i18n="form.common.label-images">Hình ảnh (có thể chọn nhiều)</label><input id="xn-images" name="images" type="file" accept="image/*" multiple></div>
-        </div>
-        <div class="listing-form-actions">
-          <button type="submit" class="btn primary" data-i18n="form.common.btn-submit">Đăng tin ngay</button>
-          <button type="button" id="xn-listing-form-cancel" class="btn outline-navy" data-i18n="form.common.btn-cancel">Hủy</button>
-          <span id="xn-listing-form-status" class="form-status"></span>
-        </div>
-      </form>
-    </div>
-
-    <div class="txn-tabs" id="xn-txn-filter" role="tablist" aria-label="Lọc theo nhu cầu" hidden>
-      <button type="button" class="txn-tab active" data-filter="all" style="--txn-color:var(--gold);" data-i18n-html="txn.all-tab">Tất cả <span class="cnt"></span></button>
-      <button type="button" class="txn-tab" data-filter="cho_thue" style="--txn-color:#2b6fb0;" data-i18n-html="txn.cho-thue-tab">Cho thuê <span class="cnt"></span></button>
-      <button type="button" class="txn-tab" data-filter="can_thue" style="--txn-color:#2f7d4f;" data-i18n-html="txn.can-thue-tab">Cần thuê <span class="cnt"></span></button>
-      <button type="button" class="txn-tab" data-filter="ban" style="--txn-color:#a3803f;" data-i18n-html="txn.ban-tab">Bán <span class="cnt"></span></button>
-      <button type="button" class="txn-tab" data-filter="can_mua" style="--txn-color:#7a3fa0;" data-i18n-html="txn.can-mua-tab">Cần mua <span class="cnt"></span></button>
-      <button type="button" class="txn-tab" data-filter="ky_gui" style="--txn-color:#b06a2b;" data-i18n-html="txn.ky-gui-tab">Ký gửi <span class="cnt"></span></button>
-    </div>
-    <div id="xn-listings-feed" class="listings-feed">
-      <div class="form-hint" style="text-align:center;padding:32px 16px;" data-feed-state="emptyGeneric">
-        <p style="margin:0 0 14px;" data-i18n="feed.common.empty-intro">Danh sách được cập nhật liên tục — liên hệ trực tiếp để nhận thông tin mới nhất, phù hợp đúng nhu cầu của bạn.</p>
-        <a class="btn primary" href="tel:0399831228" data-i18n="feed.common.call-now">Gọi ngay: 0399 831 228</a>
-        <a class="btn outline-navy" href="https://zalo.me/0399831228" target="_blank" rel="noopener" data-i18n="common.zalo-label">Nhắn Zalo</a>
-      </div>
-    </div>
-
-    <div class="proc-grid" style="margin-bottom:22px;">
-      <div class="proc-card">
-        <span class="badge">01</span><h3 data-i18n="form.xn.opt-electric">Xe nâng điện</h3>
-        <ul><li data-i18n="section.xn.proc1.li1">Xe nâng điện ngồi lái</li><li data-i18n="section.xn.proc1.li2">Xe nâng điện đứng lái</li><li data-i18n="section.xn.proc1.li3">Xe nâng reach truck</li></ul>
-      </div>
-      <div class="proc-card">
-        <span class="badge">02</span><h3 data-i18n="form.xn.opt-diesel">Xe nâng dầu</h3>
-        <ul><li data-i18n="section.xn.proc2.li1">Xe nâng dầu diesel</li><li data-i18n="section.xn.proc2.li2">Xe nâng dầu LPG</li><li data-i18n="section.xn.proc2.li3">Tải trọng 1 – 15 tấn</li></ul>
-      </div>
-      <div class="proc-card">
-        <span class="badge">03</span><h3 data-i18n="form.xn.opt-hand">Xe nâng tay</h3>
-        <ul><li data-i18n="section.xn.proc3.li1">Xe nâng tay thấp / cao</li><li data-i18n="section.xn.proc3.li2">Xe nâng tay điện</li><li data-i18n="section.xn.proc3.li3">Phù hợp kho nhỏ &amp; vừa</li></ul>
-      </div>
-      <div class="proc-card">
-        <span class="badge">04</span><h3 data-i18n="form.xn.opt-special">Xe nâng chuyên dụng</h3>
-        <ul><li data-i18n="section.xn.proc4.li1">Xe nâng order picker</li><li data-i18n="section.xn.proc4.li2">Xe nâng kẹp giấy, kẹp cuộn</li><li data-i18n="section.xn.proc4.li3">Giải pháp cho nhu cầu đặc thù</li></ul>
-      </div>
-      <div class="proc-card">
-        <span class="badge">05</span><h3 data-i18n="section.xn.proc5.title">Phụ tùng &amp; ắc quy</h3>
-        <ul><li data-i18n="section.xn.proc5.li1">Bình ắc quy, lốp xe nâng</li><li data-i18n="section.xn.proc5.li2">Càng nâng, xích, kẹp thủy lực</li><li data-i18n="section.xn.proc5.li3">Linh kiện chính hãng</li></ul>
-      </div>
-      <div class="proc-card">
-        <span class="badge">06</span><h3 data-i18n="form.xn.opt-other">Thiết bị công nghiệp khác</h3>
-        <ul><li data-i18n="section.xn.proc6.li1">Kệ kho công nghiệp</li><li data-i18n="section.xn.proc6.li2">Bàn nâng thủy lực, băng tải</li><li data-i18n="section.xn.proc6.li3">Pallet, thùng nhựa, xe đẩy</li></ul>
-      </div>
-    </div>
-    <div class="pillar-cols">
-      <div class="side-card">
-        <h4 data-i18n="section.xn.process-title">Quy trình hỗ trợ</h4>
-        <div class="process-flow">
-          <div class="process-step">
-            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 4h6a1 1 0 011 1v1h2a1 1 0 011 1v12a1 1 0 01-1 1H6a1 1 0 01-1-1V7a1 1 0 011-1h2V5a1 1 0 011-1z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg></span>
-            <div class="process-step-body" data-i18n-html="section.xn.process1"><span class="process-step-num">01</span><span class="process-step-title">Tiếp nhận nhu cầu</span></div>
-          </div>
-          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          <div class="process-step">
-            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.5.4.8 1 .8 1.6V16h5.4v-.5c0-.6.3-1.2.8-1.6A6 6 0 0012 3z"/></svg></span>
-            <div class="process-step-body" data-i18n-html="section.xn.process2"><span class="process-step-num">02</span><span class="process-step-title">Tư vấn giải pháp</span></div>
-          </div>
-          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          <div class="process-step">
-            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.6 12.6L13 20.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span>
-            <div class="process-step-body" data-i18n-html="section.xn.process3"><span class="process-step-num">03</span><span class="process-step-title">Báo giá minh bạch</span></div>
-          </div>
-          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          <div class="process-step">
-            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8z"/><path d="M14 3v5h5"/><path d="M9 15l2 2 4-4"/></svg></span>
-            <div class="process-step-body" data-i18n-html="section.xn.process4"><span class="process-step-num">04</span><span class="process-step-title">Ký kết hợp đồng</span></div>
-          </div>
-          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          <div class="process-step">
-            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="8" width="15" height="10"/><path d="M16 12h4l3 3v3h-7z"/><circle cx="6" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/></svg></span>
-            <div class="process-step-body" data-i18n-html="section.xn.process5"><span class="process-step-num">05</span><span class="process-step-title">Bàn giao &amp; hướng dẫn</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="side-card">
-        <h4 data-i18n="section.xn.brands-title">Thương hiệu phổ biến có thể tư vấn &amp; kết nối</h4>
-        <p style="font-size:0.76rem; color:var(--text-dim); margin:-6px 0 12px;" data-i18n="section.xn.brands-desc">Lê Hoài Thanh trực tiếp có hàng NOBLELIFT, đồng thời kết nối mua bán các thương hiệu xe nâng phổ biến khác theo nhu cầu khách hàng.</p>
-        <div class="brand-row" id="xn-brand-row">
-          <button type="button" class="brand-btn" data-brand="NOBLELIFT">NOBLELIFT</button><button type="button" class="brand-btn" data-brand="Toyota">Toyota</button><button type="button" class="brand-btn" data-brand="Komatsu">Komatsu</button><button type="button" class="brand-btn" data-brand="Mitsubishi">Mitsubishi</button><button type="button" class="brand-btn" data-brand="TCM">TCM</button><button type="button" class="brand-btn" data-brand="Nissan / UniCarriers">Nissan / UniCarriers</button><button type="button" class="brand-btn" data-brand="Hangcha">Hangcha</button><button type="button" class="brand-btn" data-brand="Heli">Heli</button><button type="button" class="brand-btn" data-brand="Linde">Linde</button><button type="button" class="brand-btn" data-brand="Yale">Yale</button><button type="button" class="brand-btn" data-brand="Hyster">Hyster</button><button type="button" class="brand-btn" data-brand="Crown">Crown</button><button type="button" class="brand-btn" data-brand="Jungheinrich">Jungheinrich</button><button type="button" class="brand-btn" data-brand="Hyundai">Hyundai</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 </section>
 
 <section class="pillar-section other-fields-section" id="linh-vuc-khac">
@@ -3229,7 +3242,7 @@
     bds_listings: 'bds-cong-nghiep',
     bds_dandung_listings: 'bds-dan-dung',
     logistics_listings: 'logistics-san-xuat',
-    xn_listings: 'xe-nang-thiet-bi',
+    xn_listings: 'bds-cong-nghiep', // 05/10: xe nâng & thiết bị gộp hiển thị vào feed BĐS công nghiệp
     da_listings: 'du-an-dau-tu',
     pl_listings: 'phap-ly-tai-chinh',
     media_posts: 'kien-thuc-media'
@@ -3914,7 +3927,7 @@
   function matchesListingSearch(doc, query){
     if (!query) return true;
     const q = query.toLowerCase();
-    const hay = [doc.title, doc.location, doc.propertyType, doc.description, doc.assetCode].filter(Boolean).join(' ').toLowerCase();
+    const hay = [doc.title, doc.location, doc.propertyType, doc.category, doc.description, doc.assetCode].filter(Boolean).join(' ').toLowerCase();
     return hay.indexOf(q) !== -1;
   }
   function buildBdsChipCtx(doc){
@@ -3929,10 +3942,57 @@
     hasSearched = !!searchQuery || !!regionKeywords || (chipFilters ? chipFilters.hasAny() : false);
   }
 
+  // 05/10: Xe nâng & thiết bị (xn_listings) gộp hiển thị vào feed BĐS công nghiệp này (xem
+  // extraCollections phía dưới) nhưng có CẤU TRÚC dữ liệu khác hẳn BĐS (category/unit/totalQty/
+  // pricePerUnit, giống hệt field shape mà renderGenericCard() của mountGenericModule dùng) thay
+  // vì propertyType/totalArea/pricePerM2 — nhánh riêng này hiển thị đúng field, không đụng tới
+  // dữ liệu/API gốc (collection xn_listings vẫn insert/đọc y như cũ qua mountGenericModule prefix 'xn').
+  function renderEquipmentStyleCard(doc, srcCollection){
+    const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
+    const qtys = doc.qtys || [];
+    const tierRows = qtys.map(q =>
+      `<tr><td>${numFmt(q)} ${escapeHtml(doc.unit || '')}</td><td>${money(doc.pricePerUnit)}/${escapeHtml(doc.unit || 'đv')}</td><td class="hl">${money(q * doc.pricePerUnit)}</td></tr>`
+    ).join('');
+    const qtysLabel = qtys.map(q => numFmt(q)).join(' / ');
+    const amenities = (doc.amenities || []).map(a => `<span>${escapeHtml(a)}</span>`).join('');
+    const extraNote = doc.extraCost ? `Chi phí phát sinh: ${escapeHtml(doc.extraCost)}` : '';
+
+    const metaRowsHtml = [
+      lcMetaRow(lcCalendarIcon, 'Ngày đăng', dateFmt(doc.createdAt)),
+      lcMetaRow(pinIcon, 'Địa điểm', escapeHtml(doc.location || '—')),
+      lcMetaRow(lcBarsIcon, 'Tỷ lệ lấp đầy', (doc.occupancyRate != null && doc.occupancyRate !== '') ? escapeHtml(String(doc.occupancyRate)) + '%' : 'Đang cập nhật'),
+      lcMetaRow(lcPenIcon, 'Pháp lý', doc.legalStatus ? escapeHtml(doc.legalStatus) : 'Đang cập nhật'),
+      lcMetaRow(lcExpandIcon, 'Quy mô', doc.totalQty != null ? numFmt(doc.totalQty) + ' ' + escapeHtml(doc.unit || '') : '—'),
+      lcMetaRow(lcDollarIcon, 'Giá', 'Từ ' + money(doc.pricePerUnit) + '/' + escapeHtml(doc.unit || 'đv'))
+    ].join('');
+
+    const detailHtml = `
+      <div class="listing-code">Mã tài sản: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
+      <div class="listing-specs">
+        <div><b>${numFmt(doc.totalQty)} ${escapeHtml(doc.unit || '')}</b><span>Tổng quy mô</span></div>
+        <div><b>${qtysLabel || '—'} ${escapeHtml(doc.unit || '')}</b><span>Các mức</span></div>
+        <div><b>${money(doc.pricePerUnit)}/${escapeHtml(doc.unit || 'đv')}</b><span>Đơn giá (chưa VAT)</span></div>
+        <div><b>${escapeHtml(doc.category || 'Xe nâng & thiết bị')}</b><span>Loại hình</span></div>
+      </div>
+      ${tierRows ? `<div class="listing-tiers"><table><tr><th>Quy mô</th><th>Đơn giá</th><th>Thành tiền</th></tr>${tierRows}</table></div>` : ''}
+      <p class="listing-note">${escapeHtml(doc.description || '')}${extraNote ? ' · ' + extraNote : ''}</p>
+      ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
+      ${lhtBuildFullDetailBlock(doc)}
+      <div class="listing-cta">
+        <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
+        <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(srcCollection)}">💬 Yêu cầu tư vấn</button>
+        <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">🔗 Chia sẻ</button>
+      </div>`;
+
+    lhtTrackListingViewOnce(srcCollection, doc._id, doc.title);
+    return lhtCompactCardShell(doc, galleryHtml, metaRowsHtml, detailHtml);
+  }
+
   function renderCard(doc){
     const tx = txnInfo(getDocTxnTypes(doc)[0]);
     const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
     const srcCollection = doc._collection || collection;
+    if (srcCollection === 'xn_listings') return renderEquipmentStyleCard(doc, srcCollection);
 
     const tiers = doc.tiers || [];
     const tierRows = tiers.map(t =>
@@ -4746,15 +4806,19 @@
   }
 
   const bdsInitFns = [
-    /* 05/10/2026: gộp hiển thị "BĐS dân dụng & thương mại" vào chung feed "BĐS công nghiệp"
-       theo yêu cầu — mục bds2 vẫn được mount riêng bên dưới (ẩn phần hiển thị, giữ nguyên
-       form đăng tin + API/collection cũ) để không đổi đấu nối insert đã có. */
-    mountBdsModule({ prefix:'bds',  collection:'bds_listings',         sectionId:'bds-cong-nghiep', extraCollections:['bds_dandung_listings'] }),
+    /* 05/10/2026: gộp hiển thị "BĐS dân dụng & thương mại" (bds2) và "Xe nâng & thiết bị" (xn)
+       vào chung feed "BĐS công nghiệp" theo yêu cầu — 2 mục đó vẫn được mount riêng bên dưới
+       (ẩn phần hiển thị, giữ nguyên form đăng tin + API/collection cũ) để không đổi đấu nối
+       insert/đọc dữ liệu đã có. xn_listings khác cấu trúc field so với bds/bds2 nên renderCard()
+       có nhánh renderEquipmentStyleCard() riêng để hiển thị đúng — xem ghi chú ở đó. */
+    mountBdsModule({ prefix:'bds',  collection:'bds_listings',         sectionId:'bds-cong-nghiep', extraCollections:['bds_dandung_listings','xn_listings'] }),
     mountBdsModule({ prefix:'bds2', collection:'bds_dandung_listings', sectionId:'bds-dan-dung' })
   ].filter(Boolean);
 
   const genericInitFns = [
     mountGenericModule({ prefix:'log', collection:'logistics_listings', brand:'Logistics & sản xuất', sectionId:'logistics-san-xuat' }),
+    // 05/10: vẫn mount 'xn' ở đây để giữ nguyên form + API đăng tin xn_listings cũ (xem ghi chú ở
+    // bdsInitFns phía trên) — phần hiển thị feed/toolbar/v.v. của module này đã bị ẩn trong HTML.
     mountGenericModule({ prefix:'xn',  collection:'xn_listings',        brand:'Xe nâng & thiết bị',   sectionId:'xe-nang-thiet-bi' }),
     mountGenericModule({ prefix:'da',  collection:'da_listings',        brand:'Dự án & đầu tư',       sectionId:'du-an-dau-tu' }),
     mountGenericModule({ prefix:'pl',  collection:'pl_listings',        brand:'Pháp lý & tài chính',  sectionId:'phap-ly-tai-chinh' })
