@@ -712,7 +712,12 @@
     content:''; position:absolute; top:-2px; left:0; width:64px; height:2px;
     background:var(--lht-gradient-gold);
   }
-  .pillar-section.on-navy{background:var(--lht-gradient-navy); color:var(--ink-on-navy);}
+  /* 05/10/2026: theo yêu cầu đổi nền các khối ngành nghề sang gradient cam-vàng rực rỡ
+     thay cho nền navy đậm trước đây. Giữ nguyên tên class "on-navy" (đỡ phải sửa lại hàng
+     chục selector con bên dưới) — các khối con bên trong (thẻ tin, toolbar, panel đăng tin...)
+     vẫn giữ nền navy-2 đậm làm "đảo" tương phản nổi trên nền cam, không cần đổi thêm gì. */
+  .pillar-section.on-navy{background:var(--lht-gradient-gold); color:var(--navy);}
+  .pillar-section.on-navy::before{background:var(--navy);}
   #xe-nang-thiet-bi{background:var(--lht-cream);}
   #phap-ly-tai-chinh{background:var(--lht-light);}
   .pillar-head{
@@ -732,9 +737,10 @@
     background-repeat:no-repeat; background-size:contain;
   }
   .pillar-head h2{font-size:clamp(1.5rem,2.8vw,2.1rem); margin-top:6px;}
-  .pillar-section.on-navy .pillar-head h2{color:#fff;}
+  .pillar-section.on-navy .pillar-head .kicker{color:var(--navy);}
+  .pillar-section.on-navy .pillar-head h2{color:var(--navy);}
   .pillar-head p.desc{font-size:0.88rem; color:var(--text-dim); max-width:56ch; margin-top:8px;}
-  .pillar-section.on-navy .pillar-head p.desc{color:var(--ink-on-navy-dim);}
+  .pillar-section.on-navy .pillar-head p.desc{color:#6b4321;}
 
   /* toolbar (tìm kiếm theo mục) */
   .toolbar{
@@ -832,6 +838,9 @@
     cursor:pointer; border:1px solid transparent; transition:background .15s ease, border-color .15s ease;
   }
   .listing-flag:hover, .listing-flag:focus-visible{ background:var(--gold); border-color:var(--navy); outline:none; }
+  /* 05/10: nền khối on-navy giờ cũng là tông cam — đổi badge sang nền trắng cho nổi bật, tránh chìm vào nền */
+  .pillar-section.on-navy .listing-flag{background:#fff; border:1px solid var(--navy);}
+  .pillar-section.on-navy .listing-flag:hover, .pillar-section.on-navy .listing-flag:focus-visible{background:var(--navy); color:#fff;}
   .listing-card{
     display:grid; grid-template-columns:1.1fr 1fr; gap:0;
     background:var(--lht-white); border:1px solid var(--paper-2); border-radius:var(--lht-radius); overflow:hidden;
@@ -843,6 +852,44 @@
     box-shadow:0 14px 34px rgba(93,64,55,0.14);
   }
   @media (max-width:860px){ .listing-card{grid-template-columns:1fr;} }
+
+  /* ==== 05/10/2026: thẻ tin gọn (lc-compact) — ảnh trên, nội dung dưới, dùng trong lưới 3 cột
+     (.listings-feed.lc-grid-feed) cho BĐS / Logistics / Xe nâng / Dự án / Pháp lý. Kế thừa nền,
+     viền, hover từ .listing-card ở trên — chỉ đổi bố cục từ 2 cột ngang sang 1 cột dọc. ==== */
+  .listing-card.lc-compact{display:flex; flex-direction:column; margin-bottom:0; height:100%;}
+  .lc-compact .listing-gallery{aspect-ratio:16/10;}
+  .lc-compact .lc-body{padding:16px 18px 18px; display:flex; flex-direction:column; flex:1;}
+  .lc-compact .lc-title{font-size:1rem; color:var(--navy); line-height:1.35; margin:2px 0 10px;}
+  .lc-meta{list-style:none; margin:0 0 14px; padding:0; display:flex; flex-direction:column; gap:7px;}
+  .lc-meta li{display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--text-dim);}
+  .lc-meta li svg{flex:none; color:var(--lht-gold);}
+  .lc-meta li b{color:var(--navy); font-weight:700;}
+  .lc-meta-label{white-space:nowrap;}
+  .lc-actions{display:flex; align-items:center; gap:8px; margin-top:auto; padding-top:4px;}
+  .lc-call-btn, .lc-zalo-btn{
+    display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; font-weight:700;
+    padding:8px 10px; border-radius:7px; white-space:nowrap; flex:none;
+  }
+  .lc-call-btn{background:var(--lht-gradient-gold); color:var(--navy);}
+  .lc-zalo-btn{background:transparent; border:1.5px solid var(--navy); color:var(--navy);}
+  .lc-zalo-btn:hover{background:var(--navy); color:#fff;}
+  .lc-detail-toggle{
+    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:5px;
+    background:transparent; border:1px solid var(--paper-2); color:var(--text-dim);
+    font-size:0.74rem; font-weight:700; padding:8px 10px; border-radius:7px; cursor:pointer;
+  }
+  .lc-detail-toggle:hover{border-color:var(--lht-gold); color:var(--navy);}
+  .lc-detail-toggle .car{transition:transform .15s ease;}
+  .lc-detail-toggle.open .car{transform:rotate(180deg);}
+  .lc-detail-panel{margin-top:14px; padding-top:14px; border-top:1px solid var(--paper-2);}
+  .pillar-section.on-navy .lc-meta li{color:var(--ink-on-navy-dim);}
+  .pillar-section.on-navy .lc-meta li b{color:#fff;}
+  .pillar-section.on-navy .lc-zalo-btn{border-color:#fff; color:#fff;}
+  .pillar-section.on-navy .lc-zalo-btn:hover{background:#fff; color:var(--navy);}
+  .pillar-section.on-navy .lc-detail-toggle{border-color:var(--rule); color:var(--ink-on-navy-dim);}
+  .pillar-section.on-navy .lc-detail-toggle:hover{border-color:var(--lht-gold-light); color:#fff;}
+  .pillar-section.on-navy .lc-detail-panel{border-top-color:var(--rule);}
+
   .listing-gallery{
     position:relative; background:var(--paper-2); aspect-ratio:4/3; overflow:hidden; cursor:pointer;
   }
@@ -990,8 +1037,9 @@
     transition:background .15s, color .15s, transform .15s;
   }
   .feed-cap-view-all-btn:hover{background:var(--lht-gradient-gold); color:#fff; border-color:var(--lht-amber); transform:translateY(-1px);}
-  .pillar-section.on-navy .feed-cap-view-all-btn{background:transparent; color:var(--lht-gold-light); border-color:var(--lht-gold-light);}
-  .pillar-section.on-navy .feed-cap-view-all-btn:hover{background:var(--lht-gradient-gold); color:var(--navy); border-color:var(--lht-gold-light);}
+  /* 05/10: nền khối giờ là gradient cam rực — nút "Xem tất cả" cần tương phản bằng trắng/navy thay vì cam nhạt */
+  .pillar-section.on-navy .feed-cap-view-all-btn{background:#fff; color:var(--navy); border-color:var(--navy);}
+  .pillar-section.on-navy .feed-cap-view-all-btn:hover{background:var(--navy); color:#fff; border-color:var(--navy);}
 
   /* ---- Nút "Trang chủ" luôn hiển thị trên header, kể cả trên di động khi menu đầy đủ bị ẩn ---- */
   .home-btn{
@@ -1007,8 +1055,18 @@
      vẫn hiển thị đầy đủ bình thường. Xem thêm JS: applyDeepLinkHighlight(). ---- */
 
   .listing-head-row{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;}
+  /* 05/10: dòng gợi ý đăng tin "Dân dụng & thương mại" rút gọn, nằm ngay dưới mục BĐS gộp */
+  .listing-head-row.bds2-inline-prompt{
+    background:var(--paper-2); border:1px dashed var(--rule2,#ddd2b6); border-radius:8px; padding:14px 16px;
+  }
+  .bds2-inline-prompt-text{display:flex; flex-direction:column; gap:2px; flex:1; min-width:200px;}
+  .bds2-inline-prompt-text b{color:var(--navy); font-size:0.92rem;}
+  .bds2-inline-prompt-text span{color:var(--text-dim); font-size:0.8rem;}
   .listings-feed{display:flex; flex-direction:column;}
+  .listings-feed.lc-grid-feed{display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:18px;}
   .form-hint{font-size:0.8rem; color:var(--text-dim); margin-top:4px;}
+  /* 05/10: form-hint "nằm thẳng" trên nền cam rực (vd trạng thái feed rỗng) cần tông chữ tối để đọc rõ */
+  .pillar-section.on-navy .form-hint{color:#6b4321;}
 
   .listing-form-panel{
     background:var(--lht-white); border:1px solid var(--paper-2); border-radius:var(--lht-radius); padding:22px 24px; margin:16px 0 26px;
@@ -1630,7 +1688,6 @@
   </div>
   <section class="pillar-section on-navy group-sub group-sub-first" id="bds-cong-nghiep">
   <div class="wrap">
-    <h3 style="margin:0 0 14px;" data-i18n="section.bds.sub-title">Công nghiệp</h3>
     <div class="toolbar">
       <input type="text" id="bds-search-input" placeholder="Bạn đang tìm nhà xưởng, đất KCN ở đâu?" aria-label="Tìm nhà xưởng, đất KCN" data-i18n-placeholder="section.bds.search-ph">
       <button type="button" id="bds-search-clear" class="search-clear-btn" hidden aria-label="Xóa tìm kiếm">✕</button>
@@ -1690,6 +1747,8 @@
           <div class="field"><label for="bds-lf-water" data-i18n="form.bds.label-water">Đơn giá nước</label><input id="bds-lf-water" name="water" type="text" placeholder="VD: 17.000 đ/m³" data-i18n-placeholder="form.bds.ph-water"></div>
           <div class="field"><label for="bds-lf-phone" data-i18n="form.common.label-phone">Số điện thoại liên hệ</label><input id="bds-lf-phone" name="phone" type="text" required placeholder="VD: 0399 831 228" data-i18n-placeholder="form.common.placeholder-phone"></div>
           <div class="field"><label for="bds-lf-amenities" data-i18n="form.bds.label-amenities">Tiện ích (cách nhau bởi dấu phẩy)</label><input id="bds-lf-amenities" name="amenities" type="text" placeholder="VD: Có PCCC, Có văn phòng, Sân bãi rộng" data-i18n-placeholder="form.bds.ph-amenities"></div>
+          <div class="field"><label for="bds-lf-occupancy">Tỷ lệ lấp đầy (%, không bắt buộc)</label><input id="bds-lf-occupancy" name="occupancyRate" type="number" min="0" max="100" placeholder="VD: 85"></div>
+          <div class="field"><label for="bds-lf-legal">Tình trạng pháp lý (không bắt buộc)</label><input id="bds-lf-legal" name="legalStatus" type="text" placeholder="VD: Đầy đủ giấy tờ"></div>
           <div class="field" style="grid-column:1/-1;"><label for="bds-lf-desc" data-i18n="form.common.label-desc">Mô tả thêm (không bắt buộc — hệ thống sẽ tối ưu giúp bạn)</label><textarea id="bds-lf-desc" name="description" placeholder="Ghi vài ý cơ bản, hệ thống sẽ viết lại cho chuyên nghiệp và đầy đủ hơn" data-i18n-placeholder="form.common.placeholder-desc"></textarea></div>
           <div class="field" style="grid-column:1/-1;"><label for="bds-lf-images" data-i18n="form.common.label-images">Hình ảnh (có thể chọn nhiều)</label><input id="bds-lf-images" name="images" type="file" accept="image/*" multiple></div>
         </div>
@@ -1732,12 +1791,16 @@
     </div>
   </div>
 </section>
-<!-- ============ 01b. BĐS DÂN DỤNG & THƯƠNG MẠI (gộp hiển thị vào mục 01, 05/10/2026) ============ -->
-  <section class="pillar-section group-sub" id="bds-dan-dung">
+<!-- ============ 01b. BĐS DÂN DỤNG & THƯƠNG MẠI ============
+     05/10/2026: gộp hiển thị vào chung feed "01. BẤT ĐỘNG SẢN" phía trên (xem extraCollections
+     trong mountBdsModule('bds',...)) — mục này vẫn được mount nguyên vẹn để giữ nguyên form +
+     API đăng tin cũ (collection bds_dandung_listings), chỉ ẩn phần hiển thị trùng lặp (tiêu đề,
+     toolbar, danh sách tin, "vì sao chọn...") bằng display:none, không xoá khỏi DOM. -->
+  <section class="pillar-section group-sub" id="bds-dan-dung" style="padding-top:0;">
   <div class="wrap">
-    <h3 style="margin:0 0 6px;" data-i18n="section.bds2.sub-title">Dân dụng &amp; thương mại</h3>
-    <p class="desc" style="margin:0 0 18px;" data-i18n="section.bds2.intro">Nhà phố, căn hộ, đất nền và mặt bằng kinh doanh — cập nhật liên tục, kết nối nhanh chủ tài sản với người mua/thuê thật.</p>
-    <div class="toolbar">
+    <h3 style="display:none;" data-i18n="section.bds2.sub-title">Dân dụng &amp; thương mại</h3>
+    <p class="desc" style="display:none;" data-i18n="section.bds2.intro">Nhà phố, căn hộ, đất nền và mặt bằng kinh doanh — cập nhật liên tục, kết nối nhanh chủ tài sản với người mua/thuê thật.</p>
+    <div class="toolbar" style="display:none;">
       <input type="text" id="bds2-search-input" placeholder="Bạn đang tìm nhà phố, căn hộ, mặt bằng ở đâu?" aria-label="Tìm nhà xưởng, đất KCN" data-i18n-placeholder="section.bds2.search-ph">
       <button type="button" id="bds2-search-clear" class="search-clear-btn" hidden aria-label="Xóa tìm kiếm">✕</button>
       <button type="button" id="bds2-search-btn" class="btn primary" style="padding:9px 18px;" data-i18n="toolbar.search-btn">Tìm kiếm ngay →</button>
@@ -1759,11 +1822,15 @@
       </div>
     </div>
 
-    <div class="listing-head-row">
-      <span class="listing-flag" tabindex="0" role="button">
+    <div class="listing-head-row bds2-inline-prompt">
+      <span class="listing-flag" tabindex="0" role="button" style="display:none;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.3 4.6 2.4 7.4L12 16.8 5.9 21.4l2.4-7.4L2 9.4h7.6z"/></svg>
         <span data-i18n="listing.bds2.flag">Tin đăng bất động sản dân dụng &amp; thương mại</span>
       </span>
+      <div class="bds2-inline-prompt-text">
+        <b data-i18n="section.bds2.sub-title">Dân dụng &amp; thương mại</b>
+        <span>Nhà phố, căn hộ, đất nền, mặt bằng kinh doanh — tin đăng sẽ tự động hiện chung trong danh sách Bất Động Sản ở mục 01 phía trên.</span>
+      </div>
       <button type="button" id="bds2-listing-form-toggle" class="btn primary" hidden data-i18n="form.common.btn-add-new">+ Đăng tin mới</button>
     </div>
 
@@ -1796,6 +1863,8 @@
           <div class="field"><label for="bds2-lf-water" data-i18n="form.bds.label-water">Đơn giá nước</label><input id="bds2-lf-water" name="water" type="text" placeholder="VD: 17.000 đ/m³" data-i18n-placeholder="form.bds.ph-water"></div>
           <div class="field"><label for="bds2-lf-phone" data-i18n="form.common.label-phone">Số điện thoại liên hệ</label><input id="bds2-lf-phone" name="phone" type="text" required placeholder="VD: 0399 831 228" data-i18n-placeholder="form.common.placeholder-phone"></div>
           <div class="field"><label for="bds2-lf-amenities" data-i18n="form.bds.label-amenities">Tiện ích (cách nhau bởi dấu phẩy)</label><input id="bds2-lf-amenities" name="amenities" type="text" placeholder="VD: Có PCCC, Có văn phòng, Sân bãi rộng" data-i18n-placeholder="form.bds.ph-amenities"></div>
+          <div class="field"><label for="bds2-lf-occupancy">Tỷ lệ lấp đầy (%, không bắt buộc)</label><input id="bds2-lf-occupancy" name="occupancyRate" type="number" min="0" max="100" placeholder="VD: 85"></div>
+          <div class="field"><label for="bds2-lf-legal">Tình trạng pháp lý (không bắt buộc)</label><input id="bds2-lf-legal" name="legalStatus" type="text" placeholder="VD: Đầy đủ giấy tờ"></div>
           <div class="field" style="grid-column:1/-1;"><label for="bds2-lf-desc" data-i18n="form.common.label-desc">Mô tả thêm (không bắt buộc — hệ thống sẽ tối ưu giúp bạn)</label><textarea id="bds2-lf-desc" name="description" placeholder="Ghi vài ý cơ bản, hệ thống sẽ viết lại cho chuyên nghiệp và đầy đủ hơn" data-i18n-placeholder="form.common.placeholder-desc"></textarea></div>
           <div class="field" style="grid-column:1/-1;"><label for="bds2-lf-images" data-i18n="form.common.label-images">Hình ảnh (có thể chọn nhiều)</label><input id="bds2-lf-images" name="images" type="file" accept="image/*" multiple></div>
         </div>
@@ -1807,7 +1876,7 @@
       </form>
     </div>
 
-    <div class="txn-tabs" id="bds2-txn-filter" role="tablist" aria-label="Lọc theo nhu cầu" hidden>
+    <div class="txn-tabs" id="bds2-txn-filter" role="tablist" aria-label="Lọc theo nhu cầu" hidden style="display:none;">
       <button type="button" class="txn-tab active" data-filter="all" style="--txn-color:var(--gold);" data-i18n-html="txn.all-tab">Tất cả <span class="cnt"></span></button>
       <button type="button" class="txn-tab" data-filter="cho_thue" style="--txn-color:#2b6fb0;" data-i18n-html="txn.cho-thue-tab">Cho thuê <span class="cnt"></span></button>
       <button type="button" class="txn-tab" data-filter="can_thue" style="--txn-color:#2f7d4f;" data-i18n-html="txn.can-thue-tab">Cần thuê <span class="cnt"></span></button>
@@ -1815,7 +1884,7 @@
       <button type="button" class="txn-tab" data-filter="can_mua" style="--txn-color:#7a3fa0;" data-i18n-html="txn.can-mua-tab">Cần mua <span class="cnt"></span></button>
       <button type="button" class="txn-tab" data-filter="ky_gui" style="--txn-color:#b06a2b;" data-i18n-html="txn.ky-gui-tab">Ký gửi <span class="cnt"></span></button>
     </div>
-    <div id="bds2-listings-feed" class="listings-feed">
+    <div id="bds2-listings-feed" class="listings-feed" style="display:none;">
       <div class="form-hint" style="text-align:center;padding:32px 16px;" data-feed-state="emptyGeneric">
         <p style="margin:0 0 14px;" data-i18n="feed.common.empty-intro">Danh sách được cập nhật liên tục — liên hệ trực tiếp để nhận thông tin mới nhất, phù hợp đúng nhu cầu của bạn.</p>
         <a class="btn primary" href="tel:0399831228" data-i18n="feed.common.call-now">Gọi ngay: 0399 831 228</a>
@@ -1823,7 +1892,7 @@
       </div>
     </div>
 
-    <div class="pillar-cols" style="grid-template-columns:1fr; margin-top:22px;">
+    <div class="pillar-cols" style="grid-template-columns:1fr; margin-top:22px; display:none;">
       <div class="side-card">
         <h4 data-i18n="section.bds2.why-title">Vì sao chọn Lê Hoài Thanh?</h4>
         <ul style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:9px;">
@@ -2876,6 +2945,63 @@
   }
   const pinIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.1 7-11.5A7 7 0 005 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></svg>';
 
+  /* ==== 05/10/2026: thẻ tin gọn (lc-compact) — bố cục nhỏ gọn theo ảnh tham khảo: ảnh + tiêu đề +
+     các dòng thông tin nhanh (ngày đăng, địa điểm, tỷ lệ lấp đầy, pháp lý, diện tích, giá), phần
+     chi tiết đầy đủ (bảng giá, tiện ích, mô tả, brochure...) gói vào panel mở/đóng bên dưới. ==== */
+  function dateFmt(ts){
+    const n = Number(ts);
+    if (!n) return '—';
+    const d = new Date(n);
+    if (isNaN(d.getTime())) return '—';
+    return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+  }
+  function areaFmt(m2){
+    const n = Number(m2);
+    if (!n || isNaN(n)) return '—';
+    if (n >= 10000) return (n/10000).toLocaleString('vi-VN', { maximumFractionDigits:1 }) + ' ha';
+    return numFmt(n) + ' m²';
+  }
+  const lcCalendarIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>';
+  const lcBarsIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>';
+  const lcPenIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l4.3-1 10-10-3.3-3.3-10 10L4 20z"/><path d="M13.3 6.7l3.3 3.3"/></svg>';
+  const lcExpandIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H3v6M15 3h6v6M9 21H3v-6M15 21h6v-6"/></svg>';
+  const lcDollarIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 6.5c0-1.9-2.2-3.5-5-3.5s-5 1.4-5 3.3 2.2 2.9 5 3.4 5 1.5 5 3.4-2.2 3.3-5 3.3-5-1.6-5-3.5"/></svg>';
+  const lcPhoneIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1l-2.2 2.2z"/></svg>';
+  const lcZaloIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
+
+  function lcMetaRow(icon, label, valueHtml){
+    return `<li>${icon}<span class="lc-meta-label">${escapeHtml(label)}:</span> <b>${valueHtml}</b></li>`;
+  }
+  function lhtCompactCardShell(doc, galleryHtml, metaRowsHtml, detailHtml){
+    return `
+    <div class="listing-card lc-compact" data-listing-id="${escapeHtml(doc._id || '')}" data-listing-collection="${escapeHtml(doc._collection || '')}">
+      ${galleryHtml}
+      <div class="lc-body">
+        ${txnBadgesHtml(doc)}
+        <h3 class="lc-title">${escapeHtml(doc.title)}</h3>
+        <ul class="lc-meta">${metaRowsHtml}</ul>
+        <div class="lc-actions">
+          <a class="lc-call-btn" href="tel:0399831228">${lcPhoneIcon}<span>Gọi ngay</span></a>
+          <a class="lc-zalo-btn" href="https://zalo.me/0399831228" target="_blank" rel="noopener">${lcZaloIcon}<span>Zalo</span></a>
+          <button type="button" class="lc-detail-toggle" data-lc-toggle="1" aria-expanded="false"><span>Chi tiết</span><span class="car">▾</span></button>
+        </div>
+        <div class="lc-detail-panel" hidden>${detailHtml}</div>
+      </div>
+    </div>`;
+  }
+  // Toggle panel "Chi tiết" trên thẻ gọn — 1 listener chung cho toàn trang (giống cơ chế lightbox ảnh).
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest && e.target.closest('.lc-detail-toggle');
+    if (!btn) return;
+    const card = btn.closest('.lc-compact');
+    const panel = card && card.querySelector('.lc-detail-panel');
+    if (!panel) return;
+    const willOpen = panel.hidden;
+    panel.hidden = !willOpen;
+    btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    btn.classList.toggle('open', willOpen);
+  });
+
   // ---- Chia sẻ liên kết tin đăng (copy link) + hỗ trợ deep-link mở đúng tin khi có #section?id=... ----
   (function initDeepLinkTarget(){
     try {
@@ -3635,6 +3761,12 @@
     const prefix = cfg.prefix;
     const collection = cfg.collection;
     const sectionId = cfg.sectionId;
+    /* 05/10/2026: cho phép 1 module hiển thị gộp nhiều collection cùng lúc (vd: BĐS công nghiệp +
+       BĐS dân dụng & thương mại trong cùng 1 danh sách) — KHÔNG đổi cách insert/đọc dữ liệu của
+       từng collection, chỉ gộp kết quả hiển thị ở tầng feed. */
+    const extraCollections = cfg.extraCollections || [];
+    const allCollections = [collection].concat(extraCollections);
+    const docBuckets = {};
 
     const state = { db: null, assets: null, sample: null };
     const feedEl = document.getElementById(prefix + '-listings-feed');
@@ -3645,6 +3777,7 @@
     const cancelBtn = document.getElementById(prefix + '-listing-form-cancel');
     const statusEl = document.getElementById(prefix + '-listing-form-status');
     if (!feedEl || !formEl) return null;
+    feedEl.classList.add('lc-grid-feed'); /* 05/10: lưới thẻ gọn 3 cột theo ảnh tham khảo */
 
   let lastDocs = [];
   let currentFilter = 'all';
@@ -3675,6 +3808,7 @@
   function renderCard(doc){
     const tx = txnInfo(getDocTxnTypes(doc)[0]);
     const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
+    const srcCollection = doc._collection || collection;
 
     const tiers = doc.tiers || [];
     const tierRows = tiers.map(t =>
@@ -3688,33 +3822,37 @@
       doc.water ? `Nước: ${escapeHtml(doc.water)}` : ''
     ].filter(Boolean).join(' · ');
 
-    lhtTrackListingViewOnce(collection, doc._id, doc.title);
-    return `
-    <div class="listing-card" data-listing-id="${escapeHtml(doc._id || '')}">
-      ${galleryHtml}
-      <div class="listing-body">
-        ${txnBadgesHtml(doc)}
-        <h3>${escapeHtml(doc.title)}</h3>
-        <div class="listing-loc">${pinIcon}${escapeHtml(doc.location)}</div>
-        <div class="listing-code">Mã tài sản: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
-        <div class="listing-specs">
-          <div><b>${numFmt(doc.totalArea)} m²</b><span>Tổng diện tích</span></div>
-          <div><b>${areasLabel || '—'} m²</b><span>${escapeHtml(tx.areasLabel)}</span></div>
-          <div><b>${money(doc.pricePerM2)}/m²</b><span>${escapeHtml(tx.priceLabel)} (chưa VAT)</span></div>
-          <div><b>${escapeHtml(doc.propertyType || 'Kho xưởng')}</b><span>Loại tài sản</span></div>
-        </div>
-        ${tierRows ? `<div class="listing-tiers"><table><tr><th>Diện tích</th><th>Đơn giá</th><th>${escapeHtml(tx.tierHead)}</th></tr>${tierRows}</table></div>` : ''}
-        <p class="listing-note">${escapeHtml(doc.description || '')}${utilNote ? ' · ' + utilNote : ''}</p>
-        ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
-        ${lhtBuildFullDetailBlock(doc)}
-        <div class="listing-cta">
-          <a class="btn" href="tel:0399831228">Gọi ngay: 0399 831 228</a>
-          <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
-          <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}">💬 Yêu cầu tư vấn</button>
-          <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}">🔗 Chia sẻ</button>
-        </div>
+    // 6 dòng thông tin nhanh hiển thị ngay trên thẻ (bố cục gọn theo ảnh tham khảo 05/10) —
+    // "Tỷ lệ lấp đầy" và "Pháp lý" là 2 trường mới, tuỳ chọn (chỉ hiện khi tin có nhập).
+    const metaRowsHtml = [
+      lcMetaRow(lcCalendarIcon, 'Ngày đăng', dateFmt(doc.createdAt)),
+      lcMetaRow(pinIcon, 'Địa điểm', escapeHtml(doc.location || '—')),
+      lcMetaRow(lcBarsIcon, 'Tỷ lệ lấp đầy', (doc.occupancyRate != null && doc.occupancyRate !== '') ? escapeHtml(String(doc.occupancyRate)) + '%' : 'Đang cập nhật'),
+      lcMetaRow(lcPenIcon, 'Pháp lý', doc.legalStatus ? escapeHtml(doc.legalStatus) : 'Đang cập nhật'),
+      lcMetaRow(lcExpandIcon, 'Diện tích', areaFmt(doc.totalArea)),
+      lcMetaRow(lcDollarIcon, 'Giá thuê', 'Từ ' + money(doc.pricePerM2) + '/m²')
+    ].join('');
+
+    const detailHtml = `
+      <div class="listing-code">Mã tài sản: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
+      <div class="listing-specs">
+        <div><b>${numFmt(doc.totalArea)} m²</b><span>Tổng diện tích</span></div>
+        <div><b>${areasLabel || '—'} m²</b><span>${escapeHtml(tx.areasLabel)}</span></div>
+        <div><b>${money(doc.pricePerM2)}/m²</b><span>${escapeHtml(tx.priceLabel)} (chưa VAT)</span></div>
+        <div><b>${escapeHtml(doc.propertyType || 'Kho xưởng')}</b><span>Loại tài sản</span></div>
       </div>
-    </div>`;
+      ${tierRows ? `<div class="listing-tiers"><table><tr><th>Diện tích</th><th>Đơn giá</th><th>${escapeHtml(tx.tierHead)}</th></tr>${tierRows}</table></div>` : ''}
+      <p class="listing-note">${escapeHtml(doc.description || '')}${utilNote ? ' · ' + utilNote : ''}</p>
+      ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
+      ${lhtBuildFullDetailBlock(doc)}
+      <div class="listing-cta">
+        <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
+        <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(srcCollection)}">💬 Yêu cầu tư vấn</button>
+        <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}">🔗 Chia sẻ</button>
+      </div>`;
+
+    lhtTrackListingViewOnce(srcCollection, doc._id, doc.title);
+    return lhtCompactCardShell(doc, galleryHtml, metaRowsHtml, detailHtml);
   }
 
   function updateTabCounts(){
@@ -3745,7 +3883,7 @@
       return;
     }
     if (!hasSearched && deepLinkDoc){
-      feedEl.innerHTML = renderCard({ ...deepLinkDoc.data, _id: deepLinkDoc.id, assetCode: deepLinkDoc.assetCode })
+      feedEl.innerHTML = renderCard({ ...deepLinkDoc.data, _id: deepLinkDoc.id, assetCode: deepLinkDoc.assetCode, _collection: deepLinkDoc._collection || collection })
         + (window.lhtFeedHtml ? window.lhtFeedHtml('viewAllOther') : '');
       updateTabCounts();
       applyDeepLinkHighlight(feedEl);
@@ -3763,7 +3901,7 @@
     const shouldCap = !isFilteredView && !capExpanded && sorted.length > CAP;
     const visible = shouldCap ? sorted.slice(0, CAP) : sorted;
     feedEl.innerHTML = sorted.length
-      ? visible.map(d => renderCard({ ...d.data, _id: d.id, assetCode: d.assetCode })).join('') + (shouldCap && window.lhtCapNoticeHtml ? window.lhtCapNoticeHtml(sorted.length - CAP) : '')
+      ? visible.map(d => renderCard({ ...d.data, _id: d.id, assetCode: d.assetCode, _collection: d._collection || collection })).join('') + (shouldCap && window.lhtCapNoticeHtml ? window.lhtCapNoticeHtml(sorted.length - CAP) : '')
       : (window.lhtFeedHtml ? window.lhtFeedHtml('noResultsFilter') : '<p class="form-hint">Chưa có tin nào thuộc nhu cầu này — thử chọn "Tất cả" hoặc quay lại sau.</p>');
     updateTabCounts();
     applyDeepLinkHighlight(feedEl);
@@ -3777,7 +3915,16 @@
       feedEl.innerHTML = (window.lhtFeedHtml ? window.lhtFeedHtml('emptyGeneric') : '<div class="form-hint" style="text-align:center;padding:32px 16px;"><p style="margin:0 0 14px;">Danh sách được cập nhật liên tục — liên hệ trực tiếp để nhận thông tin mới nhất, phù hợp đúng nhu cầu của bạn.</p><a class="btn primary" href="tel:0399831228">Gọi ngay: 0399 831 228</a> <a class="btn outline-navy" href="https://zalo.me/0399831228" target="_blank" rel="noopener">Nhắn Zalo</a></div>');
       return;
     }
-    state.db.collection(collection).onSnapshot((docs) => { lastDocs = docs || []; renderFeed(); });
+    function recombineBuckets(){
+      lastDocs = allCollections.reduce((acc, name) => acc.concat(docBuckets[name] || []), []);
+      renderFeed();
+    }
+    allCollections.forEach(name => {
+      state.db.collection(name).onSnapshot((docs) => {
+        docBuckets[name] = (docs || []).map(d => ({ ...d, _collection: name }));
+        recombineBuckets();
+      });
+    });
 
     if (state.assets){
       toggleBtn.hidden = false;
@@ -3843,13 +3990,13 @@
   feedEl.addEventListener('click', (e) => {
     const leadBtn = e.target.closest('.lead-form-btn');
     if (leadBtn){
-      lhtOpenLeadForm(collection, leadBtn.getAttribute('data-lead-id'), leadBtn.getAttribute('data-lead-title'));
+      lhtOpenLeadForm(leadBtn.getAttribute('data-lead-collection') || collection, leadBtn.getAttribute('data-lead-id'), leadBtn.getAttribute('data-lead-title'));
       return;
     }
     const callLink = e.target.closest('a[href^="tel:"]');
     if (callLink){
       const card = callLink.closest('.listing-card');
-      lhtTrackEvent('call_click', { collection: collection, listing_id: card ? card.getAttribute('data-listing-id') : '' });
+      lhtTrackEvent('call_click', { collection: (card && card.getAttribute('data-listing-collection')) || collection, listing_id: card ? card.getAttribute('data-listing-id') : '' });
     }
   });
 
@@ -3944,6 +4091,10 @@
       const amenitiesRaw = (fd.get('amenities') || '').toString().trim();
       const rawDescription = (fd.get('description') || '').toString().trim();
       const phone = (fd.get('phone') || '').toString().trim();
+      // 05/10/2026: 2 trường tuỳ chọn mới, hiện trên thẻ tin gọn — không bắt buộc, không ảnh hưởng tin cũ chưa có.
+      const occupancyRateRaw = (fd.get('occupancyRate') || '').toString().trim();
+      const occupancyRate = occupancyRateRaw ? Math.max(0, Math.min(100, parseFloat(occupancyRateRaw) || 0)) : null;
+      const legalStatus = (fd.get('legalStatus') || '').toString().trim() || null;
 
       if (!txnTypes.length){
         statusEl.textContent = 'Vui lòng chọn ít nhất 1 loại giao dịch (Cho thuê / Bán / ...).';
@@ -3996,7 +4147,7 @@
       const id = 'l_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
       await state.db.doc(collection + '/' + id).set({
         txnTypes, txnType, title, location, propertyType, totalArea, tiers, pricePerM2,
-        electricity, water, amenities, description, phone,
+        electricity, water, amenities, description, phone, occupancyRate, legalStatus,
         imageIds, createdAt: Date.now()
       });
 
@@ -4118,6 +4269,7 @@
     const cancelBtn = document.getElementById(prefix + '-listing-form-cancel');
     const statusEl = document.getElementById(prefix + '-listing-form-status');
     if (!feedEl || !formEl) return;
+    feedEl.classList.add('lc-grid-feed'); /* 05/10: lưới thẻ gọn 3 cột theo ảnh tham khảo */
 
     const gState = { db:null, assets:null, sample:null };
     let gDocs = [];
@@ -4165,33 +4317,37 @@
       const amenities = (doc.amenities || []).map(a => `<span>${escapeHtml(a)}</span>`).join('');
       const extraNote = doc.extraCost ? `Chi phí phát sinh: ${escapeHtml(doc.extraCost)}` : '';
 
-      lhtTrackListingViewOnce(collection, doc._id, doc.title);
-      return `
-      <div class="listing-card" data-listing-id="${escapeHtml(doc._id || '')}">
-        ${galleryHtml}
-        <div class="listing-body">
-          ${txnBadgesHtml(doc)}
-          <h3>${escapeHtml(doc.title)}</h3>
-          <div class="listing-loc">${pinIcon}${escapeHtml(doc.location)}</div>
-          <div class="listing-code">Mã tài sản: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
-          <div class="listing-specs">
-            <div><b>${numFmt(doc.totalQty)} ${escapeHtml(doc.unit || '')}</b><span>Tổng quy mô</span></div>
-            <div><b>${qtysLabel || '—'} ${escapeHtml(doc.unit || '')}</b><span>Các mức</span></div>
-            <div><b>${money(doc.pricePerUnit)}/${escapeHtml(doc.unit || 'đv')}</b><span>Đơn giá (chưa VAT)</span></div>
-            <div><b>${escapeHtml(doc.category || brand)}</b><span>Loại hình</span></div>
-          </div>
-          ${tierRows ? `<div class="listing-tiers"><table><tr><th>Quy mô</th><th>Đơn giá</th><th>Thành tiền</th></tr>${tierRows}</table></div>` : ''}
-          <p class="listing-note">${escapeHtml(doc.description || '')}${extraNote ? ' · ' + extraNote : ''}</p>
-          ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
-          ${lhtBuildFullDetailBlock(doc)}
-          <div class="listing-cta">
-            <a class="btn" href="tel:0399831228">Gọi ngay: 0399 831 228</a>
-            <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
-            <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}">💬 Yêu cầu tư vấn</button>
-            <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}">🔗 Chia sẻ</button>
-          </div>
+      // 6 dòng thông tin nhanh — cùng bố cục gọn với BĐS (05/10). "Tỷ lệ lấp đầy"/"Pháp lý" là
+      // trường tuỳ chọn, chỉ hiện khi tin có nhập (ví dụ dự án/kho bãi có tỷ lệ lấp đầy thực tế).
+      const metaRowsHtml = [
+        lcMetaRow(lcCalendarIcon, 'Ngày đăng', dateFmt(doc.createdAt)),
+        lcMetaRow(pinIcon, 'Địa điểm', escapeHtml(doc.location || '—')),
+        lcMetaRow(lcBarsIcon, 'Tỷ lệ lấp đầy', (doc.occupancyRate != null && doc.occupancyRate !== '') ? escapeHtml(String(doc.occupancyRate)) + '%' : 'Đang cập nhật'),
+        lcMetaRow(lcPenIcon, 'Pháp lý', doc.legalStatus ? escapeHtml(doc.legalStatus) : 'Đang cập nhật'),
+        lcMetaRow(lcExpandIcon, 'Quy mô', doc.totalQty != null ? numFmt(doc.totalQty) + ' ' + escapeHtml(doc.unit || '') : '—'),
+        lcMetaRow(lcDollarIcon, 'Giá', 'Từ ' + money(doc.pricePerUnit) + '/' + escapeHtml(doc.unit || 'đv'))
+      ].join('');
+
+      const detailHtml = `
+        <div class="listing-code">Mã tài sản: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
+        <div class="listing-specs">
+          <div><b>${numFmt(doc.totalQty)} ${escapeHtml(doc.unit || '')}</b><span>Tổng quy mô</span></div>
+          <div><b>${qtysLabel || '—'} ${escapeHtml(doc.unit || '')}</b><span>Các mức</span></div>
+          <div><b>${money(doc.pricePerUnit)}/${escapeHtml(doc.unit || 'đv')}</b><span>Đơn giá (chưa VAT)</span></div>
+          <div><b>${escapeHtml(doc.category || brand)}</b><span>Loại hình</span></div>
         </div>
-      </div>`;
+        ${tierRows ? `<div class="listing-tiers"><table><tr><th>Quy mô</th><th>Đơn giá</th><th>Thành tiền</th></tr>${tierRows}</table></div>` : ''}
+        <p class="listing-note">${escapeHtml(doc.description || '')}${extraNote ? ' · ' + extraNote : ''}</p>
+        ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
+        ${lhtBuildFullDetailBlock(doc)}
+        <div class="listing-cta">
+          <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
+          <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(collection)}">💬 Yêu cầu tư vấn</button>
+          <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}">🔗 Chia sẻ</button>
+        </div>`;
+
+      lhtTrackListingViewOnce(collection, doc._id, doc.title);
+      return lhtCompactCardShell(doc, galleryHtml, metaRowsHtml, detailHtml);
     }
 
     function updateGenericCounts(){
@@ -4465,7 +4621,10 @@
   }
 
   const bdsInitFns = [
-    mountBdsModule({ prefix:'bds',  collection:'bds_listings',         sectionId:'bds-cong-nghiep' }),
+    /* 05/10/2026: gộp hiển thị "BĐS dân dụng & thương mại" vào chung feed "BĐS công nghiệp"
+       theo yêu cầu — mục bds2 vẫn được mount riêng bên dưới (ẩn phần hiển thị, giữ nguyên
+       form đăng tin + API/collection cũ) để không đổi đấu nối insert đã có. */
+    mountBdsModule({ prefix:'bds',  collection:'bds_listings',         sectionId:'bds-cong-nghiep', extraCollections:['bds_dandung_listings'] }),
     mountBdsModule({ prefix:'bds2', collection:'bds_dandung_listings', sectionId:'bds-dan-dung' })
   ].filter(Boolean);
 
