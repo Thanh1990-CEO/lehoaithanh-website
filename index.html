@@ -1885,7 +1885,11 @@
       </div>
     </div>
 
-    <div class="listing-head-row bds2-inline-prompt">
+    <!-- 05/10/2026 (v2): theo yêu cầu, ẩn hẳn khối thông báo gộp này khỏi giao diện — không còn
+         hiển thị dưới dạng "mục riêng" trên trang nữa. Form/API bên dưới (#bds2-listing-form-panel,
+         #bds2-listing-form) vẫn giữ nguyên trong DOM, không xoá, không đổi — chỉ không còn lối vào
+         từ giao diện công khai (nút bấm cũng nằm trong khối bị ẩn này). -->
+    <div class="listing-head-row bds2-inline-prompt" style="display:none;">
       <span class="listing-flag" tabindex="0" role="button" style="display:none;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.3 4.6 2.4 7.4L12 16.8 5.9 21.4l2.4-7.4L2 9.4h7.6z"/></svg>
         <span data-i18n="listing.bds2.flag">Tin đăng bất động sản dân dụng &amp; thương mại</span>
@@ -2020,7 +2024,11 @@
       </div>
     </div>
 
-    <div class="listing-head-row bds2-inline-prompt">
+    <!-- 05/10/2026 (v2): theo yêu cầu, ẩn hẳn khối thông báo gộp này khỏi giao diện — không còn
+         hiển thị dưới dạng "mục riêng" trên trang nữa. Form/API bên dưới (#xn-listing-form-panel,
+         #xn-listing-form) vẫn giữ nguyên trong DOM, không xoá, không đổi — chỉ không còn lối vào
+         từ giao diện công khai (nút bấm cũng nằm trong khối bị ẩn này). -->
+    <div class="listing-head-row bds2-inline-prompt" style="display:none;">
       <span class="listing-flag" tabindex="0" role="button" style="display:none;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.3 4.6 2.4 7.4L12 16.8 5.9 21.4l2.4-7.4L2 9.4h7.6z"/></svg>
         <span data-i18n="listing.xn.flag">Tin đăng xe nâng &amp; thiết bị</span>
