@@ -48,25 +48,26 @@
   @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
   :root{
-    /* ---- LHT Design System — canonical brand tokens (Xanh Dương Đậm & Vàng Kim / Deep Blue & Gold) ----
-       Đồng bộ với bảng màu đã dùng sẵn ở admin.html/crm.html (--navy:#062A55, --gold:#D9A62E). */
-    --lht-navy:#062A55;       /* primary: xanh dương đậm — header/menu, heading */
-    --lht-deep:#031A33;       /* darkest navy, for gradients/hover/dark accents */
-    --lht-blue:#0B5C91;       /* mid blue, secondary accent role */
-    --lht-gold:#FF7A00;       /* primary accent: cam rực — nổi bật, tạo cảm tình hơn vàng kim cũ (cập nhật 05/10) */
-    --lht-gold-light:#FF9D4D; /* lighter orange for gradient highlight */
-    --lht-earth:#3D6EA5;      /* xanh dương nhạt, accent phụ */
-    --lht-amber:#E8690A;      /* cam đậm, dùng cho hover/nhấn mạnh */
-    --lht-fire:#FF6F00;       /* cam-vàng đậm, dùng cho cảnh báo/nhấn nếu cần */
+    /* ---- LHT Design System v2 (06/10/2026) — "Clean Industrial Gold":
+       bảng màu chuẩn theo tài liệu thiết kế mới, tỷ lệ 60-30-10:
+       60% Clean White/Slate Light, 30% Deep Industrial Navy, 10% Warm Metallic Gold. */
+    --lht-navy:#0F172A;       /* Deep Industrial Navy — chữ chính, heading, footer, badge */
+    --lht-deep:#1E293B;       /* Slate Navy thứ cấp — gradient/dark-surface */
+    --lht-blue:#334155;       /* navy nhạt hơn — điểm cuối gradient/viền trên nền tối */
+    --lht-gold:#D4AF37;       /* Warm Metallic Gold — accent 10%, CTA, số liệu, hover */
+    --lht-gold-light:#E5C878; /* vàng nhạt hơn cho gradient highlight/hover sáng */
+    --lht-earth:#334155;      /* (không còn dùng làm accent riêng — gộp theo navy) */
+    --lht-amber:#C5A059;      /* vàng đồng — điểm đầu gradient/hover đậm */
+    --lht-fire:#C5A059;       /* (alias, giữ biến cũ không vỡ nơi còn tham chiếu) */
     --lht-white:#FFFFFF;
-    --lht-light:#F5F7F8;      /* nền xám-trắng nhạt (Kim) */
-    --lht-cream:#ECEFF1;      /* nền xám nhạt luân phiên */
-    --lht-text:#102A43;       /* chữ chính xanh dương đậm (đồng bộ admin.html) */
-    --lht-muted:#66787F;      /* chữ phụ xám trung tính */
-    --lht-border:#DCE3E6;     /* viền xám nhạt */
-    --lht-shadow: 0 8px 30px rgba(6,42,85,0.14);
+    --lht-light:#F8FAFC;      /* Slate Light — nền phụ 60% thoáng sáng */
+    --lht-cream:#F1F5F9;      /* nền xám-slate nhạt luân phiên */
+    --lht-text:#334155;       /* Charcoal Gray — chữ chính, dễ đọc trên nền sáng */
+    --lht-muted:#64748B;      /* chữ phụ xám-slate trung tính */
+    --lht-border:#E2E8F0;     /* Border Slate — viền mảnh phân chia khu vực */
+    --lht-shadow: 0 10px 30px rgba(15,23,42,0.07);
     --lht-radius: 14px;
-    --lht-gradient-navy: linear-gradient(135deg, var(--lht-deep) 0%, var(--lht-navy) 55%, var(--lht-blue) 100%);
+    --lht-gradient-navy: linear-gradient(135deg, var(--lht-navy) 0%, var(--lht-deep) 55%, var(--lht-blue) 100%);
     --lht-gradient-gold: linear-gradient(135deg, var(--lht-amber) 0%, var(--lht-gold) 55%, var(--lht-gold-light) 100%);
 
     /* ---- existing token names, retuned to resolve through the tokens above ----
@@ -81,9 +82,9 @@
     --paper-2: var(--lht-border);
     --text: var(--lht-text);
     --text-dim: var(--lht-muted);
-    --ink-on-navy:#F5F7F8;
-    --ink-on-navy-dim:#A9C1DE;
-    --rule:#1F4E78;
+    --ink-on-navy:#F8FAFC;
+    --ink-on-navy-dim:#94A3B8;
+    --rule:#2C3B52;
     --shadow: var(--lht-shadow);
   }
   @media (prefers-color-scheme: dark){
@@ -138,11 +139,13 @@
   svg{display:block;}
 
   /* ---------------- Header ---------------- */
+  /* 06/10/2026: redesign theo tài liệu màu mới — Header nền trắng cố định (sticky),
+     chữ/menu màu navy đậm, hover vàng gold. Thay cho nền navy đậm trước đây. */
   header.site{
-    background:var(--lht-gradient-navy);
-    color:var(--ink-on-navy);
+    background:var(--lht-white);
+    color:var(--navy);
     position:sticky; top:0; z-index:40;
-    border-bottom:1px solid var(--rule);
+    border-bottom:1px solid var(--lht-border);
   }
   .head-row{
     display:flex; align-items:center; justify-content:space-between;
@@ -167,20 +170,20 @@
     font-size:1.15rem;
     font-weight:700;
     letter-spacing:0.04em;
-    color:#fff;
+    color:var(--navy);
   }
   .logo-text span{
     display:block;
     font-size:0.6rem;
     letter-spacing:0.09em;
-    color:var(--gold-light);
+    color:var(--gold-deep);
     margin-top:2px;
   }
   .logo-text em{
     display:block;
     font-style:normal;
     font-size:0.62rem;
-    color:var(--ink-on-navy-dim);
+    color:var(--text-dim);
     margin-top:2px;
   }
 
@@ -188,35 +191,35 @@
     display:flex; gap:22px; flex-wrap:wrap;
     font-size:0.78rem; font-weight:600; letter-spacing:0.03em;
   }
-  nav.main a{ color:var(--ink-on-navy-dim); padding-block:6px; border-bottom:2px solid transparent;}
-  nav.main a.active{ color:#fff; border-color:var(--gold);}
-  nav.main a:hover{ color:#fff;}
+  nav.main a{ color:var(--navy); padding-block:6px; border-bottom:2px solid transparent;}
+  nav.main a.active{ color:var(--lht-gold); border-color:var(--gold);}
+  nav.main a:hover{ color:var(--lht-gold);}
 
   .head-actions{display:flex; align-items:center; gap:16px;}
   .icon-btn{
     width:34px; height:34px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    border:1px solid var(--rule); color:var(--ink-on-navy-dim);
+    border:1px solid var(--lht-border); color:var(--navy);
   }
-  .icon-btn:hover{border-color:var(--gold); color:var(--gold-light);}
+  .icon-btn:hover{border-color:var(--gold); color:var(--gold-deep);}
   .icon-btn.zalo-icon-btn:hover{border-color:#0068ff; color:#0068ff;}
 
   .lang-switcher{ position:relative; }
   .lang-menu{
     position:absolute; top:calc(100% + 10px); right:0;
-    background:var(--navy-2); border:1px solid var(--rule); border-radius:8px;
+    background:#fff; border:1px solid var(--lht-border); border-radius:8px;
     box-shadow:var(--shadow); padding:6px; min-width:152px; z-index:60;
     display:flex; flex-direction:column; gap:2px;
   }
   .lang-option{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     width:100%; text-align:left; font-family:'Inter', sans-serif; font-size:0.8rem; font-weight:600;
-    color:var(--ink-on-navy-dim); background:transparent; border:none; border-radius:5px;
+    color:var(--text-dim); background:transparent; border:none; border-radius:5px;
     padding:9px 11px; cursor:pointer;
   }
-  .lang-option:hover{ background:rgba(255,255,255,0.07); color:#fff; }
-  .lang-option.active{ color:var(--gold-light); }
-  .lang-option.active::after{ content:"\2713"; font-weight:700; color:var(--gold-light); }
+  .lang-option:hover{ background:var(--lht-cream); color:var(--navy); }
+  .lang-option.active{ color:var(--gold-deep); }
+  .lang-option.active::after{ content:"\2713"; font-weight:700; color:var(--gold-deep); }
   @media (max-width:640px){ .lang-menu{ right:-10px; min-width:142px; } }
 
   .zalo-float{
@@ -240,11 +243,11 @@
     width:42px; height:42px; border-radius:50%; flex:none;
     background:#fff; border:1px solid var(--lht-border); color:var(--navy);
     display:flex; align-items:center; justify-content:center;
-    box-shadow:0 6px 16px rgba(20,12,8,.18), 0 2px 8px rgba(0,0,0,.12);
+    box-shadow:0 6px 16px rgba(15,23,42,.18), 0 2px 8px rgba(0,0,0,.12);
     transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
   }
   .social-float-btn svg{ width:20px; height:20px; display:block; }
-  .social-float-btn:hover{ transform:scale(1.1); box-shadow:0 10px 22px rgba(20,12,8,.26); filter:brightness(1.08); }
+  .social-float-btn:hover{ transform:scale(1.1); box-shadow:0 10px 22px rgba(15,23,42,.26); filter:brightness(1.08); }
   /* icon màu thương hiệu thật, luôn hiển thị (không chỉ khi hover) */
   .social-float-btn.fb{ background:#1877F2; border-color:#1877F2; }
   .social-float-btn.yt{ background:#FF0000; border-color:#FF0000; }
@@ -268,7 +271,7 @@
       width:38px; height:38px; border-radius:50%;
       background:#fff; border:1px solid var(--lht-border); color:var(--navy);
       align-items:center; justify-content:center;
-      box-shadow:0 6px 16px rgba(20,12,8,.18), 0 2px 8px rgba(0,0,0,.12);
+      box-shadow:0 6px 16px rgba(15,23,42,.18), 0 2px 8px rgba(0,0,0,.12);
     }
     .social-float-toggle svg{ width:18px; height:18px; transition:transform .2s ease; }
     .social-float-toggle.open svg{ transform:rotate(45deg); }
@@ -281,7 +284,7 @@
     background:var(--lht-navy); color:var(--ink-on-navy);
     border:1px solid var(--lht-navy); border-radius:999px;
     padding:9px 14px 9px 12px; font-size:.78rem; font-weight:700;
-    box-shadow:0 6px 16px rgba(20,12,8,.18), 0 2px 8px rgba(0,0,0,.12);
+    box-shadow:0 6px 16px rgba(15,23,42,.18), 0 2px 8px rgba(0,0,0,.12);
     cursor:pointer; transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
   }
   .lht-stats-toggle:hover{ transform:scale(1.04); filter:brightness(1.1); }
@@ -290,7 +293,7 @@
     position:absolute; left:0; bottom:calc(100% + 10px);
     width:272px; max-width:calc(100vw - 36px);
     background:var(--lht-white, #fff); border:1px solid var(--lht-border);
-    border-radius:12px; box-shadow:0 16px 40px rgba(20,12,8,.22), 0 4px 14px rgba(0,0,0,.14);
+    border-radius:12px; box-shadow:0 16px 40px rgba(15,23,42,.22), 0 4px 14px rgba(0,0,0,.14);
     padding:14px 14px 12px; display:none;
   }
   .lht-stats-panel.open{ display:block; }
@@ -364,7 +367,7 @@
   /* ---------------- Hero ---------------- */
   .hero-section{
     background:
-      linear-gradient(100deg, rgba(3,26,51,0.93) 0%, rgba(6,42,85,0.88) 42%, rgba(6,42,85,0.62) 75%, rgba(6,42,85,0.4) 100%),
+      linear-gradient(100deg, rgba(15,23,42,0.93) 0%, rgba(15,23,42,0.86) 42%, rgba(15,23,42,0.58) 75%, rgba(15,23,42,0.32) 100%),
       url('images/hero-industrial-park.jpg');
     background-size: cover;
     background-position: center 65%;
@@ -390,7 +393,7 @@
     max-width:340px;
     aspect-ratio:3/4;
     border-radius:10px 10px 0 0;
-    background:linear-gradient(160deg, var(--navy-3), var(--navy-2) 60%, #031A33);
+    background:linear-gradient(160deg, var(--navy-3), var(--navy-2) 60%, var(--lht-navy));
     border:1px solid var(--rule);
     position:relative;
     overflow:hidden;
@@ -401,7 +404,7 @@
     position:absolute; inset:0;
     background:
       linear-gradient(180deg, rgba(62,39,35,0) 52%, rgba(62,39,35,0.55) 100%),
-      linear-gradient(100deg, rgba(255,122,0,0.16), transparent 45%);
+      linear-gradient(100deg, rgba(212,175,55,0.16), transparent 45%);
     pointer-events:none;
   }
   .portrait-frame svg{ width:78%; }
@@ -515,7 +518,7 @@
   .side-item:last-child{border-bottom:none;}
   .side-item .ic{
     width:30px; height:30px; border-radius:6px;
-    background:rgba(255,122,0,0.14);
+    background:rgba(212,175,55,0.14);
     display:flex; align-items:center; justify-content:center;
     color:var(--gold-light);
     flex:none;
@@ -534,8 +537,8 @@
     content:"";
     position:absolute; inset:0;
     background:
-      linear-gradient(180deg, rgba(20,12,8,0) 38%, rgba(20,12,8,.8) 100%),
-      linear-gradient(100deg, rgba(20,12,8,.6) 0%, rgba(20,12,8,0) 48%);
+      linear-gradient(180deg, rgba(15,23,42,0) 38%, rgba(15,23,42,.8) 100%),
+      linear-gradient(100deg, rgba(15,23,42,.6) 0%, rgba(15,23,42,0) 48%);
   }
   .hero-scene-caption{ position:absolute; right:18px; bottom:34px; text-align:right; z-index:2; }
   .hero-scene-caption b{ display:block; font-family:'Oswald',sans-serif; font-size:0.98rem; letter-spacing:0.03em; color:#fff; }
@@ -558,7 +561,7 @@
   }
   .hero-scene-quote span{
     display:block; margin-top:10px; font-family:'Inter',sans-serif; font-size:0.74rem; font-weight:600;
-    letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,122,0,0.92);
+    letter-spacing:0.1em; text-transform:uppercase; color:rgba(212,175,55,0.92);
     text-shadow:0 1px 6px rgba(0,0,0,.5);
   }
   @media (max-width:640px){
@@ -571,7 +574,7 @@
     background:rgba(255,255,255,.95);
     border-radius:999px;
     padding:5px 14px 5px 5px;
-    box-shadow:0 6px 18px rgba(20,12,8,.3);
+    box-shadow:0 6px 18px rgba(15,23,42,.3);
   }
   .hero-scene-badge img{ width:32px; height:32px; border-radius:50%; object-fit:cover; object-position:50% 32%; display:block; }
   .hero-scene-badge b{ font-family:'Oswald',sans-serif; font-size:0.68rem; color:var(--navy); letter-spacing:0.02em; white-space:nowrap; }
@@ -583,33 +586,42 @@
   }
 
   /* ---------------- Stats bar ---------------- */
+  /* 06/10/2026: redesign — khu vực "Số liệu ấn tượng" chuyển từ dải nền navy đậm liền mạch
+     sang nền slate-light (#F8FAFC) với từng số liệu là 1 card trắng bo góc, đổ bóng nhẹ,
+     theo đúng tài liệu thiết kế mới (mục "Khu vực Giới thiệu & Số liệu ấn tượng"). */
   .stats-bar{
-    background:var(--lht-gradient-navy);
-    border-top:1px solid var(--rule);
+    background:var(--lht-light);
+    border-top:1px solid var(--lht-border);
+    border-bottom:1px solid var(--lht-border);
+    padding-block:22px;
   }
   .stats-row{
     display:grid;
     grid-template-columns:repeat(5, 1fr) 1.3fr;
-    align-items:center;
+    gap:14px;
+    align-items:stretch;
   }
   @media (max-width:980px){ .stats-row{grid-template-columns:repeat(2,1fr);} }
   @media (max-width:560px){ .stats-row{grid-template-columns:1fr;} }
   .stat-item{
     display:flex; align-items:center; gap:12px;
     padding:18px 20px;
-    border-right:1px solid var(--rule);
+    background:#fff;
+    border:1px solid var(--lht-border);
+    border-radius:12px;
+    box-shadow:var(--lht-shadow);
   }
-  @media (max-width:980px){ .stat-item{border-bottom:1px solid var(--rule); border-right:none;} }
-  .stat-item .ic{color:var(--gold-light); flex:none;}
+  .stat-item .ic{color:var(--lht-gold); flex:none;}
   .stat-item b{
-    display:block; font-family:'Oswald', sans-serif; font-size:1.3rem; color:var(--gold-light);
+    display:block; font-family:'Oswald', sans-serif; font-size:1.3rem; color:var(--lht-gold);
     font-variant-numeric:tabular-nums;
   }
-  .stat-item span{display:block; font-size:0.72rem; color:var(--ink-on-navy-dim); margin-top:2px;}
+  .stat-item span{display:block; font-size:0.72rem; color:var(--text-dim); margin-top:2px;}
   .stat-cta{
     background:var(--lht-gradient-gold);
     color:var(--navy);
     padding:18px 26px;
+    border-radius:12px;
     display:flex; align-items:center; justify-content:space-between; gap:14px;
     font-family:'Oswald', sans-serif;
     font-weight:600;
@@ -619,16 +631,27 @@
   }
 
   /* ---------------- Category cards ---------------- */
+  /* 06/10/2026: redesign — mỗi danh mục là 1 card trắng độc lập, viền mảnh #E2E8F0,
+     hover viền vàng + nổi nhẹ (translateY-4px) theo đúng tài liệu thiết kế mới. */
   .cat-section{padding-block:48px; background:var(--lht-light);}
   .cat-grid{
     display:grid;
     grid-template-columns:repeat(5, 1fr);
+    gap:16px;
   }
   @media (max-width:980px){ .cat-grid{grid-template-columns:repeat(2,1fr);} }
   @media (max-width:560px){ .cat-grid{grid-template-columns:1fr;} }
   .cat-card{
-    border-right:1px solid var(--paper-2);
-    border-bottom:1px solid var(--paper-2);
+    background:#fff;
+    border:1px solid var(--lht-border);
+    border-radius:var(--lht-radius);
+    overflow:hidden;
+    transition:border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+  }
+  .cat-card:hover{
+    border-color:var(--lht-gold);
+    transform:translateY(-4px);
+    box-shadow:var(--lht-shadow);
   }
   .cat-img{
     aspect-ratio:4/3;
@@ -712,14 +735,15 @@
     content:''; position:absolute; top:-2px; left:0; width:64px; height:2px;
     background:var(--lht-gradient-gold);
   }
-  /* 05/10/2026: theo yêu cầu đổi nền các khối ngành nghề sang gradient cam-vàng rực rỡ
-     thay cho nền navy đậm trước đây. Giữ nguyên tên class "on-navy" (đỡ phải sửa lại hàng
-     chục selector con bên dưới) — các khối con bên trong (thẻ tin, toolbar, panel đăng tin...)
-     vẫn giữ nền navy-2 đậm làm "đảo" tương phản nổi trên nền cam, không cần đổi thêm gì. */
-  .pillar-section.on-navy{background:var(--lht-gradient-gold); color:var(--navy);}
-  .pillar-section.on-navy::before{background:var(--navy);}
+  /* 06/10/2026: redesign theo tài liệu màu mới — bỏ nền tối/cam rực của các khối ngành nghề,
+     quay về nền sáng 60% (trắng/slate-light xen kẽ) theo đúng mục "Danh mục Dự án & BĐS
+     Công nghiệp: Nền chung #FFFFFF". Các quy tắc ".pillar-section.on-navy ..." bên dưới
+     không còn được gắn vào section nào (đã gỡ class on-navy khỏi HTML) — giữ lại không xoá
+     để không phải sửa lại hàng loạt selector con, nhưng không ảnh hưởng giao diện hiển thị. */
   #xe-nang-thiet-bi{background:var(--lht-cream);}
   #phap-ly-tai-chinh{background:var(--lht-light);}
+  #logistics-san-xuat{background:var(--lht-light);}
+  #du-an-dau-tu{background:var(--lht-cream);}
   .pillar-head{
     display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap;
     margin-bottom:26px;
@@ -767,13 +791,13 @@
   }
   .toolbar .chip svg{vertical-align:-2px; margin-right:4px;}
   .toolbar .chip:hover{border-color:var(--lht-gold); color:var(--navy);}
-  .toolbar .chip.has-selection{border-color:var(--lht-gold); background:rgba(255,122,0,0.14); color:var(--navy);}
+  .toolbar .chip.has-selection{border-color:var(--lht-gold); background:rgba(212,175,55,0.14); color:var(--navy);}
   .toolbar .chip .chip-count{font-weight:700; color:var(--gold-deep,#a3803f);}
   .pillar-section.on-navy .toolbar{background:var(--navy-2); border-color:var(--rule);}
   .pillar-section.on-navy .toolbar input{color:#fff;}
   .pillar-section.on-navy .toolbar input::placeholder{color:var(--ink-on-navy-dim);}
   .pillar-section.on-navy .toolbar .chip{background:var(--navy-2); border-color:var(--rule); color:var(--ink-on-navy);}
-  .pillar-section.on-navy .toolbar .chip.has-selection{border-color:var(--gold); background:rgba(255,122,0,0.16); color:#fff;}
+  .pillar-section.on-navy .toolbar .chip.has-selection{border-color:var(--gold); background:rgba(212,175,55,0.16); color:#fff;}
   .toolbar .btn{padding:9px 18px; white-space:nowrap;}
 
   /* thanh tra cứu theo Mã tài sản — độc lập với các thanh tìm kiếm theo mục ở dưới,
@@ -849,7 +873,7 @@
   }
   .listing-card:hover{
     border-color:var(--lht-gold);
-    box-shadow:0 14px 34px rgba(93,64,55,0.14);
+    box-shadow:0 14px 34px rgba(15,23,42,0.12);
   }
   @media (max-width:860px){ .listing-card{grid-template-columns:1fr;} }
 
@@ -959,6 +983,40 @@
   .listing-cta .lead-form-btn{background:transparent; border:1.5px solid var(--gold); color:var(--navy); cursor:pointer; font:inherit;}
   .listing-cta .lead-form-btn:hover{background:var(--lht-cream);}
 
+  /* ---- 06/10/2026: Modal "Chi tiết sản phẩm, dịch vụ" — mở đúng 1 sản phẩm/thẻ gọn trong
+     overlay riêng (xem ghi chú JS tại lhtOpenDetailModal). Trên điện thoại hiện dạng "bottom
+     sheet" neo đáy màn hình, cuộn nội bộ mượt, không làm giãn/lệch layout lưới phía sau. ---- */
+  .lht-detail-modal{
+    display:none; position:fixed; inset:0; z-index:9990; background:rgba(15,23,42,0.6);
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .lht-detail-modal.open{display:flex;}
+  .lht-detail-box{
+    position:relative; width:100%; max-width:640px; max-height:86vh;
+    background:#fff; color:var(--text); border-radius:var(--lht-radius); box-shadow:var(--shadow);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .lht-detail-close{
+    position:absolute; top:12px; right:12px; z-index:2; width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--lht-border); background:#fff; color:var(--navy); font-size:1.05rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; box-shadow:var(--lht-shadow);
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .lht-detail-close:hover{background:var(--lht-gold); border-color:var(--lht-gold); color:#fff;}
+  .lht-detail-modal-body{ padding:28px 26px 30px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .lc-detail-head{ padding-right:32px; margin-bottom:16px; }
+  .lc-detail-head h3{ font-family:'Oswald',sans-serif; font-size:1.2rem; color:var(--navy); line-height:1.3; margin:0; text-transform:none; }
+  @media (max-width:640px){
+    .lht-detail-modal{ padding:0; align-items:flex-end; }
+    .lht-detail-box{ max-width:100%; max-height:92vh; border-radius:16px 16px 0 0; }
+    .lht-detail-close{ top:10px; right:10px; width:40px; height:40px; }
+    .lht-detail-modal-body{ padding:24px 18px 26px; }
+    /* nút Gọi ngay/Yêu cầu tư vấn/Chia sẻ trong modal — xếp dọc, full-width trên điện thoại
+       để dễ bấm bằng ngón tay thay vì co cụm/xuống dòng lởm chởm như trước. */
+    .lht-detail-modal-body .listing-cta{ flex-direction:column; align-items:stretch; }
+    .lht-detail-modal-body .listing-cta .btn{ width:100%; justify-content:center; text-align:center; }
+  }
+
   .listing-body{padding:22px 24px; display:flex; flex-direction:column;}
   .listing-body h3{font-size:1.15rem; color:var(--navy); line-height:1.3;}
   .listing-loc{
@@ -1000,7 +1058,7 @@
   .listing-cta .btn.listing-share-btn.is-copied{background:var(--gold); border-color:var(--gold); color:var(--navy);}
   .listing-card.lht-deep-link-highlight{
     outline:3px solid var(--lht-gold); outline-offset:3px;
-    box-shadow:0 0 0 8px rgba(255,122,0,0.22);
+    box-shadow:0 0 0 8px rgba(212,175,55,0.22);
     transition:outline-color .3s ease, box-shadow .3s ease;
   }
 
@@ -1029,25 +1087,30 @@
   }
   .feed-view-all-btn:hover{background:var(--lht-cream);}
 
-  /* ---- 05/10/2026: nút "Xem tất cả N tin →" khi mục đang bị giới hạn 5 kết quả mặc định ---- */
+  /* ---- 06/10/2026: nút nhỏ "Click để xem toàn bộ sản phẩm, dịch vụ" khi mục đang bị
+     giới hạn LHT_FEED_CAP kết quả mặc định — thay cho nút khối to bản trước đây, gọn hơn,
+     có icon mũi tên, căn giữa được cả trong layout dạng lưới (.lc-grid-feed) lẫn dạng cột. ---- */
   .feed-cap-view-all-btn{
-    display:block; width:100%; max-width:360px; margin:22px auto 4px; text-align:center;
-    padding:13px 22px; border-radius:999px; font-weight:800; letter-spacing:.01em;
-    border:2px solid var(--lht-gold); color:var(--lht-amber); background:#fff;
-    transition:background .15s, color .15s, transform .15s;
+    display:inline-flex; align-items:center; gap:7px;
+    align-self:center; justify-self:center;
+    margin:20px auto 4px; padding:10px 20px; border-radius:999px;
+    font-size:0.8rem; font-weight:700; letter-spacing:.01em;
+    border:1.5px solid var(--lht-gold); color:var(--navy); background:#fff;
+    transition:background .15s ease, color .15s ease, transform .15s ease, border-color .15s ease;
   }
-  .feed-cap-view-all-btn:hover{background:var(--lht-gradient-gold); color:#fff; border-color:var(--lht-amber); transform:translateY(-1px);}
-  /* 05/10: nền khối giờ là gradient cam rực — nút "Xem tất cả" cần tương phản bằng trắng/navy thay vì cam nhạt */
-  .pillar-section.on-navy .feed-cap-view-all-btn{background:#fff; color:var(--navy); border-color:var(--navy);}
-  .pillar-section.on-navy .feed-cap-view-all-btn:hover{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .feed-cap-view-all-btn:hover{background:var(--lht-gold); color:#fff; transform:translateY(-1px);}
+  .feed-cap-view-all-btn .cap-arrow{width:13px; height:13px; flex:none; transition:transform .15s ease;}
+  .feed-cap-view-all-btn:hover .cap-arrow{transform:translateX(3px);}
+  /* nút nằm trong lưới 3 cột (.lc-grid-feed) cần chiếm trọn hàng để căn giữa đúng, không bị bó vào 1 ô cột */
+  .listings-feed.lc-grid-feed .feed-cap-view-all-btn{grid-column:1/-1;}
 
   /* ---- Nút "Trang chủ" luôn hiển thị trên header, kể cả trên di động khi menu đầy đủ bị ẩn ---- */
   .home-btn{
-    display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.1);
-    border:1px solid rgba(255,255,255,0.28); color:#fff; border-radius:999px; padding:8px 14px;
+    display:inline-flex; align-items:center; gap:6px; background:var(--lht-light);
+    border:1px solid var(--lht-border); color:var(--navy); border-radius:999px; padding:8px 14px;
     font-size:0.76rem; font-weight:700; white-space:nowrap;
   }
-  .home-btn:hover{background:rgba(255,255,255,0.2);}
+  .home-btn:hover{background:var(--lht-gold); border-color:var(--lht-gold); color:#fff;}
   .home-btn .ic{font-size:0.9rem;}
 
   /* ---- Đã bỏ "chế độ xem tập trung" (ẩn cả trang chỉ còn 1 mục + thanh "📌 Đang xem...")
@@ -1095,7 +1158,7 @@
   .listing-form-panel .field textarea{ min-height:90px; resize:vertical; font-family:inherit; }
   .listing-form-panel .field input:focus,
   .listing-form-panel .field textarea:focus,
-  .listing-form-panel select:focus{ outline:none; border-color:var(--lht-gold, #FF7A00); }
+  .listing-form-panel select:focus{ outline:none; border-color:var(--lht-gold, #D4AF37); }
   .listing-form-actions{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:18px;}
   .form-status{font-size:0.8rem; color:var(--text-dim);}
 
@@ -1178,7 +1241,7 @@
   }
   .region-card:hover{
     border-color:var(--lht-gold);
-    box-shadow:0 14px 34px rgba(93,64,55,0.14);
+    box-shadow:0 14px 34px rgba(15,23,42,0.12);
     transform:translateY(-4px);
   }
   .lht-photo{position:relative;}
@@ -1187,7 +1250,7 @@
     position:absolute; inset:0;
     background:
       linear-gradient(180deg, rgba(62,39,35,0) 55%, rgba(62,39,35,0.48) 100%),
-      linear-gradient(100deg, rgba(255,122,0,0.16), transparent 45%);
+      linear-gradient(100deg, rgba(212,175,55,0.16), transparent 45%);
     pointer-events:none;
   }
   .region-card h3{font-size:1rem; color:var(--navy);}
@@ -1271,7 +1334,7 @@
   }
   .info-item:hover{
     border-color:var(--lht-gold);
-    box-shadow:0 14px 34px rgba(93,64,55,0.14);
+    box-shadow:0 14px 34px rgba(15,23,42,0.12);
     transform:translateY(-4px);
   }
   .pillar-section.on-navy .info-item{background:var(--navy-2); border-color:var(--rule); color:var(--ink-on-navy);}
@@ -1289,7 +1352,7 @@
   }
   .side-card:hover{
     border-color:var(--lht-gold);
-    box-shadow:0 14px 34px rgba(93,64,55,0.14);
+    box-shadow:0 14px 34px rgba(15,23,42,0.12);
     transform:translateY(-4px);
   }
   .pillar-section.on-navy .side-card{background:var(--navy-2); border-color:var(--rule);}
@@ -1320,7 +1383,7 @@
   }
   .process-step:hover{
     border-color:var(--lht-gold);
-    box-shadow:0 14px 34px rgba(93,64,55,0.14);
+    box-shadow:0 14px 34px rgba(15,23,42,0.12);
     transform:translateY(-4px);
   }
   .pillar-section.on-navy .process-step{background:var(--navy-2); border-color:var(--rule);}
@@ -1354,7 +1417,7 @@
   .media-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:16px;}
   @media (max-width:860px){ .media-grid{grid-template-columns:1fr;} }
   .media-panel{background:var(--lht-white); border:1px solid var(--paper-2); border-radius:var(--lht-radius); padding:16px; transition:box-shadow .18s ease, border-color .18s ease;}
-  .media-panel:hover{border-color:var(--lht-gold); box-shadow:0 14px 34px rgba(93,64,55,0.14);}
+  .media-panel:hover{border-color:var(--lht-gold); box-shadow:0 14px 34px rgba(15,23,42,0.12);}
   .media-panel h4{font-family:'Oswald',sans-serif; font-size:0.85rem; color:var(--navy); margin-bottom:12px;}
   .video-main{
     aspect-ratio:16/9; border-radius:6px; background:linear-gradient(155deg,var(--navy-3),var(--navy));
@@ -1379,7 +1442,7 @@
     cursor:pointer; transition:border-color .15s ease, background .15s ease, color .15s ease, transform .15s ease;
   }
   .brand-row button:hover, .brand-row button:focus-visible{
-    border-color:var(--lht-gold); background:rgba(255,122,0,0.12); color:var(--navy); transform:translateY(-1px);
+    border-color:var(--lht-gold); background:rgba(212,175,55,0.12); color:var(--navy); transform:translateY(-1px);
   }
 
   /* ---------------- Nav: nút nổi bật "Về Lê Hoài Thanh" ---------------- */
@@ -1686,7 +1749,7 @@
       </div>
     </div>
   </div>
-  <section class="pillar-section on-navy group-sub group-sub-first" id="bds-cong-nghiep">
+  <section class="pillar-section group-sub group-sub-first" id="bds-cong-nghiep">
   <div class="wrap">
     <div class="toolbar">
       <input type="text" id="bds-search-input" placeholder="Bạn đang tìm nhà xưởng, đất KCN ở đâu?" aria-label="Tìm nhà xưởng, đất KCN" data-i18n-placeholder="section.bds.search-ph">
@@ -1920,7 +1983,7 @@
       </div>
     </div>
   </div>
-  <section class="pillar-section on-navy group-sub group-sub-first" id="logistics-san-xuat">
+  <section class="pillar-section group-sub group-sub-first" id="logistics-san-xuat">
   <div class="wrap">
     <h3 style="margin:0 0 6px;" data-i18n="section.log.title">Hậu cần &amp; sản xuất</h3>
     <p class="desc" style="margin:0 0 18px;" data-i18n="section.log.intro">Tối ưu chuỗi giá trị — nâng tầm doanh nghiệp. Từ nguồn nguyên liệu đến sản phẩm, từ nhà máy đến thị trường.</p>
@@ -2283,7 +2346,7 @@
   <span class="ofi-chevron" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
 </summary>
 <!-- ============ 04. DỰ ÁN & ĐẦU TƯ ============ -->
-<section class="pillar-section on-navy" id="du-an-dau-tu">
+<section class="pillar-section" id="du-an-dau-tu">
   <div class="wrap">
     <div class="pillar-head">
       <div>
@@ -2606,7 +2669,7 @@
   <span class="ofi-chevron" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
 </summary>
 <!-- ============ 06. KIẾN THỨC & MEDIA ============ -->
-<section class="pillar-section on-navy" id="kien-thuc-media">
+<section class="pillar-section" id="kien-thuc-media">
   <div class="wrap">
     <div class="pillar-head">
       <div>
@@ -2731,7 +2794,7 @@
         <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12l3 3 5-6"/><circle cx="12" cy="12" r="9"/></svg></span>
         <div><b>5+</b><span data-i18n="stats.item4">Năm kinh nghiệm thực chiến</span></div>
       </div>
-      <div class="stat-item" style="border-right:none;">
+      <div class="stat-item">
         <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.1 7-11.5A7 7 0 005 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></svg></span>
         <div><b>Bình Dương</b><span data-i18n="stats.item5">Tỉnh thành trọng điểm &amp; các vùng lân cận</span></div>
       </div>
@@ -2983,23 +3046,84 @@
         <div class="lc-actions">
           <a class="lc-call-btn" href="tel:0399831228">${lcPhoneIcon}<span>Gọi ngay</span></a>
           <a class="lc-zalo-btn" href="https://zalo.me/0399831228" target="_blank" rel="noopener">${lcZaloIcon}<span>Zalo</span></a>
-          <button type="button" class="lc-detail-toggle" data-lc-toggle="1" aria-expanded="false"><span>Chi tiết</span><span class="car">▾</span></button>
+          <button type="button" class="lc-detail-toggle" data-lc-toggle="1"><span>Chi tiết</span>${lcExpandIcon}</button>
         </div>
-        <div class="lc-detail-panel" hidden>${detailHtml}</div>
+        <template class="lc-detail-tpl"><div class="lc-detail-head" data-listing-id="${escapeHtml(doc._id || '')}" data-listing-collection="${escapeHtml(doc._collection || '')}"><h3>${escapeHtml(doc.title)}</h3></div>${detailHtml}</template>
       </div>
     </div>`;
   }
-  // Toggle panel "Chi tiết" trên thẻ gọn — 1 listener chung cho toàn trang (giống cơ chế lightbox ảnh).
+  /* 06/10/2026: SỬA LỖI — bấm "Chi tiết" trước đây mở rộng panel NGAY TRONG lưới 3 cột
+     (.lc-grid-feed), khiến cả HÀNG lưới giãn theo card dài nhất (CSS Grid mặc định kéo giãn
+     các ô cùng hàng bằng nhau) → các thẻ khác cùng hàng bị kéo dài/lệch theo dù không mở, nhìn
+     như "mở cùng lúc", rất bất tiện — đặc biệt trên điện thoại (lưới 1 cột thì card nào cũng
+     bị đẩy xuống). Nay đổi sang: nội dung chi tiết nằm trong <template> (không chiếm layout,
+     trình duyệt không render/đo đạc phần tử template), bấm "Chi tiết" sẽ nhân bản nội dung đó
+     ra 1 modal overlay dùng chung cho toàn trang — chỉ hiện đúng 1 sản phẩm được bấm, không
+     ảnh hưởng các thẻ khác, hoạt động nhất quán trên cả desktop lẫn di động. */
+  let __lhtDetailEl = null;
+  function lhtEnsureDetailModal(){
+    if (__lhtDetailEl) return __lhtDetailEl;
+    const el = document.createElement('div');
+    el.className = 'lht-detail-modal';
+    el.innerHTML = `
+      <div class="lht-detail-box" role="dialog" aria-modal="true" aria-label="Chi tiết sản phẩm, dịch vụ">
+        <button type="button" class="lht-detail-close" aria-label="Đóng">✕</button>
+        <div class="lht-detail-modal-body"></div>
+      </div>`;
+    document.body.appendChild(el);
+    el.addEventListener('click', (e) => { if (e.target === el) lhtCloseDetailModal(); });
+    el.querySelector('.lht-detail-close').addEventListener('click', lhtCloseDetailModal);
+    __lhtDetailEl = el;
+    return el;
+  }
+  function lhtOpenDetailModal(tplEl){
+    const el = lhtEnsureDetailModal();
+    const body = el.querySelector('.lht-detail-modal-body');
+    body.innerHTML = '';
+    body.appendChild(tplEl.content.cloneNode(true));
+    body.scrollTop = 0;
+    el.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function lhtCloseDetailModal(){
+    if (!__lhtDetailEl) return;
+    __lhtDetailEl.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && __lhtDetailEl && __lhtDetailEl.classList.contains('open')) lhtCloseDetailModal();
+  });
+  // Mở modal "Chi tiết" trên thẻ gọn — 1 listener chung cho toàn trang (giống cơ chế lightbox ảnh).
   document.addEventListener('click', function(e){
     const btn = e.target.closest && e.target.closest('.lc-detail-toggle');
     if (!btn) return;
     const card = btn.closest('.lc-compact');
-    const panel = card && card.querySelector('.lc-detail-panel');
-    if (!panel) return;
-    const willOpen = panel.hidden;
-    panel.hidden = !willOpen;
-    btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-    btn.classList.toggle('open', willOpen);
+    const tpl = card && card.querySelector('.lc-detail-tpl');
+    if (!tpl) return;
+    lhtOpenDetailModal(tpl);
+  });
+  // Nút "Chia sẻ" / "Yêu cầu tư vấn" / theo dõi bấm "Gọi ngay" NẰM BÊN TRONG modal Chi tiết:
+  // nội dung trong modal là bản sao (cloneNode) của <template>, nằm ngoài .listing-card gốc nên
+  // không lọt vào các listener gắn theo từng feedEl của từng mục (BĐS/Logistics/...) — xử lý
+  // riêng ở đây bằng 1 listener dùng chung, đọc trực tiếp từ data-* đã gắn sẵn trên từng nút.
+  document.addEventListener('click', function(e){
+    const modal = e.target.closest && e.target.closest('.lht-detail-modal');
+    if (!modal) return;
+    const shareBtn = e.target.closest('.listing-share-btn');
+    if (shareBtn){
+      shareListing(shareBtn.getAttribute('data-section-id') || '', shareBtn.getAttribute('data-share-id'), shareBtn);
+      return;
+    }
+    const leadBtn = e.target.closest('.lead-form-btn');
+    if (leadBtn){
+      lhtOpenLeadForm(leadBtn.getAttribute('data-lead-collection') || '', leadBtn.getAttribute('data-lead-id'), leadBtn.getAttribute('data-lead-title'));
+      return;
+    }
+    const callLink = e.target.closest('a[href^="tel:"]');
+    if (callLink){
+      const head = callLink.closest('.lc-detail-head');
+      lhtTrackEvent('call_click', { collection: (head && head.getAttribute('data-listing-collection')) || '', listing_id: head ? head.getAttribute('data-listing-id') : '' });
+    }
   });
 
   // ---- Chia sẻ liên kết tin đăng (copy link) + hỗ trợ deep-link mở đúng tin khi có #section?id=... ----
@@ -3848,7 +3972,7 @@
       <div class="listing-cta">
         <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
         <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(srcCollection)}">💬 Yêu cầu tư vấn</button>
-        <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}">🔗 Chia sẻ</button>
+        <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">🔗 Chia sẻ</button>
       </div>`;
 
     lhtTrackListingViewOnce(srcCollection, doc._id, doc.title);
@@ -3897,7 +4021,7 @@
     const sorted = [...filtered].sort((a,b) => (b.data.createdAt || 0) - (a.data.createdAt || 0));
     // 05/10: không lọc/tìm gì (mặc định) thì chỉ show tối đa CAP tin; đã lọc/tìm hoặc đã bấm "Xem tất cả" thì show hết.
     const isFilteredView = currentFilter !== 'all' || !!searchQuery || !!regionKeywords || (chipFilters ? chipFilters.hasAny() : false);
-    const CAP = window.LHT_FEED_CAP || 5;
+    const CAP = window.LHT_FEED_CAP || 4;
     const shouldCap = !isFilteredView && !capExpanded && sorted.length > CAP;
     const visible = shouldCap ? sorted.slice(0, CAP) : sorted;
     feedEl.innerHTML = sorted.length
@@ -4306,6 +4430,7 @@
     }
 
     function renderGenericCard(doc){
+      doc._collection = doc._collection || collection;
       const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
 
       const qtys = doc.qtys || [];
@@ -4343,7 +4468,7 @@
         <div class="listing-cta">
           <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
           <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(collection)}">💬 Yêu cầu tư vấn</button>
-          <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}">🔗 Chia sẻ</button>
+          <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">🔗 Chia sẻ</button>
         </div>`;
 
       lhtTrackListingViewOnce(collection, doc._id, doc.title);
@@ -4392,7 +4517,7 @@
       const sorted = [...filtered].sort((a,b) => (b.data.createdAt || 0) - (a.data.createdAt || 0));
       // 05/10: không lọc/tìm gì (mặc định) thì chỉ show tối đa CAP tin; đã lọc/tìm hoặc đã bấm "Xem tất cả" thì show hết.
       const isFilteredView = gFilter !== 'all' || !!gSearchQuery || (gChipFilters ? gChipFilters.hasAny() : false);
-      const CAP = window.LHT_FEED_CAP || 5;
+      const CAP = window.LHT_FEED_CAP || 4;
       const shouldCap = !isFilteredView && !gCapExpanded && sorted.length > CAP;
       const visible = shouldCap ? sorted.slice(0, CAP) : sorted;
       feedEl.innerHTML = sorted.length
@@ -4703,8 +4828,8 @@
           <div class="listing-cta">
             ${linkBtn}
             <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="tel:0399831228">Liên hệ: 0399 831 228</a>
-            <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}">💬 Yêu cầu tư vấn</button>
-            <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}">🔗 Chia sẻ</button>
+            <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(collection)}">💬 Yêu cầu tư vấn</button>
+            <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="kien-thuc-media">🔗 Chia sẻ</button>
           </div>
         </div>
       </div>`;
@@ -4752,7 +4877,7 @@
       const sorted = [...filtered].sort((a,b) => (b.data.createdAt || 0) - (a.data.createdAt || 0));
       // 05/10: không lọc/tìm gì (mặc định) thì chỉ show tối đa CAP nội dung; đã lọc/tìm hoặc đã bấm "Xem tất cả" thì show hết.
       const isFilteredView = mFilter !== 'all' || !!mSearchQuery || (mChipFilters ? mChipFilters.hasAny() : false);
-      const CAP = window.LHT_FEED_CAP || 5;
+      const CAP = window.LHT_FEED_CAP || 4;
       const shouldCap = !isFilteredView && !mCapExpanded && sorted.length > CAP;
       const visible = shouldCap ? sorted.slice(0, CAP) : sorted;
       feedEl.innerHTML = sorted.length
@@ -5018,8 +5143,8 @@
       const baseline = H - 20;
       const topPad = 16;
       const grad = ctx.createLinearGradient(0, topPad, 0, baseline);
-      grad.addColorStop(0, '#FF9D4D');
-      grad.addColorStop(1, '#E8690A');
+      grad.addColorStop(0, '#E5C878');
+      grad.addColorStop(1, '#C5A059');
       months.forEach((mo, i) => {
         const h = mo.count > 0 ? Math.max(5, Math.round((mo.count / max) * (baseline - topPad))) : 2;
         const x = gap + i * (barW + gap);
@@ -5198,8 +5323,8 @@
     "feed.common.no-results-category": "No listings in this category yet.",
     "feed.common.no-results-filter": "No listings match this need yet — try \"All\" or check back later.",
     "feed.common.search-prompt": "🔎 Enter a keyword (e.g. area name, property type, product...) and press \"Search now\" to see matching listings.",
-    "feed.common.view-all-cap": "View all {n} listings →",
-    "feed.md.view-all-cap": "View all {n} items →",
+    "feed.common.view-all-cap": "Click to view all products &amp; services",
+    "feed.md.view-all-cap": "Click to view all content",
     "form.common.placeholder-phone": "e.g. 0399 831 228",
     "txn.all-tab": "All <span class=\"cnt\"></span>",
     "txn.cho-thue-tab": "For Rent <span class=\"cnt\"></span>",
@@ -5666,8 +5791,8 @@
     "feed.common.no-results-category": "此分類目前尚無刊登資訊。",
     "feed.common.no-results-filter": "目前沒有符合此需求的資訊 — 請嘗試「全部」或稍後再查看。",
     "feed.common.search-prompt": "🔎 請輸入關鍵字(例如:區域名稱、類型、產品...)並點擊「立即搜尋」以查看符合的刊登資訊。",
-    "feed.common.view-all-cap": "查看全部 {n} 則刊登 →",
-    "feed.md.view-all-cap": "查看全部 {n} 項內容 →",
+    "feed.common.view-all-cap": "點擊查看全部產品與服務",
+    "feed.md.view-all-cap": "點擊查看全部內容",
     "form.common.placeholder-phone": "例:0399 831 228",
     "txn.all-tab": "全部 <span class=\"cnt\"></span>",
     "txn.cho-thue-tab": "出租 <span class=\"cnt\"></span>",
@@ -6103,8 +6228,8 @@
     'feed.md.search-prompt': '🔎 Nhập từ khoá (VD: chủ đề, loại nội dung...) và bấm "Tìm kiếm ngay" để xem nội dung phù hợp.',
     'feed.common.view-all': '📋 Xem tất cả tin trong mục này',
     'feed.common.view-all-other': '📋 Xem tất cả tin khác trong mục này',
-    'feed.common.view-all-cap': 'Xem tất cả {n} tin →',
-    'feed.md.view-all-cap': 'Xem tất cả {n} nội dung →'
+    'feed.common.view-all-cap': 'Click để xem toàn bộ sản phẩm, dịch vụ',
+    'feed.md.view-all-cap': 'Click để xem toàn bộ nội dung'
   };
   function lhtT(key, lang){
     lang = lang || window.LHT_CURRENT_LANG || 'vi';
@@ -6142,16 +6267,17 @@
     return '<div class="form-hint" style="text-align:center;padding:32px 16px;" data-feed-state="emptyGeneric"><p style="margin:0 0 14px;">' + lhtT('feed.common.empty-intro', lang) + '</p>' + callBtn + ' ' + zaloBtn + '</div>';
   };
 
-  /* ---- 05/10/2026: mỗi mục chỉ hiện sẵn tối đa LHT_FEED_CAP tin, phần còn lại
-     nằm sẵn trong data và chỉ hiện ra khi bấm "Xem tất cả" hoặc khi người dùng
-     chủ động tìm kiếm / lọc (áp dụng đồng nhất cho BĐS, Logistics & Xe nâng,
-     Dự án, Pháp lý, Kiến thức & Media). ---- */
-  window.LHT_FEED_CAP = 5;
+  /* ---- 06/10/2026: mỗi mục chỉ hiện sẵn tối đa LHT_FEED_CAP tin (giảm 5→4 theo yêu cầu
+     thiết kế gọn gàng hơn), phần còn lại nằm sẵn trong data và chỉ hiện ra khi bấm nút
+     "Click để xem toàn bộ sản phẩm, dịch vụ" hoặc khi người dùng chủ động tìm kiếm / lọc
+     (áp dụng đồng nhất cho BĐS, Logistics & Xe nâng, Dự án, Pháp lý, Kiến thức & Media). ---- */
+  window.LHT_FEED_CAP = 4;
   window.lhtCapNoticeHtml = function(remaining, lang, isMedia){
     lang = lang || window.LHT_CURRENT_LANG || 'vi';
     var key = isMedia ? 'feed.md.view-all-cap' : 'feed.common.view-all-cap';
-    var txt = lhtT(key, lang).replace('{n}', String(remaining));
-    return '<button type="button" class="btn outline-navy feed-cap-view-all-btn" data-cap-view-all="1">' + txt + '</button>';
+    var txt = lhtT(key, lang);
+    var arrow = '<svg class="cap-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    return '<button type="button" class="feed-cap-view-all-btn" data-cap-view-all="1" title="' + String(remaining) + '">' + txt + arrow + '</button>';
   };
 
   function refreshFeedFallbacks(lang){
