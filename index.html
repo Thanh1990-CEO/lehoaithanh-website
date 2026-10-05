@@ -53,10 +53,10 @@
     --lht-navy:#062A55;       /* primary: xanh dương đậm — header/menu, heading */
     --lht-deep:#031A33;       /* darkest navy, for gradients/hover/dark accents */
     --lht-blue:#0B5C91;       /* mid blue, secondary accent role */
-    --lht-gold:#D9A62E;       /* primary: vàng kim */
-    --lht-gold-light:#F5C95A; /* lighter gold for gradient highlight */
+    --lht-gold:#FF7A00;       /* primary accent: cam rực — nổi bật, tạo cảm tình hơn vàng kim cũ (cập nhật 05/10) */
+    --lht-gold-light:#FF9D4D; /* lighter orange for gradient highlight */
     --lht-earth:#3D6EA5;      /* xanh dương nhạt, accent phụ */
-    --lht-amber:#C08D22;      /* vàng kim đậm, dùng cho hover/nhấn mạnh */
+    --lht-amber:#E8690A;      /* cam đậm, dùng cho hover/nhấn mạnh */
     --lht-fire:#FF6F00;       /* cam-vàng đậm, dùng cho cảnh báo/nhấn nếu cần */
     --lht-white:#FFFFFF;
     --lht-light:#F5F7F8;      /* nền xám-trắng nhạt (Kim) */
@@ -364,15 +364,17 @@
   /* ---------------- Hero ---------------- */
   .hero-section{
     background:
-      radial-gradient(ellipse at 15% 20%, rgba(255,193,7,0.16), transparent 45%),
-      var(--lht-gradient-navy);
+      linear-gradient(100deg, rgba(3,26,51,0.93) 0%, rgba(6,42,85,0.88) 42%, rgba(6,42,85,0.62) 75%, rgba(6,42,85,0.4) 100%),
+      url('images/hero-industrial-park.jpg');
+    background-size: cover;
+    background-position: center 65%;
     color:var(--ink-on-navy);
     padding-block:44px 0;
     overflow:hidden;
   }
   .hero-grid{
     display:grid;
-    grid-template-columns:0.95fr 1.3fr 0.85fr;
+    grid-template-columns:0.95fr 1.55fr;
     gap:28px;
     align-items:center;
   }
@@ -992,6 +994,24 @@
     transition:outline-color .3s ease, box-shadow .3s ease;
   }
 
+  /* ---- 05/10: khối "Thông tin đầy đủ" chuẩn brochure KCN + nút tải PDF (additive) ---- */
+  .listing-full-detail-toggle{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+  .listing-detail-toggle-btn{background:transparent; padding:9px 16px; font-size:0.76rem; font-weight:700;}
+  .listing-detail-toggle-btn:hover{background:var(--lht-cream);}
+  .listing-full-detail{
+    display:none; margin-top:14px; padding-top:14px; border-top:1px dashed var(--lht-border);
+  }
+  .listing-full-detail.open{display:block;}
+  .listing-full-detail .detail-row{margin-bottom:12px;}
+  .listing-full-detail .detail-row:last-child{margin-bottom:0;}
+  .listing-full-detail .detail-row-label{font-family:'Oswald',sans-serif; font-weight:600; font-size:0.78rem; letter-spacing:.02em; color:var(--navy); margin-bottom:4px;}
+  .listing-full-detail .detail-row-body p{margin:0; font-size:0.82rem; color:var(--text); line-height:1.6;}
+  .listing-full-detail .detail-list{margin:0; padding-left:18px; font-size:0.82rem; color:var(--text); line-height:1.65;}
+  .pillar-section.on-navy .listing-full-detail{border-color:var(--rule);}
+  .pillar-section.on-navy .listing-full-detail .detail-row-label{color:var(--ink-on-navy);}
+  .pillar-section.on-navy .listing-full-detail .detail-row-body p,
+  .pillar-section.on-navy .listing-full-detail .detail-list{color:var(--ink-on-navy); opacity:.9;}
+
   button.btn{cursor:pointer;}
   .feed-view-all-btn{
     display:block; width:100%; text-align:center; margin-top:14px;
@@ -1503,18 +1523,6 @@
       </div>
     </div>
 
-    <div class="hero-side">
-      <div class="side-banner">
-        <b data-i18n="hero.side-banner">Bất động sản công nghiệp kiến tạo tương lai cho doanh nghiệp Việt</b>
-      </div>
-      <div class="side-list">
-        <div class="side-item"><span data-i18n="hero.side.land">Đất công nghiệp</span><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg></span></div>
-        <div class="side-item"><span data-i18n="hero.side.factory">Nhà xưởng</span><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V10l6-4v4l6-4v4l6-4v15H3z"/></svg></span></div>
-        <div class="side-item"><span data-i18n="hero.side.warehouse">Kho &amp; logistics</span><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="8" width="15" height="10"/><path d="M16 12h4l3 3v3h-7z"/><circle cx="6" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/></svg></span></div>
-        <div class="side-item"><span data-i18n="hero.side.project">Dự án &gt; 1 ha</span><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span></div>
-        <div class="side-item"><span data-i18n="hero.side.investors">Kết nối nhà đầu tư</span><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span></div>
-      </div>
-    </div>
   </div>
 
   <div class="wrap">
@@ -1548,36 +1556,6 @@
       <button type="button" id="asset-lookup-btn" class="btn primary">Tra cứu →</button>
     </div>
     <div class="asset-lookup-msg" id="asset-lookup-msg" hidden></div>
-  </div>
-</section>
-
-<section class="stats-bar">
-  <div class="wrap">
-    <div class="stats-row">
-      <div class="stat-item">
-        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg></span>
-        <div><b>1.000+</b><span data-i18n="stats.item1">Tài sản đã tư vấn &amp; kết nối</span></div>
-      </div>
-      <div class="stat-item">
-        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9" r="2.6"/><path d="M2 20c0-3.6 3-5.8 7-5.8s7 2.2 7 5.8M15 14.6c3 .3 5 2.2 5 5.4"/></svg></span>
-        <div><b>500+</b><span data-i18n="stats.item2">Doanh nghiệp đồng hành</span></div>
-      </div>
-      <div class="stat-item">
-        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg></span>
-        <div><b>10.000+ ha</b><span data-i18n="stats.item3">Quỹ đất &amp; dự án tiềm năng</span></div>
-      </div>
-      <div class="stat-item">
-        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12l3 3 5-6"/><circle cx="12" cy="12" r="9"/></svg></span>
-        <div><b>5+</b><span data-i18n="stats.item4">Năm kinh nghiệm thực chiến</span></div>
-      </div>
-      <div class="stat-item" style="border-right:none;">
-        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.1 7-11.5A7 7 0 005 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></svg></span>
-        <div><b>Bình Dương</b><span data-i18n="stats.item5">Tỉnh thành trọng điểm &amp; các vùng lân cận</span></div>
-      </div>
-      <a class="stat-cta" href="#ve-le-hoai-thanh" data-i18n-html="stats.cta">
-        Kết nối nguồn lực<br>gia tăng giá trị — kiến tạo cơ hội →
-      </a>
-    </div>
   </div>
 </section>
 
@@ -1671,27 +1649,20 @@
     <div class="pillar-card" style="--accent:#FFA000;">
       <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg></span>
       <div class="num">01</div>
-      <h3 data-i18n="nav.industrial-re">BĐS công nghiệp</h3>
-      <p data-i18n="pillar.bds.desc">Đất KCN · Nhà xưởng · Kho · Dự án theo 5 vùng kinh tế</p>
+      <h3 data-i18n="nav.industrial-re">Bất động sản công nghiệp</h3>
+      <p data-i18n="pillar.bds.desc">Đất KCN · Nhà xưởng · Kho · Dân dụng &amp; thương mại</p>
       <a class="go" href="#bds-cong-nghiep" data-i18n="pillar.go">Xem chi tiết →</a>
-    </div>
-    <div class="pillar-card" style="--accent:#00897B;">
-      <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5L12 4l9 6.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/></svg></span>
-      <div class="num">02</div>
-      <h3 data-i18n="nav.residential-re">BĐS dân dụng &amp; thương mại</h3>
-      <p data-i18n="pillar.bds2.desc">Nhà phố · Căn hộ · Đất nền · Mặt bằng kinh doanh</p>
-      <a class="go" href="#bds-dan-dung" data-i18n="pillar.go">Xem chi tiết →</a>
     </div>
     <div class="pillar-card" style="--accent:#5E35B1;">
       <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20V9l5-3v3l5-3v3l5-3v14H3z"/><path d="M8 20v-5h4v5"/></svg></span>
-      <div class="num">03</div>
+      <div class="num">02</div>
       <h3 data-i18n="nav.logistics-forklift">Logistics &amp; Xe nâng - thiết bị</h3>
       <p data-i18n="pillar.logxn.desc">Nguyên liệu · Sản xuất · Kho vận · Xe nâng, thiết bị kho xưởng</p>
       <a class="go" href="#logistics-xe-nang" data-i18n="pillar.go">Xem chi tiết →</a>
     </div>
     <div class="pillar-card" style="--accent:#6D4C41;">
       <span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M4 9.5h16M9.5 9.5V20"/></svg></span>
-      <div class="num">04</div>
+      <div class="num">03</div>
       <h3 data-i18n="pillar.other.title">Lĩnh vực khác</h3>
       <p data-i18n="pillar.other.desc">Dự án &amp; đầu tư · Pháp lý &amp; tài chính · Kiến thức &amp; Media</p>
       <a class="go" href="#linh-vuc-khac" data-i18n="pillar.go">Xem chi tiết →</a>
@@ -1700,16 +1671,20 @@
   </div>
 </section>
 
-<!-- ============ 01. BĐS CÔNG NGHIỆP ============ -->
-<section class="pillar-section" id="bds-cong-nghiep">
-  <div class="wrap">
+<!-- ============ 01. BẤT ĐỘNG SẢN (gộp Công nghiệp + Dân dụng & thương mại, 05/10/2026) ============ -->
+<section class="pillar-section-group" id="bat-dong-san">
+  <div class="wrap group-intro-wrap">
     <div class="pillar-head">
       <div>
-        <div class="kicker" data-i18n="section.bds.kicker">01 · Bất động sản công nghiệp</div>
-        <h2 data-i18n="section.bds.title">BĐS công nghiệp Việt Nam</h2>
-        <p class="desc" data-i18n="section.bds.intro">Dữ liệu thật — cơ hội thật — kết nối nhanh. Quỹ đất KCN, nhà xưởng và kho bãi trên khắp 5 vùng kinh tế trọng điểm.</p>
+        <div class="kicker" data-i18n="section.bds.kicker">01 · Bất động sản</div>
+        <h2 data-i18n="section.bds.title">Bất Động Sản Công Nghiệp &amp; Dân Dụng</h2>
+        <p class="desc" data-i18n="section.bds.intro">Dữ liệu thật — cơ hội thật — kết nối nhanh. Đất KCN, nhà xưởng, kho bãi trên khắp 5 vùng kinh tế trọng điểm, cùng nhà phố, căn hộ, mặt bằng kinh doanh.</p>
       </div>
     </div>
+  </div>
+  <section class="pillar-section on-navy group-sub group-sub-first" id="bds-cong-nghiep">
+  <div class="wrap">
+    <h3 style="margin:0 0 14px;" data-i18n="section.bds.sub-title">Công nghiệp</h3>
     <div class="toolbar">
       <input type="text" id="bds-search-input" placeholder="Bạn đang tìm nhà xưởng, đất KCN ở đâu?" aria-label="Tìm nhà xưởng, đất KCN" data-i18n-placeholder="section.bds.search-ph">
       <button type="button" id="bds-search-clear" class="search-clear-btn" hidden aria-label="Xóa tìm kiếm">✕</button>
@@ -1796,65 +1771,6 @@
       </div>
     </div>
 
-    <div class="region-grid" style="margin-bottom:16px;">
-      <div class="region-card" style="--accent:#2f7d4f;">
-        <h3 data-i18n="region.north.name">Miền Bắc</h3>
-        <div class="tag" data-i18n="region.north.tag">Công nghiệp công nghệ cao · Kết nối quốc tế</div>
-        <ul>
-          <li>Hà Nội</li><li>Vĩnh Phúc (Phú Thọ)</li>
-          <li>Hải Phòng</li><li>Thái Nguyên</li>
-          <li>Bắc Ninh</li><li>Bắc Giang</li>
-          <li>Hưng Yên</li><li>Quảng Ninh</li>
-          <li>Hải Dương</li><li>Các tỉnh khác</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Hà Nội,Vĩnh Phúc,Phú Thọ,Hải Phòng,Thái Nguyên,Bắc Ninh,Bắc Giang,Hưng Yên,Quảng Ninh,Hải Dương" data-i18n="region.north.cta">Xem các KCN Miền Bắc →</button>
-      </div>
-      <div class="region-card" style="--accent:#2b6fb0;">
-        <h3 data-i18n="region.central.name">Miền Trung</h3>
-        <div class="tag" data-i18n="region.central.tag">Cửa ngõ biển · Hành lang kinh tế</div>
-        <ul>
-          <li>Thanh Hóa</li><li>Quảng Ngãi</li>
-          <li>Nghệ An</li><li>Bình Định (Gia Lai)</li>
-          <li>Hà Tĩnh</li><li>Phú Yên (Đắk Lắk)</li>
-          <li>Quảng Bình (Quảng Trị)</li><li>Khánh Hòa</li>
-          <li>Đà Nẵng</li><li>Các tỉnh khác</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Thanh Hóa,Quảng Ngãi,Nghệ An,Bình Định,Gia Lai,Hà Tĩnh,Phú Yên,Đắk Lắk,Quảng Bình,Quảng Trị,Khánh Hòa,Đà Nẵng" data-i18n="region.central.cta">Xem các KCN Miền Trung →</button>
-      </div>
-      <div class="region-card" style="--accent:#b06a2b;">
-        <h3 data-i18n="region.southeast.name">Đông Nam Bộ</h3>
-        <div class="tag" data-i18n="region.southeast.tag">Trung tâm công nghiệp &amp; logistics lớn nhất Việt Nam</div>
-        <ul>
-          <li>TP. Hồ Chí Minh</li><li>Đồng Nai</li>
-          <li>Tây Ninh</li><li>Đồng Tháp (Long An)</li>
-          <li>Bình Dương (cũ)</li><li>Bà Rịa – Vũng Tàu</li>
-          <li style="grid-column:span 2;">Các khu công nghiệp trọng điểm</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Hồ Chí Minh,Đồng Nai,Tây Ninh,Đồng Tháp,Long An,Bình Dương,Bà Rịa,Vũng Tàu" data-i18n="region.southeast.cta">Xem các KCN Đông Nam Bộ →</button>
-      </div>
-      <div class="region-card" style="--accent:#7a5230;">
-        <h3 data-i18n="region.highlands.name">Tây Nguyên</h3>
-        <div class="tag" data-i18n="region.highlands.tag">Tài nguyên · Nông nghiệp công nghệ cao</div>
-        <ul>
-          <li>Đắk Lắk</li><li>Lâm Đồng</li>
-          <li>Gia Lai</li><li>Đắk Nông (cũ)</li>
-          <li style="grid-column:span 2;">Kon Tum (cũ) · Các khu công nghiệp tiềm năng</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Đắk Lắk,Lâm Đồng,Gia Lai,Đắk Nông,Kon Tum" data-i18n="region.highlands.cta">Xem các KCN Tây Nguyên →</button>
-      </div>
-      <div class="region-card" style="--accent:#7a3fa0;">
-        <h3 data-i18n="region.mekong.name">Đồng bằng sông Cửu Long</h3>
-        <div class="tag" data-i18n="region.mekong.tag">Nông nghiệp · Chế biến · Xuất khẩu</div>
-        <ul>
-          <li>Cần Thơ</li><li>Kiên Giang</li>
-          <li>An Giang</li><li>Hậu Giang (cũ)</li>
-          <li>Đồng Tháp</li><li>Sóc Trăng (cũ)</li>
-          <li>Vĩnh Long</li><li>Bạc Liêu (cũ)</li>
-          <li>Cà Mau</li><li>Các tỉnh khác</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Cần Thơ,Kiên Giang,An Giang,Hậu Giang,Đồng Tháp,Sóc Trăng,Vĩnh Long,Bạc Liêu,Cà Mau" data-i18n="region.mekong.cta">Xem các KCN ĐBSCL →</button>
-      </div>
-    </div>
     <div class="pillar-cols" style="grid-template-columns:1fr; margin-top:22px;">
       <div class="side-card">
         <h4 data-i18n="section.bds.why-title">Vì sao chọn Lê Hoài Thanh?</h4>
@@ -1870,16 +1786,11 @@
     </div>
   </div>
 </section>
-<!-- ============ 01b. BĐS DÂN DỤNG & THƯƠNG MẠI ============ -->
-<section class="pillar-section" id="bds-dan-dung">
+<!-- ============ 01b. BĐS DÂN DỤNG & THƯƠNG MẠI (gộp hiển thị vào mục 01, 05/10/2026) ============ -->
+  <section class="pillar-section group-sub" id="bds-dan-dung">
   <div class="wrap">
-    <div class="pillar-head">
-      <div>
-        <div class="kicker" data-i18n="section.bds2.kicker">02 · Bất động sản dân dụng &amp; thương mại</div>
-        <h2 data-i18n="section.bds2.title">BĐS dân dụng &amp; thương mại</h2>
-        <p class="desc" data-i18n="section.bds2.intro">Nhà phố, căn hộ, đất nền và mặt bằng kinh doanh — cập nhật liên tục, kết nối nhanh chủ tài sản với người mua/thuê thật.</p>
-      </div>
-    </div>
+    <h3 style="margin:0 0 6px;" data-i18n="section.bds2.sub-title">Dân dụng &amp; thương mại</h3>
+    <p class="desc" style="margin:0 0 18px;" data-i18n="section.bds2.intro">Nhà phố, căn hộ, đất nền và mặt bằng kinh doanh — cập nhật liên tục, kết nối nhanh chủ tài sản với người mua/thuê thật.</p>
     <div class="toolbar">
       <input type="text" id="bds2-search-input" placeholder="Bạn đang tìm nhà phố, căn hộ, mặt bằng ở đâu?" aria-label="Tìm nhà xưởng, đất KCN" data-i18n-placeholder="section.bds2.search-ph">
       <button type="button" id="bds2-search-clear" class="search-clear-btn" hidden aria-label="Xóa tìm kiếm">✕</button>
@@ -1966,65 +1877,6 @@
       </div>
     </div>
 
-    <div class="region-grid" style="margin-bottom:16px;">
-      <div class="region-card" style="--accent:#2f7d4f;">
-        <h3 data-i18n="region.north.name">Miền Bắc</h3>
-        <div class="tag" data-i18n="region.north.tag">Công nghiệp công nghệ cao · Kết nối quốc tế</div>
-        <ul>
-          <li>Hà Nội</li><li>Vĩnh Phúc (Phú Thọ)</li>
-          <li>Hải Phòng</li><li>Thái Nguyên</li>
-          <li>Bắc Ninh</li><li>Bắc Giang</li>
-          <li>Hưng Yên</li><li>Quảng Ninh</li>
-          <li>Hải Dương</li><li>Các tỉnh khác</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Hà Nội,Vĩnh Phúc,Phú Thọ,Hải Phòng,Thái Nguyên,Bắc Ninh,Bắc Giang,Hưng Yên,Quảng Ninh,Hải Dương" data-i18n="region.north.cta">Xem các KCN Miền Bắc →</button>
-      </div>
-      <div class="region-card" style="--accent:#2b6fb0;">
-        <h3 data-i18n="region.central.name">Miền Trung</h3>
-        <div class="tag" data-i18n="region.central.tag">Cửa ngõ biển · Hành lang kinh tế</div>
-        <ul>
-          <li>Thanh Hóa</li><li>Quảng Ngãi</li>
-          <li>Nghệ An</li><li>Bình Định (Gia Lai)</li>
-          <li>Hà Tĩnh</li><li>Phú Yên (Đắk Lắk)</li>
-          <li>Quảng Bình (Quảng Trị)</li><li>Khánh Hòa</li>
-          <li>Đà Nẵng</li><li>Các tỉnh khác</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Thanh Hóa,Quảng Ngãi,Nghệ An,Bình Định,Gia Lai,Hà Tĩnh,Phú Yên,Đắk Lắk,Quảng Bình,Quảng Trị,Khánh Hòa,Đà Nẵng" data-i18n="region.central.cta">Xem các KCN Miền Trung →</button>
-      </div>
-      <div class="region-card" style="--accent:#b06a2b;">
-        <h3 data-i18n="region.southeast.name">Đông Nam Bộ</h3>
-        <div class="tag" data-i18n="region.southeast.tag">Trung tâm công nghiệp &amp; logistics lớn nhất Việt Nam</div>
-        <ul>
-          <li>TP. Hồ Chí Minh</li><li>Đồng Nai</li>
-          <li>Tây Ninh</li><li>Đồng Tháp (Long An)</li>
-          <li>Bình Dương (cũ)</li><li>Bà Rịa – Vũng Tàu</li>
-          <li style="grid-column:span 2;">Các khu công nghiệp trọng điểm</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Hồ Chí Minh,Đồng Nai,Tây Ninh,Đồng Tháp,Long An,Bình Dương,Bà Rịa,Vũng Tàu" data-i18n="region.southeast.cta">Xem các KCN Đông Nam Bộ →</button>
-      </div>
-      <div class="region-card" style="--accent:#7a5230;">
-        <h3 data-i18n="region.highlands.name">Tây Nguyên</h3>
-        <div class="tag" data-i18n="region.highlands.tag">Tài nguyên · Nông nghiệp công nghệ cao</div>
-        <ul>
-          <li>Đắk Lắk</li><li>Lâm Đồng</li>
-          <li>Gia Lai</li><li>Đắk Nông (cũ)</li>
-          <li style="grid-column:span 2;">Kon Tum (cũ) · Các khu công nghiệp tiềm năng</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Đắk Lắk,Lâm Đồng,Gia Lai,Đắk Nông,Kon Tum" data-i18n="region.highlands.cta">Xem các KCN Tây Nguyên →</button>
-      </div>
-      <div class="region-card" style="--accent:#7a3fa0;">
-        <h3 data-i18n="region.mekong.name">Đồng bằng sông Cửu Long</h3>
-        <div class="tag" data-i18n="region.mekong.tag">Nông nghiệp · Chế biến · Xuất khẩu</div>
-        <ul>
-          <li>Cần Thơ</li><li>Kiên Giang</li>
-          <li>An Giang</li><li>Hậu Giang (cũ)</li>
-          <li>Đồng Tháp</li><li>Sóc Trăng (cũ)</li>
-          <li>Vĩnh Long</li><li>Bạc Liêu (cũ)</li>
-          <li>Cà Mau</li><li>Các tỉnh khác</li>
-        </ul>
-        <button type="button" class="btn region-search-btn" data-region-keywords="Cần Thơ,Kiên Giang,An Giang,Hậu Giang,Đồng Tháp,Sóc Trăng,Vĩnh Long,Bạc Liêu,Cà Mau" data-i18n="region.mekong.cta">Xem các KCN ĐBSCL →</button>
-      </div>
-    </div>
     <div class="pillar-cols" style="grid-template-columns:1fr; margin-top:22px;">
       <div class="side-card">
         <h4 data-i18n="section.bds2.why-title">Vì sao chọn Lê Hoài Thanh?</h4>
@@ -2039,6 +1891,7 @@
       </div>
     </div>
   </div>
+  </section>
 </section>
 
 <!-- ============ 02. LOGISTICS & XE NÂNG - THIẾT BỊ (gộp 2 mục, 30/09/2026) ============ -->
@@ -2054,13 +1907,8 @@
   </div>
   <section class="pillar-section on-navy group-sub group-sub-first" id="logistics-san-xuat">
   <div class="wrap">
-    <div class="pillar-head">
-      <div>
-        <div class="kicker" data-i18n="section.log.kicker">03 · Logistics &amp; sản xuất</div>
-        <h2 data-i18n="section.log.title">Hậu cần &amp; sản xuất</h2>
-        <p class="desc" data-i18n="section.log.intro">Tối ưu chuỗi giá trị — nâng tầm doanh nghiệp. Từ nguồn nguyên liệu đến sản phẩm, từ nhà máy đến thị trường.</p>
-      </div>
-    </div>
+    <h3 style="margin:0 0 6px;" data-i18n="section.log.title">Hậu cần &amp; sản xuất</h3>
+    <p class="desc" style="margin:0 0 18px;" data-i18n="section.log.intro">Tối ưu chuỗi giá trị — nâng tầm doanh nghiệp. Từ nguồn nguyên liệu đến sản phẩm, từ nhà máy đến thị trường.</p>
     <div class="toolbar">
       <input type="text" id="log-search-input" placeholder="Tìm dịch vụ logistics, kho vận, gia công..." aria-label="Tìm dịch vụ logistics" data-i18n-placeholder="section.log.search-ph">
       <button type="button" id="log-search-clear" class="search-clear-btn" hidden aria-label="Xóa tìm kiếm">✕</button>
@@ -2224,13 +2072,8 @@
 <!-- ============ 03. XE NÂNG & THIẾT BỊ ============ -->
   <section class="pillar-section group-sub" id="xe-nang-thiet-bi">
   <div class="wrap">
-    <div class="pillar-head">
-      <div>
-        <div class="kicker" data-i18n="section.xn.kicker">04 · Xe nâng &amp; thiết bị công nghiệp</div>
-        <h2 data-i18n="section.xn.title">Xe nâng &amp; thiết bị công nghiệp</h2>
-        <p class="desc" data-i18n="section.xn.intro">Giải pháp toàn diện cho doanh nghiệp sản xuất, kho vận, logistics — từ tư vấn lựa chọn đến bảo trì lâu dài.</p>
-      </div>
-    </div>
+    <h3 style="margin:0 0 6px;" data-i18n="section.xn.title">Xe nâng &amp; thiết bị công nghiệp</h3>
+    <p class="desc" style="margin:0 0 18px;" data-i18n="section.xn.intro">Giải pháp toàn diện cho doanh nghiệp sản xuất, kho vận, logistics — từ tư vấn lựa chọn đến bảo trì lâu dài.</p>
     <div class="region-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); margin-bottom:24px;">
       <div class="region-card" style="--accent:#b06a2b; padding:0; overflow:hidden;">
         <div class="lht-photo"><img src="images/forklift-1.jpg" alt="Xe nâng NOBLELIFT bàn giao thực tế" style="width:100%; aspect-ratio:4/3; object-fit:cover; display:block;"></div>
@@ -2854,6 +2697,35 @@
   </div>
 </section>
 
+<section class="stats-bar">
+  <div class="wrap">
+    <div class="stats-row">
+      <div class="stat-item">
+        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg></span>
+        <div><b>1.000+</b><span data-i18n="stats.item1">Tài sản đã tư vấn &amp; kết nối</span></div>
+      </div>
+      <div class="stat-item">
+        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9" r="2.6"/><path d="M2 20c0-3.6 3-5.8 7-5.8s7 2.2 7 5.8M15 14.6c3 .3 5 2.2 5 5.4"/></svg></span>
+        <div><b>500+</b><span data-i18n="stats.item2">Doanh nghiệp đồng hành</span></div>
+      </div>
+      <div class="stat-item">
+        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg></span>
+        <div><b>10.000+ ha</b><span data-i18n="stats.item3">Quỹ đất &amp; dự án tiềm năng</span></div>
+      </div>
+      <div class="stat-item">
+        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12l3 3 5-6"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <div><b>5+</b><span data-i18n="stats.item4">Năm kinh nghiệm thực chiến</span></div>
+      </div>
+      <div class="stat-item" style="border-right:none;">
+        <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.1 7-11.5A7 7 0 005 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></svg></span>
+        <div><b>Bình Dương</b><span data-i18n="stats.item5">Tỉnh thành trọng điểm &amp; các vùng lân cận</span></div>
+      </div>
+      <a class="stat-cta" href="#ve-le-hoai-thanh" data-i18n-html="stats.cta">
+        Kết nối nguồn lực<br>gia tăng giá trị — kiến tạo cơ hội →
+      </a>
+    </div>
+  </div>
+</section>
 
 <footer class="site" id="lien-he">
   <div class="wrap" style="display:flex; justify-content:center; padding-top:22px;" aria-hidden="true">
@@ -3403,6 +3275,62 @@
   }
 
   // =========================================================================
+  // Khối "Thông tin đầy đủ" chuẩn brochure KCN (05/10): hiển thị thêm các
+  // trường optional nếu tin đăng có cung cấp — vị trí & kết nối vùng, nguồn
+  // lao động, hạ tầng kỹ thuật, ngành nghề tiếp nhận, chi phí/thanh toán, ưu
+  // đãi đầu tư, quy trình đầu tư, tiện ích nội/ngoại khu, dịch vụ hỗ trợ,
+  // chủ đầu tư — cùng nút tải brochure PDF. Hoàn toàn additive: đọc thêm các
+  // khoá mới trong data jsonb hiện có (không đổi schema/API), tin cũ không
+  // có các trường này vẫn hiển thị bình thường như trước.
+  // =========================================================================
+  function lhtListHtml(v){
+    if (v == null || v === '') return '';
+    if (Array.isArray(v)){
+      const items = v.filter(Boolean).map(x => `<li>${escapeHtml(String(x))}</li>`).join('');
+      return items ? `<ul class="detail-list">${items}</ul>` : '';
+    }
+    return `<p>${escapeHtml(String(v)).replace(/\n/g, '<br>')}</p>`;
+  }
+  function lhtDetailRow(icon, label, value){
+    const html = lhtListHtml(value);
+    if (!html) return '';
+    return `<div class="detail-row"><div class="detail-row-label">${icon} ${escapeHtml(label)}</div><div class="detail-row-body">${html}</div></div>`;
+  }
+  function lhtPdfButtonHtml(doc){
+    if (!doc.pdfUrl) return '';
+    const name = doc.pdfName ? escapeHtml(doc.pdfName) : 'Tải brochure PDF';
+    return `<a class="btn" style="background:var(--gold); border-color:var(--gold); color:#fff;" href="${escapeHtml(doc.pdfUrl)}" target="_blank" rel="noopener">📄 ${name}</a>`;
+  }
+  function lhtBuildFullDetailBlock(doc){
+    const rows = [
+      lhtDetailRow('📍', 'Vị trí & kết nối vùng', doc.connectivity),
+      lhtDetailRow('👷', 'Nguồn lao động', doc.laborForce),
+      lhtDetailRow('🏗️', 'Hạ tầng kỹ thuật', doc.infrastructure),
+      lhtDetailRow('🏭', 'Ngành nghề tiếp nhận', doc.industriesAccepted),
+      lhtDetailRow('🚫', 'Ngành nghề hạn chế tiếp nhận', doc.industriesExcluded),
+      lhtDetailRow('💳', 'Điều khoản thanh toán', doc.paymentTerms),
+      lhtDetailRow('🧾', 'Các loại phí khác', doc.otherFees),
+      lhtDetailRow('🎁', 'Ưu đãi đầu tư', doc.incentives),
+      lhtDetailRow('📝', 'Quy trình đầu tư', doc.investmentProcess),
+      lhtDetailRow('🏢', 'Tiện ích nội khu', doc.utilitiesInternal),
+      lhtDetailRow('🌆', 'Tiện ích ngoại khu', doc.utilitiesExternal),
+      lhtDetailRow('🤝', 'Dịch vụ hỗ trợ', doc.supportServices),
+      lhtDetailRow('🏛️', 'Chủ đầu tư', doc.investor)
+    ].filter(Boolean).join('');
+    if (!rows && !doc.pdfUrl) return '';
+    const pdfBtn = lhtPdfButtonHtml(doc);
+    const toggleId = 'fd-' + Math.random().toString(36).slice(2, 9);
+    return `
+      <div class="listing-full-detail-toggle">
+        <button type="button" class="btn outline listing-detail-toggle-btn" style="border-color:var(--gold); color:var(--navy);" onclick="var p=document.getElementById('${toggleId}'); var open=p.classList.toggle('open'); this.textContent = open ? '▲ Thu gọn thông tin' : '▼ Xem thông tin đầy đủ (chuẩn brochure)';">▼ Xem thông tin đầy đủ (chuẩn brochure)</button>
+        ${pdfBtn}
+      </div>
+      <div class="listing-full-detail" id="${toggleId}">
+        ${rows || '<p class="form-hint">Thông tin chi tiết đang được cập nhật — vui lòng liên hệ để nhận brochure đầy đủ.</p>'}
+      </div>`;
+  }
+
+  // =========================================================================
   // Bộ lọc "chip" đa lựa chọn dùng chung cho cả 6 thanh công cụ (toolbar).
   // Mỗi chip mở một popover chứa danh sách checkbox (mirror của #lang-switch-menu):
   // chọn nhiều lựa chọn trong 1 chip = OR, nhiều chip khác nhau = AND với nhau và
@@ -3775,7 +3703,7 @@
   let lastDocs = [];
   let currentFilter = 'all';
   let searchQuery = '';
-  let hasSearched = false;
+  let hasSearched = true; /* 05/10: hiện sẵn tin đăng mặc định thay vì bắt tìm kiếm trước */
   let chipFilters = null;
   let regionKeywords = null;
 
@@ -3831,6 +3759,7 @@
         ${tierRows ? `<div class="listing-tiers"><table><tr><th>Diện tích</th><th>Đơn giá</th><th>${escapeHtml(tx.tierHead)}</th></tr>${tierRows}</table></div>` : ''}
         <p class="listing-note">${escapeHtml(doc.description || '')}${utilNote ? ' · ' + utilNote : ''}</p>
         ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
+        ${lhtBuildFullDetailBlock(doc)}
         <div class="listing-cta">
           <a class="btn" href="tel:0399831228">Gọi ngay: 0399 831 228</a>
           <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
@@ -4234,7 +4163,7 @@
     let gDocs = [];
     let gFilter = 'all';
     let gSearchQuery = '';
-    let gHasSearched = false;
+    let gHasSearched = true; /* 05/10: hiện sẵn tin đăng mặc định thay vì bắt tìm kiếm trước */
     let gChipFilters = null;
 
     function txLabel(type){ return txnInfo(type).label; }
@@ -4293,6 +4222,7 @@
           ${tierRows ? `<div class="listing-tiers"><table><tr><th>Quy mô</th><th>Đơn giá</th><th>Thành tiền</th></tr>${tierRows}</table></div>` : ''}
           <p class="listing-note">${escapeHtml(doc.description || '')}${extraNote ? ' · ' + extraNote : ''}</p>
           ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
+          ${lhtBuildFullDetailBlock(doc)}
           <div class="listing-cta">
             <a class="btn" href="tel:0399831228">Gọi ngay: 0399 831 228</a>
             <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
@@ -4598,7 +4528,7 @@
     let mDocs = [];
     let mFilter = 'all';
     let mSearchQuery = '';
-    let mHasSearched = false;
+    let mHasSearched = true; /* 05/10: hiện sẵn tin đăng mặc định thay vì bắt tìm kiếm trước */
     let mChipFilters = null;
 
     function matchesMediaSearch(doc, query){
