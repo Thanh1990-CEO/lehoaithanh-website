@@ -1666,7 +1666,11 @@
       </div>
     </div>
 
-    <div class="about-grid">
+    <!-- 06/10/2026: ẩn cột "Bằng khen & chứng nhận" bên phải (chưa có ảnh/nội dung thật, chỉ toàn
+         "Ảnh sẽ cập nhật" — theo yêu cầu dọn các khung dư trống). Chuyển về 1 cột để phần giới thiệu
+         bên trái không bị để hụt khoảng trắng bên phải. Khung "Bằng khen & chứng nhận" vẫn còn nguyên
+         trong DOM (xem ngay bên dưới), chỉ ẩn display:none, bật lại dễ dàng khi có ảnh thật. -->
+    <div class="about-grid" style="grid-template-columns:1fr;">
       <div class="about-bio">
         <div class="about-subhead">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c0-4.2 3.4-7 7.5-7s7.5 2.8 7.5 7"/></svg>
@@ -1687,7 +1691,7 @@
         </div>
       </div>
 
-      <div class="side-card">
+      <div class="side-card" style="display:none;">
         <h4 data-i18n="section.about.awards-head">Bằng khen &amp; chứng nhận</h4>
         <!-- PLACEHOLDER: thay bằng nội dung/ảnh thật -->
         <div class="award-grid">
@@ -1699,7 +1703,10 @@
       </div>
     </div>
 
-    <div class="about-block">
+    <!-- 06/10/2026: ẩn khối "Video hoạt động" — chưa có video thật, chỉ là khung placeholder trống
+         làm mất thẩm mỹ (theo yêu cầu dọn các khung dư trống). Vẫn giữ nguyên trong DOM, bật lại dễ
+         dàng khi có video chính thức để nhúng. -->
+    <div class="about-block" style="display:none;">
       <div class="about-subhead">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="14" height="14" rx="2"/><path d="M16 10l6-3v10l-6-3"/></svg>
         <span data-i18n="section.about.video-head">Video hoạt động</span>
@@ -1711,7 +1718,11 @@
       </div>
     </div>
 
-    <div class="pillar-cols">
+    <!-- 06/10/2026: ẩn cả khối "Đoàn thể, câu lạc bộ & hội nhóm" + "Sự kiện đã tham gia" — cả 2 đều
+         chỉ còn placeholder ("nội dung sẽ cập nhật" / "Sắp cập nhật"), chưa có thông tin thật (theo
+         yêu cầu dọn các khung dư trống). Ẩn nguyên khối pillar-cols này để không để lại khoảng trống
+         — vẫn giữ nguyên trong DOM, bật lại dễ dàng khi có nội dung thật. -->
+    <div class="pillar-cols" style="display:none;">
       <div class="about-block" style="margin-bottom:0;">
         <div class="about-subhead">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 20c0-3.3-2.2-5-5-5s-5 1.7-5 5M12 12a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"/><circle cx="19" cy="9" r="2.4"/><circle cx="5" cy="9" r="2.4"/></svg>
@@ -2440,7 +2451,11 @@
     <div class="pillar-cols">
       <div>
         <h4 style="font-family:'Oswald',sans-serif; font-size:0.9rem; color:var(--gold-light); margin-bottom:14px;" data-i18n="section.da.featured-title">Dự án nổi bật</h4>
-        <div class="proc-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+        <!-- 06/10/2026: cố định tối đa 2 cột (thay vì auto-fit 3 cột) để 4 thẻ "Dự án nổi bật" luôn lấp
+             đầy thành 2 hàng x 2 cột, không còn dư 2 ô trống hiển thị thành khung xám trống phía dưới
+             bên phải như trước (do auto-fit tạo ra cột thứ 3 chỉ có 1 thẻ ở hàng 2). Vẫn tự thu về 1 cột
+             trên màn hình hẹp nhờ minmax 200px làm ngưỡng tối thiểu. -->
+        <div class="proc-grid" style="grid-template-columns:repeat(auto-fit,minmax(max(200px,calc(50% - 1px)),1fr));">
           <div class="proc-card">
             <h3 data-i18n="section.da.feat1.title">Quỹ đất công nghiệp Bình Dương – Đồng Nai – Tây Ninh</h3>
             <ul><li data-i18n="section.da.feat1.li1">Đất KCN, SKC, CCN</li><li data-i18n="section.da.feat1.li2">Nhà xưởng xây sẵn</li></ul>
