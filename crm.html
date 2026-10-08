@@ -347,6 +347,50 @@
   .deal-card .deal-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); }
   .deal-card .deal-time{ font-size:0.7rem; color:var(--muted); }
   .deal-card .del-btn{ width:auto; margin-top:0; }
+
+  /* ---------------- Duyệt tin (tab) — thêm 08/10/2026, giống admin.html nhưng
+     ngay trong CRM để hiện đầu tiên khi đăng nhập. Dùng lại class .card/.card-top/
+     .detail-lines/.phone-link/.card-actions/.act-btn/.del-btn/.card-err/.empty-state/
+     .load-state đã có sẵn ở trên, chỉ bổ sung các class còn thiếu cho đúng với
+     renderCard() của admin.html. ---------------- */
+  .reviewer-input{
+    border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:0.78rem;
+    color:var(--navy); background:#fff; min-width:200px;
+  }
+  .reviewer-input:focus-visible{outline:2px solid var(--gold);}
+  .sec-badge{
+    display:inline-block; font-size:0.68rem; font-weight:700; letter-spacing:0.02em;
+    color:#fff; padding:5px 10px; border-radius:999px; white-space:nowrap;
+  }
+  .card-desc{font-size:0.85rem; color:var(--text); line-height:1.55; margin:8px 0;}
+  .card-desc.truncated{ max-height:4.65em; overflow:hidden; position:relative; }
+  .desc-toggle{ background:none; border:none; color:var(--blue); font-size:0.78rem; font-weight:700; padding:2px 0; }
+  .chip-row{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0;}
+  .chip-row span{
+    font-size:0.7rem; font-weight:600; background:#fff3de; color:var(--amber);
+    border:1px solid #f0dcb4; border-radius:999px; padding:4px 10px;
+  }
+  .media-link{ display:inline-block; font-size:0.8rem; font-weight:600; color:var(--blue); margin:4px 0; word-break:break-all; }
+  .source-box{
+    margin:10px 0; padding:10px 12px; border-radius:8px;
+    background:#fff7ed; border:1px dashed #e8b975; font-size:0.8rem; color:#7a5215;
+  }
+  .source-box-label{font-weight:700; margin-bottom:4px; font-size:0.72rem; letter-spacing:.02em;}
+  .source-box div{margin:2px 0;}
+  .thumb-strip{display:flex; gap:8px; overflow-x:auto; padding:4px 0 8px; -webkit-overflow-scrolling:touch;}
+  .thumb-strip a{flex:none; width:84px; height:84px; border-radius:8px; overflow:hidden; display:block; background:var(--light); border:1px solid var(--border);}
+  .thumb-strip img{width:100%; height:100%; object-fit:cover; display:block;}
+  .act-btn.approve{background:var(--green);}
+  .act-btn.reject{background:var(--amber);}
+  #tab-duyet .asset-code-line{ font-size:0.76rem; color:var(--muted); margin:2px 0 6px; }
+  #tab-duyet .asset-code-line b{
+    font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--navy);
+    background:var(--light); border:1px solid var(--border); border-radius:5px; padding:1px 7px; letter-spacing:.02em;
+  }
+  .global-notice{ font-size:0.82rem; border-radius:9px; padding:11px 13px; margin-top:14px; display:none; }
+  .global-notice.show{display:block;}
+  .global-notice.success{ background:#e6f4ea; border:1px solid #bfe3cc; color:var(--green); }
+  .global-notice.warn{ background:#fdeceb; border:1px solid #f3c7c2; color:var(--red); }
 </style>
 </head>
 <body>
@@ -397,7 +441,8 @@
 
     <div class="tab-bar-wrap scroll-start" id="tab-bar-wrap">
       <div class="tab-bar" id="tab-bar">
-        <button type="button" class="tab-btn active" data-tab="overview">Tổng quan</button>
+        <button type="button" class="tab-btn active" data-tab="duyet">🔔 Duyệt tin <span class="tab-badge" id="duyet-badge" hidden>0</span></button>
+        <button type="button" class="tab-btn" data-tab="overview">Tổng quan</button>
         <button type="button" class="tab-btn" data-tab="assets">Tài sản / Dự án</button>
         <button type="button" class="tab-btn" data-tab="finance">Tài chính</button>
         <button type="button" class="tab-btn" data-tab="contacts">Khách hàng</button>
@@ -405,8 +450,25 @@
       </div>
     </div>
 
+    <!-- ============ Tab: Duyệt tin — thêm 08/10/2026, để đăng nhập vào CRM là thấy
+         ngay phần duyệt tin, không cần qua admin.html riêng nữa (admin.html vẫn giữ
+         nguyên, không đổi gì). Dùng ĐÚNG bảng lht_listings + Edge Function
+         post-to-facebook như admin.html, không đổi bất kỳ API/đấu nối nào. ============ -->
+    <div class="tab-panel active" id="tab-duyet">
+      <div class="toolbar-row">
+        <h2>Tin đăng chờ duyệt</h2>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="duyet-reviewer-input" class="reviewer-input" placeholder="Tên người duyệt (VD: Lê Hoài Thanh)" aria-label="Tên người duyệt" title="Tên này sẽ được ghi lại mỗi khi bạn bấm Duyệt, dùng khi xuất Excel lưu trữ sau này">
+          <button type="button" class="refresh-btn" id="duyet-refresh-btn">↻ Làm mới</button>
+        </div>
+      </div>
+      <div class="global-error" id="duyet-global-error"></div>
+      <div class="global-notice" id="duyet-global-notice"></div>
+      <div id="duyet-list-container"></div>
+    </div>
+
     <!-- ============ Tab: Tổng quan ============ -->
-    <div class="tab-panel active" id="tab-overview">
+    <div class="tab-panel" id="tab-overview">
       <div class="kpi-grid" id="kpi-grid">
         <div class="kpi-tile"><div class="kpi-value" id="kpi-contacts">–</div><div class="kpi-label">Tổng khách hàng</div></div>
         <div class="kpi-tile"><div class="kpi-value" id="kpi-leads-new">–</div><div class="kpi-label">Lead mới chưa xử lý</div></div>
@@ -753,6 +815,29 @@
     media_posts:            { label: 'Kiến thức & Media',        color: '#062A55', sectionId: 'kien-thuc-media' }
   };
   const ASSET_STATUS_LABELS = { approved: 'Đã duyệt', pending: 'Chờ duyệt', rejected: 'Từ chối' };
+
+  // 07/10/2026: nhãn hiển thị cho "Loại hình giao dịch" (data.txnTypes / data.txnType) — gộp đủ các
+  // mã của mọi ngành nghề (BĐS/Xe nâng dùng chung 6 loại mua/bán/thuê/ký gửi/chuyển nhượng; Logistics,
+  // Dự án & đầu tư, Pháp lý & tài chính mỗi ngành có bộ nhãn riêng vì bản chất không phải mua/bán tài
+  // sản). Chỉ đọc thêm dữ liệu đã có sẵn trong `data` — không đổi schema/API nào.
+  const TXN_TYPE_LABELS = {
+    cho_thue: 'Cho thuê', can_thue: 'Cần thuê', ban: 'Bán', can_mua: 'Cần mua',
+    ky_gui: 'Ký gửi', chuyen_nhuong: 'Chuyển nhượng',
+    log_cung_cap: 'Cung cấp dịch vụ', log_can_dv: 'Cần thuê dịch vụ',
+    log_gia_cong: 'Hợp tác gia công/OEM', log_doi_tac: 'Tìm đối tác cung ứng',
+    da_keu_goi: 'Kêu gọi đầu tư', da_tim_co_hoi: 'Tìm cơ hội đầu tư',
+    da_chuyen_nhuong: 'Chuyển nhượng dự án', da_hop_tac: 'Hợp tác phát triển',
+    pl_cung_cap: 'Cung cấp dịch vụ', pl_can_tu_van: 'Cần tư vấn / hỗ trợ', pl_hop_tac: 'Hợp tác / đại lý'
+  };
+  function txnTypesLabel(types){
+    const list = Array.isArray(types) ? types : (types ? [types] : []);
+    return list.map(t => TXN_TYPE_LABELS[t] || t).filter(Boolean).join(', ');
+  }
+  // Nhãn loại nội dung cho ngành "Kiến thức & Media" — khớp với admin.html — dùng
+  // trong chip chi tiết của tab Duyệt tin.
+  const CONTENT_TYPE_LABELS = {
+    video:'Video', hinh_anh:'Hình ảnh', bai_viet:'Bài viết / Kiến thức', su_kien:'Sự kiện', dich_vu:'Dịch vụ media'
+  };
 
   // Danh sách tỉnh/thành → vùng miền, LẤY ĐÚNG theo các khối "region-card" đã có sẵn
   // trên trang chủ (index.html, mục BĐS công nghiệp/dân dụng) — không tự bịa thêm
@@ -1302,9 +1387,288 @@
   document.getElementById('finance-refresh-btn').addEventListener('click', loadDeals);
 
   // =========================================================================
+  // TAB "DUYỆT TIN" — thêm 08/10/2026: đăng nhập vào CRM là thấy ngay tin chờ
+  // duyệt, không cần mở riêng admin.html nữa (trang admin.html vẫn giữ nguyên
+  // y như cũ, không đổi gì — ai quen dùng link cũ vẫn dùng được bình thường).
+  // Đọc/ghi ĐÚNG bảng lht_listings + gọi ĐÚNG Edge Function "post-to-facebook"
+  // như admin.html đang làm — không tạo API mới, không đổi field nào.
+  // =========================================================================
+  const duyetReviewerInput = document.getElementById('duyet-reviewer-input');
+  const duyetRefreshBtn = document.getElementById('duyet-refresh-btn');
+  const duyetListContainer = document.getElementById('duyet-list-container');
+  const duyetGlobalError = document.getElementById('duyet-global-error');
+  const duyetGlobalNotice = document.getElementById('duyet-global-notice');
+  const duyetBadge = document.getElementById('duyet-badge');
+
+  // Tên người duyệt — dùng CHUNG key localStorage với admin.html (lht_admin_name),
+  // vì 2 trang cùng domain nên chia sẻ được, không cần nhập lại tên ở 2 nơi.
+  const REVIEWER_NAME_KEY = 'lht_admin_name';
+  if (duyetReviewerInput){
+    try { duyetReviewerInput.value = localStorage.getItem(REVIEWER_NAME_KEY) || ''; } catch(e){}
+    duyetReviewerInput.addEventListener('change', () => {
+      try { localStorage.setItem(REVIEWER_NAME_KEY, duyetReviewerInput.value.trim()); } catch(e){}
+    });
+  }
+  function getDuyetReviewerName(){
+    let name = (duyetReviewerInput && duyetReviewerInput.value || '').trim();
+    if (!name){
+      name = (prompt('Nhập tên người duyệt (sẽ được ghi nhớ cho lần sau):') || '').trim();
+      if (name && duyetReviewerInput){
+        duyetReviewerInput.value = name;
+        try { localStorage.setItem(REVIEWER_NAME_KEY, name); } catch(e){}
+      }
+    }
+    return name;
+  }
+
+  let duyetNoticeTimer = null;
+  function showDuyetNotice(msg, kind){
+    duyetGlobalNotice.textContent = msg;
+    duyetGlobalNotice.className = 'global-notice show ' + (kind || 'success');
+    clearTimeout(duyetNoticeTimer);
+    duyetNoticeTimer = setTimeout(() => { duyetGlobalNotice.classList.remove('show'); }, 6000);
+  }
+  function showDuyetError(msg){ duyetGlobalError.textContent = msg; duyetGlobalError.classList.add('show'); }
+  function clearDuyetError(){ duyetGlobalError.classList.remove('show'); duyetGlobalError.textContent = ''; }
+
+  let pendingListings = [];
+
+  function setDuyetCount(n){
+    if (!duyetBadge) return;
+    if (n > 0){ duyetBadge.hidden = false; duyetBadge.textContent = String(n); }
+    else { duyetBadge.hidden = true; duyetBadge.textContent = '0'; }
+  }
+
+  // Dòng chi tiết ngắn — 1 hàm chung, chia nhánh theo collection, giống hệt
+  // detailChips() của admin.html.
+  function duyetDetailChips(row){
+    const d = row.data || {};
+    const chips = [];
+    const txnLabel = txnTypesLabel(Array.isArray(d.txnTypes) && d.txnTypes.length ? d.txnTypes : (d.txnType ? [d.txnType] : []));
+    if (row.collection === 'media_posts'){
+      const ctLabel = CONTENT_TYPE_LABELS[d.contentType] || d.contentType;
+      if (ctLabel) chips.push(ctLabel);
+      if (d.topic) chips.push(d.topic);
+    } else if (row.collection === 'bds_listings' || row.collection === 'bds_dandung_listings'){
+      if (txnLabel) chips.push(txnLabel);
+      if (d.location) chips.push(d.location);
+      if (d.propertyType) chips.push(d.propertyType);
+      if (d.totalArea) chips.push(Number(d.totalArea).toLocaleString('vi-VN') + ' m²');
+      if (d.pricePerM2) chips.push(money(d.pricePerM2) + '/m²');
+      if (d.electricity) chips.push('Điện: ' + d.electricity);
+      if (d.water) chips.push('Nước: ' + d.water);
+    } else {
+      if (txnLabel) chips.push(txnLabel);
+      if (d.location) chips.push(d.location);
+      if (d.category) chips.push(d.category);
+      if (d.totalQty != null && d.totalQty !== '' && d.unit) chips.push(Number(d.totalQty).toLocaleString('vi-VN') + ' ' + d.unit);
+      if (d.pricePerUnit) chips.push(money(d.pricePerUnit) + '/' + (d.unit || 'đv'));
+      if (d.extraCost) chips.push('Phụ phí: ' + d.extraCost);
+    }
+    return chips.filter(Boolean);
+  }
+
+  function duyetRenderThumbs(imageIds){
+    const ids = Array.isArray(imageIds) ? imageIds : [];
+    if (!ids.length) return '';
+    const items = ids.map(url => {
+      const safe = escapeHtml(url);
+      return `<a href="${safe}" target="_blank" rel="noopener"><img src="${safe}" alt="Hình ảnh tin đăng" loading="lazy"></a>`;
+    }).join('');
+    return `<div class="thumb-strip">${items}</div>`;
+  }
+
+  function renderDuyetCard(row){
+    const d = row.data || {};
+    const meta = ASSET_COLLECTIONS[row.collection] || { label: row.collection || 'Khác', color: '#5f6784' };
+    const title = d.title || '(Không có tiêu đề)';
+    const chips = duyetDetailChips(row);
+    const chipsHtml = chips.map(c => `<span>${escapeHtml(c)}</span>`).join('');
+
+    const amenities = Array.isArray(d.amenities) ? d.amenities : [];
+    const tags = Array.isArray(d.tags) ? d.tags : [];
+    const chipList = amenities.length ? amenities : tags;
+    const chipListHtml = chipList.length
+      ? `<div class="chip-row">${chipList.map(a => `<span>${escapeHtml(a)}</span>`).join('')}</div>`
+      : '';
+
+    const description = (d.description || '').toString();
+    const isLong = description.length > 220;
+    const descHtml = description
+      ? `<p class="card-desc${isLong ? ' truncated' : ''}" data-full="${escapeHtml(description)}">${escapeHtml(description)}</p>${isLong ? '<button type="button" class="desc-toggle" data-action="toggle-desc">Xem thêm</button>' : ''}`
+      : '';
+
+    const phoneHtml = d.phone
+      ? `<a class="phone-link" href="tel:${escapeHtml(String(d.phone).replace(/\s/g,''))}">📞 ${escapeHtml(d.phone)}</a>`
+      : '';
+
+    const linkHtml = (row.collection === 'media_posts' && d.link)
+      ? `<a class="media-link" href="${escapeHtml(d.link)}" target="_blank" rel="noopener">🔗 ${escapeHtml(d.link)}</a>`
+      : '';
+
+    const thumbsHtml = duyetRenderThumbs(d.imageIds);
+
+    // Thông tin NGUỒN (nội bộ) — bot Telegram hỏi trước khi đăng, đến từ bảng riêng
+    // lht_listing_sources (embed qua FK), KHÔNG nằm trong `data` — chỉ để xem trước
+    // khi duyệt, không hiển thị trên website/Facebook.
+    const srcRaw = Array.isArray(row.lht_listing_sources) ? row.lht_listing_sources[0] : row.lht_listing_sources;
+    const src = srcRaw || {};
+    const sourceHtml = (src.source_name || src.source_phone || src.source_channel)
+      ? `<div class="source-box">
+           <div class="source-box-label">🔒 Nguồn tin (nội bộ, không hiển thị công khai)</div>
+           ${src.source_name ? `<div>👤 ${escapeHtml(src.source_name)}</div>` : ''}
+           ${src.source_phone ? `<div>📞 ${escapeHtml(src.source_phone)}</div>` : ''}
+           ${src.source_channel ? `<div>📡 Thu thập qua: ${escapeHtml(src.source_channel)}</div>` : ''}
+         </div>`
+      : '';
+
+    return `
+    <div class="card" data-id="${escapeHtml(row.id)}">
+      <div class="card-top">
+        <span class="sec-badge" style="background:${meta.color};">${escapeHtml(meta.label)}</span>
+        <span class="card-time">${escapeHtml(friendlyTime(row.created_at))}</span>
+      </div>
+      <h3>${escapeHtml(title)}</h3>
+      ${row.asset_code ? `<div class="asset-code-line">Mã tài sản: <b>${escapeHtml(row.asset_code)}</b></div>` : ''}
+      ${chipsHtml ? `<div class="detail-lines">${chipsHtml}</div>` : ''}
+      ${thumbsHtml}
+      ${descHtml}
+      ${chipListHtml}
+      ${phoneHtml}
+      ${linkHtml}
+      ${sourceHtml}
+      <div class="card-err" data-role="card-err"></div>
+      <div class="card-actions">
+        <button type="button" class="act-btn approve" data-action="duyet-approve">✅ Duyệt</button>
+        <button type="button" class="act-btn reject" data-action="duyet-reject">❌ Từ chối</button>
+      </div>
+      <button type="button" class="del-btn" data-action="duyet-delete">🗑 Xoá hẳn</button>
+    </div>`;
+  }
+
+  function renderDuyetList(){
+    if (!pendingListings.length){
+      duyetListContainer.innerHTML = `<div class="empty-state"><span class="emoji">🎉</span>Không còn tin nào chờ duyệt</div>`;
+      setDuyetCount(0);
+      return;
+    }
+    duyetListContainer.innerHTML = pendingListings.map(renderDuyetCard).join('');
+    setDuyetCount(pendingListings.length);
+  }
+
+  async function loadPendingApprovals(){
+    clearDuyetError();
+    duyetListContainer.innerHTML = `<div class="load-state">Đang tải danh sách…</div>`;
+    try {
+      const { data, error } = await sb
+        .from(LISTINGS_TABLE)
+        .select('*, lht_listing_sources(source_name, source_phone, source_channel)')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      pendingListings = data || [];
+      renderDuyetList();
+    } catch(err){
+      duyetListContainer.innerHTML = '';
+      showDuyetError('Không tải được danh sách tin chờ duyệt. Vui lòng thử "Làm mới" hoặc kiểm tra kết nối mạng.');
+    }
+  }
+
+  function removeDuyetCard(id){
+    pendingListings = pendingListings.filter(r => r.id !== id);
+    const el = duyetListContainer.querySelector(`.card[data-id="${CSS.escape(id)}"]`);
+    if (el) el.remove();
+    if (!pendingListings.length){ renderDuyetList(); } else { setDuyetCount(pendingListings.length); }
+  }
+
+  async function handleApproveListing(id, cardEl){
+    const reviewerName = getDuyetReviewerName();
+    if (!reviewerName){
+      showCardError(cardEl, 'Cần nhập tên người duyệt trước khi duyệt tin.');
+      return;
+    }
+    setCardBusy(cardEl, true);
+    try {
+      const { error } = await sb.from(LISTINGS_TABLE)
+        .update({ status: 'approved', approved_by: reviewerName, approved_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+      removeDuyetCard(id);
+      postApprovedListingToFacebookFromCrm(id);
+    } catch(err){
+      setCardBusy(cardEl, false);
+      showCardError(cardEl, 'Không duyệt được tin này, vui lòng thử lại.');
+    }
+  }
+
+  // Sau khi duyệt, tự động đăng Facebook — ĐÚNG Edge Function "post-to-facebook" mà
+  // admin.html đang gọi, chạy nền và không huỷ việc duyệt tin nếu bước này lỗi.
+  async function postApprovedListingToFacebookFromCrm(id){
+    try {
+      const { data, error } = await sb.functions.invoke('post-to-facebook', { body: { listingId: id } });
+      if (error) throw error;
+      if (data && data.alreadyPosted){
+        showDuyetNotice('ℹ️ Tin này đã đăng Facebook từ trước.', 'success');
+      } else {
+        showDuyetNotice('✅ Đã duyệt tin và đăng lên Facebook Page.', 'success');
+      }
+    } catch (err){
+      const msg = (err && err.message) ? err.message : 'lỗi không xác định';
+      showDuyetNotice('⚠️ Đã duyệt tin, nhưng đăng Facebook thất bại (' + msg + '). Có thể đăng thủ công lên Page.', 'warn');
+    }
+  }
+
+  async function handleRejectListing(id, cardEl){
+    if (!confirm('Từ chối tin đăng này?')) return;
+    setCardBusy(cardEl, true);
+    try {
+      const { error } = await sb.from(LISTINGS_TABLE).update({ status: 'rejected' }).eq('id', id);
+      if (error) throw error;
+      removeDuyetCard(id);
+    } catch(err){
+      setCardBusy(cardEl, false);
+      showCardError(cardEl, 'Không từ chối được tin này, vui lòng thử lại.');
+    }
+  }
+
+  async function handleDeleteListing(id, cardEl){
+    if (!confirm('Xoá vĩnh viễn tin đăng này? Không thể hoàn tác.')) return;
+    setCardBusy(cardEl, true);
+    try {
+      const { error } = await sb.from(LISTINGS_TABLE).delete().eq('id', id);
+      if (error) throw error;
+      removeDuyetCard(id);
+    } catch(err){
+      setCardBusy(cardEl, false);
+      showCardError(cardEl, 'Không xoá được tin này, vui lòng thử lại.');
+    }
+  }
+
+  duyetListContainer.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    const cardEl = btn.closest('.card');
+
+    if (action === 'toggle-desc'){
+      const p = cardEl.querySelector('.card-desc');
+      const collapsed = p.classList.toggle('truncated');
+      btn.textContent = collapsed ? 'Xem thêm' : 'Thu gọn';
+      return;
+    }
+
+    const id = cardEl.getAttribute('data-id');
+    if (action === 'duyet-approve') handleApproveListing(id, cardEl);
+    else if (action === 'duyet-reject') handleRejectListing(id, cardEl);
+    else if (action === 'duyet-delete') handleDeleteListing(id, cardEl);
+  });
+
+  duyetRefreshBtn.addEventListener('click', loadPendingApprovals);
+
+  // =========================================================================
   // TABS
   // =========================================================================
-  const tabLoaders = { overview: false, contacts: false, leads: false, assets: false, finance: false };
+  const tabLoaders = { duyet: false, overview: false, contacts: false, leads: false, assets: false, finance: false };
   function switchTab(name){
     const activeBtn = Array.from(tabBar.querySelectorAll('.tab-btn')).find(b => b.dataset.tab === name);
     tabBar.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
@@ -1313,6 +1677,7 @@
       // Đảm bảo tab vừa bấm luôn hiện trọn vẹn trên màn hình điện thoại, kể cả khi đang bị che 1 phần ở mép phải/trái
       activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
     }
+    if (name === 'duyet' && !tabLoaders.duyet){ tabLoaders.duyet = true; loadPendingApprovals(); }
     if (name === 'overview' && !tabLoaders.overview){ tabLoaders.overview = true; loadOverview(); }
     if (name === 'leads' && !tabLoaders.leads){ tabLoaders.leads = true; loadWebLeads(); }
     if (name === 'assets' && !tabLoaders.assets){ tabLoaders.assets = true; loadAssets(); }
@@ -1338,6 +1703,10 @@
   window.addEventListener('resize', updateTabBarFade);
   updateTabBarFade();
   function initDashboardData(){
+    // "Duyệt tin" là tab mặc định hiện ra đầu tiên khi đăng nhập — nạp ngay,
+    // không chờ người dùng bấm vào tab (switchTab() chỉ nạp khi BẤM tab).
+    tabLoaders.duyet = true;
+    loadPendingApprovals();
     tabLoaders.contacts = true;
     loadContacts();
     tabLoaders.overview = true;
@@ -1904,6 +2273,7 @@
         <div class="asset-badges">
           <span class="asset-pill" style="background:${a.industryColor};">${escapeHtml(a.industryLabel)}</span>
           ${a.region !== 'khac' ? `<span class="asset-pill region">${escapeHtml(REGION_LABELS[a.region] || a.region)}</span>` : ''}
+          ${a.txnTypes && a.txnTypes.length ? `<span class="asset-pill" style="background:#5f6784;">🔖 ${escapeHtml(txnTypesLabel(a.txnTypes))}</span>` : ''}
           <span class="asset-status ${a.status}">${escapeHtml(ASSET_STATUS_LABELS[a.status] || a.status)}</span>
         </div>
       </div>
@@ -2285,6 +2655,7 @@
           d.title || '',
           meta.label || row.collection || '',
           ASSET_STATUS_LABELS[row.status] || row.status || '',
+          txnTypesLabel(Array.isArray(d.txnTypes) && d.txnTypes.length ? d.txnTypes : (d.txnType ? [d.txnType] : [])),
           d.location || '',
           loc.province || '',
           category,
@@ -2309,7 +2680,7 @@
       const now = new Date();
       const exportTime = fullDateTime(now.toISOString());
       const header = [
-        'Mã tài sản', 'Tên tài sản / dự án', 'Ngành nghề', 'Trạng thái',
+        'Mã tài sản', 'Tên tài sản / dự án', 'Ngành nghề', 'Trạng thái', 'Loại hình giao dịch',
         'Khu vực', 'Tỉnh/Thành', 'Loại tài sản / Danh mục', 'Quy mô', 'Đơn vị', 'Đơn giá',
         'SĐT liên hệ', 'Nội dung mô tả', 'Tiện ích / Ghi chú',
         'Tên nguồn (nội bộ)', 'SĐT nguồn (nội bộ)', 'Thu thập qua (nội bộ)',
@@ -2328,7 +2699,7 @@
       ];
       const ws = XLSX.utils.aoa_to_sheet(aoa);
       ws['!cols'] = [
-        {wch:12},{wch:32},{wch:22},{wch:12},
+        {wch:12},{wch:32},{wch:22},{wch:12},{wch:24},
         {wch:22},{wch:16},{wch:20},{wch:10},{wch:8},{wch:12},
         {wch:14},{wch:40},{wch:24},
         {wch:20},{wch:14},{wch:16},
