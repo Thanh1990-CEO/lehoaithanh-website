@@ -3543,6 +3543,11 @@
     if (!html) return '';
     return `<div class="detail-row"><div class="detail-row-label">${icon} ${escapeHtml(label)}</div><div class="detail-row-body">${html}</div></div>`;
   }
+  // 10/10/2026: 3 trường "lọc nhanh" mới (vị trí KCN, đường container, gần khu dân cư) lưu dạng
+  // mã ngắn (vd 'trong_kcn') để CRM lọc nhanh — đổi sang nhãn tiếng Việt dễ đọc khi hiển thị công khai.
+  const LHT_ZONE_LABELS = { trong_kcn: 'Trong khu công nghiệp', ngoai_kcn: 'Ngoài khu công nghiệp' };
+  const LHT_ROAD_LABELS = { khong_cam: 'Đường vào không cấm xe tải/container', cam_gio_cao_diem: 'Đường vào cấm xe tải/container giờ cao điểm', cam_hoan_toan: 'Đường vào cấm xe tải/container' };
+  const LHT_RESIDENTIAL_LABELS = { gan_dan_cu: 'Gần khu dân cư', khong_gan_dan_cu: 'Xa khu dân cư' };
   function lhtPdfButtonHtml(doc){
     if (!doc.pdfUrl) return '';
     const name = doc.pdfName ? escapeHtml(doc.pdfName) : 'Tải brochure PDF';
@@ -3550,6 +3555,9 @@
   }
   function lhtBuildFullDetailBlock(doc){
     const rows = [
+      lhtDetailRow('🏭', 'Vị trí khu công nghiệp', LHT_ZONE_LABELS[doc.zoneLocation] || ''),
+      lhtDetailRow('🚛', 'Đường vào xe tải/container', LHT_ROAD_LABELS[doc.roadAccess] || ''),
+      lhtDetailRow('🏘️', 'Khu dân cư lân cận', LHT_RESIDENTIAL_LABELS[doc.nearResidential] || ''),
       lhtDetailRow('📍', 'Vị trí & kết nối vùng', doc.connectivity),
       lhtDetailRow('👷', 'Nguồn lao động', doc.laborForce),
       lhtDetailRow('🏗️', 'Hạ tầng kỹ thuật', doc.infrastructure),

@@ -606,6 +606,22 @@
           <option value="pending">Chờ duyệt</option>
           <option value="rejected">Từ chối</option>
         </select>
+        <select id="asset-filter-zone">
+          <option value="all">Vị trí KCN: Tất cả</option>
+          <option value="trong_kcn">Trong KCN</option>
+          <option value="ngoai_kcn">Ngoài KCN</option>
+        </select>
+        <select id="asset-filter-road">
+          <option value="all">Đường vào: Tất cả</option>
+          <option value="khong_cam">Không cấm tải/container</option>
+          <option value="cam_gio_cao_diem">Cấm giờ cao điểm</option>
+          <option value="cam_hoan_toan">Cấm hoàn toàn</option>
+        </select>
+        <select id="asset-filter-residential">
+          <option value="all">Khu dân cư: Tất cả</option>
+          <option value="gan_dan_cu">Gần khu dân cư</option>
+          <option value="khong_gan_dan_cu">Xa khu dân cư</option>
+        </select>
       </div>
 
       <div id="assets-list"></div>
@@ -815,6 +831,14 @@
     media_posts:            { label: 'Kiến thức & Media',        color: '#062A55', sectionId: 'kien-thuc-media' }
   };
   const ASSET_STATUS_LABELS = { approved: 'Đã duyệt', pending: 'Chờ duyệt', rejected: 'Từ chối' };
+
+  // 10/10/2026: nhãn hiển thị cho các tiêu chí "search nhanh" phục vụ môi giới gửi khách —
+  // khớp với LHT_ZONE_LABELS/LHT_ROAD_LABELS/LHT_RESIDENTIAL_LABELS trên index.html, và với
+  // các enum zoneLocation/roadAccess/nearResidential mà bot Telegram ghi vào data (chỉ đọc
+  // thêm field có sẵn, không đổi schema/API nào).
+  const ZONE_LABELS = { trong_kcn: 'Trong KCN', ngoai_kcn: 'Ngoài KCN' };
+  const ROAD_LABELS = { khong_cam: 'Đường không cấm tải/container', cam_gio_cao_diem: 'Cấm tải/container giờ cao điểm', cam_hoan_toan: 'Cấm tải/container' };
+  const RESIDENTIAL_LABELS = { gan_dan_cu: 'Gần khu dân cư', khong_gan_dan_cu: 'Xa khu dân cư' };
 
   // 07/10/2026: nhãn hiển thị cho "Loại hình giao dịch" (data.txnTypes / data.txnType) — gộp đủ các
   // mã của mọi ngành nghề (BĐS/Xe nâng dùng chung 6 loại mua/bán/thuê/ký gửi/chuyển nhượng; Logistics,
@@ -1457,6 +1481,11 @@
       if (d.pricePerM2) chips.push(money(d.pricePerM2) + '/m²');
       if (d.electricity) chips.push('Điện: ' + d.electricity);
       if (d.water) chips.push('Nước: ' + d.water);
+      // 10/10/2026: tiêu chí "search nhanh" — chỉ thêm chip khi tin đã có dữ liệu (bot ghi vào
+      // data.zoneLocation/roadAccess/nearResidential), tin cũ/ chưa rõ thì không hiện chip.
+      if (d.zoneLocation && ZONE_LABELS[d.zoneLocation]) chips.push('🏭 ' + ZONE_LABELS[d.zoneLocation]);
+      if (d.roadAccess && ROAD_LABELS[d.roadAccess]) chips.push('🚛 ' + ROAD_LABELS[d.roadAccess]);
+      if (d.nearResidential && RESIDENTIAL_LABELS[d.nearResidential]) chips.push('🏘️ ' + RESIDENTIAL_LABELS[d.nearResidential]);
     } else {
       if (txnLabel) chips.push(txnLabel);
       if (d.location) chips.push(d.location);
@@ -2003,7 +2032,15 @@
       totalArea: Number(d.totalArea) || 0,
       pricePerM2: Number(d.pricePerM2) || 0,
       totalQty: Number(d.totalQty) || 0,
-      pricePerUnit: Number(d.pricePerUnit) || 0
+      pricePerUnit: Number(d.pricePerUnit) || 0,
+      // 10/10/2026: tiêu chí "search nhanh" phục vụ gửi khách — chỉ đọc thêm field có sẵn
+      // trong `data` do bot Telegram ghi (zoneLocation/roadAccess/nearResidential/industriesAccepted),
+      // không đổi schema/API nào. Field không có thì giữ rỗng (tin cũ vẫn hiển thị bình thường).
+      zoneLocation: d.zoneLocation || '',
+      roadAccess: d.roadAccess || '',
+      nearResidential: d.nearResidential || '',
+      industriesAccepted: Array.isArray(d.industriesAccepted) ? d.industriesAccepted : [],
+      industriesExcluded: Array.isArray(d.industriesExcluded) ? d.industriesExcluded : []
     };
   }
 
@@ -2256,6 +2293,19 @@
     if (hasStaticPage) return 'https://lehoaithanh.org/tin/' + encodeURIComponent(a.id);
     return a.sectionId ? ('https://lehoaithanh.org/?id=' + encodeURIComponent(a.id) + '#' + a.sectionId) : '';
   }
+  // 10/10/2026: chip hiển thị nhanh 3 tiêu chí "search nhanh" (vị trí KCN / đường vào xe tải-
+  // container / khu dân cư lân cận) ngay trên card — chỉ hiện khi tin có dữ liệu, không ép tin
+  // cũ phải có. Dùng lại class .asset-metrics có sẵn (không cần style mới).
+  function quickFactChipsHtml(a){
+    const chips = [];
+    if (a.zoneLocation && ZONE_LABELS[a.zoneLocation]) chips.push('🏭 ' + ZONE_LABELS[a.zoneLocation]);
+    if (a.roadAccess && ROAD_LABELS[a.roadAccess]) chips.push('🚛 ' + ROAD_LABELS[a.roadAccess]);
+    if (a.nearResidential && RESIDENTIAL_LABELS[a.nearResidential]) chips.push('🏘️ ' + RESIDENTIAL_LABELS[a.nearResidential]);
+    if (a.industriesAccepted && a.industriesAccepted.length) chips.push('✅ ' + a.industriesAccepted.slice(0,3).join(', '));
+    if (!chips.length) return '';
+    return `<div class="asset-metrics asset-quickfacts">${chips.map(c => `<span>${escapeHtml(c)}</span>`).join('')}</div>`;
+  }
+
   function renderAssetCard(a){
     const url = a.sectionId ? ('https://lehoaithanh.org/?id=' + encodeURIComponent(a.id) + '#' + a.sectionId) : '';
     const shareUrl = shareUrlFor(a);
@@ -2281,6 +2331,7 @@
       ${a.assetCode ? `<div class="asset-code-line">Mã tài sản: <b>${escapeHtml(a.assetCode)}</b> <button type="button" class="copy-chip" data-copy="${escapeHtml(a.assetCode)}" title="Copy mã tài sản">📋 Copy mã</button></div>` : ''}
       ${a.location ? `<div class="asset-loc">📍 ${escapeHtml(a.location)}${a.province ? ' · ' + escapeHtml(a.province) : ''}</div>` : ''}
       ${a.metrics.length ? `<div class="asset-metrics">${a.metrics.map(m => `<span>${escapeHtml(m)}</span>`).join('')}</div>` : ''}
+      ${quickFactChipsHtml(a)}
       ${sourceHtml}
       <div class="asset-foot">
         <span class="asset-time">${escapeHtml(friendlyTime(a.createdAt))}${a.phone ? ' · 📞 ' + escapeHtml(a.phone) : ''}</span>
@@ -2300,13 +2351,29 @@
     const industryFilter = document.getElementById('asset-filter-industry').value;
     const regionFilter = document.getElementById('asset-filter-region').value;
     const statusFilter = document.getElementById('asset-filter-status').value;
+    // 10/10/2026: 3 bộ lọc "search nhanh" phục vụ gửi khách — tương ứng zoneLocation/
+    // roadAccess/nearResidential đọc thêm trong normalizeAsset(); tin không có field (chưa
+    // rõ/ tin cũ) sẽ không khớp các bộ lọc này, giữ đúng bản chất "chưa rõ thì không ép vào đâu".
+    const zoneFilterEl = document.getElementById('asset-filter-zone');
+    const roadFilterEl = document.getElementById('asset-filter-road');
+    const residentialFilterEl = document.getElementById('asset-filter-residential');
+    const zoneFilter = zoneFilterEl ? zoneFilterEl.value : 'all';
+    const roadFilter = roadFilterEl ? roadFilterEl.value : 'all';
+    const residentialFilter = residentialFilterEl ? residentialFilterEl.value : 'all';
 
     const filtered = allAssets.filter(a => {
       if (industryFilter !== 'all' && a.collection !== industryFilter) return false;
       if (regionFilter !== 'all' && a.region !== regionFilter) return false;
       if (statusFilter !== 'all' && a.status !== statusFilter) return false;
+      if (zoneFilter !== 'all' && a.zoneLocation !== zoneFilter) return false;
+      if (roadFilter !== 'all' && a.roadAccess !== roadFilter) return false;
+      if (residentialFilter !== 'all' && a.nearResidential !== residentialFilter) return false;
       if (q){
-        const hay = [a.title, a.location, a.phone, a.assetCode].join(' ').toLowerCase();
+        const hay = [
+          a.title, a.location, a.phone, a.assetCode,
+          ZONE_LABELS[a.zoneLocation] || '', ROAD_LABELS[a.roadAccess] || '', RESIDENTIAL_LABELS[a.nearResidential] || '',
+          (a.industriesAccepted || []).join(' '), (a.industriesExcluded || []).join(' ')
+        ].join(' ').toLowerCase();
         if (hay.indexOf(q) === -1) return false;
       }
       return true;
@@ -2723,6 +2790,9 @@
   document.getElementById('asset-filter-industry').addEventListener('change', renderAssets);
   document.getElementById('asset-filter-region').addEventListener('change', renderAssets);
   document.getElementById('asset-filter-status').addEventListener('change', renderAssets);
+  document.getElementById('asset-filter-zone').addEventListener('change', renderAssets);
+  document.getElementById('asset-filter-road').addEventListener('change', renderAssets);
+  document.getElementById('asset-filter-residential').addEventListener('change', renderAssets);
 
   // ---- Auth (dùng chung tài khoản với admin.html) ----
   loginForm.addEventListener('submit', async (e) => {
