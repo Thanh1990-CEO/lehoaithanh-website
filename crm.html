@@ -2392,9 +2392,57 @@
     </div>`;
   }
 
+  // =========================================================================
+  // TÌM KIẾM THÔNG MINH (dùng chung cho ô tìm trong tab Tài sản/Dự án lẫn ô tìm nhanh toàn
+  // cục) — thêm 10/10/2026. Trước đây so khớp CẢ CỤM người gõ với 1 chuỗi duy nhất, và chuỗi
+  // đó còn thiếu cả diện tích/giá — nên gõ kiểu "Kho Tân Uyên 2000m2" gần như không bao giờ ra
+  // kết quả. Giờ: (1) bỏ dấu tiếng Việt khi so khớp, gõ có dấu/không dấu đều tìm được; (2) tách
+  // câu tìm thành từng từ khoá riêng và yêu cầu khớp ĐỦ tất cả từ khoá (không cần liền nhau/
+  // đúng thứ tự) trên MỌI thông tin tài sản — tiêu đề, khu vực, diện tích, giá, ngành nghề, vị
+  // trí KCN, đường container, khu dân cư...; (3) từ khoá dạng số dính đơn vị (vd "2000m2") sẽ
+  // tự tách lấy phần số để so đúng diện tích/số lượng đã lưu, không cần gõ đúng định dạng
+  // "2.000 m²". Chỉ đổi cách LỌC trên dữ liệu đã có sẵn, không đổi dữ liệu/API nào.
+  function foldVietnamese(s){
+    return String(s || '')
+      .toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/²/g, '2')
+      .replace(/[.,]/g, '');
+  }
+  function assetSearchHaystack(a){
+    const parts = [
+      a.title, a.location, a.province, REGION_LABELS[a.region] || '', a.industryLabel,
+      a.phone, a.assetCode,
+      ZONE_LABELS[a.zoneLocation] || '', ROAD_LABELS[a.roadAccess] || '', RESIDENTIAL_LABELS[a.nearResidential] || '',
+      (a.industriesAccepted || []).join(' '), (a.industriesExcluded || []).join(' '),
+      txnTypesLabel(a.txnTypes), (a.metrics || []).join(' '),
+      a.totalArea || '', a.pricePerM2 || '', a.totalQty || '', a.pricePerUnit || ''
+    ];
+    return foldVietnamese(parts.join(' '));
+  }
+  function matchesSearchQuery(asset, query){
+    const q = foldVietnamese(query).trim();
+    if (!q) return true;
+    const tokens = q.split(/\s+/).filter(Boolean);
+    const hay = assetSearchHaystack(asset);
+    return tokens.every(tok => {
+      // Từ khoá bắt đầu bằng số, kể cả dính liền đơn vị (vd "2000m2", "5000m") — lấy đúng
+      // phần số đứng đầu, so khớp với diện tích/số lượng đã lưu (haystack đã bỏ dấu chấm
+      // phân cách nghìn). Dùng ranh giới không-phải-chữ-số ở 2 đầu để "2000" không bị tính
+      // khớp nhầm vào giữa 1 số khác lớn hơn như "12000".
+      const leadingNum = tok.match(/^\d+/);
+      if (leadingNum){
+        const re = new RegExp('(^|\\D)' + leadingNum[0] + '(\\D|$)');
+        return re.test(hay);
+      }
+      return hay.indexOf(tok) !== -1;
+    });
+  }
+
   function renderAssets(){
     const listEl = document.getElementById('assets-list');
-    const q = (document.getElementById('asset-search').value || '').trim().toLowerCase();
+    const q = (document.getElementById('asset-search').value || '');
     const industryFilter = document.getElementById('asset-filter-industry').value;
     const regionFilter = document.getElementById('asset-filter-region').value;
     const statusFilter = document.getElementById('asset-filter-status').value;
@@ -2415,14 +2463,7 @@
       if (zoneFilter !== 'all' && a.zoneLocation !== zoneFilter) return false;
       if (roadFilter !== 'all' && a.roadAccess !== roadFilter) return false;
       if (residentialFilter !== 'all' && a.nearResidential !== residentialFilter) return false;
-      if (q){
-        const hay = [
-          a.title, a.location, a.phone, a.assetCode,
-          ZONE_LABELS[a.zoneLocation] || '', ROAD_LABELS[a.roadAccess] || '', RESIDENTIAL_LABELS[a.nearResidential] || '',
-          (a.industriesAccepted || []).join(' '), (a.industriesExcluded || []).join(' ')
-        ].join(' ').toLowerCase();
-        if (hay.indexOf(q) === -1) return false;
-      }
+      if (!matchesSearchQuery(a, q)) return false;
       return true;
     });
 
@@ -2457,16 +2498,10 @@
   }
 
   function globalAssetSearchResults(query){
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
-    return allAssets.filter(a => {
-      const hay = [
-        a.title, a.location, a.phone, a.assetCode, a.industryLabel,
-        ZONE_LABELS[a.zoneLocation] || '', ROAD_LABELS[a.roadAccess] || '', RESIDENTIAL_LABELS[a.nearResidential] || '',
-        (a.industriesAccepted || []).join(' '), (a.industriesExcluded || []).join(' ')
-      ].join(' ').toLowerCase();
-      return hay.indexOf(q) !== -1;
-    }).slice(0, 8);
+    if (!query.trim()) return [];
+    // Dùng chung matchesSearchQuery() với tab Tài sản/Dự án — gõ nhiều từ khoá (có/không dấu,
+    // kể cả số dính đơn vị như "2000m2") đều ra đúng phạm vi tài sản liên quan.
+    return allAssets.filter(a => matchesSearchQuery(a, query)).slice(0, 8);
   }
 
   function renderGlobalSuggestions(query){
