@@ -117,6 +117,36 @@
   .reminder-item button{ background:none; border:none; color:var(--blue); font-weight:700; font-size:0.78rem; padding:4px; }
   .overdue{color:var(--red); font-weight:700;}
 
+  /* ---------------- Ô tìm nhanh tài sản toàn cục (mọi tab) ---------------- */
+  .global-search-wrap{ position:relative; margin-top:16px; }
+  .global-search-box{ position:relative; }
+  .global-search-input{
+    width:100%; font-size:0.92rem; padding:13px 16px; border:1.5px solid var(--border);
+    border-radius:11px; background:#fff; color:var(--text); font-family:inherit; box-shadow:var(--shadow);
+  }
+  .global-search-input:focus{ outline:none; border-color:var(--blue); }
+  .global-search-dropdown{
+    position:absolute; left:0; right:0; top:calc(100% + 6px); background:#fff;
+    border:1px solid var(--border); border-radius:11px; box-shadow:0 14px 40px rgba(6,42,85,0.16);
+    max-height:420px; overflow-y:auto; z-index:40;
+  }
+  .global-search-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 14px; border-top:1px solid var(--border);
+  }
+  .global-search-item:first-child{ border-top:none; }
+  .global-search-item:hover{ background:var(--light); }
+  .global-search-item-main{ min-width:0; flex:1 1 auto; }
+  .global-search-item-title{ font-size:0.86rem; font-weight:700; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .global-search-item-meta{ font-size:0.74rem; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .global-search-item-actions{ display:flex; gap:6px; flex:0 0 auto; }
+  .global-search-item-actions button{
+    font:inherit; font-size:0.72rem; font-weight:700; color:var(--blue); background:#fff;
+    border:1px solid var(--border); border-radius:6px; padding:5px 9px; cursor:pointer; white-space:nowrap;
+  }
+  .global-search-item-actions button.is-copied{ color:var(--green); border-color:var(--green); }
+  .global-search-empty{ padding:14px; font-size:0.82rem; color:var(--muted); text-align:center; }
+
   /* ---------------- Stage filter pills ---------------- */
   .stage-pills{display:flex; gap:6px; overflow-x:auto; padding:2px 0 4px; -webkit-overflow-scrolling:touch;}
   .stage-pill{
@@ -437,6 +467,19 @@
     <div class="reminder-banner" id="reminder-banner">
       <b>⏰ Việc cần follow-up</b>
       <div id="reminder-list"></div>
+    </div>
+
+    <!-- ============ Ô tìm nhanh tài sản toàn cục — thêm 10/10/2026, hiện trên MỌI tab (không
+         riêng tab Tài sản/Dự án) để đăng nhập vào CRM là thấy ngay, gõ tên/khu vực/mã tin/nhu
+         cầu khách là ra gợi ý, bấm là copy sẵn nội dung để gửi khách liền. Chỉ đọc lại dữ liệu
+         đã nạp sẵn từ loadAssets() (lht_listings qua Supabase) — không thêm bảng/API nào mới. ============ -->
+    <div class="global-search-wrap">
+      <div class="global-search-box">
+        <input type="text" id="global-asset-search" class="global-search-input"
+               placeholder="🔎 Tìm nhanh tài sản để gửi khách — gõ tên, khu vực, mã tin, nhu cầu khách..."
+               autocomplete="off">
+        <div id="global-asset-suggestions" class="global-search-dropdown" hidden></div>
+      </div>
     </div>
 
     <div class="tab-bar-wrap scroll-start" id="tab-bar-wrap">
@@ -1740,6 +1783,10 @@
     loadContacts();
     tabLoaders.overview = true;
     loadOverview();
+    // 10/10/2026: nạp luôn allAssets ngay khi đăng nhập (không chờ bấm tab Tài sản/Dự án)
+    // để ô tìm nhanh tài sản toàn cục (global-asset-search) có dữ liệu sẵn sàng ngay.
+    tabLoaders.assets = true;
+    loadAssets();
   }
 
   // =========================================================================
@@ -2385,6 +2432,108 @@
     }
     listEl.innerHTML = filtered.map(renderAssetCard).join('');
   }
+
+  // =========================================================================
+  // Ô TÌM NHANH TÀI SẢN TOÀN CỤC — thêm 10/10/2026, hiện trên mọi tab (không chỉ tab Tài
+  // sản/Dự án) để đăng nhập vào CRM là thấy ngay, gõ tên/khu vực/mã tin/nhu cầu khách là
+  // ra danh sách gợi ý, bấm 1 cái là copy sẵn nội dung để dán gửi khách qua Zalo/Telegram.
+  // Chỉ đọc lại allAssets (đã nạp sẵn từ loadAssets() — không gọi thêm API/bảng nào mới).
+  // =========================================================================
+  function buildShareText(a){
+    const lines = [];
+    lines.push('🏭 ' + (a.title || '(Chưa có tiêu đề)'));
+    if (a.location) lines.push('📍 ' + a.location + (a.province ? ' · ' + a.province : ''));
+    if (a.metrics && a.metrics.length) lines.push(a.metrics.join(' · '));
+    const quickFacts = [];
+    if (a.zoneLocation && ZONE_LABELS[a.zoneLocation]) quickFacts.push(ZONE_LABELS[a.zoneLocation]);
+    if (a.roadAccess && ROAD_LABELS[a.roadAccess]) quickFacts.push(ROAD_LABELS[a.roadAccess]);
+    if (a.nearResidential && RESIDENTIAL_LABELS[a.nearResidential]) quickFacts.push(RESIDENTIAL_LABELS[a.nearResidential]);
+    if (quickFacts.length) lines.push(quickFacts.join(' · '));
+    if (a.industriesAccepted && a.industriesAccepted.length) lines.push('Ngành nghề phù hợp: ' + a.industriesAccepted.slice(0, 5).join(', '));
+    const link = shareUrlFor(a);
+    if (link) lines.push('🔗 ' + link);
+    if (a.phone) lines.push('📞 ' + a.phone);
+    return lines.join('\n');
+  }
+
+  function globalAssetSearchResults(query){
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return allAssets.filter(a => {
+      const hay = [
+        a.title, a.location, a.phone, a.assetCode, a.industryLabel,
+        ZONE_LABELS[a.zoneLocation] || '', ROAD_LABELS[a.roadAccess] || '', RESIDENTIAL_LABELS[a.nearResidential] || '',
+        (a.industriesAccepted || []).join(' '), (a.industriesExcluded || []).join(' ')
+      ].join(' ').toLowerCase();
+      return hay.indexOf(q) !== -1;
+    }).slice(0, 8);
+  }
+
+  function renderGlobalSuggestions(query){
+    const box = document.getElementById('global-asset-suggestions');
+    const q = query.trim();
+    if (!q){ box.hidden = true; box.innerHTML = ''; return; }
+    if (!assetsLoaded){
+      box.hidden = false;
+      box.innerHTML = '<div class="global-search-empty">Đang tải danh sách tài sản…</div>';
+      return;
+    }
+    const results = globalAssetSearchResults(q);
+    box.hidden = false;
+    if (!results.length){
+      box.innerHTML = '<div class="global-search-empty">Không tìm thấy tài sản nào khớp — thử từ khoá khác.</div>';
+      return;
+    }
+    box.innerHTML = results.map(a => {
+      const metaParts = [];
+      if (a.location) metaParts.push(a.location);
+      if (a.metrics && a.metrics.length) metaParts.push(a.metrics[0]);
+      return `
+        <div class="global-search-item">
+          <div class="global-search-item-main">
+            <div class="global-search-item-title">${escapeHtml(a.title || '(Chưa có tiêu đề)')}</div>
+            <div class="global-search-item-meta">${escapeHtml(metaParts.join(' · '))}</div>
+          </div>
+          <div class="global-search-item-actions">
+            <button type="button" data-action="copy" data-id="${escapeHtml(a.id)}" title="Copy nội dung để gửi khách">📋 Copy gửi khách</button>
+            <button type="button" data-action="view" data-id="${escapeHtml(a.id)}" title="Xem chi tiết trong tab Tài sản / Dự án">→ Xem</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  const globalSearchInput = document.getElementById('global-asset-search');
+  const globalSearchBox = document.getElementById('global-asset-suggestions');
+  globalSearchInput.addEventListener('input', () => renderGlobalSuggestions(globalSearchInput.value));
+  globalSearchInput.addEventListener('focus', () => { if (globalSearchInput.value.trim()) renderGlobalSuggestions(globalSearchInput.value); });
+  globalSearchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape'){ globalSearchBox.hidden = true; globalSearchInput.blur(); }
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.global-search-wrap')) globalSearchBox.hidden = true;
+  });
+  globalSearchBox.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const id = btn.getAttribute('data-id');
+    const asset = allAssets.find(x => x.id === id);
+    if (!asset) return;
+    if (btn.dataset.action === 'copy'){
+      const original = btn.textContent;
+      const ok = await copyTextToClipboard(buildShareText(asset));
+      btn.textContent = ok ? '✅ Đã copy!' : '⚠️ Lỗi copy';
+      btn.classList.toggle('is-copied', ok);
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('is-copied'); }, 1800);
+    } else if (btn.dataset.action === 'view'){
+      switchTab('assets');
+      const assetSearchInput = document.getElementById('asset-search');
+      if (assetSearchInput){ assetSearchInput.value = asset.assetCode || asset.title; renderAssets(); }
+      globalSearchBox.hidden = true;
+      globalSearchInput.value = '';
+      const listEl2 = document.getElementById('assets-list');
+      if (listEl2) listEl2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 
   // =========================================================================
   // TAB "TÀI CHÍNH" — bảng mới crm_deals: doanh thu / chi phí / lãi-lỗ theo
