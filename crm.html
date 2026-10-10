@@ -133,9 +133,11 @@
   .global-search-item{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     padding:10px 14px; border-top:1px solid var(--border);
+    cursor:pointer; /* 10/10/2026: bấm cả dòng để xem chi tiết — xem ghi chú ở renderGlobalSuggestions() */
   }
   .global-search-item:first-child{ border-top:none; }
   .global-search-item:hover{ background:var(--light); }
+  .global-search-item:focus-visible{ outline:2px solid var(--blue); outline-offset:-2px; background:var(--light); }
   .global-search-item-main{ min-width:0; flex:1 1 auto; }
   .global-search-item-title{ font-size:0.86rem; font-weight:700; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .global-search-item-meta{ font-size:0.74rem; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -2045,6 +2047,12 @@
     const metrics = [];
     if (d.totalArea) metrics.push(Number(d.totalArea).toLocaleString('vi-VN') + ' m²');
     if (d.pricePerM2) metrics.push(Number(d.pricePerM2).toLocaleString('vi-VN') + ' đ/m²/tháng');
+    // 10/10/2026: các ngành "generic" (Logistics, Xe nâng, Dự án, Pháp lý...) dùng totalQty/unit/
+    // pricePerUnit thay cho totalArea/pricePerM2 — trước đây không có 2 dòng này nên thẻ tài sản
+    // và ô tìm nhanh không hiện được thông số/đơn giá của các ngành này. Thêm vào đây (chỉ đọc
+    // thêm field đã có sẵn trong `data`, không đổi schema) để hiện đủ cho mọi ngành như nhau.
+    if (d.totalQty) metrics.push(Number(d.totalQty).toLocaleString('vi-VN') + (d.unit ? ' ' + d.unit : ''));
+    if (d.pricePerUnit) metrics.push(Number(d.pricePerUnit).toLocaleString('vi-VN') + ' đ/' + (d.unit || 'đv'));
     if (d.propertyType) metrics.push(d.propertyType);
     if (d.contentType) metrics.push(d.contentType);
     if (d.tags) metrics.push('#' + String(d.tags).split(',').map(s => s.trim()).filter(Boolean).slice(0,3).join(' #'));
@@ -2519,19 +2527,22 @@
       box.innerHTML = '<div class="global-search-empty">Không tìm thấy tài sản nào khớp — thử từ khoá khác.</div>';
       return;
     }
+    // 10/10/2026: theo yêu cầu — hiện luôn diện tích/thông số (m²/giá, số lượng/đơn vị/đơn giá...)
+    // ngay trên dòng gợi ý để khách/môi giới nhìn là biết, không cần bấm vào mới thấy. Đồng thời
+    // bấm THẲNG vào dòng để đi tới chi tiết (đỡ phải tìm nút "Xem" riêng) — chỉ còn giữ nút Copy
+    // để copy nội dung gửi khách, không đổi hành vi Copy/điều hướng, chỉ đổi cách bấm cho nhanh hơn.
     box.innerHTML = results.map(a => {
       const metaParts = [];
       if (a.location) metaParts.push(a.location);
-      if (a.metrics && a.metrics.length) metaParts.push(a.metrics[0]);
+      if (a.metrics && a.metrics.length) metaParts.push(a.metrics.slice(0, 2).join(' · '));
       return `
-        <div class="global-search-item">
+        <div class="global-search-item" data-id="${escapeHtml(a.id)}" role="button" tabindex="0" title="Bấm để xem chi tiết trong tab Tài sản / Dự án">
           <div class="global-search-item-main">
             <div class="global-search-item-title">${escapeHtml(a.title || '(Chưa có tiêu đề)')}</div>
             <div class="global-search-item-meta">${escapeHtml(metaParts.join(' · '))}</div>
           </div>
           <div class="global-search-item-actions">
             <button type="button" data-action="copy" data-id="${escapeHtml(a.id)}" title="Copy nội dung để gửi khách">📋 Copy gửi khách</button>
-            <button type="button" data-action="view" data-id="${escapeHtml(a.id)}" title="Xem chi tiết trong tab Tài sản / Dự án">→ Xem</button>
           </div>
         </div>`;
     }).join('');
@@ -2547,27 +2558,38 @@
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.global-search-wrap')) globalSearchBox.hidden = true;
   });
+  // 10/10/2026: bấm nút Copy chỉ copy (không điều hướng, dùng stopPropagation để không lọt
+  // xuống thành bấm cả dòng); bấm bất kỳ đâu khác trên dòng kết quả thì coi như bấm "Xem" —
+  // chuyển sang tab Tài sản/Dự án và lọc đúng tài sản đó luôn, đỡ phải tìm nút riêng.
   globalSearchBox.addEventListener('click', async (e) => {
-    const btn = e.target.closest('button[data-action]');
-    if (!btn) return;
-    const id = btn.getAttribute('data-id');
+    const copyBtn = e.target.closest('button[data-action="copy"]');
+    const row = e.target.closest('.global-search-item');
+    if (!row) return;
+    const id = (copyBtn || row).getAttribute('data-id');
     const asset = allAssets.find(x => x.id === id);
     if (!asset) return;
-    if (btn.dataset.action === 'copy'){
-      const original = btn.textContent;
+    if (copyBtn){
+      e.stopPropagation();
+      const original = copyBtn.textContent;
       const ok = await copyTextToClipboard(buildShareText(asset));
-      btn.textContent = ok ? '✅ Đã copy!' : '⚠️ Lỗi copy';
-      btn.classList.toggle('is-copied', ok);
-      setTimeout(() => { btn.textContent = original; btn.classList.remove('is-copied'); }, 1800);
-    } else if (btn.dataset.action === 'view'){
-      switchTab('assets');
-      const assetSearchInput = document.getElementById('asset-search');
-      if (assetSearchInput){ assetSearchInput.value = asset.assetCode || asset.title; renderAssets(); }
-      globalSearchBox.hidden = true;
-      globalSearchInput.value = '';
-      const listEl2 = document.getElementById('assets-list');
-      if (listEl2) listEl2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      copyBtn.textContent = ok ? '✅ Đã copy!' : '⚠️ Lỗi copy';
+      copyBtn.classList.toggle('is-copied', ok);
+      setTimeout(() => { copyBtn.textContent = original; copyBtn.classList.remove('is-copied'); }, 1800);
+      return;
     }
+    switchTab('assets');
+    const assetSearchInput = document.getElementById('asset-search');
+    if (assetSearchInput){ assetSearchInput.value = asset.assetCode || asset.title; renderAssets(); }
+    globalSearchBox.hidden = true;
+    globalSearchInput.value = '';
+    const listEl2 = document.getElementById('assets-list');
+    if (listEl2) listEl2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  // Hỗ trợ bàn phím: focus vào dòng gợi ý (tabindex) rồi nhấn Enter cũng kích hoạt như bấm chuột.
+  globalSearchBox.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const row = e.target.closest('.global-search-item');
+    if (row) row.click();
   });
 
   // =========================================================================
