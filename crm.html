@@ -270,6 +270,24 @@
   .toplist-bar{ background:var(--blue); height:100%; border-radius:5px; }
   .toplist-sub{ font-size:0.68rem; color:var(--muted); }
 
+  /* ---------------- 13/10/2026: Tổng quan thị trường ngành (bảng lht_market_benchmarks) ---------------- */
+  .mkt-updated{ font-size:0.7rem; color:var(--muted); margin:0 0 12px; }
+  .mkt-industry{ margin-bottom:16px; }
+  .mkt-industry:last-child{ margin-bottom:0; }
+  .mkt-industry-head{ font-size:0.86rem; font-weight:800; color:var(--navy); margin:0 0 6px; }
+  .mkt-region{ margin-bottom:10px; }
+  .mkt-region:last-child{ margin-bottom:0; }
+  .mkt-region-label{ font-size:0.74rem; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.02em; margin:0 0 4px; }
+  .mkt-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:7px 0; border-top:1px solid var(--border); }
+  .mkt-row:first-child{ border-top:none; }
+  .mkt-row-main{ flex:1; min-width:0; }
+  .mkt-row-label{ font-size:0.8rem; color:var(--text); font-weight:600; }
+  .mkt-row-meta{ font-size:0.68rem; color:var(--muted); margin-top:2px; line-height:1.4; }
+  .mkt-row-meta a{ color:var(--blue); }
+  .mkt-row-note{ font-size:0.68rem; color:var(--muted); margin-top:2px; font-style:italic; line-height:1.4; }
+  .mkt-row-value{ font-size:0.86rem; font-weight:800; color:var(--navy); font-variant-numeric:tabular-nums; flex:none; text-align:right; white-space:nowrap; }
+  .mkt-row-value.pending{ color:var(--muted); font-weight:600; font-style:italic; white-space:normal; text-align:right; max-width:160px; }
+
   /* ---------------- Thống kê tổng quan (tab Tài sản/Dự án) ---------------- */
   .asset-stats-panel{ margin-top:14px; }
   .asset-stats-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:2px; }
@@ -551,6 +569,18 @@
         <h3>Người đăng tin nhiều nhất</h3>
         <p class="chart-sub">Theo số điện thoại đã dùng để đăng tin</p>
         <div id="top-posters"><div class="chart-empty">Đang tải…</div></div>
+      </div>
+
+      <!-- ============ 13/10/2026: Tổng quan thị trường ngành ============
+           MỚI THÊM — đọc từ bảng lht_market_benchmarks (bảng mới, hoàn toàn độc lập, không
+           đụng lht_listings hay bất kỳ bảng nào đã có). Số liệu này KHÔNG phải tin đăng nội bộ
+           mà là số liệu thị trường (tỷ lệ lấp đầy, giá thuê bình quân...) tổng hợp định kỳ từ các
+           nguồn uy tín bên ngoài (NAI Vietnam, JLL, Cushman & Wakefield, cổng thông tin Chính phủ...).
+           Mỗi dòng luôn kèm nguồn + kỳ báo cáo để minh bạch, không giả vờ là dữ liệu real-time. -->
+      <div class="chart-card" id="mkt-benchmarks-card">
+        <h3>📊 Tổng quan thị trường ngành</h3>
+        <p class="chart-sub" id="mkt-benchmarks-sub">Số liệu tổng hợp định kỳ từ các nguồn uy tín bên ngoài (không phải dữ liệu tin đăng nội bộ) — mỗi dòng kèm nguồn &amp; kỳ báo cáo.</p>
+        <div id="mkt-benchmarks-body"><div class="chart-empty">Đang tải…</div></div>
       </div>
     </div>
 
@@ -2027,6 +2057,96 @@
     } catch(err){
       document.getElementById('top-locations').innerHTML = '<div class="chart-empty">Không tải được dữ liệu.</div>';
       document.getElementById('top-posters').innerHTML = '<div class="chart-empty">Không tải được dữ liệu.</div>';
+    }
+
+    loadMarketBenchmarks();
+  }
+
+  // =========================================================================
+  // 13/10/2026: Tổng quan thị trường ngành — đọc bảng MỚI lht_market_benchmarks
+  // (hoàn toàn độc lập với lht_listings). Số liệu được nghiên cứu & cập nhật định
+  // kỳ (xem tác vụ lịch "Cập nhật số liệu thị trường ngành") từ các nguồn uy tín
+  // bên ngoài — KHÔNG phải dữ liệu tin đăng nội bộ, nên luôn hiển thị kèm nguồn +
+  // kỳ báo cáo, và không bao giờ bịa số khi chưa có nguồn đáng tin.
+  // =========================================================================
+  const MKT_INDUSTRY_META = {
+    bds_cn:    { label: '🏭 Bất động sản công nghiệp', order: 1 },
+    logistics: { label: '🚚 Logistics', order: 2 },
+    xe_nang:   { label: '🚜 Xe nâng', order: 3 },
+    chung:     { label: '📰 Chính sách &amp; tin ngành', order: 4 },
+  };
+  const MKT_REGION_META = {
+    mien_nam:    { label: 'Miền Nam (bình quân)', order: 1 },
+    tphcm:       { label: 'TP.HCM', order: 2 },
+    binh_duong:  { label: 'Bình Dương (cũ)', order: 3 },
+    dong_nai:    { label: 'Đồng Nai', order: 4 },
+    tay_ninh:    { label: 'Tây Ninh', order: 5 },
+    ca_nuoc:     { label: 'Cả nước', order: 6 },
+  };
+  function mktFormatAsOf(dateStr){
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) return '';
+    const q = Math.floor(d.getMonth() / 3) + 1;
+    return 'Q' + q + '/' + d.getFullYear();
+  }
+  async function loadMarketBenchmarks(){
+    const bodyEl = document.getElementById('mkt-benchmarks-body');
+    try {
+      const { data, error } = await sb.from('lht_market_benchmarks').select('*');
+      if (error) throw error;
+      const rows = data || [];
+      if (!rows.length){
+        bodyEl.innerHTML = '<div class="chart-empty">Chưa có số liệu — tác vụ nghiên cứu định kỳ sẽ tự động bổ sung.</div>';
+        return;
+      }
+      // "Cập nhật lần cuối" — lấy mốc updated_at mới nhất trong toàn bộ bảng.
+      const latestUpdated = rows.reduce((max, r) => (r.updated_at > max ? r.updated_at : max), rows[0].updated_at);
+      const updatedNote = '<p class="mkt-updated">Cập nhật lần cuối: ' + escapeHtml(friendlyTime(latestUpdated)) + '</p>';
+
+      // Nhóm theo ngành → khu vực → danh sách chỉ tiêu, sắp theo thứ tự cố định ở trên
+      // (không theo alphabet) để BĐS CN luôn đứng trước, Miền Nam (bình quân) luôn đứng đầu mỗi ngành.
+      const byIndustry = {};
+      rows.forEach(r => {
+        (byIndustry[r.industry] = byIndustry[r.industry] || {})[r.region] = (byIndustry[r.industry][r.region] || []);
+        byIndustry[r.industry][r.region].push(r);
+      });
+      const industryKeys = Object.keys(byIndustry).sort((a,b) =>
+        (MKT_INDUSTRY_META[a]?.order || 99) - (MKT_INDUSTRY_META[b]?.order || 99));
+
+      const html = industryKeys.map(ind => {
+        const meta = MKT_INDUSTRY_META[ind] || { label: ind };
+        const regionKeys = Object.keys(byIndustry[ind]).sort((a,b) =>
+          (MKT_REGION_META[a]?.order || 99) - (MKT_REGION_META[b]?.order || 99));
+        const regionsHtml = regionKeys.map(reg => {
+          const regMeta = MKT_REGION_META[reg] || { label: reg };
+          const rowsHtml = byIndustry[ind][reg].map(r => {
+            const isPending = !r.source_name || r.source_name === '—';
+            const metaParts = [];
+            if (!isPending){
+              metaParts.push('Nguồn: ' + (r.source_url
+                ? '<a href="' + escapeHtml(r.source_url) + '" target="_blank" rel="noopener">' + escapeHtml(r.source_name) + '</a>'
+                : escapeHtml(r.source_name)));
+              const q = mktFormatAsOf(r.as_of);
+              if (q) metaParts.push('Kỳ: ' + q);
+            }
+            return '<div class="mkt-row">' +
+              '<div class="mkt-row-main">' +
+                '<div class="mkt-row-label">' + escapeHtml(r.metric_label) + '</div>' +
+                (metaParts.length ? '<div class="mkt-row-meta">' + metaParts.join(' · ') + '</div>' : '') +
+                (r.note ? '<div class="mkt-row-note">' + escapeHtml(r.note) + '</div>' : '') +
+              '</div>' +
+              '<div class="mkt-row-value' + (isPending ? ' pending' : '') + '">' + escapeHtml(r.value_text) + '</div>' +
+            '</div>';
+          }).join('');
+          return '<div class="mkt-region"><div class="mkt-region-label">' + escapeHtml(regMeta.label) + '</div>' + rowsHtml + '</div>';
+        }).join('');
+        return '<div class="mkt-industry"><div class="mkt-industry-head">' + meta.label + '</div>' + regionsHtml + '</div>';
+      }).join('');
+
+      bodyEl.innerHTML = updatedNote + html;
+    } catch(err){
+      bodyEl.innerHTML = '<div class="chart-empty">Không tải được số liệu thị trường.</div>';
     }
   }
 
