@@ -1645,6 +1645,7 @@
           <button type="button" class="lang-option" data-lang="vi" data-flag="🇻🇳" data-code="VI" role="menuitemradio"><span class="flag" aria-hidden="true">🇻🇳</span><span class="code">Tiếng Việt</span></button>
           <button type="button" class="lang-option" data-lang="zh" data-flag="🇨🇳" data-code="CN" role="menuitemradio"><span class="flag" aria-hidden="true">🇨🇳</span><span class="code">Tiếng Trung</span></button>
           <button type="button" class="lang-option" data-lang="en" data-flag="🇬🇧" data-code="EN" role="menuitemradio"><span class="flag" aria-hidden="true">🇬🇧</span><span class="code">Tiếng Anh</span></button>
+          <button type="button" class="lang-option" data-lang="ja" data-flag="🇯🇵" data-code="JP" role="menuitemradio"><span class="flag" aria-hidden="true">🇯🇵</span><span class="code">Tiếng Nhật</span></button>
         </div>
       </div>
       <span class="icon-btn" aria-hidden="true" data-i18n-title="header.search-title" title="Tìm kiếm">
@@ -1755,16 +1756,16 @@
           <span data-i18n="section.about.bio-head">Giới thiệu</span>
         </div>
         <div class="about-bio-text">
-          <p>Tôi là Lê Hoài Thanh, Giám Đốc Điều Hành Công ty Cổ phần TM Đầu tư Xây dựng Toàn Mỹ, làm nghề tư vấn và môi giới nhà xưởng, kho, đất công nghiệp — trọng tâm ở TP. Hồ Chí Minh và Đông Nam Bộ, lõi là khu vực Bình Dương cũ.</p>
-          <p>Tôi không chỉ tìm xưởng theo giá thuê. Tôi tính cho khách hàng chi phí chạy thật: điện 3 pha đủ tải chưa, đường xe container vào ra có kẹt không, PCCC và pháp lý có đủ để vận hành ngay hay còn vướng. Một xưởng rẻ mà chạy không được vẫn là xưởng đắt.</p>
-          <p>Khác với phần lớn người môi giới chỉ dừng ở việc giới thiệu mặt bằng, tôi trực tiếp vận hành thêm vận tải, kho và xe nâng — nên khi nhà máy khách hàng dời xong, tôi lo tiếp được phần hàng hoá di chuyển, không cần tìm thêm một đầu mối khác. Số liệu tôi đưa ra — giá thuê, tỷ lệ lấp đầy, xu hướng khu vực — đều có nguồn, không phải áng chừng.</p>
-          <p>Ngoài công việc, tôi giữ một nguyên tắc riêng: xây sự nghiệp bằng kỷ luật, giữ gia đình bằng trách nhiệm. Đó cũng là lý do tôi làm việc trực tiếp, ít vòng vo, và không hứa những điều mình không kiểm soát được.</p>
+          <p data-i18n="section.about.bio-p1">Tôi là Lê Hoài Thanh, Giám Đốc Điều Hành Công ty Cổ phần TM Đầu tư Xây dựng Toàn Mỹ, làm nghề tư vấn và môi giới nhà xưởng, kho, đất công nghiệp — trọng tâm ở TP. Hồ Chí Minh và Đông Nam Bộ, lõi là khu vực Bình Dương cũ.</p>
+          <p data-i18n="section.about.bio-p2">Tôi không chỉ tìm xưởng theo giá thuê. Tôi tính cho khách hàng chi phí chạy thật: điện 3 pha đủ tải chưa, đường xe container vào ra có kẹt không, PCCC và pháp lý có đủ để vận hành ngay hay còn vướng. Một xưởng rẻ mà chạy không được vẫn là xưởng đắt.</p>
+          <p data-i18n="section.about.bio-p3">Khác với phần lớn người môi giới chỉ dừng ở việc giới thiệu mặt bằng, tôi trực tiếp vận hành thêm vận tải, kho và xe nâng — nên khi nhà máy khách hàng dời xong, tôi lo tiếp được phần hàng hoá di chuyển, không cần tìm thêm một đầu mối khác. Số liệu tôi đưa ra — giá thuê, tỷ lệ lấp đầy, xu hướng khu vực — đều có nguồn, không phải áng chừng.</p>
+          <p data-i18n="section.about.bio-p4">Ngoài công việc, tôi giữ một nguyên tắc riêng: xây sự nghiệp bằng kỷ luật, giữ gia đình bằng trách nhiệm. Đó cũng là lý do tôi làm việc trực tiếp, ít vòng vo, và không hứa những điều mình không kiểm soát được.</p>
         </div>
         <div class="about-org">
           <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/></svg></span>
           <div>
             <b data-i18n="section.about.org-label">Đang công tác tại</b>
-            <span>Giám Đốc Điều Hành (CEO) — Công ty Cổ phần TM Đầu tư Xây dựng Toàn Mỹ, MSDN 3702891176</span>
+            <span><span data-i18n="section.about.org-title">Giám Đốc Điều Hành (CEO)</span> — Công ty Cổ phần TM Đầu tư Xây dựng Toàn Mỹ, MSDN 3702891176</span>
           </div>
         </div>
       </div>
@@ -3641,32 +3642,42 @@
   })();
 
   const TXN_TYPES = {
-    cho_thue: { label:'Cho thuê',  color:'#2b6fb0', priceLabel:'Đơn giá thuê',  priceUnit:'đ/m²/tháng', areasLabel:'Diện tích cho thuê linh động', tierHead:'Chi phí / tháng',        oneTime:false },
-    can_thue: { label:'Cần thuê',  color:'#2f7d4f', priceLabel:'Ngân sách thuê', priceUnit:'đ/m²/tháng', areasLabel:'Diện tích cần thuê',           tierHead:'Chi phí / tháng (dự kiến)', oneTime:false },
-    ban:      { label:'Bán',       color:'#a3803f', priceLabel:'Đơn giá bán',   priceUnit:'đ/m²',        areasLabel:'Diện tích rao bán',            tierHead:'Tổng giá trị',              oneTime:true },
-    can_mua:  { label:'Cần mua',   color:'#7a3fa0', priceLabel:'Ngân sách mua', priceUnit:'đ/m²',        areasLabel:'Diện tích cần mua',            tierHead:'Tổng giá trị (dự kiến)',    oneTime:true },
-    ky_gui:   { label:'Ký gửi',    color:'#b06a2b', priceLabel:'Giá ký gửi đề xuất', priceUnit:'đ/m²',   areasLabel:'Diện tích ký gửi',             tierHead:'Giá trị ký gửi',            oneTime:true },
+    cho_thue: { label:'Cho thuê',  color:'#2b6fb0', priceLabel:'Đơn giá thuê',  priceUnit:'đ/m²/tháng', areasLabel:'Diện tích cho thuê linh động', tierHead:'Chi phí / tháng',        oneTime:false, labelKey:'txn.cho-thue', priceKey:'cardtxn.cho_thue.price', areasKey:'cardtxn.cho_thue.areas', tierKey:'cardtxn.cho_thue.tier' },
+    can_thue: { label:'Cần thuê',  color:'#2f7d4f', priceLabel:'Ngân sách thuê', priceUnit:'đ/m²/tháng', areasLabel:'Diện tích cần thuê',           tierHead:'Chi phí / tháng (dự kiến)', oneTime:false, labelKey:'txn.can-thue', priceKey:'cardtxn.can_thue.price', areasKey:'cardtxn.can_thue.areas', tierKey:'cardtxn.can_thue.tier' },
+    ban:      { label:'Bán',       color:'#a3803f', priceLabel:'Đơn giá bán',   priceUnit:'đ/m²',        areasLabel:'Diện tích rao bán',            tierHead:'Tổng giá trị',              oneTime:true, labelKey:'txn.ban', priceKey:'cardtxn.ban.price', areasKey:'cardtxn.ban.areas', tierKey:'cardtxn.ban.tier' },
+    can_mua:  { label:'Cần mua',   color:'#7a3fa0', priceLabel:'Ngân sách mua', priceUnit:'đ/m²',        areasLabel:'Diện tích cần mua',            tierHead:'Tổng giá trị (dự kiến)',    oneTime:true, labelKey:'txn.can-mua', priceKey:'cardtxn.can_mua.price', areasKey:'cardtxn.can_mua.areas', tierKey:'cardtxn.can_mua.tier' },
+    ky_gui:   { label:'Ký gửi',    color:'#b06a2b', priceLabel:'Giá ký gửi đề xuất', priceUnit:'đ/m²',   areasLabel:'Diện tích ký gửi',             tierHead:'Giá trị ký gửi',            oneTime:true, labelKey:'txn.ky-gui', priceKey:'cardtxn.ky_gui.price', areasKey:'cardtxn.ky_gui.areas', tierKey:'cardtxn.ky_gui.tier' },
     // 07/10/2026: thêm "Chuyển nhượng" theo yêu cầu — loại giao dịch thứ 6 cho BĐS/Xe nâng (chuyển nhượng
     // quyền sử dụng/sở hữu tài sản, khác với "Bán" ở chỗ thường kèm theo hợp đồng/pháp lý đang dang dở).
-    chuyen_nhuong: { label:'Chuyển nhượng', color:'#c0392b', priceLabel:'Giá chuyển nhượng', priceUnit:'đ/m²', areasLabel:'Diện tích chuyển nhượng', tierHead:'Tổng giá trị chuyển nhượng', oneTime:true },
+    chuyen_nhuong: { label:'Chuyển nhượng', color:'#c0392b', priceLabel:'Giá chuyển nhượng', priceUnit:'đ/m²', areasLabel:'Diện tích chuyển nhượng', tierHead:'Tổng giá trị chuyển nhượng', oneTime:true, labelKey:'txn.chuyen-nhuong', priceKey:'cardtxn.chuyen_nhuong.price', areasKey:'cardtxn.chuyen_nhuong.areas', tierKey:'cardtxn.chuyen_nhuong.tier' },
     // Xe nâng & thiết bị — cùng bản chất giao dịch với BĐS (thuê/bán/ký gửi/chuyển nhượng thiết bị) nên dùng chung 6 loại trên,
     // chỉ khác nhãn hiển thị cho đúng ngữ cảnh thiết bị (áp dụng qua GENERIC_TXN_LABELS bên dưới).
     // ---- Logistics & sản xuất: bản chất là dịch vụ, không phải mua/bán tài sản — bộ nhãn riêng ----
-    log_cung_cap: { label:'Cung cấp dịch vụ',      color:'#2b6fb0' },
-    log_can_dv:   { label:'Cần thuê dịch vụ',      color:'#2f7d4f' },
-    log_gia_cong: { label:'Hợp tác gia công/OEM',  color:'#a3803f' },
-    log_doi_tac:  { label:'Tìm đối tác cung ứng',  color:'#7a3fa0' },
+    log_cung_cap: { label:'Cung cấp dịch vụ',      color:'#2b6fb0', labelKey:'txn.log.cung-cap' },
+    log_can_dv:   { label:'Cần thuê dịch vụ',      color:'#2f7d4f', labelKey:'txn.log.can-dv' },
+    log_gia_cong: { label:'Hợp tác gia công/OEM',  color:'#a3803f', labelKey:'txn.log.gia-cong' },
+    log_doi_tac:  { label:'Tìm đối tác cung ứng',  color:'#7a3fa0', labelKey:'txn.log.doi-tac' },
     // ---- Dự án & đầu tư: bản chất là cơ hội hợp tác/đầu tư — bộ nhãn riêng ----
-    da_keu_goi:      { label:'Kêu gọi đầu tư',      color:'#2b6fb0' },
-    da_tim_co_hoi:   { label:'Tìm cơ hội đầu tư',   color:'#2f7d4f' },
-    da_chuyen_nhuong:{ label:'Chuyển nhượng dự án', color:'#a3803f' },
-    da_hop_tac:      { label:'Hợp tác phát triển',  color:'#7a3fa0' },
+    da_keu_goi:      { label:'Kêu gọi đầu tư',      color:'#2b6fb0', labelKey:'txn.da.keu-goi' },
+    da_tim_co_hoi:   { label:'Tìm cơ hội đầu tư',   color:'#2f7d4f', labelKey:'txn.da.tim-co-hoi' },
+    da_chuyen_nhuong:{ label:'Chuyển nhượng dự án', color:'#a3803f', labelKey:'txn.da.chuyen-nhuong' },
+    da_hop_tac:      { label:'Hợp tác phát triển',  color:'#7a3fa0', labelKey:'txn.da.hop-tac' },
     // ---- Pháp lý & tài chính: bản chất là dịch vụ tư vấn — bộ nhãn riêng ----
-    pl_cung_cap:   { label:'Cung cấp dịch vụ',   color:'#2b6fb0' },
-    pl_can_tu_van: { label:'Cần tư vấn / hỗ trợ', color:'#2f7d4f' },
-    pl_hop_tac:    { label:'Hợp tác / đại lý',    color:'#a3803f' }
+    pl_cung_cap:   { label:'Cung cấp dịch vụ',   color:'#2b6fb0', labelKey:'txn.pl.provide' },
+    pl_can_tu_van: { label:'Cần tư vấn / hỗ trợ', color:'#2f7d4f', labelKey:'txn.pl.need-advice' },
+    pl_hop_tac:    { label:'Hợp tác / đại lý',    color:'#a3803f', labelKey:'txn.pl.hop-tac' }
   };
   function txnInfo(type){ return TXN_TYPES[type] || TXN_TYPES.cho_thue; }
+  // 13/10/2026: đọc nhãn theo ngôn ngữ hiện tại cho các trường của TXN_TYPES (label/priceLabel/
+  // areasLabel/tierHead) — hoàn toàn additive: chỉ thêm *Key tham chiếu tới I18N_TRANSLATIONS đã
+  // có sẵn (hoặc key mới bên dưới), KHÔNG đổi field gốc nên mọi nơi khác đang đọc tx.label/
+  // tx.priceLabel/... trực tiếp (nếu có) vẫn hoạt động như cũ.
+  function txnField(tx, field){
+    const lang = window.LHT_CURRENT_LANG || 'vi';
+    const key = tx[field + 'Key'];
+    if (lang !== 'vi' && key && window.I18N_TRANSLATIONS && window.I18N_TRANSLATIONS[lang] && window.I18N_TRANSLATIONS[lang][key]) return window.I18N_TRANSLATIONS[lang][key];
+    return tx[field];
+  }
   // Mỗi tin đăng có thể gắn NHIỀU thẻ giao dịch cùng lúc (VD: vừa bán vừa cho thuê ký gửi).
   // Trả về mảng các key hợp lệ; vẫn đọc được dữ liệu cũ chỉ có 1 giá trị "txnType" (tương thích ngược).
   function getDocTxnTypes(data){
@@ -3678,7 +3689,7 @@
   function txnBadgesHtml(data){
     const badges = getDocTxnTypes(data).map(t => {
       const tx = txnInfo(t);
-      return '<span class="listing-badge" style="--txn-color:' + tx.color + ';">' + escapeHtml(tx.label) + '</span>';
+      return '<span class="listing-badge" style="--txn-color:' + tx.color + ';">' + escapeHtml(txnField(tx, 'label')) + '</span>';
     }).join('');
     return '<div class="listing-badges">' + badges + '</div>';
   }
@@ -3710,40 +3721,56 @@
   const LHT_ZONE_LABELS = { trong_kcn: 'Trong khu công nghiệp', ngoai_kcn: 'Ngoài khu công nghiệp' };
   const LHT_ROAD_LABELS = { khong_cam: 'Đường vào không cấm xe tải/container', cam_gio_cao_diem: 'Đường vào cấm xe tải/container giờ cao điểm', cam_hoan_toan: 'Đường vào cấm xe tải/container' };
   const LHT_RESIDENTIAL_LABELS = { gan_dan_cu: 'Gần khu dân cư', khong_gan_dan_cu: 'Xa khu dân cư' };
+  // 13/10/2026: nhãn tương ứng theo ngôn ngữ cho 3 trường mã ngắn trên — additive, không đổi mã lưu
+  // trữ (vẫn 'trong_kcn'/'ngoai_kcn'/...), chỉ đổi CHỮ hiển thị công khai theo window.LHT_CURRENT_LANG.
+  const LHT_ZONE_KEYS = { trong_kcn: 'zone.trong_kcn', ngoai_kcn: 'zone.ngoai_kcn' };
+  const LHT_ROAD_KEYS = { khong_cam: 'road.khong_cam', cam_gio_cao_diem: 'road.cam_gio_cao_diem', cam_hoan_toan: 'road.cam_hoan_toan' };
+  const LHT_RESIDENTIAL_KEYS = { gan_dan_cu: 'residential.gan_dan_cu', khong_gan_dan_cu: 'residential.khong_gan_dan_cu' };
+  function lhtCodeLabel(code, viMap, keyMap){
+    if (!code) return '';
+    const key = keyMap[code];
+    const vi = viMap[code] || '';
+    const lang = window.LHT_CURRENT_LANG || 'vi';
+    if (lang === 'vi' || !key) return vi;
+    return (window.lhtT ? window.lhtT(key) : '') || vi;
+  }
   function lhtPdfButtonHtml(doc){
     if (!doc.pdfUrl) return '';
-    const name = doc.pdfName ? escapeHtml(doc.pdfName) : 'Tải brochure PDF';
+    const name = doc.pdfName ? escapeHtml(doc.pdfName) : (window.lhtT ? window.lhtT('fd.pdf-default') : 'Tải brochure PDF');
     return `<a class="btn" style="background:var(--gold); border-color:var(--gold); color:#fff;" href="${escapeHtml(doc.pdfUrl)}" target="_blank" rel="noopener">📄 ${name}</a>`;
   }
   function lhtBuildFullDetailBlock(doc){
+    const t = window.lhtT || function(k){ return ''; };
     const rows = [
-      lhtDetailRow('🏭', 'Vị trí khu công nghiệp', LHT_ZONE_LABELS[doc.zoneLocation] || ''),
-      lhtDetailRow('🚛', 'Đường vào xe tải/container', LHT_ROAD_LABELS[doc.roadAccess] || ''),
-      lhtDetailRow('🏘️', 'Khu dân cư lân cận', LHT_RESIDENTIAL_LABELS[doc.nearResidential] || ''),
-      lhtDetailRow('📍', 'Vị trí & kết nối vùng', doc.connectivity),
-      lhtDetailRow('👷', 'Nguồn lao động', doc.laborForce),
-      lhtDetailRow('🏗️', 'Hạ tầng kỹ thuật', doc.infrastructure),
-      lhtDetailRow('🏭', 'Ngành nghề tiếp nhận', doc.industriesAccepted),
-      lhtDetailRow('🚫', 'Ngành nghề hạn chế tiếp nhận', doc.industriesExcluded),
-      lhtDetailRow('💳', 'Điều khoản thanh toán', doc.paymentTerms),
-      lhtDetailRow('🧾', 'Các loại phí khác', doc.otherFees),
-      lhtDetailRow('🎁', 'Ưu đãi đầu tư', doc.incentives),
-      lhtDetailRow('📝', 'Quy trình đầu tư', doc.investmentProcess),
-      lhtDetailRow('🏢', 'Tiện ích nội khu', doc.utilitiesInternal),
-      lhtDetailRow('🌆', 'Tiện ích ngoại khu', doc.utilitiesExternal),
-      lhtDetailRow('🤝', 'Dịch vụ hỗ trợ', doc.supportServices),
-      lhtDetailRow('🏛️', 'Chủ đầu tư', doc.investor)
+      lhtDetailRow('🏭', t('fd.zone'), lhtCodeLabel(doc.zoneLocation, LHT_ZONE_LABELS, LHT_ZONE_KEYS)),
+      lhtDetailRow('🚛', t('fd.road'), lhtCodeLabel(doc.roadAccess, LHT_ROAD_LABELS, LHT_ROAD_KEYS)),
+      lhtDetailRow('🏘️', t('fd.residential'), lhtCodeLabel(doc.nearResidential, LHT_RESIDENTIAL_LABELS, LHT_RESIDENTIAL_KEYS)),
+      lhtDetailRow('📍', t('fd.connectivity'), doc.connectivity),
+      lhtDetailRow('👷', t('fd.labor'), doc.laborForce),
+      lhtDetailRow('🏗️', t('fd.infra'), doc.infrastructure),
+      lhtDetailRow('🏭', t('fd.industries-in'), doc.industriesAccepted),
+      lhtDetailRow('🚫', t('fd.industries-ex'), doc.industriesExcluded),
+      lhtDetailRow('💳', t('fd.payment'), doc.paymentTerms),
+      lhtDetailRow('🧾', t('fd.fees'), doc.otherFees),
+      lhtDetailRow('🎁', t('fd.incentives'), doc.incentives),
+      lhtDetailRow('📝', t('fd.process'), doc.investmentProcess),
+      lhtDetailRow('🏢', t('fd.util-in'), doc.utilitiesInternal),
+      lhtDetailRow('🌆', t('fd.util-ex'), doc.utilitiesExternal),
+      lhtDetailRow('🤝', t('fd.support'), doc.supportServices),
+      lhtDetailRow('🏛️', t('fd.investor'), doc.investor)
     ].filter(Boolean).join('');
     if (!rows && !doc.pdfUrl) return '';
     const pdfBtn = lhtPdfButtonHtml(doc);
     const toggleId = 'fd-' + Math.random().toString(36).slice(2, 9);
+    const openTxt = t('fd.toggle-open') || '▼ Xem thông tin đầy đủ (chuẩn brochure)';
+    const closeTxt = t('fd.toggle-close') || '▲ Thu gọn thông tin';
     return `
       <div class="listing-full-detail-toggle">
-        <button type="button" class="btn outline listing-detail-toggle-btn" style="border-color:var(--gold); color:var(--navy);" onclick="var p=document.getElementById('${toggleId}'); var open=p.classList.toggle('open'); this.textContent = open ? '▲ Thu gọn thông tin' : '▼ Xem thông tin đầy đủ (chuẩn brochure)';">▼ Xem thông tin đầy đủ (chuẩn brochure)</button>
+        <button type="button" class="btn outline listing-detail-toggle-btn" style="border-color:var(--gold); color:var(--navy);" data-fd-open="${escapeHtml(openTxt)}" data-fd-close="${escapeHtml(closeTxt)}" onclick="var p=document.getElementById('${toggleId}'); var open=p.classList.toggle('open'); this.textContent = open ? this.getAttribute('data-fd-close') : this.getAttribute('data-fd-open');">${openTxt}</button>
         ${pdfBtn}
       </div>
       <div class="listing-full-detail" id="${toggleId}">
-        ${rows || '<p class="form-hint">Thông tin chi tiết đang được cập nhật — vui lòng liên hệ để nhận brochure đầy đủ.</p>'}
+        ${rows || '<p class="form-hint">' + (t('fd.empty') || 'Thông tin chi tiết đang được cập nhật — vui lòng liên hệ để nhận brochure đầy đủ.') + '</p>'}
       </div>`;
   }
 
@@ -4157,6 +4184,7 @@
   // bdsInitFns), nhánh renderCard() gọi tới hàm này không còn được kích hoạt nữa trong thực tế —
   // giữ nguyên hàm (không xoá) để không ảnh hưởng gì, phòng khi cần dùng lại.
   function renderEquipmentStyleCard(doc, srcCollection){
+    const t = window.lhtT || function(k){ return ''; };
     const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
     const qtys = doc.qtys || [];
     const tierRows = qtys.map(q =>
@@ -4164,33 +4192,33 @@
     ).join('');
     const qtysLabel = qtys.map(q => numFmt(q)).join(' / ');
     const amenities = (doc.amenities || []).map(a => `<span>${escapeHtml(a)}</span>`).join('');
-    const extraNote = doc.extraCost ? `Chi phí phát sinh: ${escapeHtml(doc.extraCost)}` : '';
+    const extraNote = doc.extraCost ? `${t('card.extra-cost')}: ${escapeHtml(doc.extraCost)}` : '';
 
     const metaRowsHtml = [
-      lcMetaRow(lcCalendarIcon, 'Ngày đăng', dateFmt(doc.createdAt)),
-      lcMetaRow(pinIcon, 'Địa điểm', escapeHtml(doc.location || '—')),
-      lcMetaRow(lcBarsIcon, 'Tỷ lệ lấp đầy', (doc.occupancyRate != null && doc.occupancyRate !== '') ? escapeHtml(String(doc.occupancyRate)) + '%' : 'Đang cập nhật'),
-      lcMetaRow(lcPenIcon, 'Pháp lý', doc.legalStatus ? escapeHtml(doc.legalStatus) : 'Đang cập nhật'),
-      lcMetaRow(lcExpandIcon, 'Quy mô', doc.totalQty != null ? numFmt(doc.totalQty) + ' ' + escapeHtml(doc.unit || '') : '—'),
-      lcMetaRow(lcDollarIcon, 'Giá', 'Từ ' + money(doc.pricePerUnit) + '/' + escapeHtml(doc.unit || 'đv'))
+      lcMetaRow(lcCalendarIcon, t('card.date-posted'), dateFmt(doc.createdAt)),
+      lcMetaRow(pinIcon, t('card.location'), escapeHtml(doc.location || '—')),
+      lcMetaRow(lcBarsIcon, t('card.occupancy'), (doc.occupancyRate != null && doc.occupancyRate !== '') ? escapeHtml(String(doc.occupancyRate)) + '%' : t('card.updating')),
+      lcMetaRow(lcPenIcon, t('card.legal'), doc.legalStatus ? escapeHtml(doc.legalStatus) : t('card.updating')),
+      lcMetaRow(lcExpandIcon, t('card.scale'), doc.totalQty != null ? numFmt(doc.totalQty) + ' ' + escapeHtml(doc.unit || '') : '—'),
+      lcMetaRow(lcDollarIcon, t('card.price'), t('card.from') + ' ' + money(doc.pricePerUnit) + '/' + escapeHtml(doc.unit || 'đv'))
     ].join('');
 
     const detailHtml = `
-      <div class="listing-code">Mã tài sản: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
+      <div class="listing-code">${t('card.asset-code')}: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
       <div class="listing-specs">
-        <div><b>${numFmt(doc.totalQty)} ${escapeHtml(doc.unit || '')}</b><span>Tổng quy mô</span></div>
-        <div><b>${qtysLabel || '—'} ${escapeHtml(doc.unit || '')}</b><span>Các mức</span></div>
-        <div><b>${money(doc.pricePerUnit)}/${escapeHtml(doc.unit || 'đv')}</b><span>Đơn giá (chưa VAT)</span></div>
-        <div><b>${escapeHtml(doc.category || 'Xe nâng & thiết bị')}</b><span>Loại hình</span></div>
+        <div><b>${numFmt(doc.totalQty)} ${escapeHtml(doc.unit || '')}</b><span>${t('card.total-scale')}</span></div>
+        <div><b>${qtysLabel || '—'} ${escapeHtml(doc.unit || '')}</b><span>${t('card.tiers-label')}</span></div>
+        <div><b>${money(doc.pricePerUnit)}/${escapeHtml(doc.unit || 'đv')}</b><span>${t('card.unit-price-novat')}</span></div>
+        <div><b>${escapeHtml(doc.category || t('card.default-equip-type'))}</b><span>${t('card.category-type')}</span></div>
       </div>
-      ${tierRows ? `<div class="listing-tiers"><table><tr><th>Quy mô</th><th>Đơn giá</th><th>Thành tiền</th></tr>${tierRows}</table></div>` : ''}
+      ${tierRows ? `<div class="listing-tiers"><table><tr><th>${t('card.scale')}</th><th>${t('card.table-unit-price')}</th><th>${t('card.table-total-equip')}</th></tr>${tierRows}</table></div>` : ''}
       <p class="listing-note">${escapeHtml(doc.description || '')}${extraNote ? ' · ' + extraNote : ''}</p>
       ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
       ${lhtBuildFullDetailBlock(doc)}
       <div class="listing-cta">
-        <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
-        <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(srcCollection)}">💬 Yêu cầu tư vấn</button>
-        <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">🔗 Chia sẻ</button>
+        <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">${t('card.cta-quote')}</a>
+        <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(srcCollection)}">${t('card.cta-consult')}</button>
+        <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">${t('card.cta-share')}</button>
       </div>`;
 
     lhtTrackListingViewOnce(srcCollection, doc._id, doc.title);
@@ -4198,50 +4226,51 @@
   }
 
   function renderCard(doc){
+    const t = window.lhtT || function(k){ return ''; };
     const tx = txnInfo(getDocTxnTypes(doc)[0]);
     const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
     const srcCollection = doc._collection || collection;
     if (srcCollection === 'xn_listings') return renderEquipmentStyleCard(doc, srcCollection);
 
     const tiers = doc.tiers || [];
-    const tierRows = tiers.map(t =>
-      `<tr><td>${numFmt(t.area)} m²</td><td>${money(doc.pricePerM2)}/m²</td><td class="hl">${money(t.monthly)}${tx.oneTime ? '' : ''}</td></tr>`
+    const tierRows = tiers.map(tr =>
+      `<tr><td>${numFmt(tr.area)} m²</td><td>${money(doc.pricePerM2)}/m²</td><td class="hl">${money(tr.monthly)}${tx.oneTime ? '' : ''}</td></tr>`
     ).join('');
-    const areasLabel = tiers.map(t => numFmt(t.area)).join(' / ');
+    const areasLabel = tiers.map(tr => numFmt(tr.area)).join(' / ');
 
     const amenities = (doc.amenities || []).map(a => `<span>${escapeHtml(a)}</span>`).join('');
     const utilNote = [
-      doc.electricity ? `Điện: ${escapeHtml(doc.electricity)}` : '',
-      doc.water ? `Nước: ${escapeHtml(doc.water)}` : ''
+      doc.electricity ? `${t('card.electricity')}: ${escapeHtml(doc.electricity)}` : '',
+      doc.water ? `${t('card.water')}: ${escapeHtml(doc.water)}` : ''
     ].filter(Boolean).join(' · ');
 
     // 6 dòng thông tin nhanh hiển thị ngay trên thẻ (bố cục gọn theo ảnh tham khảo 05/10) —
     // "Tỷ lệ lấp đầy" và "Pháp lý" là 2 trường mới, tuỳ chọn (chỉ hiện khi tin có nhập).
     const metaRowsHtml = [
-      lcMetaRow(lcCalendarIcon, 'Ngày đăng', dateFmt(doc.createdAt)),
-      lcMetaRow(pinIcon, 'Địa điểm', escapeHtml(doc.location || '—')),
-      lcMetaRow(lcBarsIcon, 'Tỷ lệ lấp đầy', (doc.occupancyRate != null && doc.occupancyRate !== '') ? escapeHtml(String(doc.occupancyRate)) + '%' : 'Đang cập nhật'),
-      lcMetaRow(lcPenIcon, 'Pháp lý', doc.legalStatus ? escapeHtml(doc.legalStatus) : 'Đang cập nhật'),
-      lcMetaRow(lcExpandIcon, 'Diện tích', areaFmt(doc.totalArea)),
-      lcMetaRow(lcDollarIcon, 'Giá thuê', 'Từ ' + money(doc.pricePerM2) + '/m²')
+      lcMetaRow(lcCalendarIcon, t('card.date-posted'), dateFmt(doc.createdAt)),
+      lcMetaRow(pinIcon, t('card.location'), escapeHtml(doc.location || '—')),
+      lcMetaRow(lcBarsIcon, t('card.occupancy'), (doc.occupancyRate != null && doc.occupancyRate !== '') ? escapeHtml(String(doc.occupancyRate)) + '%' : t('card.updating')),
+      lcMetaRow(lcPenIcon, t('card.legal'), doc.legalStatus ? escapeHtml(doc.legalStatus) : t('card.updating')),
+      lcMetaRow(lcExpandIcon, t('card.area'), areaFmt(doc.totalArea)),
+      lcMetaRow(lcDollarIcon, t('card.rent-price'), t('card.from') + ' ' + money(doc.pricePerM2) + '/m²')
     ].join('');
 
     const detailHtml = `
-      <div class="listing-code">Mã tài sản: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
+      <div class="listing-code">${t('card.asset-code')}: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
       <div class="listing-specs">
-        <div><b>${numFmt(doc.totalArea)} m²</b><span>Tổng diện tích</span></div>
-        <div><b>${areasLabel || '—'} m²</b><span>${escapeHtml(tx.areasLabel)}</span></div>
-        <div><b>${money(doc.pricePerM2)}/m²</b><span>${escapeHtml(tx.priceLabel)} (chưa VAT)</span></div>
-        <div><b>${escapeHtml(doc.propertyType || 'Kho xưởng')}</b><span>Loại tài sản</span></div>
+        <div><b>${numFmt(doc.totalArea)} m²</b><span>${t('card.total-area')}</span></div>
+        <div><b>${areasLabel || '—'} m²</b><span>${escapeHtml(txnField(tx, 'areasLabel'))}</span></div>
+        <div><b>${money(doc.pricePerM2)}/m²</b><span>${escapeHtml(txnField(tx, 'priceLabel'))} (${t('card.novat')})</span></div>
+        <div><b>${escapeHtml(doc.propertyType || t('card.default-property-type'))}</b><span>${t('card.property-type')}</span></div>
       </div>
-      ${tierRows ? `<div class="listing-tiers"><table><tr><th>Diện tích</th><th>Đơn giá</th><th>${escapeHtml(tx.tierHead)}</th></tr>${tierRows}</table></div>` : ''}
+      ${tierRows ? `<div class="listing-tiers"><table><tr><th>${t('card.area')}</th><th>${t('card.table-unit-price')}</th><th>${escapeHtml(txnField(tx, 'tierHead'))}</th></tr>${tierRows}</table></div>` : ''}
       <p class="listing-note">${escapeHtml(doc.description || '')}${utilNote ? ' · ' + utilNote : ''}</p>
       ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
       ${lhtBuildFullDetailBlock(doc)}
       <div class="listing-cta">
-        <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
-        <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(srcCollection)}">💬 Yêu cầu tư vấn</button>
-        <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">🔗 Chia sẻ</button>
+        <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">${t('card.cta-quote')}</a>
+        <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(srcCollection)}">${t('card.cta-consult')}</button>
+        <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">${t('card.cta-share')}</button>
       </div>`;
 
     lhtTrackListingViewOnce(srcCollection, doc._id, doc.title);
@@ -4555,6 +4584,14 @@
     }
   });
 
+    // 13/10/2026: đăng ký renderFeed() (hàm vẽ lại THUẦN từ lastDocs đã cache, không fetch lại,
+    // không gắn thêm listener) vào bộ "vẽ lại khi đổi ngôn ngữ" dùng chung — applyLanguage() sẽ
+    // gọi lại các hàm này sau khi dịch xong phần DOM tĩnh, để các thẻ ĐÃ render cũng đổi ngôn ngữ.
+    // 13/10/2026: dùng mẫu tự khởi tạo (không chỉ "if đã có") vì mountBdsModule() được GỌI ngay khi
+    // IIFE đầu tiên thực thi ở top-level (xây bdsInitFns) — TRƯỚC khi IIFE thứ hai (chứa applyLanguage/
+    // window.__lhtLangRedraw = ... || []) kịp chạy; nếu chỉ "if" thì mảng sẽ chưa tồn tại và bị bỏ qua.
+    (window.__lhtLangRedraw = window.__lhtLangRedraw || []).push(function(){ renderFeed(); });
+
     return init;
   }
 
@@ -4699,6 +4736,7 @@
     }
 
     function renderGenericCard(doc){
+      const t = window.lhtT || function(k){ return ''; };
       doc._collection = doc._collection || collection;
       const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
 
@@ -4709,35 +4747,35 @@
       const qtysLabel = qtys.map(q => numFmt(q)).join(' / ');
 
       const amenities = (doc.amenities || []).map(a => `<span>${escapeHtml(a)}</span>`).join('');
-      const extraNote = doc.extraCost ? `Chi phí phát sinh: ${escapeHtml(doc.extraCost)}` : '';
+      const extraNote = doc.extraCost ? `${t('card.extra-cost')}: ${escapeHtml(doc.extraCost)}` : '';
 
       // 6 dòng thông tin nhanh — cùng bố cục gọn với BĐS (05/10). "Tỷ lệ lấp đầy"/"Pháp lý" là
       // trường tuỳ chọn, chỉ hiện khi tin có nhập (ví dụ dự án/kho bãi có tỷ lệ lấp đầy thực tế).
       const metaRowsHtml = [
-        lcMetaRow(lcCalendarIcon, 'Ngày đăng', dateFmt(doc.createdAt)),
-        lcMetaRow(pinIcon, 'Địa điểm', escapeHtml(doc.location || '—')),
-        lcMetaRow(lcBarsIcon, 'Tỷ lệ lấp đầy', (doc.occupancyRate != null && doc.occupancyRate !== '') ? escapeHtml(String(doc.occupancyRate)) + '%' : 'Đang cập nhật'),
-        lcMetaRow(lcPenIcon, 'Pháp lý', doc.legalStatus ? escapeHtml(doc.legalStatus) : 'Đang cập nhật'),
-        lcMetaRow(lcExpandIcon, 'Quy mô', doc.totalQty != null ? numFmt(doc.totalQty) + ' ' + escapeHtml(doc.unit || '') : '—'),
-        lcMetaRow(lcDollarIcon, 'Giá', 'Từ ' + money(doc.pricePerUnit) + '/' + escapeHtml(doc.unit || 'đv'))
+        lcMetaRow(lcCalendarIcon, t('card.date-posted'), dateFmt(doc.createdAt)),
+        lcMetaRow(pinIcon, t('card.location'), escapeHtml(doc.location || '—')),
+        lcMetaRow(lcBarsIcon, t('card.occupancy'), (doc.occupancyRate != null && doc.occupancyRate !== '') ? escapeHtml(String(doc.occupancyRate)) + '%' : t('card.updating')),
+        lcMetaRow(lcPenIcon, t('card.legal'), doc.legalStatus ? escapeHtml(doc.legalStatus) : t('card.updating')),
+        lcMetaRow(lcExpandIcon, t('card.scale'), doc.totalQty != null ? numFmt(doc.totalQty) + ' ' + escapeHtml(doc.unit || '') : '—'),
+        lcMetaRow(lcDollarIcon, t('card.price'), t('card.from') + ' ' + money(doc.pricePerUnit) + '/' + escapeHtml(doc.unit || 'đv'))
       ].join('');
 
       const detailHtml = `
-        <div class="listing-code">Mã tài sản: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
+        <div class="listing-code">${t('card.asset-code')}: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
         <div class="listing-specs">
-          <div><b>${numFmt(doc.totalQty)} ${escapeHtml(doc.unit || '')}</b><span>Tổng quy mô</span></div>
-          <div><b>${qtysLabel || '—'} ${escapeHtml(doc.unit || '')}</b><span>Các mức</span></div>
-          <div><b>${money(doc.pricePerUnit)}/${escapeHtml(doc.unit || 'đv')}</b><span>Đơn giá (chưa VAT)</span></div>
-          <div><b>${escapeHtml(doc.category || brand)}</b><span>Loại hình</span></div>
+          <div><b>${numFmt(doc.totalQty)} ${escapeHtml(doc.unit || '')}</b><span>${t('card.total-scale')}</span></div>
+          <div><b>${qtysLabel || '—'} ${escapeHtml(doc.unit || '')}</b><span>${t('card.tiers-label')}</span></div>
+          <div><b>${money(doc.pricePerUnit)}/${escapeHtml(doc.unit || 'đv')}</b><span>${t('card.unit-price-novat')}</span></div>
+          <div><b>${escapeHtml(doc.category || brand)}</b><span>${t('card.category-type')}</span></div>
         </div>
-        ${tierRows ? `<div class="listing-tiers"><table><tr><th>Quy mô</th><th>Đơn giá</th><th>Thành tiền</th></tr>${tierRows}</table></div>` : ''}
+        ${tierRows ? `<div class="listing-tiers"><table><tr><th>${t('card.scale')}</th><th>${t('card.table-unit-price')}</th><th>${t('card.table-total-equip')}</th></tr>${tierRows}</table></div>` : ''}
         <p class="listing-note">${escapeHtml(doc.description || '')}${extraNote ? ' · ' + extraNote : ''}</p>
         ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
         ${lhtBuildFullDetailBlock(doc)}
         <div class="listing-cta">
-          <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">Nhận báo giá chi tiết →</a>
-          <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(collection)}">💬 Yêu cầu tư vấn</button>
-          <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">🔗 Chia sẻ</button>
+          <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">${t('card.cta-quote')}</a>
+          <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(collection)}">${t('card.cta-consult')}</button>
+          <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">${t('card.cta-share')}</button>
         </div>`;
 
       lhtTrackListingViewOnce(collection, doc._id, doc.title);
@@ -5011,6 +5049,11 @@
       }
     });
 
+    // 13/10/2026: đăng ký renderGenericFeed() (vẽ lại thuần từ gDocs đã cache) vào bộ "vẽ lại khi
+    // đổi ngôn ngữ" dùng chung — xem chú thích tương tự trong mountBdsModule() ở trên.
+    // 13/10/2026: tự khởi tạo mảng nếu chưa có — xem chú thích tương tự trong mountBdsModule() ở trên.
+    (window.__lhtLangRedraw = window.__lhtLangRedraw || []).push(function(){ renderGenericFeed(); });
+
     return gInit;
   }
 
@@ -5040,13 +5083,20 @@
 
   // ---- Mục Kiến thức & Media: đăng nội dung (video/hình ảnh/bài viết/sự kiện) hoặc tìm khách hàng dịch vụ media ----
   const CONTENT_TYPES = {
-    video:    { label:'Video',                          color:'#2b6fb0' },
-    hinh_anh: { label:'Hình ảnh',                        color:'#2f7d4f' },
-    bai_viet: { label:'Bài viết / Kiến thức',            color:'#a3803f' },
-    su_kien:  { label:'Sự kiện',                         color:'#7a3fa0' },
-    dich_vu:  { label:'Dịch vụ media',                   color:'#b06a2b' }
+    video:    { label:'Video',                          color:'#2b6fb0', labelKey:'txn.md.video' },
+    hinh_anh: { label:'Hình ảnh',                        color:'#2f7d4f', labelKey:'txn.md.photo' },
+    bai_viet: { label:'Bài viết / Kiến thức',            color:'#a3803f', labelKey:'txn.md.article-pill' },
+    su_kien:  { label:'Sự kiện',                         color:'#7a3fa0', labelKey:'txn.md.event' },
+    dich_vu:  { label:'Dịch vụ media',                   color:'#b06a2b', labelKey:'txn.md.service-pill' }
   };
   function contentInfo(type){ return CONTENT_TYPES[type] || CONTENT_TYPES.video; }
+  // 13/10/2026: cùng cơ chế additive với txnField() ở trên — chỉ đọc thêm labelKey, không đổi field label gốc.
+  function contentField(ct, field){
+    const lang = window.LHT_CURRENT_LANG || 'vi';
+    const key = ct[field + 'Key'];
+    if (lang !== 'vi' && key && window.I18N_TRANSLATIONS && window.I18N_TRANSLATIONS[lang] && window.I18N_TRANSLATIONS[lang][key]) return window.I18N_TRANSLATIONS[lang][key];
+    return ct[field];
+  }
 
   function mountMediaModule(){
     const prefix = 'md';
@@ -5087,27 +5137,28 @@
     }
 
     function renderMediaCard(doc){
+      const t = window.lhtT || function(k){ return ''; };
       const ct = contentInfo(doc.contentType);
       const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
       const tags = (doc.tags || []).map(t => `<span>${escapeHtml(t)}</span>`).join('');
-      const linkBtn = doc.link ? `<a class="btn" href="${escapeHtml(doc.link)}" target="_blank" rel="noopener">Xem nội dung →</a>` : '';
+      const linkBtn = doc.link ? `<a class="btn" href="${escapeHtml(doc.link)}" target="_blank" rel="noopener">${t('card.view-content')}</a>` : '';
 
       lhtTrackListingViewOnce(collection, doc._id, doc.title);
       return `
       <div class="listing-card" data-listing-id="${escapeHtml(doc._id || '')}">
         ${galleryHtml}
         <div class="listing-body">
-          <span class="listing-badge" style="--txn-color:${ct.color};">${escapeHtml(ct.label)}</span>
+          <span class="listing-badge" style="--txn-color:${ct.color};">${escapeHtml(contentField(ct, 'label'))}</span>
           <h3>${escapeHtml(doc.title)}</h3>
           <div class="listing-loc">${escapeHtml(doc.topic || '')}</div>
-          <div class="listing-code">Mã tài sản: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
+          <div class="listing-code">${t('card.asset-code')}: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
           <p class="listing-note">${escapeHtml(doc.description || '')}</p>
           ${tags ? `<div class="listing-amenities">${tags}</div>` : ''}
           <div class="listing-cta">
             ${linkBtn}
-            <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="tel:0399831228">Liên hệ: 0399 831 228</a>
-            <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(collection)}">💬 Yêu cầu tư vấn</button>
-            <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="kien-thuc-media">🔗 Chia sẻ</button>
+            <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="tel:0399831228">${t('feed.common.call-now')}</a>
+            <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(collection)}">${t('card.cta-consult')}</button>
+            <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="kien-thuc-media">${t('card.cta-share')}</button>
           </div>
         </div>
       </div>`;
@@ -5339,6 +5390,11 @@
         submitBtn.disabled = false;
       }
     });
+
+    // 13/10/2026: đăng ký renderMediaFeed() (vẽ lại thuần từ mDocs đã cache) vào bộ "vẽ lại khi
+    // đổi ngôn ngữ" dùng chung — xem chú thích tương tự trong mountBdsModule() ở trên.
+    // 13/10/2026: tự khởi tạo mảng nếu chưa có — xem chú thích tương tự trong mountBdsModule() ở trên.
+    (window.__lhtLangRedraw = window.__lhtLangRedraw || []).push(function(){ renderMediaFeed(); });
 
     return mInit;
   }
@@ -6012,7 +6068,86 @@
     "footer.rights": "All rights reserved.",
     "feed.md.no-results-category": "No content has been posted yet.",
     "feed.md.no-results-filter": "No content matches this type yet — try \"All\" or check back later.",
-    "feed.md.search-prompt": "🔎 Enter a keyword (e.g. topic, content type...) and press \"Search now\" to see matching content."
+    "feed.md.search-prompt": "🔎 Enter a keyword (e.g. topic, content type...) and press \"Search now\" to see matching content.",
+    "section.about.bio-p1": "I'm Le Hoai Thanh, CEO of Toan My Construction Investment & Trading Joint Stock Company. I work as a consultant and broker for factories, warehouses, and industrial land — focused on Ho Chi Minh City and the Southeast region, centered on the former Binh Duong province.",
+    "section.about.bio-p2": "I don't just find factories by rental price. I calculate the real operating cost for clients: whether the 3-phase power supply has enough capacity, whether container trucks can get in and out without congestion, and whether fire safety and legal paperwork are ready for immediate operation or still pending. A cheap factory that can't actually run is still an expensive one.",
+    "section.about.bio-p3": "Unlike most brokers who stop at introducing a property, I also directly operate transportation, warehousing, and forklift services — so once a client's factory has relocated, I can continue handling the movement of goods, with no need to find another contact. The figures I provide — rental prices, occupancy rates, regional trends — are all sourced, never estimated guesses.",
+    "section.about.bio-p4": "Beyond work, I hold to a personal principle: build a career through discipline, and hold a family together through responsibility. That's also why I work directly, keep things straightforward, and never promise what I can't control.",
+    "section.about.org-title": "Chief Executive Officer (CEO)",
+    "card.date-posted": "Posted",
+    "card.location": "Location",
+    "card.occupancy": "Occupancy Rate",
+    "card.updating": "Updating",
+    "card.legal": "Legal Status",
+    "card.area": "Area",
+    "card.rent-price": "Rental Price",
+    "card.from": "From",
+    "card.scale": "Scale",
+    "card.price": "Price",
+    "card.asset-code": "Asset Code",
+    "card.total-area": "Total Area",
+    "card.property-type": "Property Type",
+    "card.default-property-type": "Warehouse/Factory",
+    "card.cta-quote": "Get a Detailed Quote →",
+    "card.cta-consult": "💬 Request Consultation",
+    "card.cta-share": "🔗 Share",
+    "card.total-scale": "Total Scale",
+    "card.tiers-label": "Available Tiers",
+    "card.unit-price-novat": "Unit Price (excl. VAT)",
+    "card.category-type": "Category",
+    "card.default-equip-type": "Forklifts & Equipment",
+    "card.extra-cost": "Additional Costs",
+    "card.table-unit-price": "Unit Price",
+    "card.table-total-equip": "Total",
+    "card.electricity": "Electricity",
+    "card.water": "Water",
+    "card.novat": "excl. VAT",
+    "card.view-content": "View Content →",
+    "cardtxn.cho_thue.price": "Rental Unit Price",
+    "cardtxn.cho_thue.areas": "Flexible Rental Area",
+    "cardtxn.cho_thue.tier": "Cost / Month",
+    "cardtxn.can_thue.price": "Rental Budget",
+    "cardtxn.can_thue.areas": "Area Needed",
+    "cardtxn.can_thue.tier": "Estimated Cost / Month",
+    "cardtxn.ban.price": "Sale Unit Price",
+    "cardtxn.ban.areas": "Area for Sale",
+    "cardtxn.ban.tier": "Total Value",
+    "cardtxn.can_mua.price": "Purchase Budget",
+    "cardtxn.can_mua.areas": "Area Needed",
+    "cardtxn.can_mua.tier": "Estimated Total Value",
+    "cardtxn.ky_gui.price": "Suggested Consignment Price",
+    "cardtxn.ky_gui.areas": "Consignment Area",
+    "cardtxn.ky_gui.tier": "Consignment Value",
+    "cardtxn.chuyen_nhuong.price": "Transfer Price",
+    "cardtxn.chuyen_nhuong.areas": "Transfer Area",
+    "cardtxn.chuyen_nhuong.tier": "Total Transfer Value",
+    "fd.zone": "Industrial Zone Location",
+    "fd.road": "Truck/Container Access Road",
+    "fd.residential": "Nearby Residential Area",
+    "fd.connectivity": "Location & Regional Connectivity",
+    "fd.labor": "Labor Supply",
+    "fd.infra": "Technical Infrastructure",
+    "fd.industries-in": "Industries Accepted",
+    "fd.industries-ex": "Restricted Industries",
+    "fd.payment": "Payment Terms",
+    "fd.fees": "Other Fees",
+    "fd.incentives": "Investment Incentives",
+    "fd.process": "Investment Process",
+    "fd.util-in": "Internal Amenities",
+    "fd.util-ex": "External Amenities",
+    "fd.support": "Support Services",
+    "fd.investor": "Investor/Developer",
+    "fd.toggle-open": "▼ View Full Details (Brochure)",
+    "fd.toggle-close": "▲ Collapse Details",
+    "fd.pdf-default": "Download PDF Brochure",
+    "fd.empty": "Detailed information is being updated — please contact us for the full brochure.",
+    "zone.trong_kcn": "Inside an Industrial Zone",
+    "zone.ngoai_kcn": "Outside an Industrial Zone",
+    "road.khong_cam": "Access road open to trucks/containers",
+    "road.cam_gio_cao_diem": "Truck/container access restricted during peak hours",
+    "road.cam_hoan_toan": "Truck/container access prohibited",
+    "residential.gan_dan_cu": "Near Residential Area",
+    "residential.khong_gan_dan_cu": "Far from Residential Area"
   },
   "zh": {
     "brand.tagline": "連結資源 — 創造更高價值",
@@ -6508,7 +6643,661 @@
     "footer.rights": "版權所有,保留一切權利。",
     "feed.md.no-results-category": "目前尚無已發佈的內容。",
     "feed.md.no-results-filter": "目前沒有此類型的內容 — 請嘗試「全部」或稍後再查看。",
-    "feed.md.search-prompt": "🔎 請輸入關鍵字(例如:主題、內容類型...)並點擊「立即搜尋」以查看符合的內容。"
+    "feed.md.search-prompt": "🔎 請輸入關鍵字(例如:主題、內容類型...)並點擊「立即搜尋」以查看符合的內容。",
+    "section.about.bio-p1": "我是黎懷清，全美建設投資貿易股份公司執行長，從事廠房、倉庫、工業用地的諮詢與仲介工作 — 業務核心在胡志明市及東南部地區，以原平陽省為核心。",
+    "section.about.bio-p2": "我不只是依租金尋找廠房。我會為客戶計算實際運營成本：三相電力是否足夠負載、貨櫃車進出是否順暢、消防與法律文件是否齊全可立即營運，或仍有未解決的問題。一間便宜卻無法運營的廠房，實際上仍是昂貴的。",
+    "section.about.bio-p3": "與多數僅止於介紹場地的仲介不同，我還直接經營運輸、倉儲及堆高機業務 — 因此當客戶的工廠完成搬遷後，我能繼續負責貨物的運送，無需再尋找另一個聯繫人。我提供的數據 — 租金、入駐率、區域趨勢 — 皆有實際來源，而非憑空估算。",
+    "section.about.bio-p4": "工作之外，我堅持一個人生原則：以自律成就事業，以責任維繫家庭。這也是為什麼我凡事親力親為、少繞彎子，也從不承諾自己無法掌控的事。",
+    "section.about.org-title": "執行長 (CEO)",
+    "card.date-posted": "發布日期",
+    "card.location": "地點",
+    "card.occupancy": "入駐率",
+    "card.updating": "更新中",
+    "card.legal": "法律狀態",
+    "card.area": "面積",
+    "card.rent-price": "租金",
+    "card.from": "起",
+    "card.scale": "規模",
+    "card.price": "價格",
+    "card.asset-code": "資產編號",
+    "card.total-area": "總面積",
+    "card.property-type": "資產類型",
+    "card.default-property-type": "廠房倉庫",
+    "card.cta-quote": "獲取詳細報價 →",
+    "card.cta-consult": "💬 諮詢需求",
+    "card.cta-share": "🔗 分享",
+    "card.total-scale": "總規模",
+    "card.tiers-label": "可選規格",
+    "card.unit-price-novat": "單價（未含稅）",
+    "card.category-type": "類別",
+    "card.default-equip-type": "堆高機與設備",
+    "card.extra-cost": "額外費用",
+    "card.table-unit-price": "單價",
+    "card.table-total-equip": "總金額",
+    "card.electricity": "電費",
+    "card.water": "水費",
+    "card.novat": "未含稅",
+    "card.view-content": "查看內容 →",
+    "cardtxn.cho_thue.price": "租金單價",
+    "cardtxn.cho_thue.areas": "靈活出租面積",
+    "cardtxn.cho_thue.tier": "費用／月",
+    "cardtxn.can_thue.price": "租賃預算",
+    "cardtxn.can_thue.areas": "所需面積",
+    "cardtxn.can_thue.tier": "預估費用／月",
+    "cardtxn.ban.price": "出售單價",
+    "cardtxn.ban.areas": "出售面積",
+    "cardtxn.ban.tier": "總價值",
+    "cardtxn.can_mua.price": "購買預算",
+    "cardtxn.can_mua.areas": "所需面積",
+    "cardtxn.can_mua.tier": "預估總價值",
+    "cardtxn.ky_gui.price": "建議寄售價",
+    "cardtxn.ky_gui.areas": "寄售面積",
+    "cardtxn.ky_gui.tier": "寄售價值",
+    "cardtxn.chuyen_nhuong.price": "轉讓價格",
+    "cardtxn.chuyen_nhuong.areas": "轉讓面積",
+    "cardtxn.chuyen_nhuong.tier": "轉讓總價值",
+    "fd.zone": "工業區位置",
+    "fd.road": "貨櫃車通行道路",
+    "fd.residential": "鄰近住宅區",
+    "fd.connectivity": "位置與區域連接",
+    "fd.labor": "勞動力來源",
+    "fd.infra": "技術基礎設施",
+    "fd.industries-in": "可接受行業",
+    "fd.industries-ex": "限制接受行業",
+    "fd.payment": "付款條款",
+    "fd.fees": "其他費用",
+    "fd.incentives": "投資優惠",
+    "fd.process": "投資流程",
+    "fd.util-in": "園區內設施",
+    "fd.util-ex": "園區外設施",
+    "fd.support": "支援服務",
+    "fd.investor": "投資方",
+    "fd.toggle-open": "▼ 查看完整資訊（手冊版）",
+    "fd.toggle-close": "▲ 收合資訊",
+    "fd.pdf-default": "下載PDF手冊",
+    "fd.empty": "詳細資訊更新中 — 請聯繫我們取得完整手冊。",
+    "zone.trong_kcn": "工業區內",
+    "zone.ngoai_kcn": "工業區外",
+    "road.khong_cam": "通行道路無限制貨櫃車進出",
+    "road.cam_gio_cao_diem": "尖峰時段限制貨櫃車通行",
+    "road.cam_hoan_toan": "禁止貨櫃車通行",
+    "residential.gan_dan_cu": "鄰近住宅區",
+    "residential.khong_gan_dan_cu": "遠離住宅區"
+  },
+  "ja": {
+    "brand.tagline": "リソースをつなぎ — 価値を高める",
+    "nav.home": "ホーム",
+    "nav.industrial-re": "工業用不動産",
+    "nav.residential-re": "住宅・商業用不動産",
+    "nav.logistics": "物流・製造",
+    "nav.forklift": "フォークリフト・設備",
+    "nav.projects": "プロジェクト・投資",
+    "nav.legal-finance": "法務・金融",
+    "nav.knowledge-media": "ナレッジ・メディア",
+    "nav.contact": "お問い合わせ",
+    "nav.about": "レ・ホアイ・タインについて",
+    "stats.widget.label": "データ統計",
+    "stats.widget.title": "リアルタイムデータ概要",
+    "stats.widget.total-label": "掲載中の物件・サービス",
+    "stats.widget.chart-caption": "月別新規掲載数",
+    "stats.widget.loading": "データを読み込み中…",
+    "stats.widget.empty": "表示できるデータがまだありません。",
+    "section.about.kicker": "レ・ホアイ・タインについて",
+    "section.about.title": "リソースをつなぎ、価値を創造する人",
+    "section.about.intro": "すべての取引とすべての助言の裏にある歩み、能力、そしてパートナーシップのネットワーク。",
+    "section.about.bio-head": "自己紹介",
+    "section.about.org-label": "現在の所属",
+    "section.about.awards-head": "受賞歴・認定資格",
+    "section.about.video-head": "活動紹介動画",
+    "section.about.groups-head": "団体・クラブ・コミュニティ",
+    "section.about.events-head": "参加したイベント",
+    "section.about.cap.head": "資産ポジショニング力とパーソナルブランド",
+    "section.about.cap.intro": "すべての助言の裏には、資産を正しく位置づけ、適切なリソースをつなぐために構築された専用の情報システムがあります——「不動産をつなぐ — リソース — 投資機会」。工業用不動産、倉庫・物流、土地ファンド・開発プロジェクトから、住宅用不動産、商業スペース、収益不動産まで、あらゆる資産タイプを同一基準で標準化し、比較・評価・迅速なマッチングを可能にしています——個々の物件を紹介するだけではありません。",
+    "section.about.cap.cat1.title": "工業用不動産",
+    "section.about.cap.cat1.desc": "工場、倉庫、工業団地の土地。",
+    "section.about.cap.cat2.title": "倉庫・物流",
+    "section.about.cap.cat2.desc": "倉庫保管、輸送、フォークリフト、サプライチェーン。",
+    "section.about.cap.cat3.title": "土地ファンド・投資プロジェクト",
+    "section.about.cap.cat3.desc": "大規模な土地区画、長期開発プロジェクト。",
+    "section.about.cap.cat4.title": "住宅用不動産",
+    "section.about.cap.cat4.desc": "タウンハウス、マンション、住宅用地。",
+    "section.about.cap.cat5.title": "商業用不動産",
+    "section.about.cap.cat5.desc": "店舗、オフィス、路面店舗。",
+    "section.about.cap.cat6.title": "収益不動産",
+    "section.about.cap.cat6.desc": "安定した収入を生み出す賃貸資産。",
+    "section.about.cap.info-title": "すべての資産に共通する標準情報セット",
+    "section.about.cap.info1": "資産の識別情報",
+    "section.about.cap.info2": "所有者・情報源",
+    "section.about.cap.info3": "面積と現況",
+    "section.about.cap.info4": "価格・取引条件",
+    "section.about.cap.info5": "法務・書類",
+    "section.about.cap.process-title": "物件情報管理のワークフロー",
+    "section.about.cap.process-sub": "すべての資産は明確なステータスで追跡されます——「未確認」から「現地調査済み」「書類確認済み」「交渉中」「手付金受領」「成約済み」まで——情報の見落としや不正確な案内を防ぎます。",
+    "section.about.cap.step1": "受付",
+    "section.about.cap.step2": "確認",
+    "section.about.cap.step3": "標準化",
+    "section.about.cap.step4": "マッチング",
+    "section.about.cap.step5": "追跡",
+    "section.about.cap.step6": "更新",
+    "section.about.cap.tagline-label": "注力分野",
+    "section.about.cap.tagline": "工業用不動産 – リソース – 投資 – 取引の橋渡し。レ・ホアイ・タイン — リソースをつなぎ、価値を創造する。",
+    "header.lang-title": "言語",
+    "header.search-title": "検索",
+    "common.zalo-label": "Zaloでメッセージ",
+    "header.cta-connect": "今すぐ連絡",
+    "hero.eyebrow": "すべての資産の裏にある価値を見出す。",
+    "hero.subtitle": "投資アドバイザリー・工業用不動産仲介",
+    "hero.lede": "私は、工業用不動産、物流・倉庫、そして1ヘクタール以上のプロジェクトに関する機会について、オーナー、企業、投資家に助言し、橋渡しを行っています。あわせて、資産や事業をより効果的に活用するために必要なリソースのエコシステムもつないでいます。",
+    "hero.cta-primary": "私たちの強みを見る →",
+    "hero.cta-secondary": "お問い合わせ",
+    "hero.side-banner": "ベトナム企業の未来を形づくる工業用不動産",
+    "hero.side.land": "工業用地",
+    "hero.side.factory": "工場建屋",
+    "hero.side.warehouse": "倉庫・物流",
+    "hero.side.project": "1ha以上のプロジェクト",
+    "hero.side.investors": "投資家をつなぐ",
+    "hero.scene-tagline": "地域をつなぎ — 世界へ広がる",
+    "stats.item1": "助言・仲介した資産件数",
+    "stats.item2": "パートナー企業数",
+    "stats.item3": "土地バンク・将来性のあるプロジェクト",
+    "stats.item4": "実務経験年数",
+    "stats.item5": "主要エリアと周辺地域",
+    "stats.cta": "リソースをつなぎ<br>価値を高め、機会を創る →",
+    "pillar.bds.desc": "工業団地用地・工場・倉庫・5大経済圏のプロジェクト",
+    "pillar.bds2.desc": "タウンハウス・マンション・土地区画・商業スペース",
+    "pillar.go": "詳細を見る →",
+    "pillar.logistics.desc": "原材料・製造・倉庫保管・輸出",
+    "pillar.forklift.desc": "電動・ディーゼル・ハンドフォークリフト・部品・倉庫設備",
+    "pillar.projects.desc": "1ha以上のプロジェクト・高付加価値農業・投資パートナーシップ",
+    "pillar.legal.desc": "企業・不動産法務・金融・税務",
+    "pillar.media.desc": "動画・記事・ポッドキャスト・市場ニュース",
+    "toolbar.search-btn": "今すぐ検索 →",
+    "form.common.group-label": "どのような掲載を投稿しますか？ <span style=\"color:#c0392b;\">*</span>",
+    "txn.cho-thue": "賃貸",
+    "txn.can-thue": "賃借希望",
+    "txn.ban": "売却",
+    "txn.can-mua": "購入希望",
+    "txn.ky-gui": "委託販売",
+    "txn.chuyen-nhuong": "譲渡",
+    "txn.all": "すべて",
+    "form.common.label-title": "掲載タイトル",
+    "form.common.label-location": "エリア",
+    "form.common.label-unit": "単位",
+    "form.common.label-phone": "連絡先電話番号",
+    "form.common.label-extra-cost": "追加費用（ある場合）",
+    "form.common.label-desc": "補足説明（任意 — 文章を整えてお手伝いします）",
+    "form.common.placeholder-desc": "要点を簡単に書いてください — プロらしい文章に書き直します",
+    "form.common.label-images": "画像（複数可）",
+    "form.common.btn-submit": "掲載する",
+    "form.common.btn-cancel": "キャンセル",
+    "form.common.btn-add-new": "+ 新規掲載",
+    "form.common.panel-heading": "新規掲載",
+    "form.common.panel-hint": "まずご希望の内容をお聞かせください — フォームが自動的に合わせて表示されます。",
+    "feed.common.empty-intro": "掲載情報は随時更新されています — 最新情報はお気軽に直接お問い合わせください。",
+    "feed.common.call-now": "今すぐ電話: 0399 831 228",
+    "feed.common.no-results-category": "このカテゴリにはまだ掲載がありません。",
+    "feed.common.no-results-filter": "この条件に合う掲載はまだありません — 「すべて」を選ぶか、後ほどご確認ください。",
+    "feed.common.search-prompt": "🔎 キーワード（例：エリア名、物件タイプ、商品名など）を入力し、「今すぐ検索」を押すと該当する掲載が表示されます。",
+    "feed.common.view-all-cap": "すべての商品・サービスを見る",
+    "feed.md.view-all-cap": "すべてのコンテンツを見る",
+    "form.common.placeholder-phone": "例：0399 831 228",
+    "txn.all-tab": "すべて <span class=\"cnt\"></span>",
+    "txn.cho-thue-tab": "賃貸 <span class=\"cnt\"></span>",
+    "txn.can-thue-tab": "賃借希望 <span class=\"cnt\"></span>",
+    "txn.ban-tab": "売却 <span class=\"cnt\"></span>",
+    "txn.can-mua-tab": "購入希望 <span class=\"cnt\"></span>",
+    "txn.ky-gui-tab": "委託販売 <span class=\"cnt\"></span>",
+    "txn.chuyen-nhuong-tab": "譲渡 <span class=\"cnt\"></span>",
+    "section.bds.kicker": "01・工業用不動産",
+    "section.bds.title": "ベトナムの工業用不動産",
+    "section.bds.intro": "実データ — 実案件 — 迅速なマッチング。5大経済圏にわたる工業団地用地、工場、倉庫。",
+    "section.bds.search-ph": "工場や工業団地用地をお探しですか？",
+    "section.bds.chip1": "物件タイプ",
+    "section.bds.chip2": "面積",
+    "section.bds.chip3": "賃料・売却価格",
+    "section.bds.chip4": "業種",
+    "section.bds2.title": "住宅・商業用不動産",
+    "section.bds2.intro": "タウンハウス、マンション、土地区画、商業スペース — 随時更新し、実在のオーナーと買主・借主をつなぎます。",
+    "section.bds2.search-ph": "タウンハウス、マンション、商業スペースをお探しですか？",
+    "section.bds2.chip1": "物件タイプ",
+    "section.bds2.chip2": "面積",
+    "section.bds2.chip3": "賃料・売却価格",
+    "section.bds2.chip4": "用途",
+    "listing.bds.flag": "工業用不動産の掲載",
+    "listing.bds2.flag": "住宅・商業用不動産の掲載",
+    "form.bds.panel-hint": "まずご希望の内容をお聞かせください — フォームと料金表が自動的に合わせて表示され、わかりやすくなります。",
+    "form.bds.ph-title": "例：ソンタン1工業団地の倉庫を賃貸",
+    "form.bds.label-location": "エリア／工業団地",
+    "form.bds.ph-location": "例：ソンタン1工業団地、ビンズオン省",
+    "form.bds.label-type": "物件タイプ",
+    "form.bds.opt-warehouse": "倉庫",
+    "form.bds.opt-ip-land": "工業団地用地",
+    "form.bds.opt-factory": "工場建屋",
+    "form.bds.opt-commercial": "商業・サービス用地",
+    "form.bds2.ph-location": "例：ホーチミン市7区",
+    "form.bds2.label-type": "物件タイプ",
+    "form.bds2.opt-townhouse": "タウンハウス",
+    "form.bds2.opt-apartment": "マンション",
+    "form.bds2.opt-land": "土地区画",
+    "form.bds2.opt-villa": "ヴィラ",
+    "form.bds2.opt-commercial": "商業スペース",
+    "form.bds2.opt-office": "オフィス",
+    "form.bds.ph-total": "例：23000",
+    "form.bds.label-total": "総面積（m²）",
+    "form.bds.label-areas": "賃貸可能な区画面積（m²、カンマ区切り）",
+    "form.bds.ph-areas": "例：800, 1600, 3200",
+    "form.bds.label-price": "賃料（VND/m²/月、税抜）",
+    "form.bds.ph-price": "例：95000",
+    "form.bds.label-electricity": "電気料金",
+    "form.bds.ph-electricity": "例：5,000 VND/kWh",
+    "form.bds.label-water": "水道料金",
+    "form.bds.ph-water": "例：17,000 VND/m³",
+    "form.bds.label-amenities": "設備・特長（カンマ区切り）",
+    "form.bds.ph-amenities": "例：消防設備、オフィススペース、広い構内",
+    "region.north.name": "ベトナム北部",
+    "region.north.tag": "ハイテク産業・国際的なつながり",
+    "region.north.cta": "北部の工業団地を見る →",
+    "region.central.name": "ベトナム中部",
+    "region.central.tag": "沿岸の玄関口・経済回廊",
+    "region.central.cta": "中部の工業団地を見る →",
+    "region.southeast.name": "ベトナム東南部",
+    "region.southeast.tag": "ベトナム最大の工業・物流拠点",
+    "region.southeast.cta": "東南部の工業団地を見る →",
+    "region.highlands.name": "中部高原",
+    "region.highlands.tag": "天然資源・先端農業",
+    "region.highlands.cta": "中部高原の工業団地を見る →",
+    "region.mekong.name": "メコンデルタ",
+    "region.mekong.tag": "農業・加工・輸出",
+    "region.mekong.cta": "メコンデルタの工業団地を見る →",
+    "section.bds.why-title": "レ・ホアイ・タインが選ばれる理由",
+    "section.bds2.why-title": "レ・ホアイ・タインが選ばれる理由",
+    "section.bds.why1": "随時更新される実データ",
+    "section.bds.why2": "オーナーと企業の迅速なマッチング",
+    "section.bds.why3": "ニーズと業種に合わせた助言",
+    "section.bds.why4": "内見・交渉・法務のサポート",
+    "section.bds.why5": "工業団地全域に広がるネットワーク",
+    "section.bds.why6": "持続可能な価値を生む長期的パートナーシップ",
+    "section.bds2.why1": "随時更新される実データ",
+    "section.bds2.why2": "オーナー・買主・借主の迅速なマッチング",
+    "section.bds2.why3": "ニーズと用途に合わせた助言",
+    "section.bds2.why4": "内見・交渉・法務のサポート",
+    "section.bds2.why5": "住宅エリア・中心部に広がるネットワーク",
+    "section.bds2.why6": "持続可能な価値を生む長期的パートナーシップ",
+    "section.log.title": "物流・製造",
+    "section.log.intro": "バリューチェーンを最適化し、事業を成長させる。原材料から完成品まで、工場から市場まで。",
+    "section.log.search-ph": "物流、倉庫、受託製造サービスを検索…",
+    "section.log.chip1": "サービスタイプ",
+    "section.log.chip2": "業種",
+    "section.log.chip3": "エリア",
+    "section.log.chip4": "受注規模",
+    "listing.log.flag": "物流・製造の掲載",
+    "txn.log.cung-cap": "サービス提供",
+    "txn.log.can-dv": "サービス希望",
+    "txn.log.gia-cong": "OEM／受託製造パートナー",
+    "txn.log.doi-tac": "サプライヤー募集",
+    "txn.log.cung-cap-tab": "サービス提供 <span class=\"cnt\"></span>",
+    "txn.log.can-dv-tab": "サービス希望 <span class=\"cnt\"></span>",
+    "txn.log.gia-cong-tab": "OEMパートナー <span class=\"cnt\"></span>",
+    "txn.log.doi-tac-tab": "サプライヤー募集 <span class=\"cnt\"></span>",
+    "form.log.ph-title": "例：ビンズオン省の冷蔵倉庫500㎡を賃貸",
+    "form.shared.ph-location-bd-hcm": "例：ビンズオン省、ホーチミン市…",
+    "form.log.label-category": "サービスタイプ",
+    "form.log.opt1": "倉庫・冷蔵倉庫の賃貸",
+    "form.log.opt2": "輸送・フォワーディング",
+    "form.log.opt3": "受託製造／OEM-ODM",
+    "form.log.opt4": "梱包・配送サービス",
+    "form.log.opt5": "輸出入サービス",
+    "form.log.opt6": "原材料・資材",
+    "form.log.ph-unit": "例：m²、トン、回/月",
+    "form.log.label-total": "総規模・数量",
+    "form.log.ph-total": "例：5000",
+    "form.log.label-qtys": "賃貸可能な規模（カンマ区切り）",
+    "form.log.ph-qtys": "例：200, 500, 1000",
+    "form.shared.label-price-unit": "賃料（単位あたり、税抜）",
+    "form.log.ph-price": "例：60000",
+    "form.log.ph-extra": "例：電気料金5,000 VND/kWh、荷役費など",
+    "form.log.label-amenities": "特長・設備（カンマ区切り）",
+    "form.log.ph-amenities": "例：-18℃冷蔵倉庫、荷役対応可、港に近い",
+    "section.log.proc1.title": "原材料・サプライ",
+    "section.log.proc1.li1": "信頼できるサプライヤーとの連携",
+    "section.log.proc1.li2": "競争力のある価格での安定供給",
+    "section.log.proc1.li3": "入荷品質管理",
+    "section.log.proc2.title": "製造・受託生産",
+    "section.log.proc2.li1": "生産ライン設計コンサルティング",
+    "section.log.proc2.li2": "OEM／ODMパートナーとの連携",
+    "section.log.proc2.li3": "生産コストの最適化",
+    "section.log.proc3.title": "倉庫保管・物流",
+    "section.log.proc3.li1": "原材料・完成品の倉庫保管",
+    "section.log.proc3.li2": "在庫・貨物管理",
+    "section.log.proc3.li3": "国内外の荷役・輸送",
+    "section.log.proc4.title": "梱包・配送",
+    "section.log.proc4.li1": "梱包・ラベリングソリューション",
+    "section.log.proc4.li2": "規格準拠の梱包",
+    "section.log.proc4.li3": "B2B – B2C配送連携",
+    "section.log.proc5.title": "品質管理",
+    "section.log.proc5.li1": "規格に基づく品質検査",
+    "section.log.proc5.li2": "ISO、HACCP認証コンサルティング…",
+    "section.log.proc5.li3": "製品価値の向上",
+    "section.log.proc6.title": "輸出・市場開拓",
+    "section.log.proc6.li1": "輸出手続きコンサルティング",
+    "section.log.proc6.li2": "海外パートナーとの連携",
+    "section.log.proc6.li3": "市場調査",
+    "section.log.flow1": "原材料",
+    "section.log.flow2": "生産",
+    "section.log.flow3": "梱包",
+    "section.log.flow4": "倉庫保管",
+    "section.log.flow5": "配送",
+    "section.log.flow6": "市場",
+    "section.xn.title": "フォークリフト・産業用設備",
+    "section.xn.intro": "製造・倉庫・物流事業者向けの総合ソリューション — 選定のご相談から長期メンテナンスまで。",
+    "section.xn.photo1.title": "NOBLELIFTフォークリフト — 実在庫",
+    "section.xn.photo1.tag": "お客様の倉庫へ納品",
+    "section.xn.photo2.title": "NOBLELIFTのキャビン・エンジン",
+    "section.xn.photo2.tag": "納品前の技術点検",
+    "section.xn.search-ph": "フォークリフト、部品、倉庫設備を検索…",
+    "section.xn.chip1": "フォークリフトタイプ",
+    "section.xn.chip2": "積載量",
+    "section.xn.chip3": "ブランド",
+    "section.xn.chip4": "新品／中古",
+    "listing.xn.flag": "フォークリフト・設備の掲載",
+    "form.xn.ph-title": "例：電動フォークリフト2.5トンを販売",
+    "form.xn.label-category": "車両／設備タイプ",
+    "form.xn.opt-electric": "電動フォークリフト",
+    "form.xn.opt-diesel": "ディーゼルフォークリフト",
+    "form.xn.opt-hand": "ハンドパレットトラック",
+    "form.xn.opt-special": "特殊フォークリフト",
+    "form.xn.opt-parts": "部品・バッテリー",
+    "form.xn.opt-other": "その他の倉庫設備",
+    "form.xn.ph-unit": "例：台、積載トン数",
+    "form.xn.label-total": "総数量",
+    "form.xn.ph-total": "例：5",
+    "form.xn.label-qtys": "賃貸可能な数量（カンマ区切り）",
+    "form.xn.ph-qtys": "例：1, 2, 3",
+    "form.xn.ph-price": "例：150000000",
+    "form.xn.ph-extra": "例：配送費、設置費など",
+    "form.xn.label-amenities": "特長・状態（カンマ区切り）",
+    "form.xn.ph-amenities": "例：新品同様90%、保証6ヶ月、点検済み",
+    "section.xn.proc1.li1": "電動サイドシートフォークリフト",
+    "section.xn.proc1.li2": "電動スタンドアップフォークリフト",
+    "section.xn.proc1.li3": "リーチトラック",
+    "section.xn.proc2.li1": "ディーゼルフォークリフト",
+    "section.xn.proc2.li2": "LPGフォークリフト",
+    "section.xn.proc2.li3": "積載量1～15トン",
+    "section.xn.proc3.li1": "ロー／ハイリフトハンドパレットトラック",
+    "section.xn.proc3.li2": "電動パレットトラック",
+    "section.xn.proc3.li3": "中小規模倉庫に最適",
+    "section.xn.proc4.li1": "オーダーピッカー",
+    "section.xn.proc4.li2": "紙ロール／梱包クランプフォークリフト",
+    "section.xn.proc4.li3": "専門ニーズに対応するソリューション",
+    "section.xn.proc5.title": "部品・バッテリー",
+    "section.xn.proc5.li1": "バッテリー、フォークリフト用タイヤ",
+    "section.xn.proc5.li2": "フォーク、チェーン、油圧クランプ",
+    "section.xn.proc5.li3": "純正部品",
+    "section.xn.proc6.li1": "産業用倉庫ラック",
+    "section.xn.proc6.li2": "油圧リフトテーブル、コンベア",
+    "section.xn.proc6.li3": "パレット、プラスチック容器、台車",
+    "section.xn.process-title": "サポートの流れ",
+    "section.xn.process1": "<span class=\"process-step-num\">01</span><span class=\"process-step-title\">ニーズ受付</span>",
+    "section.xn.process2": "<span class=\"process-step-num\">02</span><span class=\"process-step-title\">ソリューションのご提案</span>",
+    "section.xn.process3": "<span class=\"process-step-num\">03</span><span class=\"process-step-title\">透明な見積もり</span>",
+    "section.xn.process4": "<span class=\"process-step-num\">04</span><span class=\"process-step-title\">契約締結</span>",
+    "section.xn.process5": "<span class=\"process-step-num\">05</span><span class=\"process-step-title\">納品・操作指導</span>",
+    "section.xn.brands-title": "ご相談・お取り扱いの人気ブランド",
+    "section.xn.brands-desc": "レ・ホアイ・タインはNOBLELIFTの在庫を直接保有し、お客様のニーズに応じて他の人気フォークリフトブランドの売買も仲介しています。",
+    "section.da.title": "プロジェクト・農業",
+    "section.da.intro": "地域のポテンシャルを世界的な価値へ — 持続可能なプロジェクト開発、高付加価値農業、市場とのつながり。",
+    "section.da.search-ph": "投資プロジェクト、工業団地用地、農産物を検索…",
+    "section.da.chip1": "プロジェクトタイプ",
+    "section.da.chip2": "面積",
+    "section.da.chip3": "地域",
+    "section.da.chip4": "投資規模",
+    "listing.da.flag": "プロジェクト・投資の掲載",
+    "txn.da.keu-goi": "投資募集",
+    "txn.da.tim-co-hoi": "機会を探す",
+    "txn.da.chuyen-nhuong": "プロジェクト譲渡",
+    "txn.da.hop-tac": "開発パートナーシップ",
+    "txn.da.keu-goi-tab": "投資募集 <span class=\"cnt\"></span>",
+    "txn.da.tim-co-hoi-tab": "機会を探す <span class=\"cnt\"></span>",
+    "txn.da.chuyen-nhuong-tab": "プロジェクト譲渡 <span class=\"cnt\"></span>",
+    "txn.da.hop-tac-tab": "開発パートナーシップ <span class=\"cnt\"></span>",
+    "form.da.ph-title": "例：ドンナイ省の工業用地2haを売却",
+    "form.da.ph-location": "例：ドンナイ省、ビンズオン省…",
+    "form.da.opt1": "工業用地／工業団地",
+    "form.da.opt2": "工場・倉庫",
+    "form.da.opt3": "商業・サービス用地",
+    "form.da.opt4": "インフラ・計画プロジェクト",
+    "form.da.opt5": "農産物・地場特産品",
+    "form.da.opt6": "投資パートナーシップ",
+    "form.da.ph-unit": "例：m²、ha、トン/年",
+    "form.da.label-total": "総規模",
+    "form.da.ph-total": "例：20000",
+    "form.da.label-qtys": "面積・規模区分（カンマ区切り）",
+    "form.da.ph-qtys": "例：10000, 20000",
+    "form.da.label-price": "売却価格（単位あたり、税抜）",
+    "form.da.ph-price": "例：5000000",
+    "form.da.ph-extra": "例：管理費、インフラ費など",
+    "form.da-pl.label-amenities": "特長（カンマ区切り）",
+    "form.da.ph-amenities": "例：個別権利証、工業団地指定、権利関係明確",
+    "section.da.featured-title": "注目のプロジェクト",
+    "section.da.feat1.title": "工業用地バンク — ビンズオン、ドンナイ、タイニン",
+    "section.da.feat1.li1": "工業団地、クラスター、計画指定用地",
+    "section.da.feat1.li2": "建築済み工場",
+    "section.da.feat2.title": "工場・倉庫プロジェクト",
+    "section.da.feat2.li1": "賃貸工場／オーダーメイド建築",
+    "section.da.feat2.li2": "物流倉庫、冷蔵倉庫",
+    "section.da.feat3.title": "商業用地プロジェクト",
+    "section.da.feat3.li1": "ショップハウス、都市開発",
+    "section.da.feat3.li2": "複合サービスゾーン",
+    "section.da.feat4.title": "インフラ・計画プロジェクト",
+    "section.da.feat4.li1": "産業クラスター、交通インフラ",
+    "section.da.feat4.li2": "投資募集中のプロジェクト",
+    "section.da.value-title": "可能性を引き出し、価値を創造する",
+    "section.da.value1": "計画に沿ったプロジェクト",
+    "section.da.value2": "持続可能な農業",
+    "section.da.value3": "バリューチェーンの統合",
+    "section.da.value4": "長期的な投資家パートナーシップ",
+    "section.da.agri-title": "農業・地場産品",
+    "section.da.view-product": "商品を見る →",
+    "section.da.agri1.title": "ダイガン・コーヒー",
+    "section.da.agri1.li1": "森林栽培ロブスタ種",
+    "section.da.agri1.li2": "加工・流通",
+    "section.da.agri2.title": "茶・薬草",
+    "section.da.agri2.li1": "天然・無添加製品",
+    "section.da.agri2.li2": "栽培地域の開発",
+    "section.da.agri3.title": "ダイガン・ピーナッツオイル",
+    "section.da.agri3.li1": "クリーンな原材料",
+    "section.da.agri3.li2": "規格に基づく生産",
+    "section.da.agri4.title": "地場特産品",
+    "section.da.agri4.li1": "OCOP — 地域特産品",
+    "section.da.agri4.li2": "取引・流通",
+    "section.da.chain1": "栽培地域",
+    "section.da.chain2": "加工",
+    "section.da.chain3": "物流配送",
+    "section.da.chain4": "市場取引",
+    "section.da.chain5": "持続可能な価値",
+    "section.pl.kicker": "03・法務・金融",
+    "section.pl.intro": "安全な基盤こそが成長の原動力。法令を遵守し、さらに先へ。",
+    "section.pl.search-ph": "法務、税務、金融サービスを検索…",
+    "section.pl.chip1": "相談の種類",
+    "section.pl.chip2": "依頼者の種類",
+    "section.pl.chip3": "管轄地域",
+    "listing.pl.flag": "サービス・ニーズの掲載",
+    "txn.pl.provide": "サービス提供",
+    "txn.pl.need-advice": "相談希望",
+    "txn.pl.transfer": "売却・譲渡",
+    "txn.pl.acquire": "取得希望",
+    "txn.pl.file-consign": "案件委託",
+    "txn.pl.hop-tac": "パートナーシップ／代理店",
+    "form.pl.ph-title": "例：外国投資企業の設立コンサルティング",
+    "form.pl.ph-location": "例：ホーチミン市、ビンズオン省…",
+    "form.pl.label-category": "カテゴリ",
+    "form.pl.ph-unit": "例：サービスパッケージ、相談時間、案件数",
+    "form.pl.label-total": "数量・規模",
+    "form.pl.ph-total": "例：1",
+    "form.pl.label-qtys": "サービスパッケージ（カンマ区切り）",
+    "form.pl.ph-qtys": "例：ベーシックパッケージ、プレミアムパッケージ",
+    "form.pl.label-price": "料金（単位あたり、税抜）",
+    "form.pl.ph-price": "例：5000000",
+    "form.pl.ph-extra": "例：行政手数料、公証費用など",
+    "form.pl.ph-amenities": "例：社内法務チーム、実務経験10年、フルサポート対応",
+    "txn.pl-tab.provide": "提供 <span class=\"cnt\"></span>",
+    "txn.pl-tab.need-advice": "相談希望 <span class=\"cnt\"></span>",
+    "txn.pl-tab.transfer": "売却／譲渡 <span class=\"cnt\"></span>",
+    "txn.pl.provide-tab": "サービス提供 <span class=\"cnt\"></span>",
+    "txn.pl.need-advice-tab": "相談・サポート希望 <span class=\"cnt\"></span>",
+    "txn.pl.hop-tac-tab": "パートナーシップ／代理店 <span class=\"cnt\"></span>",
+    "section.pl.proc1.title": "企業法務コンサルティング",
+    "section.pl.proc1.li1": "会社設立",
+    "section.pl.proc1.li2": "営業許可の変更",
+    "section.pl.proc1.li3": "契約書・定款の作成",
+    "section.pl.proc2.title": "不動産法務サービス",
+    "section.pl.proc2.li1": "土地・工場の法的デューデリジェンス",
+    "section.pl.proc2.li2": "譲渡・賃貸アドバイザリー",
+    "section.pl.proc2.li3": "ゾーニング・計画の評価",
+    "section.pl.proc3.title": "投資・M&Aアドバイザリー",
+    "section.pl.proc3.li1": "投資戦略コンサルティング",
+    "section.pl.proc3.li2": "合併・買収",
+    "section.pl.proc3.li3": "交渉・取引の法務サポート",
+    "section.pl.proc4.title": "金融・資金調達ソリューション",
+    "section.pl.proc4.li1": "資金調達アドバイザリー",
+    "section.pl.proc4.li2": "銀行・投資ファンドとの連携",
+    "section.pl.proc4.li3": "キャッシュフローの最適化",
+    "section.pl.proc5.title": "税務・会計",
+    "section.pl.proc5.li1": "法人税アドバイザリー",
+    "section.pl.proc5.li2": "会計・財務報告サービス",
+    "section.pl.proc5.li3": "税務レビュー・確定申告",
+    "section.pl.proc6.title": "知的財産・ブランディング",
+    "section.pl.proc6.li1": "商標・ロゴの登録",
+    "section.pl.proc6.li2": "ブランド・特許の保護",
+    "section.pl.proc6.li3": "ブランド侵害の防止",
+    "section.pl.results-title": "実績とお約束",
+    "section.pl.result1": "ご相談いただいた企業数",
+    "section.pl.result2": "法務サポートを行ったプロジェクト数",
+    "section.pl.result3": "顧客満足度",
+    "section.pl.result4": "実務経験年数",
+    "section.md.kicker": "04・ナレッジ・メディア",
+    "section.md.intro": "現場の知見 — 市場アップデート — 価値の創造。",
+    "section.md.search-ph": "記事、動画、ポッドキャストを検索…",
+    "section.md.chip1": "トピック",
+    "section.md.chip2": "形式",
+    "section.md.chip3": "公開日",
+    "section.md.updating-title": "近日公開予定",
+    "section.md.updating-desc": "工業用不動産、物流、フォークリフト設備に関する動画、記事、ポッドキャストを近日公開予定です。最新情報はレ・ホアイ・タインのFacebook・YouTubeをフォローしてください。",
+    "topic.log-warehouse": "物流・倉庫保管",
+    "topic.investment-finance": "投資・金融",
+    "topic.business-startup": "ビジネス・スタートアップ",
+    "topic.legal-policy": "法務・政策",
+    "topic.community-events": "コミュニティ・イベント",
+    "topic.docs-forms": "書類・様式",
+    "listing.md.flag": "メディアコンテンツ・サービス",
+    "form.md.btn-add-new": "+ 新規コンテンツ",
+    "form.md.panel-heading": "新規コンテンツを投稿",
+    "form.md.panel-hint": "作成した動画、写真、記事、イベントを共有するか、メディア／ナレッジ共有サービスのお客様を募集する掲載を投稿してください。",
+    "form.md.group-label": "どのようなコンテンツを投稿しますか？ <span style=\"color:#c0392b;\">*</span>",
+    "txn.md.video": "動画",
+    "txn.md.photo": "写真",
+    "txn.md.article-pill": "記事・ナレッジ",
+    "txn.md.event": "イベント",
+    "txn.md.service-pill": "メディアサービスの顧客募集",
+    "form.md.label-title": "タイトル",
+    "form.md.ph-title": "例：ソンタン工業団地のドローン空撮映像",
+    "form.md.label-tags": "キーワード（カンマ区切り）",
+    "form.md.ph-tags": "例：ドローン、工業団地、倉庫、2026",
+    "form.md.label-link": "コンテンツリンク（YouTube、Facebook、記事など）",
+    "form.md.label-images": "画像／サムネイル（複数可）",
+    "form.md.btn-submit": "コンテンツを投稿",
+    "txn.md.video-tab": "動画 <span class=\"cnt\"></span>",
+    "txn.md.photo-tab": "写真 <span class=\"cnt\"></span>",
+    "txn.md.article-tab": "記事 <span class=\"cnt\"></span>",
+    "txn.md.event-tab": "イベント <span class=\"cnt\"></span>",
+    "txn.md.service-tab": "メディアサービス <span class=\"cnt\"></span>",
+    "feed.md.empty-intro": "ナレッジ・メディアのコンテンツは随時更新されています — ご相談やメディア提携のお問い合わせはお気軽にどうぞ。",
+    "footer.quote": "「すべての資産には物語がある。次の価値の章を共に書き上げましょう。」— レ・ホアイ・タイン",
+    "footer.tagline": "ベトナム<br>さらなる高みへ",
+    "footer.copyright": "© 2026 レ・ホアイ・タイン — Industrial & Logistics Investment Advisory。",
+    "footer.rights": "全著作権所有。",
+    "feed.md.no-results-category": "まだ投稿されたコンテンツはありません。",
+    "feed.md.no-results-filter": "このタイプに合うコンテンツはまだありません — 「すべて」を選ぶか、後ほどご確認ください。",
+    "feed.md.search-prompt": "🔎 キーワード（例：トピック、コンテンツ種別など）を入力し、「今すぐ検索」を押すと該当するコンテンツが表示されます。",
+    "section.about.bio-p1": "レ・ホアイ・タインと申します。トアンミー建設投資貿易株式会社の最高経営責任者（CEO）として、工場・倉庫・工業用地のコンサルティングと仲介を行っています — 業務の中心はホーチミン市と東南部地域、核となるのは旧ビンズオン省エリアです。",
+    "section.about.bio-p2": "私は賃料だけで工場を探すのではありません。お客様のために実際の運営コストを計算します：三相電力の容量は十分か、コンテナ車の出入りに混雑はないか、防火・法的手続きは即時運営できるレベルに整っているか。安くても運営できない工場は、結局高くつく工場です。",
+    "section.about.bio-p3": "物件紹介だけで終わる多くの仲介業者とは異なり、私は運送・倉庫・フォークリフト事業も直接運営しています — そのため、お客様の工場移転が完了した後も、別の担当者を探す必要なく、引き続き貨物の移動まで対応できます。私が提示する数値 — 賃料、入居率、地域の傾向 — はすべて根拠のあるデータであり、推測ではありません。",
+    "section.about.bio-p4": "仕事以外では、私は一つの信条を大切にしています：規律によってキャリアを築き、責任によって家庭を守る。だからこそ、私は直接対応し、回りくどいことをせず、自分でコントロールできないことは約束しません。",
+    "section.about.org-title": "最高経営責任者（CEO）",
+    "card.date-posted": "掲載日",
+    "card.location": "場所",
+    "card.occupancy": "入居率",
+    "card.updating": "更新中",
+    "card.legal": "法的状況",
+    "card.area": "面積",
+    "card.rent-price": "賃料",
+    "card.from": "〜より",
+    "card.scale": "規模",
+    "card.price": "価格",
+    "card.asset-code": "資産コード",
+    "card.total-area": "総面積",
+    "card.property-type": "資産タイプ",
+    "card.default-property-type": "倉庫・工場",
+    "card.cta-quote": "詳細見積りを受け取る →",
+    "card.cta-consult": "💬 相談を依頼",
+    "card.cta-share": "🔗 シェア",
+    "card.total-scale": "総規模",
+    "card.tiers-label": "利用可能な規格",
+    "card.unit-price-novat": "単価（税抜）",
+    "card.category-type": "カテゴリー",
+    "card.default-equip-type": "フォークリフト・設備",
+    "card.extra-cost": "追加費用",
+    "card.table-unit-price": "単価",
+    "card.table-total-equip": "合計金額",
+    "card.electricity": "電気",
+    "card.water": "水道",
+    "card.novat": "税抜",
+    "card.view-content": "コンテンツを見る →",
+    "cardtxn.cho_thue.price": "賃貸単価",
+    "cardtxn.cho_thue.areas": "柔軟な賃貸面積",
+    "cardtxn.cho_thue.tier": "費用／月",
+    "cardtxn.can_thue.price": "賃貸予算",
+    "cardtxn.can_thue.areas": "必要面積",
+    "cardtxn.can_thue.tier": "予想費用／月",
+    "cardtxn.ban.price": "販売単価",
+    "cardtxn.ban.areas": "販売面積",
+    "cardtxn.ban.tier": "総額",
+    "cardtxn.can_mua.price": "購入予算",
+    "cardtxn.can_mua.areas": "必要面積",
+    "cardtxn.can_mua.tier": "予想総額",
+    "cardtxn.ky_gui.price": "提案委託価格",
+    "cardtxn.ky_gui.areas": "委託面積",
+    "cardtxn.ky_gui.tier": "委託価値",
+    "cardtxn.chuyen_nhuong.price": "譲渡価格",
+    "cardtxn.chuyen_nhuong.areas": "譲渡面積",
+    "cardtxn.chuyen_nhuong.tier": "譲渡総額",
+    "fd.zone": "工業団地の位置",
+    "fd.road": "トラック・コンテナ進入路",
+    "fd.residential": "周辺住宅地",
+    "fd.connectivity": "位置と地域連携",
+    "fd.labor": "労働力の供給",
+    "fd.infra": "技術インフラ",
+    "fd.industries-in": "受け入れ可能な業種",
+    "fd.industries-ex": "受け入れ制限業種",
+    "fd.payment": "支払条件",
+    "fd.fees": "その他の費用",
+    "fd.incentives": "投資優遇",
+    "fd.process": "投資プロセス",
+    "fd.util-in": "敷地内施設",
+    "fd.util-ex": "敷地外施設",
+    "fd.support": "サポートサービス",
+    "fd.investor": "投資家・開発者",
+    "fd.toggle-open": "▼ 詳細情報を見る（ブローシャー版）",
+    "fd.toggle-close": "▲ 詳細を閉じる",
+    "fd.pdf-default": "PDFブローシャーをダウンロード",
+    "fd.empty": "詳細情報は更新中です — 詳しいブローシャーについてはお問い合わせください。",
+    "zone.trong_kcn": "工業団地内",
+    "zone.ngoai_kcn": "工業団地外",
+    "road.khong_cam": "トラック・コンテナ進入制限なし",
+    "road.cam_gio_cao_diem": "ピーク時はトラック・コンテナ進入禁止",
+    "road.cam_hoan_toan": "トラック・コンテナ進入禁止",
+    "residential.gan_dan_cu": "住宅地に近い",
+    "residential.khong_gan_dan_cu": "住宅地から離れている"
   }
 };
   window.I18N_TRANSLATIONS = I18N_TRANSLATIONS;
@@ -6563,13 +7352,94 @@
     'feed.common.view-all': '📋 Xem tất cả tin trong mục này',
     'feed.common.view-all-other': '📋 Xem tất cả tin khác trong mục này',
     'feed.common.view-all-cap': 'Click để xem toàn bộ sản phẩm, dịch vụ',
-    'feed.md.view-all-cap': 'Click để xem toàn bộ nội dung'
+    'feed.md.view-all-cap': 'Click để xem toàn bộ nội dung',
+    'card.date-posted': 'Ngày đăng',
+    'card.location': 'Địa điểm',
+    'card.occupancy': 'Tỷ lệ lấp đầy',
+    'card.updating': 'Đang cập nhật',
+    'card.legal': 'Pháp lý',
+    'card.area': 'Diện tích',
+    'card.rent-price': 'Giá thuê',
+    'card.from': 'Từ',
+    'card.scale': 'Quy mô',
+    'card.price': 'Giá',
+    'card.asset-code': 'Mã tài sản',
+    'card.total-area': 'Tổng diện tích',
+    'card.property-type': 'Loại tài sản',
+    'card.default-property-type': 'Kho xưởng',
+    'card.cta-quote': 'Nhận báo giá chi tiết →',
+    'card.cta-consult': '💬 Yêu cầu tư vấn',
+    'card.cta-share': '🔗 Chia sẻ',
+    'card.total-scale': 'Tổng quy mô',
+    'card.tiers-label': 'Các mức',
+    'card.unit-price-novat': 'Đơn giá (chưa VAT)',
+    'card.category-type': 'Loại hình',
+    'card.default-equip-type': 'Xe nâng & thiết bị',
+    'card.extra-cost': 'Chi phí phát sinh',
+    'card.table-unit-price': 'Đơn giá',
+    'card.table-total-equip': 'Thành tiền',
+    'card.electricity': 'Điện',
+    'card.water': 'Nước',
+    'card.novat': 'chưa VAT',
+    'card.view-content': 'Xem nội dung →',
+    'cardtxn.cho_thue.price': 'Đơn giá thuê',
+    'cardtxn.cho_thue.areas': 'Diện tích cho thuê linh động',
+    'cardtxn.cho_thue.tier': 'Chi phí / tháng',
+    'cardtxn.can_thue.price': 'Ngân sách thuê',
+    'cardtxn.can_thue.areas': 'Diện tích cần thuê',
+    'cardtxn.can_thue.tier': 'Chi phí / tháng (dự kiến)',
+    'cardtxn.ban.price': 'Đơn giá bán',
+    'cardtxn.ban.areas': 'Diện tích rao bán',
+    'cardtxn.ban.tier': 'Tổng giá trị',
+    'cardtxn.can_mua.price': 'Ngân sách mua',
+    'cardtxn.can_mua.areas': 'Diện tích cần mua',
+    'cardtxn.can_mua.tier': 'Tổng giá trị (dự kiến)',
+    'cardtxn.ky_gui.price': 'Giá ký gửi đề xuất',
+    'cardtxn.ky_gui.areas': 'Diện tích ký gửi',
+    'cardtxn.ky_gui.tier': 'Giá trị ký gửi',
+    'cardtxn.chuyen_nhuong.price': 'Giá chuyển nhượng',
+    'cardtxn.chuyen_nhuong.areas': 'Diện tích chuyển nhượng',
+    'cardtxn.chuyen_nhuong.tier': 'Tổng giá trị chuyển nhượng',
+    'fd.zone': 'Vị trí khu công nghiệp',
+    'fd.road': 'Đường vào xe tải/container',
+    'fd.residential': 'Khu dân cư lân cận',
+    'fd.connectivity': 'Vị trí & kết nối vùng',
+    'fd.labor': 'Nguồn lao động',
+    'fd.infra': 'Hạ tầng kỹ thuật',
+    'fd.industries-in': 'Ngành nghề tiếp nhận',
+    'fd.industries-ex': 'Ngành nghề hạn chế tiếp nhận',
+    'fd.payment': 'Điều khoản thanh toán',
+    'fd.fees': 'Các loại phí khác',
+    'fd.incentives': 'Ưu đãi đầu tư',
+    'fd.process': 'Quy trình đầu tư',
+    'fd.util-in': 'Tiện ích nội khu',
+    'fd.util-ex': 'Tiện ích ngoại khu',
+    'fd.support': 'Dịch vụ hỗ trợ',
+    'fd.investor': 'Chủ đầu tư',
+    'fd.toggle-open': '▼ Xem thông tin đầy đủ (chuẩn brochure)',
+    'fd.toggle-close': '▲ Thu gọn thông tin',
+    'fd.pdf-default': 'Tải brochure PDF',
+    'fd.empty': 'Thông tin chi tiết đang được cập nhật — vui lòng liên hệ để nhận brochure đầy đủ.',
+    'zone.trong_kcn': 'Trong khu công nghiệp',
+    'zone.ngoai_kcn': 'Ngoài khu công nghiệp',
+    'road.khong_cam': 'Đường vào không cấm xe tải/container',
+    'road.cam_gio_cao_diem': 'Đường vào cấm xe tải/container giờ cao điểm',
+    'road.cam_hoan_toan': 'Đường vào cấm xe tải/container',
+    'residential.gan_dan_cu': 'Gần khu dân cư',
+    'residential.khong_gan_dan_cu': 'Xa khu dân cư'
   };
   function lhtT(key, lang){
     lang = lang || window.LHT_CURRENT_LANG || 'vi';
     if (lang === 'vi' || !I18N_TRANSLATIONS[lang]) return LHT_VI_FALLBACK[key] || '';
     return I18N_TRANSLATIONS[lang][key] || LHT_VI_FALLBACK[key] || '';
   }
+  // 13/10/2026: expose để các hàm render thẻ/modal (renderCard, renderEquipmentStyleCard,
+  // renderGenericCard, mountMediaModule...) nằm ở closure khác cũng gọi được lhtT() trực tiếp.
+  window.lhtT = lhtT;
+  // Mỗi module BĐS/Logistics/Xe nâng/Dự án/Pháp lý/Media đẩy hàm "vẽ lại thuần" của mình vào
+  // đây ngay khi mount (không fetch lại, không gắn listener mới) để applyLanguage() gọi lại
+  // sau khi đổi ngôn ngữ, giúp các thẻ ĐÃ render cũng được dịch theo — xem applyLanguage() ở dưới.
+  window.__lhtLangRedraw = window.__lhtLangRedraw || [];
   window.lhtFeedHtml = function(state, lang){
     lang = lang || window.LHT_CURRENT_LANG || 'vi';
     var callBtn = '<a class="btn primary" href="tel:0399831228">' + lhtT('feed.common.call-now', lang) + '</a>';
@@ -6645,7 +7515,7 @@
   }
 
   function applyLanguage(lang){
-    if (lang !== 'vi' && lang !== 'en' && lang !== 'zh') lang = 'vi';
+    if (lang !== 'vi' && lang !== 'en' && lang !== 'zh' && lang !== 'ja') lang = 'vi';
     CURRENT_LANG = lang;
     window.LHT_CURRENT_LANG = lang;
 
@@ -6672,7 +7542,15 @@
 
     refreshFeedFallbacks(lang);
 
-    document.documentElement.lang = (lang === 'zh') ? 'zh-Hant' : lang;
+    // 13/10/2026: nội dung render động từ JS (thẻ sản phẩm BĐS/Logistics/Xe nâng/Dự án/
+    // Pháp lý/Media, modal chi tiết...) KHÔNG đi qua data-i18n — mỗi module tự đăng ký một
+    // hàm "vẽ lại thuần" (không fetch lại, không gắn listener mới) vào window.__lhtLangRedraw
+    // ngay khi mount; gọi lại toàn bộ ở đây để các thẻ đã render cũng được dịch theo lang mới.
+    if (window.__lhtLangRedraw && window.__lhtLangRedraw.length){
+      window.__lhtLangRedraw.forEach(function(fn){ try { fn(lang); } catch(e){ /* ignore */ } });
+    }
+
+    document.documentElement.lang = (lang === 'zh') ? 'zh-Hant' : (lang === 'ja' ? 'ja' : lang);
 
     try { localStorage.setItem('site_lang', lang); } catch(e){ /* ignore */ }
 
