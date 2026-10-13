@@ -48,19 +48,21 @@
   @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
   :root{
-    /* ---- LHT Design System v3 (08/10/2026) — "Graphite & Teal":
-       đổi bảng màu theo đề xuất đã chọn, tỷ lệ 60-30-10:
-       60% nền sáng trung tính, 30% Than chì công nghiệp (Graphite), 10% Ngọc lam (Teal) điểm nhấn.
+    /* ---- LHT Design System v4 (13/10/2026) — "Đỏ Rực & Vàng Kim":
+       đổi bảng màu toàn site theo yêu cầu: đỏ rực rỡ + nền trắng + viền vàng ánh kim, tỷ lệ 60-30-10:
+       60% nền trắng/sáng trung tính, 30% Đỏ rực (thay cho Graphite cũ), 10% Vàng kim ánh kim (thay cho Teal cũ) điểm nhấn.
        Toàn bộ site tham chiếu qua các biến --lht-* / --navy / --gold bên dưới nên chỉ cần đổi
-       giá trị ở đây là áp dụng xuyên suốt, không đổi nội dung/cấu trúc/API. */
-    --lht-navy:#121417;       /* Than chì công nghiệp (Graphite) — chữ chính, heading, footer, badge */
-    --lht-deep:#1A2024;       /* Graphite thứ cấp — gradient/dark-surface */
-    --lht-blue:#2A3337;       /* graphite nhạt hơn — điểm cuối gradient/viền trên nền tối */
-    --lht-gold:#17B8A6;       /* Ngọc lam (Teal) — accent 10%, CTA, số liệu, hover */
-    --lht-gold-light:#35D6C4; /* ngọc lam nhạt hơn cho gradient highlight/hover sáng */
-    --lht-earth:#2A3337;      /* (không còn dùng làm accent riêng — gộp theo navy) */
-    --lht-amber:#0E8F82;      /* ngọc lam đậm — điểm đầu gradient/hover đậm */
-    --lht-fire:#0E8F82;       /* (alias, giữ biến cũ không vỡ nơi còn tham chiếu) */
+       giá trị ở đây là áp dụng xuyên suốt, không đổi nội dung/cấu trúc/API. Một số nơi dùng màu
+       rgba() viết trực tiếp (không qua biến) đã được dò và cập nhật tương ứng — xem ghi chú tại
+       từng vị trí trong file (ví dụ overlay ảnh hero). */
+    --lht-navy:#D11A2A;       /* Đỏ rực rỡ — chữ chính, heading, footer, badge */
+    --lht-deep:#8C1018;       /* Đỏ đậm thứ cấp — gradient/dark-surface */
+    --lht-blue:#5A0A10;       /* Đỏ sẫm nhất — điểm cuối gradient/viền trên nền tối */
+    --lht-gold:#C9A227;       /* Vàng ánh kim — accent 10%, viền, CTA, số liệu, hover */
+    --lht-gold-light:#E8C468; /* vàng kim nhạt hơn cho gradient highlight/hover sáng */
+    --lht-earth:#5A0A10;      /* (không còn dùng làm accent riêng — gộp theo navy) */
+    --lht-amber:#9C7A1E;      /* vàng kim đậm (đồng/antique) — điểm đầu gradient/hover đậm */
+    --lht-fire:#9C7A1E;       /* (alias, giữ biến cũ không vỡ nơi còn tham chiếu) */
     --lht-white:#FFFFFF;
     --lht-light:#F4F7F7;      /* nền phụ 60% thoáng sáng, trung tính mát */
     --lht-cream:#ECF2F2;      /* nền xám nhạt luân phiên */
@@ -86,7 +88,7 @@
     --text-dim: var(--lht-muted);
     --ink-on-navy:#F8FAFC;
     --ink-on-navy-dim:#99A8A6;
-    --rule:#2B3336;       /* viền trên nền tối — đổi từ xanh navy cũ sang xám than chì trung tính, đồng bộ bảng màu mới */
+    --rule:#6B1620;       /* viền trên nền tối — đỏ sẫm trung tính, đồng bộ bảng màu đỏ-vàng kim mới */
     --shadow: var(--lht-shadow);
   }
   @media (prefers-color-scheme: dark){
@@ -97,8 +99,8 @@
       --lht-border:#2E3739;
       --lht-text:#E8EEEE;
       --lht-muted:#8AA09F;
-      --lht-navy:#07090A;
-      --lht-deep:#040606;
+      --lht-navy:#1A0508;
+      --lht-deep:#0D0304;
     }
   }
   :root[data-theme="dark"]{
@@ -108,8 +110,8 @@
     --lht-border:#2E3739;
     --lht-text:#E8EEEE;
     --lht-muted:#8AA09F;
-    --lht-navy:#07090A;
-    --lht-deep:#040606;
+    --lht-navy:#1A0508;
+    --lht-deep:#0D0304;
   }
 
   *{box-sizing:border-box;}
@@ -206,7 +208,10 @@
   .icon-btn:hover{border-color:var(--gold); color:var(--gold-deep);}
   .icon-btn.zalo-icon-btn:hover{border-color:#0068ff; color:#0068ff;}
 
-  .lang-switcher{ position:relative; }
+  /* 13/10/2026: nút đổi ngôn ngữ cũ (icon địa cầu + menu xổ xuống) được thay bằng 3 nút luôn hiển
+     thị rõ ràng (.lang-top-bar bên dưới) theo yêu cầu — không xoá markup/JS cũ (vẫn hoạt động đúng
+     nếu cần dùng lại), chỉ ẩn đi để tránh trùng lặp trên màn hình. */
+  .lang-switcher{ position:relative; display:none; }
   .lang-menu{
     position:absolute; top:calc(100% + 10px); right:0;
     background:#fff; border:1px solid var(--lht-border); border-radius:8px;
@@ -223,6 +228,38 @@
   .lang-option.active{ color:var(--gold-deep); }
   .lang-option.active::after{ content:"\2713"; font-weight:700; color:var(--gold-deep); }
   @media (max-width:640px){ .lang-menu{ right:-10px; min-width:142px; } }
+
+  /* ---------------- Thanh chọn ngôn ngữ 3 nút (luôn hiển thị, thay cho icon địa cầu) ---------------- */
+  .lang-top-bar{
+    background:var(--lht-navy);
+    border-bottom:1px solid var(--lht-gold);
+  }
+  .lang-top-bar .wrap{
+    display:flex; align-items:center; justify-content:flex-end; gap:8px;
+    padding-block:7px; overflow-x:auto; -ms-overflow-style:none; scrollbar-width:none;
+  }
+  .lang-top-bar .wrap::-webkit-scrollbar{ display:none; }
+  .lang-top-bar-label{
+    color:var(--lht-gold-light); font-size:0.68rem; font-weight:700; letter-spacing:0.05em;
+    text-transform:uppercase; white-space:nowrap; margin-right:2px; flex:none;
+  }
+  .lang-top-bar-btn{
+    flex:none; white-space:nowrap; cursor:pointer;
+    font-family:'Inter', sans-serif; font-size:0.76rem; font-weight:700;
+    color:#fff; background:transparent;
+    border:1.4px solid var(--lht-gold); border-radius:999px;
+    padding:6px 14px;
+    transition:background .18s ease, color .18s ease, transform .18s ease;
+  }
+  .lang-top-bar-btn:hover{ background:rgba(201,162,39,.18); transform:translateY(-1px); }
+  .lang-top-bar-btn.active{
+    background:var(--lht-gold); color:var(--lht-navy); border-color:var(--lht-gold-light);
+  }
+  @media (max-width:640px){
+    .lang-top-bar .wrap{ justify-content:flex-start; padding-block:6px; }
+    .lang-top-bar-label{ display:none; }
+    .lang-top-bar-btn{ font-size:0.7rem; padding:5px 11px; }
+  }
 
   .zalo-float{
     position:fixed; right:20px; bottom:92px; z-index:9999;
@@ -367,18 +404,43 @@
   }
 
   /* ---------------- Hero ---------------- */
+  /* 13/10/2026: ảnh nền hero đổi từ 1 ảnh tĩnh sang slideshow tự động chuyển (nhiều ảnh KCN/logistics
+     thật đã có sẵn trong site, không đổi API/Supabase gì cả — chỉ thêm lớp ảnh nền luân phiên bằng
+     CSS animation thuần, có fallback ảnh tĩnh cho trình duyệt cũ / người dùng giảm chuyển động).
+     Lớp phủ màu (overlay) vẫn giữ đúng vai trò làm chữ trắng/vàng đọc rõ, đổi sang tông đỏ sẫm đồng
+     bộ bảng màu "Đỏ Rực & Vàng Kim" mới — xem biến --lht-navy/--lht-deep ở :root phía trên. */
   .hero-section{
-    /* 06/10/2026: giảm độ đậm của lớp phủ xanh navy theo yêu cầu, để ảnh khu công nghiệp phía sau
-       (hero-industrial-park.jpg) hiện rõ và nổi bật hơn — vẫn giữ đủ tối ở phần đầu (gần chữ) để
-       chữ trắng/vàng trên đó còn đọc rõ. */
-    background:
-      linear-gradient(100deg, rgba(18,20,23,0.84) 0%, rgba(18,20,23,0.70) 42%, rgba(18,20,23,0.38) 75%, rgba(18,20,23,0.12) 100%),
-      url('images/hero-industrial-park.jpg');
-    background-size: cover;
-    background-position: center 65%;
+    position:relative;
+    background:#3A080D url('images/hero-industrial-park.jpg') center 65% / cover no-repeat;
     color:var(--ink-on-navy);
     padding-block:44px 0;
     overflow:hidden;
+  }
+  .hero-bg-slides{ position:absolute; inset:0; z-index:0; }
+  .hero-bg-slide{
+    position:absolute; inset:0;
+    background-size:cover; background-position:center 65%;
+    opacity:0;
+    animation:heroSlideFade 14s infinite;
+  }
+  .hero-bg-slide:nth-child(1){ background-image:url('images/hero-industrial-park.jpg'); animation-delay:0s; }
+  .hero-bg-slide:nth-child(2){ background-image:url('images/hero-truck-container.jpg'); animation-delay:7s; }
+  @keyframes heroSlideFade{
+    0%{opacity:0;}
+    5%{opacity:1;}
+    46%{opacity:1;}
+    52%{opacity:0;}
+    100%{opacity:0;}
+  }
+  .hero-section::before{
+    content:"";
+    position:absolute; inset:0; z-index:1;
+    background:linear-gradient(100deg, rgba(58,8,13,0.86) 0%, rgba(58,8,13,0.72) 42%, rgba(58,8,13,0.40) 75%, rgba(58,8,13,0.14) 100%);
+  }
+  .hero-section > .wrap{ position:relative; z-index:2; }
+  @media (prefers-reduced-motion: reduce){
+    .hero-bg-slide{ animation:none; opacity:0; }
+    .hero-bg-slide:first-child{ opacity:1; }
   }
   .hero-grid{
     display:grid;
@@ -407,16 +469,16 @@
        tách hẳn khỏi nền tối phía sau thay vì chìm vào nền */
     box-shadow:
       0 0 0 5px var(--lht-white),
-      0 0 0 7px rgba(23,184,166,.32),
+      0 0 0 7px rgba(201,162,39,.32),
       0 22px 46px -16px rgba(18,20,23,.55),
-      0 0 46px -14px rgba(23,184,166,.45);
+      0 0 46px -14px rgba(201,162,39,.45);
   }
   .portrait-frame::after{
     content:'';
     position:absolute; inset:0;
     background:
       linear-gradient(180deg, rgba(62,39,35,0) 52%, rgba(62,39,35,0.55) 100%),
-      linear-gradient(100deg, rgba(23,184,166,0.16), transparent 45%);
+      linear-gradient(100deg, rgba(201,162,39,0.16), transparent 45%);
     pointer-events:none;
   }
   .portrait-frame svg{ width:78%; }
@@ -530,7 +592,7 @@
   .side-item:last-child{border-bottom:none;}
   .side-item .ic{
     width:30px; height:30px; border-radius:6px;
-    background:rgba(23,184,166,0.14);
+    background:rgba(201,162,39,0.14);
     display:flex; align-items:center; justify-content:center;
     color:var(--gold-light);
     flex:none;
@@ -546,9 +608,9 @@
        để ảnh tách khỏi nền và thu hút mắt nhìn hơn */
     box-shadow:
       0 0 0 5px var(--lht-white),
-      0 0 0 7px rgba(23,184,166,.32),
+      0 0 0 7px rgba(201,162,39,.32),
       0 22px 46px -16px rgba(18,20,23,.55),
-      0 0 46px -14px rgba(23,184,166,.45);
+      0 0 46px -14px rgba(201,162,39,.45);
   }
   .hero-scene-photo{ position:relative; width:100%; height:280px; overflow:hidden; background:var(--lht-deep); }
   .hero-scene-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -556,8 +618,8 @@
     content:"";
     position:absolute; inset:0;
     background:
-      linear-gradient(180deg, rgba(18,20,23,0) 38%, rgba(18,20,23,.8) 100%),
-      linear-gradient(100deg, rgba(18,20,23,.6) 0%, rgba(18,20,23,0) 48%);
+      linear-gradient(180deg, rgba(58,8,13,0) 38%, rgba(58,8,13,.8) 100%),
+      linear-gradient(100deg, rgba(58,8,13,.6) 0%, rgba(58,8,13,0) 48%);
   }
   .hero-scene-caption{ position:absolute; right:18px; bottom:34px; text-align:right; z-index:2; }
   .hero-scene-caption b{ display:block; font-family:'Oswald',sans-serif; font-size:0.98rem; letter-spacing:0.03em; color:#fff; }
@@ -570,7 +632,7 @@
     padding:16px 20px;
     background:linear-gradient(100deg, rgba(21,29,33,.58) 0%, rgba(21,29,33,.32) 65%, transparent 100%);
     border-radius:10px;
-    border-left:3px solid rgba(23,184,166,.75);
+    border-left:3px solid rgba(201,162,39,.75);
   }
   .hero-scene-quote p{
     margin:0; font-family:'Oswald',sans-serif; font-weight:700; text-transform:none;
@@ -580,7 +642,7 @@
   }
   .hero-scene-quote span{
     display:block; margin-top:10px; font-family:'Inter',sans-serif; font-size:0.74rem; font-weight:600;
-    letter-spacing:0.1em; text-transform:uppercase; color:rgba(23,184,166,0.92);
+    letter-spacing:0.1em; text-transform:uppercase; color:rgba(201,162,39,0.92);
     text-shadow:0 1px 6px rgba(0,0,0,.5);
   }
   @media (max-width:640px){
@@ -810,13 +872,13 @@
   }
   .toolbar .chip svg{vertical-align:-2px; margin-right:4px;}
   .toolbar .chip:hover{border-color:var(--lht-gold); color:var(--navy);}
-  .toolbar .chip.has-selection{border-color:var(--lht-gold); background:rgba(23,184,166,0.14); color:var(--navy);}
+  .toolbar .chip.has-selection{border-color:var(--lht-gold); background:rgba(201,162,39,0.14); color:var(--navy);}
   .toolbar .chip .chip-count{font-weight:700; color:var(--gold-deep,#a3803f);}
   .pillar-section.on-navy .toolbar{background:var(--navy-2); border-color:var(--rule);}
   .pillar-section.on-navy .toolbar input{color:#fff;}
   .pillar-section.on-navy .toolbar input::placeholder{color:var(--ink-on-navy-dim);}
   .pillar-section.on-navy .toolbar .chip{background:var(--navy-2); border-color:var(--rule); color:var(--ink-on-navy);}
-  .pillar-section.on-navy .toolbar .chip.has-selection{border-color:var(--gold); background:rgba(23,184,166,0.16); color:#fff;}
+  .pillar-section.on-navy .toolbar .chip.has-selection{border-color:var(--gold); background:rgba(201,162,39,0.16); color:#fff;}
   .toolbar .btn{padding:9px 18px; white-space:nowrap;}
 
   /* thanh tra cứu theo Mã tài sản — độc lập với các thanh tìm kiếm theo mục ở dưới,
@@ -886,13 +948,13 @@
   .pillar-section.on-navy .listing-flag:hover, .pillar-section.on-navy .listing-flag:focus-visible{background:var(--navy); color:#fff;}
   .listing-card{
     display:grid; grid-template-columns:1.1fr 1fr; gap:0;
-    background:var(--lht-white); border:1px solid rgba(23,184,166,.16); border-radius:var(--lht-radius); overflow:hidden;
+    background:var(--lht-white); border:1px solid rgba(201,162,39,.16); border-radius:var(--lht-radius); overflow:hidden;
     box-shadow:var(--shadow); margin-bottom:30px;
     transition:box-shadow .18s ease, border-color .18s ease;
   }
   .listing-card:hover{
     border-color:var(--lht-gold);
-    box-shadow:0 14px 34px rgba(18,20,23,0.12), 0 0 0 3px rgba(23,184,166,.14);
+    box-shadow:0 14px 34px rgba(18,20,23,0.12), 0 0 0 3px rgba(201,162,39,.14);
   }
   @media (max-width:860px){ .listing-card{grid-template-columns:1fr;} }
 
@@ -1083,7 +1145,7 @@
   .listing-cta .btn.listing-share-btn.is-copied{background:var(--gold); border-color:var(--gold); color:var(--navy);}
   .listing-card.lht-deep-link-highlight{
     outline:3px solid var(--lht-gold); outline-offset:3px;
-    box-shadow:0 0 0 8px rgba(23,184,166,0.22);
+    box-shadow:0 0 0 8px rgba(201,162,39,0.22);
     transition:outline-color .3s ease, box-shadow .3s ease;
   }
 
@@ -1183,7 +1245,7 @@
   .listing-form-panel .field textarea{ min-height:90px; resize:vertical; font-family:inherit; }
   .listing-form-panel .field input:focus,
   .listing-form-panel .field textarea:focus,
-  .listing-form-panel select:focus{ outline:none; border-color:var(--lht-gold, #17B8A6); }
+  .listing-form-panel select:focus{ outline:none; border-color:var(--lht-gold, #C9A227); }
   .listing-form-actions{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:18px;}
   .form-status{font-size:0.8rem; color:var(--text-dim);}
 
@@ -1275,7 +1337,7 @@
     position:absolute; inset:0;
     background:
       linear-gradient(180deg, rgba(62,39,35,0) 55%, rgba(62,39,35,0.48) 100%),
-      linear-gradient(100deg, rgba(23,184,166,0.16), transparent 45%);
+      linear-gradient(100deg, rgba(201,162,39,0.16), transparent 45%);
     pointer-events:none;
   }
   .region-card h3{font-size:1rem; color:var(--navy);}
@@ -1467,7 +1529,7 @@
     cursor:pointer; transition:border-color .15s ease, background .15s ease, color .15s ease, transform .15s ease;
   }
   .brand-row button:hover, .brand-row button:focus-visible{
-    border-color:var(--lht-gold); background:rgba(23,184,166,0.12); color:var(--navy); transform:translateY(-1px);
+    border-color:var(--lht-gold); background:rgba(201,162,39,0.12); color:var(--navy); transform:translateY(-1px);
   }
 
   /* ---------------- Nav: nút nổi bật "Về Lê Hoài Thanh" ---------------- */
@@ -1567,6 +1629,14 @@
 </style>
 
 <header class="site">
+  <div class="lang-top-bar">
+    <div class="wrap">
+      <span class="lang-top-bar-label">Ngôn ngữ / Language / 語言：</span>
+      <button type="button" class="lang-option lang-top-bar-btn" data-lang="vi" role="menuitemradio" aria-label="Chuyển sang Tiếng Việt">Tiếng Việt</button>
+      <button type="button" class="lang-option lang-top-bar-btn" data-lang="zh" role="menuitemradio" aria-label="Chuyển sang Tiếng Trung">Tiếng Trung</button>
+      <button type="button" class="lang-option lang-top-bar-btn" data-lang="en" role="menuitemradio" aria-label="Chuyển sang Tiếng Anh">Tiếng Anh</button>
+    </div>
+  </div>
   <div class="wrap head-row">
     <div class="logo">
       <div class="logo-mark"><img src="images/logo.jpg" alt="Logo Lê Hoài Thanh"></div>
@@ -1614,6 +1684,10 @@
 </header>
 
 <section class="hero-section">
+  <div class="hero-bg-slides" aria-hidden="true">
+    <div class="hero-bg-slide"></div>
+    <div class="hero-bg-slide"></div>
+  </div>
   <div class="wrap hero-grid">
     <div class="portrait">
       <div class="portrait-frame">
@@ -1681,7 +1755,7 @@
 
 <!-- ============ VỀ LÊ HOÀI THANH ============ -->
 <!-- Mặc định ẩn: chỉ hiện khi bấm link "Về Lê Hoài Thanh" (xem initAboutReveal trong script) -->
-<section class="pillar-section" id="ve-le-hoai-thanh" style="display:none;">
+<section class="pillar-section" id="ve-le-hoai-thanh">
   <div class="wrap">
     <div class="pillar-head">
       <div>
@@ -1724,6 +1798,115 @@
           <div class="award-tile"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg><span>Ảnh sẽ cập nhật</span></div>
           <div class="award-tile"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg><span>Ảnh sẽ cập nhật</span></div>
           <div class="award-tile"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg><span>Ảnh sẽ cập nhật</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13/10/2026: thêm khối "Năng lực định vị tài sản & thương hiệu cá nhân" vào mục Khám phá
+         năng lực — nội dung được viết lại/rút gọn từ tài liệu nội bộ "Hệ thống thông tin bất động
+         sản" của Lê Hoài Thanh, không chạm vào bất kỳ API/Supabase/collection nào, chỉ là nội dung
+         tĩnh thêm mới trong khối about-block hiện có. -->
+    <div class="about-block">
+      <div class="about-subhead">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
+        <span data-i18n="section.about.cap.head">Năng lực định vị tài sản &amp; thương hiệu cá nhân</span>
+      </div>
+      <div class="about-bio-text" style="margin-bottom:18px;">
+        <p data-i18n="section.about.cap.intro">Phía sau mỗi lời tư vấn là một hệ thống thông tin được xây dựng riêng để định vị tài sản và kết nối đúng nguồn lực — "Kết nối bất động sản – Nguồn lực – Cơ hội đầu tư". Từ bất động sản công nghiệp, kho bãi, quỹ đất dự án đến nhà ở, mặt bằng thương mại và tài sản khai thác dòng tiền, mỗi loại tài sản đều được chuẩn hoá theo cùng một bộ tiêu chí để so sánh, định giá và ghép nối nhanh với đúng nhu cầu — thay vì chỉ giới thiệu từng tin đăng rời rạc.</p>
+      </div>
+
+      <div class="region-grid" style="margin-bottom:22px;">
+        <div class="region-card" style="--accent:#D11A2A;">
+          <h3 style="margin:0 0 6px;" data-i18n="section.about.cap.cat1.title">Bất động sản công nghiệp</h3>
+          <p style="font-size:0.82rem; color:var(--text-dim); margin:0;" data-i18n="section.about.cap.cat1.desc">Nhà xưởng, nhà máy, đất khu công nghiệp.</p>
+        </div>
+        <div class="region-card" style="--accent:#C9A227;">
+          <h3 style="margin:0 0 6px;" data-i18n="section.about.cap.cat2.title">Kho bãi &amp; Logistics</h3>
+          <p style="font-size:0.82rem; color:var(--text-dim); margin:0;" data-i18n="section.about.cap.cat2.desc">Kho vận, vận tải, xe nâng, chuỗi cung ứng.</p>
+        </div>
+        <div class="region-card" style="--accent:#D11A2A;">
+          <h3 style="margin:0 0 6px;" data-i18n="section.about.cap.cat3.title">Quỹ đất &amp; dự án đầu tư</h3>
+          <p style="font-size:0.82rem; color:var(--text-dim); margin:0;" data-i18n="section.about.cap.cat3.desc">Đất nền quy mô, dự án phát triển dài hạn.</p>
+        </div>
+        <div class="region-card" style="--accent:#C9A227;">
+          <h3 style="margin:0 0 6px;" data-i18n="section.about.cap.cat4.title">Bất động sản nhà ở</h3>
+          <p style="font-size:0.82rem; color:var(--text-dim); margin:0;" data-i18n="section.about.cap.cat4.desc">Nhà phố, căn hộ, đất dân cư.</p>
+        </div>
+        <div class="region-card" style="--accent:#D11A2A;">
+          <h3 style="margin:0 0 6px;" data-i18n="section.about.cap.cat5.title">Bất động sản thương mại</h3>
+          <p style="font-size:0.82rem; color:var(--text-dim); margin:0;" data-i18n="section.about.cap.cat5.desc">Mặt bằng kinh doanh, văn phòng, mặt tiền.</p>
+        </div>
+        <div class="region-card" style="--accent:#C9A227;">
+          <h3 style="margin:0 0 6px;" data-i18n="section.about.cap.cat6.title">BĐS khai thác dòng tiền</h3>
+          <p style="font-size:0.82rem; color:var(--text-dim); margin:0;" data-i18n="section.about.cap.cat6.desc">Tài sản cho thuê tạo thu nhập ổn định.</p>
+        </div>
+      </div>
+
+      <h4 style="font-family:'Oswald',sans-serif; font-size:0.85rem; color:var(--navy); margin-bottom:12px;" data-i18n="section.about.cap.info-title">Bộ thông tin chuẩn cho mỗi tài sản</h4>
+      <div class="info-grid" style="margin-bottom:22px;">
+        <div class="info-item">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span>
+          <span data-i18n="section.about.cap.info1">Nhận diện tài sản</span>
+        </div>
+        <div class="info-item">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c0-4.2 3.4-7 7.5-7s7.5 2.8 7.5 7"/></svg></span>
+          <span data-i18n="section.about.cap.info2">Chủ sở hữu / nguồn hàng</span>
+        </div>
+        <div class="info-item">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h7v7H4zM13 13h7v7h-7z"/><path d="M4 20l16-16"/></svg></span>
+          <span data-i18n="section.about.cap.info3">Diện tích &amp; hiện trạng</span>
+        </div>
+        <div class="info-item">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h4a1.8 1.8 0 010 3.6h-3a1.8 1.8 0 000 3.6h4.5"/></svg></span>
+          <span data-i18n="section.about.cap.info4">Giá &amp; điều kiện giao dịch</span>
+        </div>
+        <div class="info-item">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span>
+          <span data-i18n="section.about.cap.info5">Pháp lý &amp; hồ sơ</span>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h4 data-i18n="section.about.cap.process-title">Quy trình quản lý nguồn hàng</h4>
+        <p style="font-size:0.8rem; color:var(--text-dim); margin:0 0 14px;" data-i18n="section.about.cap.process-sub">Mỗi tài sản được theo dõi theo trạng thái rõ ràng — từ "chưa xác minh" đến "đã khảo sát thực tế", "đã kiểm tra hồ sơ", "đang đàm phán", "đã đặt cọc" hay "đã giao dịch" — để không bỏ sót và không tư vấn sai thông tin.</p>
+        <div class="process-flow">
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg></span>
+            <div class="process-step-body"><span class="process-step-num">01</span><span class="process-step-title" data-i18n="section.about.cap.step1">Tiếp nhận</span></div>
+          </div>
+          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>
+            <div class="process-step-body"><span class="process-step-num">02</span><span class="process-step-title" data-i18n="section.about.cap.step2">Xác minh</span></div>
+          </div>
+          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span>
+            <div class="process-step-body"><span class="process-step-num">03</span><span class="process-step-title" data-i18n="section.about.cap.step3">Chuẩn hoá</span></div>
+          </div>
+          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><path d="M10 12h4"/></svg></span>
+            <div class="process-step-body"><span class="process-step-num">04</span><span class="process-step-title" data-i18n="section.about.cap.step4">Ghép nối</span></div>
+          </div>
+          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <div class="process-step-body"><span class="process-step-num">05</span><span class="process-step-title" data-i18n="section.about.cap.step5">Theo dõi</span></div>
+          </div>
+          <svg class="process-connector" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <div class="process-step">
+            <span class="process-step-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4v5h5"/><path d="M4.6 15a8 8 0 1012.5 3.6"/><path d="M4.6 9A8 8 0 0119.4 9"/></svg></span>
+            <div class="process-step-body"><span class="process-step-num">06</span><span class="process-step-title" data-i18n="section.about.cap.step6">Cập nhật</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-org" style="margin-top:22px; background:var(--lht-navy); border-color:var(--lht-gold);">
+        <span class="ic" style="color:var(--lht-gold-light);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6.3 4.6 2.4 7.4L12 16.8 5.9 21.4l2.4-7.4L2 9.4h7.6z"/></svg></span>
+        <div>
+          <b style="color:#fff;" data-i18n="section.about.cap.tagline-label">Trọng tâm</b>
+          <span style="color:var(--lht-gold-light);" data-i18n="section.about.cap.tagline">Bất động sản công nghiệp – Nguồn lực – Đầu tư – Kết nối giao dịch. LÊ HOÀI THANH – Kết Nối Nguồn Lực – Kiến Tạo Giá Trị.</span>
         </div>
       </div>
     </div>
@@ -5259,8 +5442,8 @@
       const baseline = H - 20;
       const topPad = 16;
       const grad = ctx.createLinearGradient(0, topPad, 0, baseline);
-      grad.addColorStop(0, '#35D6C4');
-      grad.addColorStop(1, '#0E8F82');
+      grad.addColorStop(0, '#E8C468');
+      grad.addColorStop(1, '#9C7A1E');
       months.forEach((mo, i) => {
         const h = mo.count > 0 ? Math.max(5, Math.round((mo.count / max) * (baseline - topPad))) : 2;
         const x = gap + i * (barW + gap);
@@ -5383,6 +5566,36 @@
     "section.about.video-head": "Activity video",
     "section.about.groups-head": "Associations, clubs & communities",
     "section.about.events-head": "Events attended",
+    "section.about.cap.head": "Asset-positioning capability &amp; personal brand",
+    "section.about.cap.intro": "Behind every piece of advice is a dedicated information system built to position assets and connect the right resources — \"Connecting real estate – Resources – Investment opportunities.\" From industrial real estate, warehousing, land funds and development projects to residential property, commercial space and cash-flow-generating assets, every asset type is standardized on the same criteria for comparison, valuation and fast matching — instead of just listing individual properties.",
+    "section.about.cap.cat1.title": "Industrial real estate",
+    "section.about.cap.cat1.desc": "Factories, warehouses, industrial-park land.",
+    "section.about.cap.cat2.title": "Warehousing &amp; Logistics",
+    "section.about.cap.cat2.desc": "Warehousing, transport, forklifts, supply chain.",
+    "section.about.cap.cat3.title": "Land funds &amp; investment projects",
+    "section.about.cap.cat3.desc": "Large-scale land plots, long-term development projects.",
+    "section.about.cap.cat4.title": "Residential real estate",
+    "section.about.cap.cat4.desc": "Townhouses, apartments, residential land.",
+    "section.about.cap.cat5.title": "Commercial real estate",
+    "section.about.cap.cat5.desc": "Retail space, offices, street-front property.",
+    "section.about.cap.cat6.title": "Cash-flow-generating real estate",
+    "section.about.cap.cat6.desc": "Leased assets generating stable income.",
+    "section.about.cap.info-title": "A standard information set for every asset",
+    "section.about.cap.info1": "Asset identification",
+    "section.about.cap.info2": "Owner / source",
+    "section.about.cap.info3": "Area &amp; current status",
+    "section.about.cap.info4": "Price &amp; transaction terms",
+    "section.about.cap.info5": "Legal &amp; documentation",
+    "section.about.cap.process-title": "Source-management workflow",
+    "section.about.cap.process-sub": "Every asset is tracked through clear statuses — from \"unverified\" to \"on-site surveyed\", \"documents checked\", \"in negotiation\", \"deposit placed\" or \"deal closed\" — so nothing is missed and no inaccurate information is given.",
+    "section.about.cap.step1": "Intake",
+    "section.about.cap.step2": "Verification",
+    "section.about.cap.step3": "Standardization",
+    "section.about.cap.step4": "Matching",
+    "section.about.cap.step5": "Tracking",
+    "section.about.cap.step6": "Updating",
+    "section.about.cap.tagline-label": "Focus",
+    "section.about.cap.tagline": "Industrial real estate – Resources – Investment – Deal connection. LÊ HOÀI THANH – Connecting Resources – Creating Value.",
     "header.lang-title": "Language",
     "header.search-title": "Search",
     "common.zalo-label": "Message on Zalo",
@@ -5849,6 +6062,36 @@
     "section.about.video-head": "活動影片",
     "section.about.groups-head": "社團、俱樂部與社群",
     "section.about.events-head": "曾參與的活動",
+    "section.about.cap.head": "資產定位能力與個人品牌",
+    "section.about.cap.intro": "每一次諮詢背後，都有一套專為資產定位、連結正確資源而建立的信息系統——「連結房地產—資源—投資機會」。從工業房地產、倉儲物流、土地基金與開發項目，到住宅房地產、商業地產與現金流資產，每一類資產都依同一套標準進行統一化，便於比較、估價與快速配對，而不只是逐一介紹單筆房源。",
+    "section.about.cap.cat1.title": "工業房地產",
+    "section.about.cap.cat1.desc": "廠房、工廠、工業區土地。",
+    "section.about.cap.cat2.title": "倉儲與物流",
+    "section.about.cap.cat2.desc": "倉儲、運輸、堆高機、供應鏈。",
+    "section.about.cap.cat3.title": "土地基金與投資項目",
+    "section.about.cap.cat3.desc": "大規模地塊、長期開發項目。",
+    "section.about.cap.cat4.title": "住宅房地產",
+    "section.about.cap.cat4.desc": "街屋、公寓、住宅用地。",
+    "section.about.cap.cat5.title": "商業房地產",
+    "section.about.cap.cat5.desc": "商業場地、辦公室、臨街店面。",
+    "section.about.cap.cat6.title": "現金流資產",
+    "section.about.cap.cat6.desc": "可出租、帶來穩定收入的資產。",
+    "section.about.cap.info-title": "每筆資產的標準信息集",
+    "section.about.cap.info1": "資產識別",
+    "section.about.cap.info2": "業主／來源",
+    "section.about.cap.info3": "面積與現況",
+    "section.about.cap.info4": "價格與交易條件",
+    "section.about.cap.info5": "法律與文件",
+    "section.about.cap.process-title": "房源管理流程",
+    "section.about.cap.process-sub": "每筆資產都依清楚的狀態追蹤——從「未核實」到「已實地勘察」「已查核文件」「洽談中」「已付訂金」或「已成交」——確保資訊不遺漏、不提供錯誤信息。",
+    "section.about.cap.step1": "接收",
+    "section.about.cap.step2": "核實",
+    "section.about.cap.step3": "標準化",
+    "section.about.cap.step4": "配對",
+    "section.about.cap.step5": "追蹤",
+    "section.about.cap.step6": "更新",
+    "section.about.cap.tagline-label": "重點",
+    "section.about.cap.tagline": "工業房地產—資源—投資—交易連結。黎懷清——連結資源，創造價值。",
     "header.lang-title": "語言",
     "header.search-title": "搜尋",
     "common.zalo-label": "傳訊息至 Zalo",
@@ -6479,6 +6722,17 @@
     });
   }
 
+  /* 13/10/2026: 3 nút ngôn ngữ luôn hiển thị (thay cho icon địa cầu) — dùng lại đúng hàm
+     applyLanguage() ở trên, không đổi cách lưu/đọc ngôn ngữ (vẫn qua localStorage 'site_lang'
+     như cũ), chỉ thêm nơi bấm mới. */
+  function initLangTopBar(){
+    document.querySelectorAll('.lang-top-bar-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        applyLanguage(btn.getAttribute('data-lang'));
+      });
+    });
+  }
+
   function initSocialFloatToggle(){
     var toggle = document.getElementById('social-float-toggle');
     var stack = document.getElementById('social-float-stack');
@@ -6507,6 +6761,7 @@
   function boot(){
     cacheOriginals();
     initLangSwitcher();
+    initLangTopBar();
     initSocialFloatToggle();
     initFloatCollisionGuard();
     var saved = null;
