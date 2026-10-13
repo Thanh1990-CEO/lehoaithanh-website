@@ -249,6 +249,46 @@
   .lang-option.active::after{ content:"\2713"; font-weight:700; color:var(--lht-gold); }
   @media (max-width:640px){ .lang-menu{ left:-4px; min-width:142px; } }
 
+  /* 13/10/2026: ô tìm kiếm toàn trang trong header (xem initHeaderSearch trong script) — bố cục
+     dropdown mượn gần như nguyên vẹn từ .lang-menu/.lang-option phía trên để đồng bộ phong cách. */
+  .header-search{ position:relative; }
+  .header-search-panel{
+    position:absolute; top:calc(100% + 10px); right:0;
+    background:#fff; border:1px solid var(--lht-border); border-radius:10px;
+    box-shadow:var(--shadow); padding:10px; width:340px; max-width:min(340px, calc(100vw - 32px));
+    z-index:60;
+  }
+  .header-search-box{
+    display:flex; align-items:center; gap:8px;
+    border:1.4px solid var(--lht-border); border-radius:8px; padding:9px 11px;
+    transition:border-color .18s ease;
+  }
+  .header-search-box:focus-within{ border-color:var(--lht-gold); }
+  .header-search-box .hs-icon{ color:var(--text-dim); flex:none; }
+  .header-search-input{
+    border:none; outline:none; flex:1; min-width:0; background:transparent;
+    font-family:'Inter', sans-serif; font-size:0.86rem; color:var(--navy);
+  }
+  .header-search-results{ margin-top:8px; max-height:380px; overflow-y:auto; }
+  .hs-result-item{
+    display:flex; flex-direction:column; gap:2px; width:100%; text-align:left;
+    padding:9px 10px; border-radius:7px; border:none; background:transparent; cursor:pointer;
+    font-family:'Inter', sans-serif;
+  }
+  .hs-result-item:hover, .hs-result-item:focus-visible{ background:var(--lht-cream); outline:none; }
+  .hs-result-title{
+    font-size:0.84rem; font-weight:700; color:var(--navy);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hs-result-meta{
+    font-size:0.74rem; color:var(--text-dim);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hs-result-empty{ padding:14px 6px; font-size:0.82rem; color:var(--text-dim); text-align:center; }
+  @media (max-width:640px){
+    .header-search-panel{ position:fixed; top:66px; left:12px; right:12px; width:auto; max-width:none; }
+  }
+
   .zalo-float{
     position:fixed; right:20px; bottom:92px; z-index:9999;
     width:56px; height:56px; border-radius:16px; padding:3px;
@@ -384,7 +424,6 @@
     .head-actions{ gap:6px; flex:none; }
     .head-actions .icon-btn{ width:28px; height:28px; }
     .head-actions .icon-btn svg{ width:14px; height:14px; }
-    span.icon-btn[data-i18n-title="header.search-title"]{ display:none; }
     .cta-gold{ padding:7px 10px; font-size:0.72rem; white-space:nowrap; gap:4px; }
     .cta-gold svg{ width:12px; height:12px; }
     .home-btn{ padding:7px 9px; font-size:0.68rem; gap:4px; }
@@ -1654,9 +1693,25 @@
           <button type="button" class="lang-option" data-lang="ja" data-code="JP" role="menuitemradio"><span class="flag" aria-hidden="true"><svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="20" fill="#FFFFFF"/><circle cx="15" cy="10" r="6" fill="#BC002D"/></svg></span><span class="code">Tiếng Nhật</span></button>
         </div>
       </div>
-      <span class="icon-btn" aria-hidden="true" data-i18n-title="header.search-title" title="Tìm kiếm">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      </span>
+      <!-- 13/10/2026: kích hoạt ô tìm kiếm toàn trang (giống thanh tìm nhanh bên CRM nội bộ) —
+           nút kính lúp vốn chỉ là placeholder tĩnh (display:none trên di động, không có JS),
+           giờ bấm vào xổ ra 1 ô tìm theo tên/khu vực/mã tài sản, tìm xuyên suốt mọi ngành nghề
+           cùng lúc, gợi ý trực tiếp khi gõ. Nằm trong header (position:sticky) nên luôn "ghim"
+           cố định khi cuộn lên/xuống. Chỉ ĐỌC dữ liệu đã duyệt (y hệt cách thanh "Tra cứu theo
+           Mã tài sản" đang đọc), không đụng tới luồng đăng tin/insert/upload nào — xem
+           initHeaderSearch() trong script phía dưới. -->
+      <div class="header-search">
+        <button type="button" id="header-search-btn" class="icon-btn" aria-haspopup="true" aria-expanded="false" data-i18n-title="header.search-title" title="Tìm kiếm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
+        <div id="header-search-panel" class="header-search-panel" hidden role="dialog" aria-label="Tìm kiếm">
+          <div class="header-search-box">
+            <svg class="hs-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="header-search-input" class="header-search-input" data-i18n-placeholder="header.search-placeholder" placeholder="Tìm theo tên, khu vực, mã tài sản…" autocomplete="off">
+          </div>
+          <div id="header-search-results" class="header-search-results"></div>
+        </div>
+      </div>
       <a class="icon-btn zalo-icon-btn" href="https://zalo.me/0399831228" target="_blank" rel="noopener" data-i18n-title="common.zalo-label" title="Nhắn Zalo">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
       </a>
@@ -3497,6 +3552,148 @@
     if (!input || !btn) return;
     btn.addEventListener('click', () => lookupAssetCode(input.value));
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter'){ e.preventDefault(); lookupAssetCode(input.value); } });
+  })();
+
+  // =========================================================================
+  // 13/10/2026: Ô TÌM KIẾM TOÀN TRANG trong header (nút kính lúp) — tìm xuyên suốt mọi ngành
+  // nghề (BĐS công nghiệp/dân dụng, Logistics, Xe nâng, Dự án, Pháp lý, Media) cùng lúc, gõ tới
+  // đâu gợi ý tới đó, giống hệt ô tìm nhanh "global-asset-search" bên CRM nội bộ (thuật toán so
+  // khớp bỏ dấu + yêu cầu đủ từ khoá y hệt, chỉ chép lại ở đây vì CRM và trang chủ là 2 file
+  // riêng biệt, không dùng chung JS). CHỈ ĐỌC dữ liệu đã duyệt — 1 lần select('id,collection,
+  // asset_code,data') KHÔNG kèm .eq('collection',...) để lấy mọi ngành nghề cùng lúc, dùng
+  // đúng SUPABASE_TABLE/client/anon-key sẵn có, không thêm bảng/API/quyền nào mới, không đụng gì
+  // tới luồng đăng tin/insert/upload. Lọc hoàn toàn ở trình duyệt. Bấm vào 1 kết quả điều hướng
+  // bằng đúng shareListingUrl() + applyDeepLinkHighlight() đã có sẵn (giống hệt link chia sẻ/tra
+  // cứu mã tài sản), không tự chế cơ chế cuộn/mở mới. Vì nằm trong thẻ header.site đang
+  // position:sticky, ô tìm (nút kích hoạt) luôn "ghim" cố định khi cuộn lên/xuống.
+  // =========================================================================
+  function hsFoldVietnamese(s){
+    return String(s || '')
+      .toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/²/g, '2')
+      .replace(/[.,]/g, '');
+  }
+  function hsFlattenText(data){
+    const parts = [];
+    (function walk(v){
+      if (v == null) return;
+      if (typeof v === 'string'){ parts.push(v); return; }
+      if (typeof v === 'number'){ parts.push(String(v)); return; }
+      if (Array.isArray(v)){ v.forEach(walk); return; }
+      if (typeof v === 'object'){ Object.keys(v).forEach(function(k){ walk(v[k]); }); return; }
+    })(data);
+    return parts.join(' ');
+  }
+  function hsMatches(row, query){
+    const q = hsFoldVietnamese(query).trim();
+    if (!q) return false;
+    const tokens = q.split(/\s+/).filter(Boolean);
+    const hay = hsFoldVietnamese([hsFlattenText(row.data), row.asset_code || ''].join(' '));
+    return tokens.every(function(tok){
+      const leadingNum = tok.match(/^\d+/);
+      if (leadingNum){
+        const re = new RegExp('(^|\\D)' + leadingNum[0] + '(\\D|$)');
+        return re.test(hay);
+      }
+      return hay.indexOf(tok) !== -1;
+    });
+  }
+  let __hsCache = null;
+  async function hsLoadData(){
+    if (__hsCache) return __hsCache;
+    const client = lhtTrackClient();
+    if (!client){ __hsCache = []; return __hsCache; }
+    const { data, error } = await client
+      .from(SUPABASE_TABLE)
+      .select('id,collection,asset_code,data')
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    __hsCache = data || [];
+    return __hsCache;
+  }
+  function hsResultMeta(row){
+    const d = row.data || {};
+    const bits = [d.location, d.propertyType || d.category, row.asset_code].filter(Boolean);
+    return bits.join(' · ');
+  }
+  (function initHeaderSearch(){
+    const btn = document.getElementById('header-search-btn');
+    const panel = document.getElementById('header-search-panel');
+    const input = document.getElementById('header-search-input');
+    const resultsEl = document.getElementById('header-search-results');
+    if (!btn || !panel || !input || !resultsEl) return;
+
+    function t(key){ return (window.lhtT ? window.lhtT(key) : '') || key; }
+
+    function closePanel(){
+      panel.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+    }
+    function openPanel(){
+      panel.hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+      input.focus();
+      if (!input.value.trim()) renderHint();
+    }
+    function renderHint(){ resultsEl.innerHTML = '<div class="hs-result-empty">' + escapeHtml(t('search.hint')) + '</div>'; }
+    function renderLoading(){ resultsEl.innerHTML = '<div class="hs-result-empty">' + escapeHtml(t('search.loading')) + '</div>'; }
+    function renderError(){ resultsEl.innerHTML = '<div class="hs-result-empty">' + escapeHtml(t('search.error')) + '</div>'; }
+    function renderResults(rows){
+      if (!rows.length){
+        resultsEl.innerHTML = '<div class="hs-result-empty">' + escapeHtml(t('search.empty')) + '</div>';
+        return;
+      }
+      resultsEl.innerHTML = rows.slice(0, 8).map(function(row){
+        const d = row.data || {};
+        const title = escapeHtml(d.title || d.name || '(Chưa có tiêu đề)');
+        const meta = escapeHtml(hsResultMeta(row));
+        return '<button type="button" class="hs-result-item" data-hs-id="' + escapeHtml(row.id) + '" data-hs-collection="' + escapeHtml(row.collection || '') + '">' +
+          '<span class="hs-result-title">' + title + '</span>' +
+          (meta ? '<span class="hs-result-meta">' + meta + '</span>' : '') +
+          '</button>';
+      }).join('');
+    }
+
+    let debounceTimer = null;
+    function runSearch(){
+      const q = input.value.trim();
+      if (q.length < 2){ renderHint(); return; }
+      renderLoading();
+      hsLoadData().then(function(rows){
+        if (input.value.trim() !== q) return; // người dùng đã gõ tiếp — bỏ kết quả cũ, tránh "nhấp nháy"
+        renderResults(rows.filter(function(row){ return hsMatches(row, q); }));
+      }).catch(function(){ renderError(); });
+    }
+
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (panel.hidden) openPanel(); else closePanel();
+    });
+    input.addEventListener('input', function(){
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(runSearch, 220);
+    });
+    input.addEventListener('keydown', function(e){
+      if (e.key === 'Escape'){ closePanel(); btn.focus(); }
+    });
+    resultsEl.addEventListener('click', function(e){
+      const item = e.target.closest('.hs-result-item');
+      if (!item) return;
+      const id = item.getAttribute('data-hs-id');
+      const collection = item.getAttribute('data-hs-collection');
+      const sectionId = LHT_COLLECTION_SECTION[collection] || '';
+      lhtTrackEvent('search_result_click', { collection: collection || '', listing_id: id || '' });
+      window.location.href = shareListingUrl(sectionId, id);
+    });
+    document.addEventListener('click', function(e){
+      if (!panel.hidden && !panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) closePanel();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && !panel.hidden) closePanel();
+    });
   })();
 
   document.getElementById('lht-home-btn') && document.getElementById('lht-home-btn').addEventListener('click', () => {
@@ -5639,6 +5836,11 @@
     "section.about.cap.tagline": "Industrial real estate – Resources – Investment – Deal connection. LÊ HOÀI THANH – Connecting Resources – Creating Value.",
     "header.lang-title": "Language",
     "header.search-title": "Search",
+    "header.search-placeholder": "Search by name, area, asset code…",
+    "search.hint": "Type at least 2 characters to search…",
+    "search.loading": "Loading data…",
+    "search.empty": "No matching results — try a different keyword.",
+    "search.error": "Unable to load data right now, please try again later.",
     "common.zalo-label": "Message on Zalo",
     "header.cta-connect": "Connect Now",
     "hero.eyebrow": "Seeing the value behind every asset.",
@@ -6217,6 +6419,11 @@
     "section.about.cap.tagline": "工業房地產—資源—投資—交易連結。黎懷清——連結資源，創造價值。",
     "header.lang-title": "語言",
     "header.search-title": "搜尋",
+    "header.search-placeholder": "依名稱、地區、資產編號搜尋…",
+    "search.hint": "請至少輸入2個字元以搜尋…",
+    "search.loading": "正在載入資料…",
+    "search.empty": "找不到相符的結果 — 請嘗試其他關鍵字。",
+    "search.error": "目前無法載入資料，請稍後再試。",
     "common.zalo-label": "傳訊息至 Zalo",
     "header.cta-connect": "立即聯繫",
     "hero.eyebrow": "看見資產背後的價值。",
@@ -6795,6 +7002,11 @@
     "section.about.cap.tagline": "工業用不動産 – リソース – 投資 – 取引の橋渡し。レ・ホアイ・タイン — リソースをつなぎ、価値を創造する。",
     "header.lang-title": "言語",
     "header.search-title": "検索",
+    "header.search-placeholder": "名称・エリア・資産コードで検索…",
+    "search.hint": "検索するには2文字以上入力してください…",
+    "search.loading": "データを読み込み中…",
+    "search.empty": "一致する結果が見つかりません — 別のキーワードをお試しください。",
+    "search.error": "現在データを読み込めません。後でもう一度お試しください。",
     "common.zalo-label": "Zaloでメッセージ",
     "header.cta-connect": "今すぐ連絡",
     "hero.eyebrow": "すべての資産の裏にある価値を見出す。",
@@ -7354,6 +7566,10 @@
   /* ---- lower-priority: i18n for the dynamically-injected "empty state"
      feed fallback markup (see JS below); safe no-op if never called ---- */
   var LHT_VI_FALLBACK = {
+    'search.hint': 'Nhập ít nhất 2 ký tự để tìm kiếm…',
+    'search.loading': 'Đang tải dữ liệu…',
+    'search.empty': 'Không tìm thấy kết quả phù hợp — thử từ khoá khác.',
+    'search.error': 'Không thể tải dữ liệu lúc này, vui lòng thử lại sau.',
     'feed.common.empty-intro': 'Danh sách được cập nhật liên tục — liên hệ trực tiếp để nhận thông tin mới nhất, phù hợp đúng nhu cầu của bạn.',
     'feed.md.empty-intro': 'Nội dung Kiến thức & Media được cập nhật liên tục — liên hệ để được tư vấn hoặc hợp tác media.',
     'feed.common.call-now': 'Gọi ngay: 0399 831 228',
