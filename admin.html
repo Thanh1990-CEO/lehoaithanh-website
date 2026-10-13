@@ -597,6 +597,7 @@
       if (error) throw error;
       removeCard(id);
       postApprovedListingToFacebook(id);
+      translateApprovedListing(id);
     } catch(err){
       setCardBusy(cardEl, false);
       showCardError(cardEl, 'Không duyệt được tin này, vui lòng thử lại.');
@@ -617,6 +618,24 @@
     } catch (err){
       const msg = (err && err.message) ? err.message : 'lỗi không xác định';
       showGlobalNotice('⚠️ Đã duyệt tin, nhưng đăng Facebook thất bại (' + msg + '). Có thể đăng thủ công lên Page.', 'warn');
+    }
+  }
+
+  // 13/10/2026: Sau khi duyệt tin, tự động dịch tiêu đề + mô tả sang Anh/Trung/Nhật (lưu thêm
+  // title_en/description_en/title_zh/description_zh/title_ja/description_ja vào data, KHÔNG đổi
+  // field gốc tiếng Việt) — chạy nền, không chặn việc duyệt tin, không huỷ nếu dịch lỗi (web vẫn
+  // tự fallback hiện bản tiếng Việt cho tới khi dịch xong/thử lại). Chỉ dịch 1 lần/tin (edge
+  // function tự bỏ qua nếu tin đã có title_en, trừ khi gọi lại với force:true — chưa dùng ở đây).
+  async function translateApprovedListing(id){
+    try {
+      const { data, error } = await sb.functions.invoke('translate-listing', { body: { listingId: id } });
+      if (error) throw error;
+      if (!(data && (data.alreadyTranslated || data.skipped))){
+        showGlobalNotice('🌐 Đã dịch tin sang Anh/Trung/Nhật.', 'success');
+      }
+    } catch (err){
+      const msg = (err && err.message) ? err.message : 'lỗi không xác định';
+      showGlobalNotice('⚠️ Đã duyệt tin, nhưng dịch đa ngôn ngữ thất bại (' + msg + '). Trang web sẽ tạm hiện bản tiếng Việt cho tới khi dịch lại.', 'warn');
     }
   }
 

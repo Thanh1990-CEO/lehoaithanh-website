@@ -3208,12 +3208,37 @@
     __lhtLeadEl = el;
     return el;
   }
+  // 13/10/2026: modal "Yêu cầu tư vấn" được tạo 1 LẦN (innerHTML cố định tiếng Việt ở trên, giữ
+  // nguyên để không phá cấu trúc DOM/listener đã gắn) nhưng đồng bộ lại toàn bộ nhãn/placeholder/
+  // thông báo theo ngôn ngữ hiện tại MỖI LẦN mở — đảm bảo đúng ngôn ngữ kể cả khi người xem đổi
+  // ngôn ngữ sau khi modal đã được tạo lần đầu. Không đụng tới name="name"/"phone"/"message" hay
+  // bất kỳ field id nào, chỉ đổi textContent/placeholder hiển thị.
+  function lhtApplyLeadModalI18n(el){
+    const t = window.lhtT || function(k){ return ''; };
+    el.querySelector('.lht-lead-box').setAttribute('aria-label', t('lead.title'));
+    el.querySelector('.lht-lead-close').setAttribute('aria-label', t('lead.close'));
+    const h3 = el.querySelector('.lht-lead-box h3'); if (h3) h3.textContent = t('lead.title');
+    const nameLabel = el.querySelector('input[name="name"]')?.closest('.field')?.querySelector('label');
+    if (nameLabel) nameLabel.textContent = t('lead.name-label');
+    const phoneField = el.querySelector('input[name="phone"]');
+    const phoneLabel = phoneField?.closest('.field')?.querySelector('label');
+    if (phoneLabel) phoneLabel.textContent = t('lead.phone-label');
+    if (phoneField) phoneField.setAttribute('placeholder', t('lead.phone-placeholder'));
+    const msgField = el.querySelector('textarea[name="message"]');
+    const msgLabel = msgField?.closest('.field')?.querySelector('label');
+    if (msgLabel) msgLabel.textContent = t('lead.message-label');
+    if (msgField) msgField.setAttribute('placeholder', t('lead.message-placeholder'));
+    const submitBtn = el.querySelector('.lht-lead-form button[type="submit"]');
+    if (submitBtn) submitBtn.textContent = t('lead.submit');
+  }
   let __lhtLeadCtx = null;
   function lhtOpenLeadForm(collection, id, title){
     lhtTrackEvent('lead_form_open', { collection: collection || '', listing_id: id || '', listing_title: title || '' });
     const el = lhtEnsureLeadModal();
+    const t = window.lhtT || function(k){ return ''; };
+    lhtApplyLeadModalI18n(el);
     __lhtLeadCtx = { collection: collection || '', id: id || '', title: title || '' };
-    el.querySelector('.lht-lead-sub').textContent = title ? ('Về tin: ' + title) : 'Để lại thông tin, chúng tôi sẽ liên hệ tư vấn sớm nhất.';
+    el.querySelector('.lht-lead-sub').textContent = title ? (t('lead.about-prefix') + ' ' + title) : t('lead.default-sub');
     el.querySelector('.lht-lead-status').textContent = '';
     const form = el.querySelector('.lht-lead-form');
     form.reset();
@@ -3229,6 +3254,7 @@
   }
   async function lhtSubmitLead(e){
     e.preventDefault();
+    const t = window.lhtT || function(k){ return ''; };
     const form = e.target;
     const statusEl = __lhtLeadEl.querySelector('.lht-lead-status');
     const btn = form.querySelector('button[type="submit"]');
@@ -3237,16 +3263,16 @@
     const phone = (fd.get('phone') || '').toString().trim();
     const message = (fd.get('message') || '').toString().trim();
     if (!name || phone.length < 8){
-      statusEl.textContent = 'Vui lòng nhập đầy đủ họ tên và số điện thoại hợp lệ.';
+      statusEl.textContent = t('lead.status-error-fields');
       return;
     }
     const client = lhtTrackClient();
     if (!client){
-      statusEl.textContent = 'Không thể gửi lúc này, vui lòng gọi trực tiếp: 0399 831 228.';
+      statusEl.textContent = t('lead.status-error-noclient');
       return;
     }
     btn.disabled = true;
-    statusEl.textContent = 'Đang gửi...';
+    statusEl.textContent = t('lead.status-sending');
     try {
       const ctx = __lhtLeadCtx || {};
       const { error } = await client.from(WEB_LEADS_TABLE).insert({
@@ -3256,10 +3282,10 @@
       if (error) throw error;
       lhtTrackEvent('lead_form_submit', { collection: ctx.collection || '', listing_id: ctx.id || '', listing_title: ctx.title || '' });
       form.hidden = true;
-      statusEl.textContent = '✓ Đã gửi! Chúng tôi sẽ liên hệ với bạn sớm nhất.';
+      statusEl.textContent = t('lead.status-success');
       setTimeout(lhtCloseLeadModal, 2200);
     } catch(err){
-      statusEl.textContent = 'Có lỗi khi gửi, vui lòng thử lại hoặc gọi trực tiếp: 0399 831 228.';
+      statusEl.textContent = t('lead.status-error-submit');
     } finally {
       btn.disabled = false;
     }
@@ -3308,19 +3334,20 @@
     return `<li>${icon}<span class="lc-meta-label">${escapeHtml(label)}:</span> <b>${valueHtml}</b></li>`;
   }
   function lhtCompactCardShell(doc, galleryHtml, metaRowsHtml, detailHtml){
+    const t = window.lhtT || function(k){ return ''; };
     return `
     <div class="listing-card lc-compact" data-listing-id="${escapeHtml(doc._id || '')}" data-listing-collection="${escapeHtml(doc._collection || '')}">
       ${galleryHtml}
       <div class="lc-body">
         ${txnBadgesHtml(doc)}
-        <h3 class="lc-title">${escapeHtml(doc.title)}</h3>
+        <h3 class="lc-title">${escapeHtml(docText(doc, 'title'))}</h3>
         <ul class="lc-meta">${metaRowsHtml}</ul>
         <div class="lc-actions">
-          <a class="lc-call-btn" href="tel:0399831228">${lcPhoneIcon}<span>Gọi ngay</span></a>
+          <a class="lc-call-btn" href="tel:0399831228">${lcPhoneIcon}<span>${t('card.call-btn')}</span></a>
           <a class="lc-zalo-btn" href="https://zalo.me/0399831228" target="_blank" rel="noopener">${lcZaloIcon}<span>Zalo</span></a>
-          <button type="button" class="lc-detail-toggle" data-lc-toggle="1"><span>Chi tiết</span>${lcExpandIcon}</button>
+          <button type="button" class="lc-detail-toggle" data-lc-toggle="1"><span>${t('card.detail-btn')}</span>${lcExpandIcon}</button>
         </div>
-        <template class="lc-detail-tpl"><div class="lc-detail-head" data-listing-id="${escapeHtml(doc._id || '')}" data-listing-collection="${escapeHtml(doc._collection || '')}"><h3>${escapeHtml(doc.title)}</h3></div>${detailHtml}</template>
+        <template class="lc-detail-tpl"><div class="lc-detail-head" data-listing-id="${escapeHtml(doc._id || '')}" data-listing-collection="${escapeHtml(doc._collection || '')}"><h3>${escapeHtml(docText(doc, 'title'))}</h3></div>${detailHtml}</template>
       </div>
     </div>`;
   }
@@ -3350,6 +3377,9 @@
   }
   function lhtOpenDetailModal(tplEl){
     const el = lhtEnsureDetailModal();
+    const t = window.lhtT || function(k){ return ''; };
+    el.querySelector('.lht-detail-box').setAttribute('aria-label', t('detail.aria-label'));
+    el.querySelector('.lht-detail-close').setAttribute('aria-label', t('lead.close'));
     const body = el.querySelector('.lht-detail-modal-body');
     body.innerHTML = '';
     body.appendChild(tplEl.content.cloneNode(true));
@@ -3881,6 +3911,22 @@
     if (lang !== 'vi' && key && window.I18N_TRANSLATIONS && window.I18N_TRANSLATIONS[lang] && window.I18N_TRANSLATIONS[lang][key]) return window.I18N_TRANSLATIONS[lang][key];
     return tx[field];
   }
+  // 13/10/2026: tiêu đề/mô tả tin đăng (nội dung TỰ DO do người dùng nhập, khác với các nhãn
+  // thông số cố định như txnField/contentField ở trên) — dịch qua Edge Function "translate-listing"
+  // (gọi Gemini, xem admin.html) ngay sau khi admin duyệt tin, lưu thêm field "title_en"/
+  // "description_en"/"title_zh"/"description_zh"/"title_ja"/"description_ja" vào doc, HOÀN TOÀN
+  // ADDITIVE — field gốc title/description tiếng Việt không đổi. Hàm này chỉ đọc field đã dịch sẵn
+  // nếu có, không tự dịch/gọi API gì ở phía trình duyệt. Tin chưa kịp dịch (vd. vừa đăng, hoặc đăng
+  // từ trước khi có tính năng này) sẽ tự fallback về đúng nội dung tiếng Việt gốc — không bao giờ
+  // hiện trống.
+  function docText(doc, field){
+    const lang = window.LHT_CURRENT_LANG || 'vi';
+    if (lang !== 'vi'){
+      const v = doc[field + '_' + lang];
+      if (v) return v;
+    }
+    return doc[field] || '';
+  }
   // Mỗi tin đăng có thể gắn NHIỀU thẻ giao dịch cùng lúc (VD: vừa bán vừa cho thuê ký gửi).
   // Trả về mảng các key hợp lệ; vẫn đọc được dữ liệu cũ chỉ có 1 giá trị "txnType" (tương thích ngược).
   function getDocTxnTypes(data){
@@ -4388,7 +4434,7 @@
   // giữ nguyên hàm (không xoá) để không ảnh hưởng gì, phòng khi cần dùng lại.
   function renderEquipmentStyleCard(doc, srcCollection){
     const t = window.lhtT || function(k){ return ''; };
-    const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
+    const galleryHtml = lhtBuildGallery(doc.imageIds, docText(doc, 'title'), doc._id);
     const qtys = doc.qtys || [];
     const tierRows = qtys.map(q =>
       `<tr><td>${numFmt(q)} ${escapeHtml(doc.unit || '')}</td><td>${money(doc.pricePerUnit)}/${escapeHtml(doc.unit || 'đv')}</td><td class="hl">${money(q * doc.pricePerUnit)}</td></tr>`
@@ -4415,12 +4461,12 @@
         <div><b>${escapeHtml(doc.category || t('card.default-equip-type'))}</b><span>${t('card.category-type')}</span></div>
       </div>
       ${tierRows ? `<div class="listing-tiers"><table><tr><th>${t('card.scale')}</th><th>${t('card.table-unit-price')}</th><th>${t('card.table-total-equip')}</th></tr>${tierRows}</table></div>` : ''}
-      <p class="listing-note">${escapeHtml(doc.description || '')}${extraNote ? ' · ' + extraNote : ''}</p>
+      <p class="listing-note">${escapeHtml(docText(doc, 'description'))}${extraNote ? ' · ' + extraNote : ''}</p>
       ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
       ${lhtBuildFullDetailBlock(doc)}
       <div class="listing-cta">
         <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">${t('card.cta-quote')}</a>
-        <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(srcCollection)}">${t('card.cta-consult')}</button>
+        <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(docText(doc, 'title'))}" data-lead-collection="${escapeHtml(srcCollection)}">${t('card.cta-consult')}</button>
         <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">${t('card.cta-share')}</button>
       </div>`;
 
@@ -4431,7 +4477,7 @@
   function renderCard(doc){
     const t = window.lhtT || function(k){ return ''; };
     const tx = txnInfo(getDocTxnTypes(doc)[0]);
-    const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
+    const galleryHtml = lhtBuildGallery(doc.imageIds, docText(doc, 'title'), doc._id);
     const srcCollection = doc._collection || collection;
     if (srcCollection === 'xn_listings') return renderEquipmentStyleCard(doc, srcCollection);
 
@@ -4467,12 +4513,12 @@
         <div><b>${escapeHtml(doc.propertyType || t('card.default-property-type'))}</b><span>${t('card.property-type')}</span></div>
       </div>
       ${tierRows ? `<div class="listing-tiers"><table><tr><th>${t('card.area')}</th><th>${t('card.table-unit-price')}</th><th>${escapeHtml(txnField(tx, 'tierHead'))}</th></tr>${tierRows}</table></div>` : ''}
-      <p class="listing-note">${escapeHtml(doc.description || '')}${utilNote ? ' · ' + utilNote : ''}</p>
+      <p class="listing-note">${escapeHtml(docText(doc, 'description'))}${utilNote ? ' · ' + utilNote : ''}</p>
       ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
       ${lhtBuildFullDetailBlock(doc)}
       <div class="listing-cta">
         <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">${t('card.cta-quote')}</a>
-        <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(srcCollection)}">${t('card.cta-consult')}</button>
+        <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(docText(doc, 'title'))}" data-lead-collection="${escapeHtml(srcCollection)}">${t('card.cta-consult')}</button>
         <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">${t('card.cta-share')}</button>
       </div>`;
 
@@ -4941,7 +4987,7 @@
     function renderGenericCard(doc){
       const t = window.lhtT || function(k){ return ''; };
       doc._collection = doc._collection || collection;
-      const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
+      const galleryHtml = lhtBuildGallery(doc.imageIds, docText(doc, 'title'), doc._id);
 
       const qtys = doc.qtys || [];
       const tierRows = qtys.map(q =>
@@ -4972,12 +5018,12 @@
           <div><b>${escapeHtml(doc.category || brand)}</b><span>${t('card.category-type')}</span></div>
         </div>
         ${tierRows ? `<div class="listing-tiers"><table><tr><th>${t('card.scale')}</th><th>${t('card.table-unit-price')}</th><th>${t('card.table-total-equip')}</th></tr>${tierRows}</table></div>` : ''}
-        <p class="listing-note">${escapeHtml(doc.description || '')}${extraNote ? ' · ' + extraNote : ''}</p>
+        <p class="listing-note">${escapeHtml(docText(doc, 'description'))}${extraNote ? ' · ' + extraNote : ''}</p>
         ${amenities ? `<div class="listing-amenities">${amenities}</div>` : ''}
         ${lhtBuildFullDetailBlock(doc)}
         <div class="listing-cta">
           <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="#lien-he">${t('card.cta-quote')}</a>
-          <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(collection)}">${t('card.cta-consult')}</button>
+          <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(docText(doc, 'title'))}" data-lead-collection="${escapeHtml(collection)}">${t('card.cta-consult')}</button>
           <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="${escapeHtml(sectionId)}">${t('card.cta-share')}</button>
         </div>`;
 
@@ -5342,7 +5388,7 @@
     function renderMediaCard(doc){
       const t = window.lhtT || function(k){ return ''; };
       const ct = contentInfo(doc.contentType);
-      const galleryHtml = lhtBuildGallery(doc.imageIds, doc.title, doc._id);
+      const galleryHtml = lhtBuildGallery(doc.imageIds, docText(doc, 'title'), doc._id);
       const tags = (doc.tags || []).map(t => `<span>${escapeHtml(t)}</span>`).join('');
       const linkBtn = doc.link ? `<a class="btn" href="${escapeHtml(doc.link)}" target="_blank" rel="noopener">${t('card.view-content')}</a>` : '';
 
@@ -5352,15 +5398,15 @@
         ${galleryHtml}
         <div class="listing-body">
           <span class="listing-badge" style="--txn-color:${ct.color};">${escapeHtml(contentField(ct, 'label'))}</span>
-          <h3>${escapeHtml(doc.title)}</h3>
+          <h3>${escapeHtml(docText(doc, 'title'))}</h3>
           <div class="listing-loc">${escapeHtml(doc.topic || '')}</div>
           <div class="listing-code">${t('card.asset-code')}: <b>${escapeHtml(doc.assetCode || '—')}</b></div>
-          <p class="listing-note">${escapeHtml(doc.description || '')}</p>
+          <p class="listing-note">${escapeHtml(docText(doc, 'description'))}</p>
           ${tags ? `<div class="listing-amenities">${tags}</div>` : ''}
           <div class="listing-cta">
             ${linkBtn}
             <a class="btn outline" style="border-color:var(--navy); color:var(--navy); background:transparent;" href="tel:0399831228">${t('feed.common.call-now')}</a>
-            <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(doc.title || '')}" data-lead-collection="${escapeHtml(collection)}">${t('card.cta-consult')}</button>
+            <button type="button" class="btn lead-form-btn" style="background:transparent; border:1.5px solid var(--gold); color:var(--navy);" data-lead-id="${escapeHtml(doc._id || '')}" data-lead-title="${escapeHtml(docText(doc, 'title'))}" data-lead-collection="${escapeHtml(collection)}">${t('card.cta-consult')}</button>
             <button type="button" class="btn listing-share-btn" data-share-id="${escapeHtml(doc._id || '')}" data-section-id="kien-thuc-media">${t('card.cta-share')}</button>
           </div>
         </div>
@@ -5841,6 +5887,24 @@
     "search.loading": "Loading data…",
     "search.empty": "No matching results — try a different keyword.",
     "search.error": "Unable to load data right now, please try again later.",
+    "card.call-btn": "Call Now",
+    "card.detail-btn": "Details",
+    "lead.title": "Request Consultation",
+    "lead.close": "Close",
+    "lead.default-sub": "Leave your information and we'll contact you as soon as possible.",
+    "lead.about-prefix": "Regarding:",
+    "lead.name-label": "Full Name *",
+    "lead.phone-label": "Phone Number *",
+    "lead.phone-placeholder": "e.g. 0399 831 228",
+    "lead.message-label": "Message (optional)",
+    "lead.message-placeholder": "What else would you like to ask?",
+    "lead.submit": "Send Request",
+    "lead.status-sending": "Sending...",
+    "lead.status-success": "✓ Sent! We'll contact you as soon as possible.",
+    "lead.status-error-fields": "Please enter a valid full name and phone number.",
+    "lead.status-error-noclient": "Unable to send right now, please call directly: 0399 831 228.",
+    "lead.status-error-submit": "An error occurred, please try again or call directly: 0399 831 228.",
+    "detail.aria-label": "Product/Service Details",
     "common.zalo-label": "Message on Zalo",
     "header.cta-connect": "Connect Now",
     "hero.eyebrow": "Seeing the value behind every asset.",
@@ -6424,6 +6488,24 @@
     "search.loading": "正在載入資料…",
     "search.empty": "找不到相符的結果 — 請嘗試其他關鍵字。",
     "search.error": "目前無法載入資料，請稍後再試。",
+    "card.call-btn": "立即致電",
+    "card.detail-btn": "詳情",
+    "lead.title": "諮詢需求",
+    "lead.close": "關閉",
+    "lead.default-sub": "留下您的資訊，我們將盡快與您聯繫。",
+    "lead.about-prefix": "關於：",
+    "lead.name-label": "姓名 *",
+    "lead.phone-label": "電話號碼 *",
+    "lead.phone-placeholder": "例如：0399 831 228",
+    "lead.message-label": "留言（選填）",
+    "lead.message-placeholder": "您還想詢問什麼？",
+    "lead.submit": "送出需求",
+    "lead.status-sending": "傳送中...",
+    "lead.status-success": "✓ 已送出！我們將盡快與您聯繫。",
+    "lead.status-error-fields": "請輸入有效的姓名和電話號碼。",
+    "lead.status-error-noclient": "目前無法送出，請直接致電：0399 831 228。",
+    "lead.status-error-submit": "送出時發生錯誤，請重試或直接致電：0399 831 228。",
+    "detail.aria-label": "產品／服務詳情",
     "common.zalo-label": "傳訊息至 Zalo",
     "header.cta-connect": "立即聯繫",
     "hero.eyebrow": "看見資產背後的價值。",
@@ -7007,6 +7089,24 @@
     "search.loading": "データを読み込み中…",
     "search.empty": "一致する結果が見つかりません — 別のキーワードをお試しください。",
     "search.error": "現在データを読み込めません。後でもう一度お試しください。",
+    "card.call-btn": "今すぐ電話",
+    "card.detail-btn": "詳細",
+    "lead.title": "相談リクエスト",
+    "lead.close": "閉じる",
+    "lead.default-sub": "情報をご記入いただければ、できるだけ早くご連絡いたします。",
+    "lead.about-prefix": "件名：",
+    "lead.name-label": "氏名 *",
+    "lead.phone-label": "電話番号 *",
+    "lead.phone-placeholder": "例：0399 831 228",
+    "lead.message-label": "メッセージ（任意）",
+    "lead.message-placeholder": "他に何かご質問はありますか？",
+    "lead.submit": "リクエストを送信",
+    "lead.status-sending": "送信中...",
+    "lead.status-success": "✓ 送信しました！できるだけ早くご連絡いたします。",
+    "lead.status-error-fields": "有効な氏名と電話番号をご入力ください。",
+    "lead.status-error-noclient": "現在送信できません。直接お電話ください：0399 831 228。",
+    "lead.status-error-submit": "送信中にエラーが発生しました。再試行するか、直接お電話ください：0399 831 228。",
+    "detail.aria-label": "製品・サービス詳細",
     "common.zalo-label": "Zaloでメッセージ",
     "header.cta-connect": "今すぐ連絡",
     "hero.eyebrow": "すべての資産の裏にある価値を見出す。",
@@ -7566,6 +7666,24 @@
   /* ---- lower-priority: i18n for the dynamically-injected "empty state"
      feed fallback markup (see JS below); safe no-op if never called ---- */
   var LHT_VI_FALLBACK = {
+    'card.call-btn': 'Gọi ngay',
+    'card.detail-btn': 'Chi tiết',
+    'lead.title': 'Yêu cầu tư vấn',
+    'lead.close': 'Đóng',
+    'lead.default-sub': 'Để lại thông tin, chúng tôi sẽ liên hệ tư vấn sớm nhất.',
+    'lead.about-prefix': 'Về tin:',
+    'lead.name-label': 'Họ tên *',
+    'lead.phone-label': 'Số điện thoại *',
+    'lead.phone-placeholder': 'VD: 0399 831 228',
+    'lead.message-label': 'Lời nhắn (không bắt buộc)',
+    'lead.message-placeholder': 'Bạn muốn hỏi thêm điều gì?',
+    'lead.submit': 'Gửi yêu cầu',
+    'lead.status-sending': 'Đang gửi...',
+    'lead.status-success': '✓ Đã gửi! Chúng tôi sẽ liên hệ với bạn sớm nhất.',
+    'lead.status-error-fields': 'Vui lòng nhập đầy đủ họ tên và số điện thoại hợp lệ.',
+    'lead.status-error-noclient': 'Không thể gửi lúc này, vui lòng gọi trực tiếp: 0399 831 228.',
+    'lead.status-error-submit': 'Có lỗi khi gửi, vui lòng thử lại hoặc gọi trực tiếp: 0399 831 228.',
+    'detail.aria-label': 'Chi tiết sản phẩm, dịch vụ',
     'search.hint': 'Nhập ít nhất 2 ký tự để tìm kiếm…',
     'search.loading': 'Đang tải dữ liệu…',
     'search.empty': 'Không tìm thấy kết quả phù hợp — thử từ khoá khác.',
