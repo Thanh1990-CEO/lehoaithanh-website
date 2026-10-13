@@ -3736,18 +3736,29 @@
   // =========================================================================
   window.__lhtGalleryMap = window.__lhtGalleryMap || {};
   function lhtBuildGallery(imageIds, altBase, docId){
+    const t = window.lhtT || function(k){ return ''; };
     const imgs = (imageIds || []).filter(Boolean);
     if (docId) window.__lhtGalleryMap[docId] = imgs;
     if (!imgs.length){
       return '<div class="listing-gallery"><div class="listing-gallery-empty"></div></div>';
     }
     const countBadge = imgs.length > 1
-      ? `<span class="listing-gallery-count">🖼️ ${imgs.length} ảnh</span>`
+      ? `<span class="listing-gallery-count">🖼️ ${escapeHtml(t('gallery.photos-count').replace('{n}', imgs.length))}</span>`
       : '';
-    return `<div class="listing-gallery" data-listing-id="${escapeHtml(docId || '')}" role="button" tabindex="0" aria-label="Xem ảnh">
+    return `<div class="listing-gallery" data-listing-id="${escapeHtml(docId || '')}" role="button" tabindex="0" aria-label="${escapeHtml(t('gallery.view-aria'))}">
       <img src="${escapeHtml(imgs[0])}" alt="${escapeHtml(altBase || '')} — hình ảnh thực tế" loading="lazy">
       ${countBadge}
     </div>`;
+  }
+
+  function lhtApplyLightboxI18n(el){
+    const t = window.lhtT || function(k){ return ''; };
+    const closeBtn = el.querySelector('.lht-lightbox-close');
+    const prevBtn = el.querySelector('.lht-lightbox-prev');
+    const nextBtn = el.querySelector('.lht-lightbox-next');
+    if (closeBtn) closeBtn.setAttribute('aria-label', t('common.close'));
+    if (prevBtn) prevBtn.setAttribute('aria-label', t('lightbox.prev-aria'));
+    if (nextBtn) nextBtn.setAttribute('aria-label', t('lightbox.next-aria'));
   }
 
   let __lhtLightboxEl = null, __lhtLightboxImgs = [], __lhtLightboxIdx = 0;
@@ -3763,6 +3774,8 @@
       <div class="lht-lightbox-count"></div>
     `;
     document.body.appendChild(el);
+    lhtApplyLightboxI18n(el);
+    (window.__lhtLangRedraw = window.__lhtLangRedraw || []).push(function(){ lhtApplyLightboxI18n(el); });
     el.querySelector('.lht-lightbox-close').addEventListener('click', lhtCloseLightbox);
     el.querySelector('.lht-lightbox-prev').addEventListener('click', (e) => { e.stopPropagation(); lhtLightboxStep(-1); });
     el.querySelector('.lht-lightbox-next').addEventListener('click', (e) => { e.stopPropagation(); lhtLightboxStep(1); });
@@ -5889,6 +5902,11 @@
     "search.error": "Unable to load data right now, please try again later.",
     "card.call-btn": "Call Now",
     "card.detail-btn": "Details",
+    "gallery.photos-count": "{n} photos",
+    "gallery.view-aria": "View photos",
+    "common.close": "Close",
+    "lightbox.prev-aria": "Previous photo",
+    "lightbox.next-aria": "Next photo",
     "lead.title": "Request Consultation",
     "lead.close": "Close",
     "lead.default-sub": "Leave your information and we'll contact you as soon as possible.",
@@ -6490,6 +6508,11 @@
     "search.error": "目前無法載入資料，請稍後再試。",
     "card.call-btn": "立即致電",
     "card.detail-btn": "詳情",
+    "gallery.photos-count": "{n} 張相片",
+    "gallery.view-aria": "查看相片",
+    "common.close": "關閉",
+    "lightbox.prev-aria": "上一張相片",
+    "lightbox.next-aria": "下一張相片",
     "lead.title": "諮詢需求",
     "lead.close": "關閉",
     "lead.default-sub": "留下您的資訊，我們將盡快與您聯繫。",
@@ -7091,6 +7114,11 @@
     "search.error": "現在データを読み込めません。後でもう一度お試しください。",
     "card.call-btn": "今すぐ電話",
     "card.detail-btn": "詳細",
+    "gallery.photos-count": "{n} 枚の写真",
+    "gallery.view-aria": "写真を見る",
+    "common.close": "閉じる",
+    "lightbox.prev-aria": "前の写真",
+    "lightbox.next-aria": "次の写真",
     "lead.title": "相談リクエスト",
     "lead.close": "閉じる",
     "lead.default-sub": "情報をご記入いただければ、できるだけ早くご連絡いたします。",
@@ -7629,7 +7657,7 @@
 };
   window.I18N_TRANSLATIONS = I18N_TRANSLATIONS;
 
-  var ORIGINAL_VI = { text: {}, html: {}, placeholder: {}, title: {} };
+  var ORIGINAL_VI = { text: {}, html: {}, placeholder: {}, title: {}, aria: {} };
 
   function cacheOriginals(){
     document.querySelectorAll('[data-i18n]').forEach(function(el){
@@ -7647,6 +7675,12 @@
     document.querySelectorAll('[data-i18n-title]').forEach(function(el){
       var k = el.getAttribute('data-i18n-title');
       if (!(k in ORIGINAL_VI.title)) ORIGINAL_VI.title[k] = el.getAttribute('title');
+    });
+    // 13/10/2026: data-i18n-aria — dịch aria-label của các nút chỉ có icon (đóng lightbox,
+    // nút trước/sau khi xem ảnh, đóng bảng thống kê...), additive, không đụng data-i18n-title.
+    document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+      var k = el.getAttribute('data-i18n-aria');
+      if (!(k in ORIGINAL_VI.aria)) ORIGINAL_VI.aria[k] = el.getAttribute('aria-label');
     });
   }
 
@@ -7668,6 +7702,11 @@
   var LHT_VI_FALLBACK = {
     'card.call-btn': 'Gọi ngay',
     'card.detail-btn': 'Chi tiết',
+    'gallery.photos-count': '{n} ảnh',
+    'gallery.view-aria': 'Xem ảnh',
+    'common.close': 'Đóng',
+    'lightbox.prev-aria': 'Ảnh trước',
+    'lightbox.next-aria': 'Ảnh sau',
     'lead.title': 'Yêu cầu tư vấn',
     'lead.close': 'Đóng',
     'lead.default-sub': 'Để lại thông tin, chúng tôi sẽ liên hệ tư vấn sớm nhất.',
@@ -7889,6 +7928,11 @@
       var v = lookup('title', k, lang);
       if (v != null) el.setAttribute('title', v);
     });
+    document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+      var k = el.getAttribute('data-i18n-aria');
+      var v = lookup('aria', k, lang);
+      if (v != null) el.setAttribute('aria-label', v);
+    });
 
     refreshFeedFallbacks(lang);
 
@@ -8024,7 +8068,7 @@
   <div class="lht-stats-panel" id="lht-stats-panel" role="dialog" aria-label="Thống kê dữ liệu">
     <div class="lht-stats-head">
       <strong data-i18n="stats.widget.title">Dữ liệu đang cập nhật</strong>
-      <button type="button" class="lht-stats-close" id="lht-stats-close" aria-label="Đóng">&times;</button>
+      <button type="button" class="lht-stats-close" id="lht-stats-close" aria-label="Đóng" data-i18n-aria="common.close">&times;</button>
     </div>
     <div class="lht-stats-total">
       <span class="lht-stats-total-num" id="lht-stats-total-num">—</span>
