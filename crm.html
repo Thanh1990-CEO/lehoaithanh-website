@@ -272,21 +272,49 @@
 
   /* ---------------- 13/10/2026: Tổng quan thị trường ngành (bảng lht_market_benchmarks) ---------------- */
   .mkt-updated{ font-size:0.7rem; color:var(--muted); margin:0 0 12px; }
-  .mkt-industry{ margin-bottom:16px; }
+  .mkt-industry{ margin-bottom:18px; }
   .mkt-industry:last-child{ margin-bottom:0; }
-  .mkt-industry-head{ font-size:0.86rem; font-weight:800; color:var(--navy); margin:0 0 6px; }
-  .mkt-region{ margin-bottom:10px; }
-  .mkt-region:last-child{ margin-bottom:0; }
-  .mkt-region-label{ font-size:0.74rem; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.02em; margin:0 0 4px; }
-  .mkt-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:7px 0; border-top:1px solid var(--border); }
-  .mkt-row:first-child{ border-top:none; }
-  .mkt-row-main{ flex:1; min-width:0; }
-  .mkt-row-label{ font-size:0.8rem; color:var(--text); font-weight:600; }
-  .mkt-row-meta{ font-size:0.68rem; color:var(--muted); margin-top:2px; line-height:1.4; }
-  .mkt-row-meta a{ color:var(--blue); }
-  .mkt-row-note{ font-size:0.68rem; color:var(--muted); margin-top:2px; font-style:italic; line-height:1.4; }
-  .mkt-row-value{ font-size:0.86rem; font-weight:800; color:var(--navy); font-variant-numeric:tabular-nums; flex:none; text-align:right; white-space:nowrap; }
-  .mkt-row-value.pending{ color:var(--muted); font-weight:600; font-style:italic; white-space:normal; text-align:right; max-width:160px; }
+  .mkt-industry-head{ font-size:0.86rem; font-weight:800; color:var(--navy); margin:0 0 8px; }
+
+  /* 13/10/2026 (v2): lưới thẻ chỉ số — thay cho danh sách phẳng, giống 1 bảng điều khiển */
+  .mkt-industry-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+  @media (min-width:640px){ .mkt-industry-grid{ grid-template-columns:1fr 1fr; } }
+  @media (min-width:1180px){ .mkt-industry-grid{ grid-template-columns:repeat(3, 1fr); } }
+  .mkt-card{ background:var(--light); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
+  .mkt-card-region{ font-size:0.66rem; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.03em; }
+  .mkt-card-label{ font-size:0.82rem; font-weight:700; color:var(--text); margin-top:2px; line-height:1.3; }
+  .mkt-card-value{ font-size:1.1rem; font-weight:800; color:var(--navy); font-variant-numeric:tabular-nums; margin-top:8px; line-height:1.2; }
+  .mkt-card-value.pending{ font-size:0.76rem; color:var(--muted); font-style:italic; font-weight:600; }
+  .mkt-card-badge-row{ margin-top:6px; }
+  .mkt-card-meta{ font-size:0.68rem; color:var(--muted); margin-top:6px; line-height:1.4; }
+  .mkt-card-meta a{ color:var(--blue); }
+  .mkt-card-note{ font-size:0.68rem; color:var(--muted); margin-top:4px; font-style:italic; line-height:1.4; }
+
+  /* ---------------- 13/10/2026 (v2): Bố cục lại Tổng quan — khối theo chủ đề + badge xu hướng ---------------- */
+  .ov-section{ margin-top:24px; }
+  .ov-section:first-child{ margin-top:0; }
+  .ov-section-head{ margin-bottom:10px; }
+  .ov-section-eyebrow{ font-size:0.66rem; font-weight:800; color:var(--blue); text-transform:uppercase; letter-spacing:.07em; margin:0 0 2px; }
+  .ov-section-title{ font-size:0.98rem; font-weight:800; color:var(--navy); margin:0; }
+  .ov-section-sub{ font-size:0.74rem; color:var(--muted); margin:3px 0 0; line-height:1.4; }
+
+  .ov-grid-2{ display:grid; grid-template-columns:1fr; gap:14px; }
+  @media (min-width:860px){ .ov-grid-2{ grid-template-columns:1fr 1fr; } .ov-grid-2 .chart-card{ margin-top:0; } }
+  .ov-grid-3{ display:grid; grid-template-columns:1fr; gap:14px; }
+  @media (min-width:860px){ .ov-grid-3{ grid-template-columns:repeat(3, 1fr); } .ov-grid-3 .chart-card{ margin-top:0; } }
+
+  .chart-card-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:2px; }
+  .chart-card-head .chart-card-titles{ min-width:0; flex:1; }
+  .chart-card-head h3{ margin:0 0 2px; }
+
+  /* Badge xu hướng tăng/giảm — dùng chung cho KPI, biểu đồ đường & thẻ thị trường ngành.
+     Luôn đi kèm icon + chữ (▲/▼/● + %), không chỉ dựa vào màu, để không phụ thuộc màu sắc. */
+  .trend-badge{ display:inline-flex; align-items:center; gap:4px; font-size:0.7rem; font-weight:800; padding:3px 8px; border-radius:999px; white-space:nowrap; }
+  .trend-badge.up{ color:var(--green); background:rgba(47,125,79,0.1); }
+  .trend-badge.down{ color:var(--red); background:rgba(179,38,30,0.1); }
+  .trend-badge.flat{ color:var(--muted); background:var(--light); }
+  .trend-badge.baseline{ color:var(--blue); background:rgba(11,92,145,0.1); }
+  .kpi-trend{ margin-top:6px; }
 
   /* ---------------- Thống kê tổng quan (tab Tài sản/Dự án) ---------------- */
   .asset-stats-panel{ margin-top:14px; }
@@ -532,56 +560,109 @@
 
     <!-- ============ Tab: Tổng quan ============ -->
     <div class="tab-panel" id="tab-overview">
-      <div class="kpi-grid" id="kpi-grid">
-        <div class="kpi-tile"><div class="kpi-value" id="kpi-contacts">–</div><div class="kpi-label">Tổng khách hàng</div></div>
-        <div class="kpi-tile"><div class="kpi-value" id="kpi-leads-new">–</div><div class="kpi-label">Lead mới chưa xử lý</div></div>
-        <div class="kpi-tile"><div class="kpi-value" id="kpi-pending-listings">–</div><div class="kpi-label">Tin đăng chờ duyệt</div></div>
-        <div class="kpi-tile"><div class="kpi-value accent" id="kpi-views-7d">–</div><div class="kpi-label">Lượt xem 7 ngày qua</div></div>
-        <div class="kpi-tile"><div class="kpi-value accent" id="kpi-calls-7d">–</div><div class="kpi-label">Bấm gọi 7 ngày qua</div></div>
-        <div class="kpi-tile"><div class="kpi-value" id="kpi-winrate">–</div><div class="kpi-label">Tỷ lệ chốt thành công</div></div>
+
+      <!-- ============ 13/10/2026 (v2): Bố cục lại toàn bộ tab Tổng quan ============
+           Thiết kế theo dạng "bảng điều khiển" 4 khối rõ ràng, đọc từ trên xuống:
+           1) Chỉ số nhanh (KPI nội bộ)  2) Xu hướng nội bộ (biểu đồ đường có badge tăng/giảm)
+           3) Thị trường ngành (nguồn ngoài, dạng lưới thẻ chỉ số)  4) Xếp hạng & phân bổ chi tiết.
+           Toàn bộ id/hàm fetch dữ liệu hiện có GIỮ NGUYÊN — chỉ đổi cách trình bày + bổ sung
+           logic tính xu hướng (JS, không đổi API/bảng/field). -->
+
+      <div class="ov-section">
+        <div class="ov-section-head">
+          <p class="ov-section-eyebrow">Chỉ số nhanh</p>
+          <h2 class="ov-section-title">Tình hình kinh doanh &amp; website</h2>
+          <p class="ov-section-sub">Số liệu nội bộ — khách hàng, tin đăng, lượt xem, tỷ lệ chốt</p>
+        </div>
+        <div class="kpi-grid" id="kpi-grid">
+          <div class="kpi-tile"><div class="kpi-value" id="kpi-contacts">–</div><div class="kpi-label">Tổng khách hàng</div></div>
+          <div class="kpi-tile"><div class="kpi-value" id="kpi-leads-new">–</div><div class="kpi-label">Lead mới chưa xử lý</div></div>
+          <div class="kpi-tile"><div class="kpi-value" id="kpi-pending-listings">–</div><div class="kpi-label">Tin đăng chờ duyệt</div></div>
+          <div class="kpi-tile">
+            <div class="kpi-value accent" id="kpi-views-7d">–</div><div class="kpi-label">Lượt xem 7 ngày qua</div>
+            <div class="kpi-trend" id="kpi-views-7d-trend"></div>
+          </div>
+          <div class="kpi-tile"><div class="kpi-value accent" id="kpi-calls-7d">–</div><div class="kpi-label">Bấm gọi 7 ngày qua</div></div>
+          <div class="kpi-tile"><div class="kpi-value" id="kpi-winrate">–</div><div class="kpi-label">Tỷ lệ chốt thành công</div></div>
+        </div>
       </div>
 
-      <div class="chart-card">
-        <h3>Lượt xem trang &amp; tin đăng</h3>
-        <p class="chart-sub">30 ngày gần nhất — gồm xem trang chủ và xem từng tin đăng</p>
-        <div class="chart-wrap" id="chart-views"></div>
-      </div>
+      <div class="ov-section">
+        <div class="ov-section-head">
+          <p class="ov-section-eyebrow">Xu hướng nội bộ</p>
+          <h2 class="ov-section-title">Lượt xem &amp; lead theo ngày</h2>
+          <p class="ov-section-sub">30 ngày gần nhất · badge so sánh 7 ngày gần nhất với 7 ngày liền trước</p>
+        </div>
+        <div class="ov-grid-2">
+          <div class="chart-card">
+            <div class="chart-card-head">
+              <div class="chart-card-titles">
+                <h3>Lượt xem trang &amp; tin đăng</h3>
+                <p class="chart-sub">Gồm xem trang chủ và xem từng tin đăng</p>
+              </div>
+              <span id="trend-views"></span>
+            </div>
+            <div class="chart-wrap" id="chart-views"></div>
+          </div>
 
-      <div class="chart-card">
-        <h3>Lead mới theo ngày</h3>
-        <p class="chart-sub">30 ngày gần nhất — từ form "Yêu cầu tư vấn" trên website</p>
-        <div class="chart-wrap" id="chart-leads"></div>
-      </div>
-
-      <div class="chart-card">
-        <h3>Tin được xem nhiều nhất</h3>
-        <p class="chart-sub">30 ngày gần nhất</p>
-        <div id="top-listings"><div class="chart-empty">Đang tải…</div></div>
-      </div>
-
-      <div class="chart-card">
-        <h3>Khu vực có tin đăng nhiều nhất</h3>
-        <p class="chart-sub">Toàn bộ tin đăng, theo khu vực ghi trong tin</p>
-        <div id="top-locations"><div class="chart-empty">Đang tải…</div></div>
-      </div>
-
-      <div class="chart-card">
-        <h3>Người đăng tin nhiều nhất</h3>
-        <p class="chart-sub">Theo số điện thoại đã dùng để đăng tin</p>
-        <div id="top-posters"><div class="chart-empty">Đang tải…</div></div>
+          <div class="chart-card">
+            <div class="chart-card-head">
+              <div class="chart-card-titles">
+                <h3>Lead mới theo ngày</h3>
+                <p class="chart-sub">Từ form "Yêu cầu tư vấn" trên website</p>
+              </div>
+              <span id="trend-leads"></span>
+            </div>
+            <div class="chart-wrap" id="chart-leads"></div>
+          </div>
+        </div>
       </div>
 
       <!-- ============ 13/10/2026: Tổng quan thị trường ngành ============
-           MỚI THÊM — đọc từ bảng lht_market_benchmarks (bảng mới, hoàn toàn độc lập, không
-           đụng lht_listings hay bất kỳ bảng nào đã có). Số liệu này KHÔNG phải tin đăng nội bộ
+           Đọc từ bảng lht_market_benchmarks (bảng mới, hoàn toàn độc lập, không đụng
+           lht_listings hay bất kỳ bảng nào đã có). Số liệu này KHÔNG phải tin đăng nội bộ
            mà là số liệu thị trường (tỷ lệ lấp đầy, giá thuê bình quân...) tổng hợp định kỳ từ các
            nguồn uy tín bên ngoài (NAI Vietnam, JLL, Cushman & Wakefield, cổng thông tin Chính phủ...).
-           Mỗi dòng luôn kèm nguồn + kỳ báo cáo để minh bạch, không giả vờ là dữ liệu real-time. -->
-      <div class="chart-card" id="mkt-benchmarks-card">
-        <h3>📊 Tổng quan thị trường ngành</h3>
-        <p class="chart-sub" id="mkt-benchmarks-sub">Số liệu tổng hợp định kỳ từ các nguồn uy tín bên ngoài (không phải dữ liệu tin đăng nội bộ) — mỗi dòng kèm nguồn &amp; kỳ báo cáo.</p>
-        <div id="mkt-benchmarks-body"><div class="chart-empty">Đang tải…</div></div>
+           Mỗi chỉ số luôn kèm nguồn + kỳ báo cáo để minh bạch, không giả vờ là dữ liệu real-time.
+           v2 (bố cục lại): trình bày dạng lưới thẻ chỉ số (dashboard) thay vì danh sách phẳng,
+           có badge xu hướng tăng/giảm khi đã có kỳ trước để so sánh (cột prev_value_num). -->
+      <div class="ov-section">
+        <div class="ov-section-head">
+          <p class="ov-section-eyebrow">Bảng điều khiển ngành</p>
+          <h2 class="ov-section-title">📊 Thị trường ngành — nguồn bên ngoài</h2>
+          <p class="ov-section-sub" id="mkt-benchmarks-sub">Số liệu tổng hợp định kỳ từ các nguồn uy tín bên ngoài (NAI Vietnam, JLL, Cushman &amp; Wakefield...) — không phải dữ liệu tin đăng nội bộ, mỗi chỉ số kèm nguồn &amp; kỳ báo cáo.</p>
+        </div>
+        <div class="chart-card" id="mkt-benchmarks-card">
+          <div id="mkt-benchmarks-body"><div class="chart-empty">Đang tải…</div></div>
+        </div>
       </div>
+
+      <div class="ov-section">
+        <div class="ov-section-head">
+          <p class="ov-section-eyebrow">Chi tiết</p>
+          <h2 class="ov-section-title">Xếp hạng &amp; phân bổ</h2>
+        </div>
+        <div class="ov-grid-3">
+          <div class="chart-card">
+            <h3>Tin được xem nhiều nhất</h3>
+            <p class="chart-sub">30 ngày gần nhất</p>
+            <div id="top-listings"><div class="chart-empty">Đang tải…</div></div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Khu vực có tin đăng nhiều nhất</h3>
+            <p class="chart-sub">Toàn bộ tin đăng, theo khu vực ghi trong tin</p>
+            <div id="top-locations"><div class="chart-empty">Đang tải…</div></div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Người đăng tin nhiều nhất</h3>
+            <p class="chart-sub">Theo số điện thoại đã dùng để đăng tin</p>
+            <div id="top-posters"><div class="chart-empty">Đang tải…</div></div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- ============ Tab: Tài sản / Dự án ============
@@ -1822,6 +1903,33 @@
   }
 
   // =========================================================================
+  // 13/10/2026 (v2): BADGE XU HƯỚNG TĂNG/GIẢM — dùng chung cho KPI, biểu đồ
+  // đường (nội bộ) và thẻ thị trường ngành (nguồn ngoài), để "mọi thứ logic,
+  // nhất quán" như 1 bảng điều khiển. Luôn có icon + chữ, không chỉ dựa màu sắc
+  // (theo chuẩn status-color của hệ thống: xanh lá = tăng, đỏ = giảm, xám = đi ngang).
+  // =========================================================================
+  function computeTrend(curr, prev){
+    curr = Number(curr); prev = Number(prev);
+    if (!isFinite(curr) || !isFinite(prev)) return { dir: 'flat', pct: null };
+    if (prev === 0) return { dir: curr > 0 ? 'up' : 'flat', pct: null };
+    const pct = ((curr - prev) / Math.abs(prev)) * 100;
+    if (Math.abs(pct) < 1) return { dir: 'flat', pct };
+    return { dir: pct > 0 ? 'up' : 'down', pct };
+  }
+  function trendBadgeHtml(trend, opts){
+    opts = opts || {};
+    const arrow = trend.dir === 'up' ? '▲' : trend.dir === 'down' ? '▼' : '●';
+    let text;
+    if (trend.pct == null) text = trend.dir === 'up' ? 'Mới có dữ liệu' : 'Không đổi';
+    else text = (Math.abs(trend.pct) < 1 ? 'Không đổi' : (trend.pct > 0 ? '+' : '') + Math.round(trend.pct) + '%');
+    if (opts.suffix) text += ' ' + opts.suffix;
+    return '<span class="trend-badge ' + trend.dir + '">' + arrow + ' ' + escapeHtml(text) + '</span>';
+  }
+  function baselineBadgeHtml(){
+    return '<span class="trend-badge baseline">● Mốc dữ liệu đầu</span>';
+  }
+
+  // =========================================================================
   // BIỂU ĐỒ ĐƯỜNG — vẽ tay bằng SVG, không phụ thuộc thư viện ngoài.
   // Theo hệ màu 1-hue tuần tự của hệ thống (xanh dương / hổ phách), có
   // đường lưới mảnh, điểm cuối có nhãn giá trị, và hover hiện tooltip.
@@ -1993,7 +2101,14 @@
 
     try {
       const { data: leadRows } = await sb.from(WEB_LEADS_TABLE).select('created_at').gte('created_at', since30);
-      renderLineChart(document.getElementById('chart-leads'), bucketByDay(leadRows || [], days30), 'var(--gold)');
+      const leadPoints = bucketByDay(leadRows || [], days30);
+      renderLineChart(document.getElementById('chart-leads'), leadPoints, 'var(--gold)');
+      // 13/10/2026 (v2): badge xu hướng — so 7 ngày gần nhất với 7 ngày liền trước, tính
+      // trực tiếp từ chuỗi 30 ngày đã có sẵn (không gọi thêm truy vấn nào).
+      const leadsLast7 = leadPoints.slice(-7).reduce((s,p) => s + p.value, 0);
+      const leadsPrev7 = leadPoints.slice(-14, -7).reduce((s,p) => s + p.value, 0);
+      const trendLeadsEl = document.getElementById('trend-leads');
+      if (trendLeadsEl) trendLeadsEl.innerHTML = trendBadgeHtml(computeTrend(leadsLast7, leadsPrev7), { suffix: 'so với 7 ngày trước' });
     } catch(err){
       document.getElementById('chart-leads').innerHTML = '<div class="chart-empty">Không tải được dữ liệu.</div>';
     }
@@ -2005,9 +2120,20 @@
         .gte('created_at', since30)
         .limit(20000);
       const rows = evRows || [];
-      renderLineChart(document.getElementById('chart-views'), bucketByDay(rows, days30), 'var(--blue)');
+      const viewPoints = bucketByDay(rows, days30);
+      renderLineChart(document.getElementById('chart-views'), viewPoints, 'var(--blue)');
       const views7d = rows.filter(r => r.created_at >= since7).length;
       document.getElementById('kpi-views-7d').textContent = views7d;
+
+      // 13/10/2026 (v2): badge xu hướng — tương tự lead, tính từ chuỗi 30 ngày đã có sẵn,
+      // hiển thị cả ở đầu biểu đồ lẫn ngay dưới ô KPI "Lượt xem 7 ngày qua".
+      const viewsLast7 = viewPoints.slice(-7).reduce((s,p) => s + p.value, 0);
+      const viewsPrev7 = viewPoints.slice(-14, -7).reduce((s,p) => s + p.value, 0);
+      const viewsTrend = computeTrend(viewsLast7, viewsPrev7);
+      const trendViewsEl = document.getElementById('trend-views');
+      if (trendViewsEl) trendViewsEl.innerHTML = trendBadgeHtml(viewsTrend, { suffix: 'so với 7 ngày trước' });
+      const kpiViewsTrendEl = document.getElementById('kpi-views-7d-trend');
+      if (kpiViewsTrendEl) kpiViewsTrendEl.innerHTML = trendBadgeHtml(viewsTrend);
 
       // ---- Top tin được xem nhiều nhất ----
       const byListing = {};
@@ -2104,44 +2230,59 @@
       const latestUpdated = rows.reduce((max, r) => (r.updated_at > max ? r.updated_at : max), rows[0].updated_at);
       const updatedNote = '<p class="mkt-updated">Cập nhật lần cuối: ' + escapeHtml(friendlyTime(latestUpdated)) + '</p>';
 
-      // Nhóm theo ngành → khu vực → danh sách chỉ tiêu, sắp theo thứ tự cố định ở trên
-      // (không theo alphabet) để BĐS CN luôn đứng trước, Miền Nam (bình quân) luôn đứng đầu mỗi ngành.
+      // Nhóm theo ngành → danh sách chỉ tiêu (mỗi chỉ tiêu tự mang theo khu vực riêng),
+      // sắp theo thứ tự cố định ở trên (không theo alphabet) để BĐS CN luôn đứng trước,
+      // và trong mỗi ngành, Miền Nam (bình quân) luôn đứng đầu.
+      // 13/10/2026 (v2): trình bày dạng LƯỚI THẺ CHỈ SỐ (giống 1 bảng điều khiển thật sự)
+      // thay vì danh sách phẳng — mỗi thẻ tự đủ thông tin: khu vực, tên chỉ tiêu, giá trị,
+      // badge xu hướng tăng/giảm (so với kỳ trước, nếu đã có), nguồn + kỳ báo cáo.
       const byIndustry = {};
-      rows.forEach(r => {
-        (byIndustry[r.industry] = byIndustry[r.industry] || {})[r.region] = (byIndustry[r.industry][r.region] || []);
-        byIndustry[r.industry][r.region].push(r);
-      });
+      rows.forEach(r => { (byIndustry[r.industry] = byIndustry[r.industry] || []).push(r); });
       const industryKeys = Object.keys(byIndustry).sort((a,b) =>
         (MKT_INDUSTRY_META[a]?.order || 99) - (MKT_INDUSTRY_META[b]?.order || 99));
 
       const html = industryKeys.map(ind => {
         const meta = MKT_INDUSTRY_META[ind] || { label: ind };
-        const regionKeys = Object.keys(byIndustry[ind]).sort((a,b) =>
-          (MKT_REGION_META[a]?.order || 99) - (MKT_REGION_META[b]?.order || 99));
-        const regionsHtml = regionKeys.map(reg => {
-          const regMeta = MKT_REGION_META[reg] || { label: reg };
-          const rowsHtml = byIndustry[ind][reg].map(r => {
-            const isPending = !r.source_name || r.source_name === '—';
-            const metaParts = [];
-            if (!isPending){
-              metaParts.push('Nguồn: ' + (r.source_url
-                ? '<a href="' + escapeHtml(r.source_url) + '" target="_blank" rel="noopener">' + escapeHtml(r.source_name) + '</a>'
-                : escapeHtml(r.source_name)));
-              const q = mktFormatAsOf(r.as_of);
-              if (q) metaParts.push('Kỳ: ' + q);
+        const list = byIndustry[ind].slice().sort((a,b) =>
+          (MKT_REGION_META[a.region]?.order || 99) - (MKT_REGION_META[b.region]?.order || 99));
+
+        const cardsHtml = list.map(r => {
+          const isPending = !r.source_name || r.source_name === '—';
+          const regMeta = MKT_REGION_META[r.region] || { label: r.region };
+
+          // Badge xu hướng: chỉ hiện khi có giá trị số của CẢ kỳ này lẫn kỳ trước (prev_value_num) —
+          // không suy đoán xu hướng từ chuỗi văn bản. Chưa có kỳ trước → "Mốc dữ liệu đầu" (trung thực,
+          // không giả vờ có xu hướng khi chỉ mới có 1 lần đo).
+          let badgeHtml = '';
+          if (!isPending){
+            if (r.value_num != null && r.prev_value_num != null){
+              badgeHtml = trendBadgeHtml(computeTrend(r.value_num, r.prev_value_num), { suffix: 'so với kỳ trước' });
+            } else {
+              badgeHtml = baselineBadgeHtml();
             }
-            return '<div class="mkt-row">' +
-              '<div class="mkt-row-main">' +
-                '<div class="mkt-row-label">' + escapeHtml(r.metric_label) + '</div>' +
-                (metaParts.length ? '<div class="mkt-row-meta">' + metaParts.join(' · ') + '</div>' : '') +
-                (r.note ? '<div class="mkt-row-note">' + escapeHtml(r.note) + '</div>' : '') +
-              '</div>' +
-              '<div class="mkt-row-value' + (isPending ? ' pending' : '') + '">' + escapeHtml(r.value_text) + '</div>' +
-            '</div>';
-          }).join('');
-          return '<div class="mkt-region"><div class="mkt-region-label">' + escapeHtml(regMeta.label) + '</div>' + rowsHtml + '</div>';
+          }
+
+          const metaParts = [];
+          if (!isPending){
+            metaParts.push('Nguồn: ' + (r.source_url
+              ? '<a href="' + escapeHtml(r.source_url) + '" target="_blank" rel="noopener">' + escapeHtml(r.source_name) + '</a>'
+              : escapeHtml(r.source_name)));
+            const q = mktFormatAsOf(r.as_of);
+            if (q) metaParts.push('Kỳ: ' + q);
+          }
+
+          return '<div class="mkt-card">' +
+            '<div class="mkt-card-region">' + escapeHtml(regMeta.label) + '</div>' +
+            '<div class="mkt-card-label">' + escapeHtml(r.metric_label) + '</div>' +
+            '<div class="mkt-card-value' + (isPending ? ' pending' : '') + '">' + escapeHtml(r.value_text) + '</div>' +
+            (badgeHtml ? '<div class="mkt-card-badge-row">' + badgeHtml + '</div>' : '') +
+            (metaParts.length ? '<div class="mkt-card-meta">' + metaParts.join(' · ') + '</div>' : '') +
+            (r.note ? '<div class="mkt-card-note">' + escapeHtml(r.note) + '</div>' : '') +
+          '</div>';
         }).join('');
-        return '<div class="mkt-industry"><div class="mkt-industry-head">' + meta.label + '</div>' + regionsHtml + '</div>';
+
+        return '<div class="mkt-industry"><div class="mkt-industry-head">' + meta.label + '</div>' +
+          '<div class="mkt-industry-grid">' + cardsHtml + '</div></div>';
       }).join('');
 
       bodyEl.innerHTML = updatedNote + html;
