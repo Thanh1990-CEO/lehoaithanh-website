@@ -226,7 +226,8 @@
     transition:border-color .18s ease;
   }
   .lang-switch-trigger:hover{ border-color:var(--lht-gold); }
-  .lang-switch-trigger .flag{ font-size:1.05rem; line-height:1; }
+  .lang-switch-trigger .flag{ display:inline-flex; line-height:1; }
+  .lang-switch-trigger .flag svg{ display:block; width:18px; height:12px; border-radius:2px; box-shadow:0 0 0 1px rgba(20,20,20,.12); }
   .lang-switch-trigger .chev{ color:var(--text-dim); display:flex; }
   .lang-menu{
     position:absolute; top:calc(100% + 10px); left:0;
@@ -240,7 +241,8 @@
     color:var(--text-dim); background:transparent; border:none; border-radius:7px;
     padding:9px 10px; cursor:pointer;
   }
-  .lang-option .flag{ font-size:1.1rem; line-height:1; flex:none; }
+  .lang-option .flag{ display:inline-flex; line-height:1; flex:none; }
+  .lang-option .flag svg{ display:block; width:20px; height:14px; border-radius:2px; box-shadow:0 0 0 1px rgba(20,20,20,.12); }
   .lang-option span.code{ flex:1; }
   .lang-option:hover{ background:var(--lht-cream); color:var(--navy); }
   .lang-option.active{ color:var(--lht-gold); background:var(--lht-cream); }
@@ -1638,14 +1640,18 @@
       <button type="button" id="lht-home-btn" class="home-btn"><span class="ic">🏠</span><span data-i18n="nav.home">Trang chủ</span></button>
       <div class="lang-switcher">
         <button type="button" id="lang-switch-btn" class="lang-switch-trigger" aria-haspopup="true" aria-expanded="false" title="Ngôn ngữ">
-          <span class="flag" id="lang-switch-flag" aria-hidden="true">🇻🇳</span><span id="lang-switch-code">VI</span>
+          <span class="flag" id="lang-switch-flag" aria-hidden="true"><svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="20" fill="#DA251D"/><polygon points="15,4 16.35,8.14 20.71,8.15 17.19,10.71 18.53,14.85 15,12.3 11.47,14.85 12.81,10.71 9.29,8.15 13.65,8.14" fill="#FFFF00"/></svg></span><span id="lang-switch-code">VI</span>
           <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
         </button>
+        <!-- 13/10/2026: thay emoji cờ (🇻🇳🇨🇳🇬🇧🇯🇵) bằng SVG cờ vẽ tay nhúng trực tiếp — emoji cờ
+             không hiển thị đúng trên Windows (chỉ ra chữ "VN"/"CN"...), SVG đảm bảo hiển thị đúng ảnh
+             cờ trên mọi hệ điều hành/trình duyệt. JS đồng bộ cờ ở nút trigger giờ copy .innerHTML của
+             option đang active thay vì đọc data-flag (xem updateSwitcherUI trong script phía dưới). -->
         <div id="lang-switch-menu" class="lang-menu" hidden role="menu" aria-label="Chọn ngôn ngữ">
-          <button type="button" class="lang-option" data-lang="vi" data-flag="🇻🇳" data-code="VI" role="menuitemradio"><span class="flag" aria-hidden="true">🇻🇳</span><span class="code">Tiếng Việt</span></button>
-          <button type="button" class="lang-option" data-lang="zh" data-flag="🇨🇳" data-code="CN" role="menuitemradio"><span class="flag" aria-hidden="true">🇨🇳</span><span class="code">Tiếng Trung</span></button>
-          <button type="button" class="lang-option" data-lang="en" data-flag="🇬🇧" data-code="EN" role="menuitemradio"><span class="flag" aria-hidden="true">🇬🇧</span><span class="code">Tiếng Anh</span></button>
-          <button type="button" class="lang-option" data-lang="ja" data-flag="🇯🇵" data-code="JP" role="menuitemradio"><span class="flag" aria-hidden="true">🇯🇵</span><span class="code">Tiếng Nhật</span></button>
+          <button type="button" class="lang-option" data-lang="vi" data-code="VI" role="menuitemradio"><span class="flag" aria-hidden="true"><svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="20" fill="#DA251D"/><polygon points="15,4 16.35,8.14 20.71,8.15 17.19,10.71 18.53,14.85 15,12.3 11.47,14.85 12.81,10.71 9.29,8.15 13.65,8.14" fill="#FFFF00"/></svg></span><span class="code">Tiếng Việt</span></button>
+          <button type="button" class="lang-option" data-lang="zh" data-code="CN" role="menuitemradio"><span class="flag" aria-hidden="true"><svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="20" fill="#DE2910"/><polygon points="7.5,3.4 8.09,5.19 9.97,5.2 8.45,6.31 9.03,8.1 7.5,7.0 5.97,8.1 6.55,6.31 5.03,5.2 6.91,5.19" fill="#FFDE00"/><polygon points="11.96,1.48 12.49,1.85 13.01,1.46 12.83,2.08 13.36,2.46 12.71,2.48 12.52,3.1 12.3,2.49 11.65,2.5 12.16,2.1" fill="#FFDE00"/><polygon points="14.12,3.72 14.44,4.28 15.08,4.15 14.65,4.64 14.96,5.21 14.37,4.94 13.93,5.42 14.0,4.77 13.41,4.5 14.04,4.36" fill="#FFDE00"/><polygon points="13.85,6.94 13.88,7.59 14.5,7.78 13.89,8.0 13.9,8.65 13.5,8.14 12.89,8.35 13.25,7.81 12.86,7.29 13.48,7.47" fill="#FFDE00"/><polygon points="11.94,9.16 11.65,9.75 12.1,10.21 11.46,10.11 11.16,10.69 11.05,10.05 10.41,9.94 10.99,9.64 10.89,9.0 11.35,9.45" fill="#FFDE00"/></svg></span><span class="code">Tiếng Trung</span></button>
+          <button type="button" class="lang-option" data-lang="en" data-code="EN" role="menuitemradio"><span class="flag" aria-hidden="true"><svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="20" fill="#00247D"/><line x1="0" y1="0" x2="30" y2="20" stroke="#FFFFFF" stroke-width="4"/><line x1="30" y1="0" x2="0" y2="20" stroke="#FFFFFF" stroke-width="4"/><line x1="0" y1="0" x2="30" y2="20" stroke="#CF142B" stroke-width="1.6"/><line x1="30" y1="0" x2="0" y2="20" stroke="#CF142B" stroke-width="1.6"/><rect x="12" y="0" width="6" height="20" fill="#FFFFFF"/><rect x="0" y="7" width="30" height="6" fill="#FFFFFF"/><rect x="13.5" y="0" width="3" height="20" fill="#CF142B"/><rect x="0" y="8.5" width="30" height="3" fill="#CF142B"/></svg></span><span class="code">Tiếng Anh</span></button>
+          <button type="button" class="lang-option" data-lang="ja" data-code="JP" role="menuitemradio"><span class="flag" aria-hidden="true"><svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="20" fill="#FFFFFF"/><circle cx="15" cy="10" r="6" fill="#BC002D"/></svg></span><span class="code">Tiếng Nhật</span></button>
         </div>
       </div>
       <span class="icon-btn" aria-hidden="true" data-i18n-title="header.search-title" title="Tìm kiếm">
@@ -7509,15 +7515,16 @@
       var isActive = btn.getAttribute('data-lang') === lang;
       btn.classList.toggle('active', isActive);
       btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
-      // 13/10/2026: nút trigger hiển thị "cờ + mã" của ngôn ngữ đang chọn (theo ảnh mẫu) —
-      // đồng bộ bằng cách đọc lại data-flag/data-code của option đang active, không cần sửa
-      // applyLanguage()/cách lưu ngôn ngữ ở trên.
+      // 13/10/2026: nút trigger hiển thị "cờ (SVG) + mã" của ngôn ngữ đang chọn (theo ảnh mẫu) —
+      // đồng bộ bằng cách copy .innerHTML cờ SVG + đọc data-code của option đang active, không cần
+      // sửa applyLanguage()/cách lưu ngôn ngữ ở trên. (Đổi từ đọc data-flag emoji sang copy SVG vì
+      // emoji cờ không hiển thị đúng trên Windows.)
       if (isActive){
         var flagEl = document.getElementById('lang-switch-flag');
         var codeEl = document.getElementById('lang-switch-code');
-        var flag = btn.getAttribute('data-flag');
+        var flagSrcEl = btn.querySelector('.flag');
         var code = btn.getAttribute('data-code');
-        if (flagEl && flag) flagEl.textContent = flag;
+        if (flagEl && flagSrcEl) flagEl.innerHTML = flagSrcEl.innerHTML;
         if (codeEl && code) codeEl.textContent = code;
       }
     });
