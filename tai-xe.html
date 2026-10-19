@@ -1,0 +1,340 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KHG Tài xế</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#C8102E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KHG Tài xế">
+<link rel="manifest" href="tai-xe.webmanifest">
+<link rel="icon" href="images/logo.jpg" type="image/jpeg">
+<link rel="apple-touch-icon" href="images/logo.jpg">
+<style>
+:root{--red:#C8102E;--red2:#A00D25;--soft:#FBE6E9;--ink:#1B1616;--muted:#6E6462;--bg:#F4EFED;--line:#E3D6D2;--green:#2F7D4F;--amber:#B06A2B;--blue:#0B5C91}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+.hidden{display:none!important}
+#login{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px;gap:14px;max-width:420px;margin:0 auto}
+#login .brand{display:flex;align-items:center;gap:12px}
+#login .lg{width:52px;height:52px;border-radius:14px;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:900}
+#login h1{margin:0;font-size:22px}
+.in{width:100%;border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;font-size:16px}
+.big{width:100%;border:0;border-radius:14px;padding:15px;font-weight:800;font-size:16px;background:var(--red);color:#fff;cursor:pointer}
+.big:disabled{opacity:.55}
+.big.g{background:var(--green)}.big.o{background:#fff;color:var(--ink);border:1px solid var(--line)}.big.d{background:#fff;color:var(--red);border:1px solid var(--red)}
+.err{color:var(--red);font-size:14px;min-height:20px}
+header{position:sticky;top:0;z-index:10;background:var(--ink);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px}
+header .lg{width:34px;height:34px;border-radius:9px;background:var(--red);display:grid;place-items:center;font-weight:900;font-size:12px}
+header .sp{flex:1}
+header .nm{font-weight:700}header .sb{font-size:12px;color:#D9CFCC}
+#bellb{background:none;border:1px solid #5A4F4F;border-radius:10px;color:#fff;padding:6px 10px;position:relative}
+#bellb span{position:absolute;top:-6px;right:-6px;background:var(--red);border-radius:99px;font-size:11px;padding:0 5px}
+main{padding:14px 14px 20px;max-width:640px;margin:0 auto}
+h2{font-size:19px;margin:4px 0 10px}
+.card{background:#fff;border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid var(--line)}
+.card.new{border:2px solid var(--red);box-shadow:0 0 0 4px var(--soft)}
+.row{display:flex;gap:8px;align-items:center}
+.code{font-weight:900;font-size:16px}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;background:#F2EBE8}
+.pill.red{background:var(--soft);color:var(--red)}.pill.green{background:#E3F1E8;color:var(--green)}.pill.amber{background:#F7EADC;color:var(--amber)}.pill.blue{background:#E1EDF6;color:var(--blue)}
+.kv{display:grid;grid-template-columns:92px 1fr;gap:4px 10px;margin:10px 0;font-size:14px}
+.kv b{font-weight:600;color:var(--muted)}
+.route{display:flex;flex-direction:column;gap:6px;margin:10px 0;padding:10px;background:#FAF7F5;border-radius:12px}
+.route div{display:flex;gap:8px}.route i{font-style:normal;width:20px;text-align:center}
+.route a{color:var(--blue);font-size:13px;margin-left:auto;white-space:nowrap}
+.steps{display:flex;gap:4px;margin:10px 0}
+.steps span{flex:1;height:6px;border-radius:4px;background:var(--line)}.steps span.on{background:var(--red)}
+.acts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.acts .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.small{font-size:13px;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
+.kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase}.kpi .v{font-size:22px;font-weight:900}
+.bar{height:10px;background:#F2EBE8;border-radius:6px;overflow:hidden;margin-top:6px}.bar div{height:100%;background:var(--green)}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px}
+label.f .in{font-weight:400;color:var(--ink)}
+nav.bn{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:10}
+nav.bn button{border:0;background:none;padding:8px 2px 9px;font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
+nav.bn button b{font-size:20px;font-weight:400}
+nav.bn button.on{color:var(--red);font-weight:700}
+nav.bn button em{position:absolute;top:4px;right:calc(50% - 22px);background:var(--red);color:#fff;font-style:normal;border-radius:99px;font-size:10px;padding:0 5px}
+.tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;white-space:nowrap}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.li{padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.li:last-child{border:0}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:flex;align-items:flex-end}
+#sheet .bx{background:#fff;width:100%;max-width:640px;margin:0 auto;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;z-index:40;font-size:14px;max-width:92vw;text-align:center}
+#banner{background:var(--red);color:#fff;padding:12px 14px;border-radius:14px;margin-bottom:12px;font-weight:700}
+</style></head><body>
+
+<section id="login" class="hidden">
+  <div class="brand"><div class="lg">KHG</div><div><h1>App tài xế KHG</h1><div class="small">Công ty TNHH Kim Hoàng Gia</div></div></div>
+  <form id="lf" style="display:flex;flex-direction:column;gap:12px">
+    <input class="in" id="lphone" type="tel" inputmode="tel" placeholder="Số điện thoại" autocomplete="username" required>
+    <input class="in" id="lpass" type="password" placeholder="Mật khẩu do công ty cấp" autocomplete="current-password" required>
+    <button class="big" id="lbtn">Đăng nhập</button>
+    <div class="err" id="lerr"></div>
+  </form>
+  <div class="small">Chưa có mật khẩu? Liên hệ điều phối KHG – 0399 831 228.</div>
+</section>
+
+<div id="app" class="hidden">
+  <header><div class="lg">KHG</div><div><div class="nm" id="hname"></div><div class="sb" id="hsub"></div></div><div class="sp"></div><button id="bellb">🔔<span id="bellc" class="hidden"></span></button></header>
+  <main id="main"></main>
+  <nav class="bn" id="bn">
+    <button data-v="don" class="on"><b>🚚</b>Đơn<em id="donc" class="hidden"></em></button>
+    <button data-v="cong"><b>🕒</b>Chấm công</button>
+    <button data-v="chi"><b>⛽</b>Chi phí</button>
+    <button data-v="luong"><b>💵</b>Lương</button>
+    <button data-v="toi"><b>👤</b>Tôi</button>
+  </nav>
+</div>
+<div id="sheet" class="hidden"><div class="bx" id="sbx"></div></div>
+<div id="toast" class="hidden"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+const sb=window.supabase.createClient('https://kbpcmifwplbtggfcnfrx.supabase.co','sb_publishable_buS_4Iky59zQlMME9dn2NQ_1FqIwlVt');
+const BUCKET='khg-files';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtN=n=>(Number(n)||0).toLocaleString('vi-VN');const fmtM=n=>fmtN(Math.round(Number(n)||0))+' đ';
+const isoD=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10)};
+const today=()=>isoD(new Date());
+const fmtD=s=>s?String(s).slice(0,10).split('-').reverse().join('/'):'';
+const fmtDT=s=>{if(!s)return'';const d=new Date(s);return d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})};
+const fmtT=s=>s?new Date(s).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'';
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.remove('hidden');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.add('hidden'),3000)}
+const phoneEmail=p=>p.replace(/\D/g,'').replace(/^84/,'0')+'@taixe.kimhoanggia.vn';
+
+const TRIP={cho_nhan:'Chờ nhận',da_nhan:'Đã nhận đơn',da_xac_nhan:'Đã xác nhận',da_lay_hang:'Đã lấy hàng',dang_giao:'Đang giao',dang_tra_hang:'Đang trả hàng',da_giao:'Đã giao',huy_chuyen:'Đã hủy chuyến'};
+const PILL={cho_nhan:'red',da_nhan:'blue',da_xac_nhan:'blue',da_lay_hang:'amber',dang_giao:'amber',dang_tra_hang:'amber',da_giao:'green',huy_chuyen:'red'};
+const ORDER=['cho_nhan','da_nhan','da_xac_nhan','da_lay_hang','dang_giao','dang_tra_hang','da_giao'];
+const NEXT={cho_nhan:[['da_nhan','✅ NHẬN ĐƠN','']],da_nhan:[['da_xac_nhan','👍 XÁC NHẬN SẴN SÀNG CHẠY','']],da_xac_nhan:[['da_lay_hang','📦 ĐÃ LẤY HÀNG','']],
+  da_lay_hang:[['dang_giao','🚚 BẮT ĐẦU GIAO','']],dang_giao:[['dang_tra_hang','⬇️ ĐANG TRẢ HÀNG','']],dang_tra_hang:[['da_giao','✔️ ĐÃ GIAO XONG','g']]};
+const CAN_CANCEL=['cho_nhan','da_nhan','da_xac_nhan','da_lay_hang'];
+const UNIT={chuyen:'chuyến',m3:'m³',tan:'tấn',km:'km',gio:'giờ',ngay:'ngày',kien:'kiện',tron_goi:'trọn gói'};
+const SERVICE={van_chuyen:'Vận chuyển',phan_phoi:'Phân phối',boc_xep:'Bốc xếp',xe_cau:'Xe cẩu',xe_nang:'Xe nâng',kho:'Kho bãi',tron_goi:'Trọn gói'};
+const EXP={nhien_lieu:'⛽ Đổ dầu',cau_duong:'🛣️ Vé cầu đường',phi_cong:'🚧 Phí ra vào cổng',sua_chua:'🔧 Sửa chữa',bao_tri:'🛠️ Bảo dưỡng',boc_xep_thue:'💪 Thuê bốc xếp',khac:'📄 Khác'};
+const PHOTO={hinh_hang:'Hình hàng hóa',bien_ban_giao_nhan:'Biên bản giao nhận',pod:'Chứng từ giao hàng',phieu_can:'Phiếu cân',hoa_don:'Hóa đơn',hinh_xe:'Hình xe'};
+
+let ME=null,VIEW='don',VEH={};
+
+// ---------- đăng nhập ----------
+$('#lf').onsubmit=async e=>{e.preventDefault();$('#lerr').textContent='';$('#lbtn').disabled=true;
+  const {data,error}=await sb.auth.signInWithPassword({email:phoneEmail($('#lphone').value),password:$('#lpass').value});
+  $('#lbtn').disabled=false;if(error){$('#lerr').textContent='Sai số điện thoại hoặc mật khẩu.';return}start()};
+async function start(){
+  const {data:id}=await sb.rpc('khg_me');
+  if(!id){$('#login').classList.remove('hidden');$('#app').classList.add('hidden');$('#lerr').textContent='Tài khoản chưa gắn với nhân sự KHG. Liên hệ điều phối.';await sb.auth.signOut();return}
+  const {data:p}=await sb.from('khg_people').select('*').eq('id',id).maybeSingle();ME=p;
+  const {data:v}=await sb.from('khg_vehicles').select('id,plate,load_t');(v||[]).forEach(x=>VEH[x.id]=x);
+  $('#login').classList.add('hidden');$('#app').classList.remove('hidden');
+  $('#hname').textContent=ME.full_name;$('#hsub').textContent=(ME.vehicle_id&&VEH[ME.vehicle_id]?'Xe '+VEH[ME.vehicle_id].plate+' · ':'')+'Tài xế KHG';
+  go('don');loadNotif();subscribe();
+  if('Notification' in window&&Notification.permission==='default')setTimeout(()=>{Notification.requestPermission().catch(()=>{})},1500);
+}
+function subscribe(){
+  try{sb.channel('tx-'+ME.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'khg_notifications',filter:'person_id=eq.'+ME.id},p=>{alertNew(p.new.title,p.new.body);loadNotif();if(VIEW==='don')go('don')})
+    .on('postgres_changes',{event:'*',schema:'public',table:'khg_orders',filter:'driver_id=eq.'+ME.id},()=>{if(VIEW==='don')go('don')})
+    .subscribe()}catch(e){}
+  setInterval(()=>{if(VIEW==='don'&&$('#sheet').classList.contains('hidden'))go('don',true);loadNotif()},90000);
+}
+function alertNew(title,body){
+  toast('🔔 '+title);try{navigator.vibrate&&navigator.vibrate([300,120,300])}catch(e){}
+  try{const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();o.frequency.value=880;o.connect(a.destination);o.start();setTimeout(()=>{o.stop();a.close()},350)}catch(e){}
+  try{if('Notification' in window&&Notification.permission==='granted'&&document.hidden)new Notification(title,{body:body||'',icon:'images/logo.jpg'})}catch(e){}
+}
+async function loadNotif(){
+  const {data}=await sb.from('khg_notifications').select('id,read_at').eq('person_id',ME.id).is('read_at',null);
+  const n=(data||[]).length;$('#bellc').textContent=n;$('#bellc').classList.toggle('hidden',!n);
+}
+$('#bellb').onclick=async()=>{
+  const {data}=await sb.from('khg_notifications').select('*').eq('person_id',ME.id).order('created_at',{ascending:false}).limit(30);
+  sheet(`<h2>Thông báo</h2>${(data||[]).map(n=>`<div class="li" style="${n.read_at?'':'font-weight:700'}">${esc(n.title)}<div class="small">${esc(n.body||'')} · ${fmtDT(n.created_at)}</div></div>`).join('')||'<div class="empty">Chưa có thông báo.</div>'}<button class="big o" id="sx" style="margin-top:12px">Đóng</button>`);
+  $('#sx').onclick=closeSheet;
+  const ids=(data||[]).filter(n=>!n.read_at).map(n=>n.id);if(ids.length){await sb.from('khg_notifications').update({read_at:new Date().toISOString()}).in('id',ids);loadNotif()}
+};
+function sheet(h){$('#sbx').innerHTML=h;$('#sheet').classList.remove('hidden')}
+const closeSheet=()=>$('#sheet').classList.add('hidden');
+$('#sheet').onclick=e=>{if(e.target.id==='sheet')closeSheet()};
+document.querySelectorAll('#bn button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+
+async function go(v,quiet){VIEW=v;document.querySelectorAll('#bn button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));const m=$('#main');if(!quiet)m.innerHTML='<div class="empty">Đang tải…</div>';try{await V[v](m)}catch(e){m.innerHTML='<div class="empty">Lỗi: '+esc(e.message)+'</div>'}}
+
+// ---------- vị trí (không bắt buộc) ----------
+const where=()=>new Promise(r=>{if(!navigator.geolocation)return r(null);navigator.geolocation.getCurrentPosition(p=>r(p.coords),()=>r(null),{timeout:6000,maximumAge:120000,enableHighAccuracy:false})});
+async function trip(o,status,note){
+  const c=await where();
+  const {error}=await sb.rpc('khg_trip_update',{p_order:o.id,p_status:status,p_note:note||null,p_lat:c?c.latitude:null,p_lng:c?c.longitude:null,p_source:'app'});
+  if(error){toast(error.message);return false}
+  toast(status==='huy_chuyen'?'Đã hủy chuyến, điều phối đã được báo':'✔ '+TRIP[status]);
+  if(status==='da_lay_hang')photo(o,'hinh_hang','Chụp hình hàng đã lên xe (không bắt buộc)');
+  if(status==='da_giao')photo(o,'bien_ban_giao_nhan','Chụp biên bản giao nhận có ký nhận');
+  else go('don');
+  return true;
+}
+function cancelTrip(o){
+  const reasons=['Xe hỏng','Kẹt việc cá nhân','Không liên hệ được khách','Hàng chưa sẵn sàng','Sai tải trọng / không chở được'];
+  sheet(`<h2>Hủy chuyến ${esc(o.code)}</h2><p class="small">Điều phối sẽ nhận báo ngay và giao xe khác. Bắt buộc ghi lý do.</p>
+   <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">${reasons.map(r=>`<button class="pill" data-r="${esc(r)}" style="border:0;padding:8px 12px">${esc(r)}</button>`).join('')}</div>
+   <label class="f">Lý do<textarea class="in" id="cr" rows="3" placeholder="Ghi rõ lý do"></textarea></label>
+   <div class="acts"><button class="big d" id="cok">Xác nhận hủy chuyến</button><button class="big o" id="cno">Không hủy</button></div>`);
+  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{$('#cr').value=b.dataset.r});
+  $('#cno').onclick=closeSheet;
+  $('#cok').onclick=async()=>{const r=$('#cr').value.trim();if(!r)return toast('Ghi lý do hủy');$('#cok').disabled=true;if(await trip(o,'huy_chuyen',r))closeSheet();$('#cok').disabled=false};
+}
+function photo(o,type,title){
+  sheet(`<h2>📷 ${esc(title||'Chụp chứng từ')}</h2><div class="small">Đơn ${esc(o.code)}</div>
+   <label class="f" style="margin-top:10px">Loại<select class="in" id="pt">${Object.entries(PHOTO).map(([k,l])=>`<option value="${k}" ${k===type?'selected':''}>${l}</option>`).join('')}</select></label>
+   <label class="big" style="display:block;text-align:center">📷 Chụp / chọn ảnh<input id="pf" type="file" accept="image/*" capture="environment" multiple class="hidden"></label>
+   <div id="pp" class="small" style="margin:10px 0"></div>
+   <div class="acts"><button class="big g" id="pu" disabled>Tải lên</button><button class="big o" id="pc">Để sau</button></div>`);
+  let files=[];
+  $('#pf').onchange=e=>{files=[...e.target.files];$('#pp').innerHTML=files.length+' ảnh đã chọn';$('#pu').disabled=!files.length};
+  $('#pc').onclick=()=>{closeSheet();go('don')};
+  $('#pu').onclick=async()=>{$('#pu').disabled=true;$('#pu').textContent='Đang tải…';let n=0;
+    for(const f of files){const blob=await shrink(f);const path=`order/${o.id}/${Date.now()}_${Math.random().toString(36).slice(2,6)}.jpg`;
+      const {error}=await sb.storage.from(BUCKET).upload(path,blob,{contentType:'image/jpeg'});if(error){toast('Lỗi: '+error.message);continue}
+      const {error:e2}=await sb.from('khg_files').insert({entity_type:'order',entity_id:o.id,doc_type:$('#pt').value,file_path:path,file_name:f.name||'anh.jpg',mime:'image/jpeg',size_bytes:blob.size,uploaded_by:ME.id});if(!e2)n++}
+    toast('Đã gửi '+n+' ảnh');closeSheet();go('don')};
+}
+// nén ảnh còn ~1600px để tải nhanh bằng 4G
+function shrink(file){return new Promise(res=>{const img=new Image();const u=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,1600/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(b=>{URL.revokeObjectURL(u);res(b||file)},'image/jpeg',.82)};img.onerror=()=>res(file);img.src=u})}
+const mapLink=s=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s);
+
+// ---------- các màn hình ----------
+const V={};
+V.don=async m=>{
+  const [{data:o},{data:c}]=await Promise.all([
+    sb.from('khg_orders').select('*').eq('driver_id',ME.id).not('status','in','(huy,da_thu)').order('scheduled_at',{ascending:true,nullsFirst:false}).limit(60),
+    sb.from('khg_customers').select('id,name,phone,contact_name')]);
+  const cust=Object.fromEntries((c||[]).map(x=>[x.id,x]));
+  const active=(o||[]).filter(x=>x.trip_status!=='da_giao'&&!['da_giao','doi_soat','xuat_hd'].includes(x.status));
+  const done=(o||[]).filter(x=>!active.includes(x)).slice(0,15);
+  const fresh=active.filter(x=>x.trip_status==='cho_nhan');
+  $('#donc').textContent=fresh.length;$('#donc').classList.toggle('hidden',!fresh.length);
+  const {data:files}=active.length?await sb.from('khg_files').select('entity_id,doc_type').eq('entity_type','order').in('entity_id',active.map(x=>x.id)):{data:[]};
+  const card=x=>{const cu=cust[x.customer_id];const st=x.trip_status||'cho_nhan';const idx=ORDER.indexOf(st);const nf=(files||[]).filter(f=>f.entity_id===x.id).length;
+    return `<div class="card ${st==='cho_nhan'?'new':''}" data-o="${x.id}">
+     <div class="row"><span class="code">${esc(x.code)}</span><span style="flex:1"></span><span class="pill ${PILL[st]}">${TRIP[st]}</span></div>
+     <div class="steps">${ORDER.slice(1).map((s,i)=>`<span class="${idx>i?'on':''}"></span>`).join('')}</div>
+     <div class="kv"><b>Có mặt</b><span><b style="color:var(--ink);font-size:16px">${x.scheduled_at?fmtDT(x.scheduled_at):'Chưa hẹn giờ'}</b></span>
+      <b>Khách</b><span>${esc(cu?.name||x.customer_text||'—')}${cu?.phone?` · <a href="tel:${esc(cu.phone)}">📞 ${esc(cu.phone)}</a>`:''}</span>
+      ${x.cargo||x.weight_t?`<b>Hàng</b><span>${esc([x.cargo,x.weight_t?x.weight_t+' tấn':''].filter(Boolean).join(' · '))}</span>`:''}
+      ${x.quantity?`<b>Số lượng</b><span>${fmtN(x.quantity)} ${UNIT[x.unit]||''}${x.trips>1?' · '+x.trips+' chuyến':''}</span>`:x.trips>1?`<b>Số chuyến</b><span>${x.trips}</span>`:''}
+      <b>Xe</b><span>${esc(VEH[x.vehicle_id]?.plate||x.vehicle_req||'—')}</span>
+      ${x.loading_included?'<b>Bốc xếp</b><span>Có kèm bốc xếp</span>':''}
+      <b>Dịch vụ</b><span>${SERVICE[x.service]||''}</span></div>
+     <div class="route"><div><i>🟢</i><span>${esc(x.pickup||'?')}${x.pickup_district?', '+esc(x.pickup_district):''}</span>${x.pickup?`<a href="${mapLink([x.pickup,x.pickup_district,x.pickup_province].filter(Boolean).join(', '))}" target="_blank" rel="noopener">Chỉ đường</a>`:''}</div>
+      <div><i>🔴</i><span>${esc(x.dropoff||'?')}${x.drop_district?', '+esc(x.drop_district):''}</span>${x.dropoff?`<a href="${mapLink([x.dropoff,x.drop_district,x.drop_province].filter(Boolean).join(', '))}" target="_blank" rel="noopener">Chỉ đường</a>`:''}</div></div>
+     ${x.note?`<div class="small">📝 ${esc(String(x.note).split('\nTin gốc:')[0])}</div>`:''}
+     <div class="acts">${(NEXT[st]||[]).map(([s,l,c])=>`<button class="big ${c}" data-t="${s}">${l}</button>`).join('')}
+      <div class="two"><button class="big o" data-ph="1">📷 Ảnh (${nf})</button>${CAN_CANCEL.includes(st)?'<button class="big d" data-cx="1">✖️ Hủy chuyến</button>':'<button class="big o" data-ev="1">🕘 Hành trình</button>'}</div></div></div>`};
+  m.innerHTML=`${fresh.length?`<div id="banner">🔔 Có ${fresh.length} đơn mới – bấm NHẬN ĐƠN để xác nhận với điều phối</div>`:''}
+   <h2>Đơn của tôi (${active.length})</h2>${active.map(card).join('')||'<div class="card empty">Chưa có đơn nào được giao.<br>Khi điều phối giao đơn, app sẽ báo ngay.</div>'}
+   ${done.length?`<h2>Đã giao gần đây</h2><div class="card">${done.map(x=>`<div class="li"><b>${esc(x.code)}</b> · ${esc(cust[x.customer_id]?.name||x.customer_text||'')}<div class="small">${esc(x.pickup||'')} → ${esc(x.dropoff||'')} · ${fmtDT(x.delivered_at||x.scheduled_at)}</div></div>`).join('')}</div>`:''}`;
+  m.querySelectorAll('[data-o]').forEach(el=>{const x=active.find(a=>a.id===el.dataset.o);
+    el.querySelectorAll('[data-t]').forEach(b=>b.onclick=async()=>{b.disabled=true;await trip(x,b.dataset.t);b.disabled=false});
+    const cx=el.querySelector('[data-cx]');if(cx)cx.onclick=()=>cancelTrip(x);
+    el.querySelector('[data-ph]').onclick=()=>photo(x,x.trip_status==='dang_tra_hang'||x.trip_status==='dang_giao'?'bien_ban_giao_nhan':'hinh_hang');
+    const ev=el.querySelector('[data-ev]');if(ev)ev.onclick=()=>events(x);
+  });
+};
+async function events(o){
+  const {data}=await sb.from('khg_order_events').select('*').eq('order_id',o.id).order('created_at');
+  sheet(`<h2>Hành trình ${esc(o.code)}</h2>${(data||[]).map(e=>`<div class="li"><span class="pill ${PILL[e.status]||''}">${TRIP[e.status]||e.status}</span> ${fmtDT(e.created_at)}${e.note?`<div class="small">${esc(e.note)}</div>`:''}</div>`).join('')||'<div class="empty">Chưa có.</div>'}<button class="big o" id="sx" style="margin-top:12px">Đóng</button>`);$('#sx').onclick=closeSheet;
+}
+
+V.cong=async m=>{
+  const d=today();const ms=d.slice(0,8)+'01';
+  const {data}=await sb.from('khg_attendance').select('*').eq('person_id',ME.id).gte('work_date',ms).order('work_date',{ascending:false});
+  const cur=(data||[]).find(a=>a.work_date===d);
+  const wd=(data||[]).filter(a=>(a.day_type||'thuong')==='thuong').reduce((s,a)=>s+(a.status==='co_mat'?1:a.status==='nua_ngay'?.5:0),0);
+  const ot=(data||[]).reduce((s,a)=>s+Number(a.ot_hours||0),0);
+  m.innerHTML=`<h2>Chấm công</h2>
+   <div class="card"><div class="row"><b>Hôm nay ${fmtD(d)}</b><span style="flex:1"></span>${cur?`<span class="pill green">${cur.status==='co_mat'?'Có mặt':cur.status==='nua_ngay'?'Nửa ngày':cur.status==='nghi_phep'?'Nghỉ phép':'Vắng'}</span>`:'<span class="pill">Chưa chấm</span>'}</div>
+    <div class="small" style="margin:6px 0 10px">Vào ca: <b>${fmtT(cur?.check_in)||'—'}</b> · Ra ca: <b>${fmtT(cur?.check_out)||'—'}</b></div>
+    <div class="two" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="big g" id="cin" ${cur?.check_in?'disabled':''}>Vào ca</button><button class="big" id="cout" ${!cur?.check_in||cur?.check_out?'disabled':''}>Ra ca</button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><button class="big o" id="chalf">Nửa ngày</button><button class="big o" id="cleave">Xin nghỉ phép</button></div></div>
+   <div class="kpis"><div class="kpi"><div class="l">Công tháng này</div><div class="v">${wd}/26</div><div class="bar"><div style="width:${Math.min(100,wd*100/26)}%"></div></div><div class="small">${wd>=26?'Đạt chuyên cần 🎉':'Còn '+(26-wd)+' công để đạt chuyên cần'}</div></div><div class="kpi"><div class="l">Giờ tăng ca</div><div class="v">${ot}</div></div></div>
+   <div class="card"><b>Chi tiết tháng</b>${(data||[]).map(a=>`<div class="li">${fmtD(a.work_date)} · ${a.status==='co_mat'?'Có mặt':a.status==='nua_ngay'?'Nửa ngày':a.status==='nghi_phep'?'Nghỉ phép':'Vắng'}${a.day_type&&a.day_type!=='thuong'?' · '+(a.day_type==='le'?'Lễ':'Ngày nghỉ'):''}<span class="small"> · ${fmtT(a.check_in)||''}${a.check_out?'–'+fmtT(a.check_out):''}${a.ot_hours?' · TC '+a.ot_hours+'h':''}</span></div>`).join('')||'<div class="empty">Chưa có.</div>'}</div>`;
+  const now=new Date().toISOString();const dow=new Date().getDay();
+  const up=async patch=>{const {error}=await sb.from('khg_attendance').upsert({person_id:ME.id,work_date:d,source:'app',day_type:cur?.day_type||(dow===0?'cuoi_tuan':'thuong'),...patch},{onConflict:'person_id,work_date'});toast(error?error.message:'Đã chấm công');go('cong')};
+  $('#cin').onclick=()=>up({status:'co_mat',check_in:now});
+  $('#cout').onclick=()=>up({status:cur?.status||'co_mat',check_in:cur?.check_in,check_out:now});
+  $('#chalf').onclick=()=>up({status:'nua_ngay',check_in:cur?.check_in||now});
+  $('#cleave').onclick=()=>{if(confirm('Báo nghỉ phép hôm nay?'))up({status:'nghi_phep'})};
+};
+
+V.chi=async m=>{
+  const [{data:ex},{data:adv}]=await Promise.all([
+    sb.from('khg_expenses').select('*').eq('person_id',ME.id).order('spent_on',{ascending:false}).limit(30),
+    sb.from('khg_advances').select('*').eq('person_id',ME.id).order('advanced_on',{ascending:false}).limit(20)]);
+  const ADS={cho_duyet:['Chờ duyệt','red'],mo:['Đã nhận tiền','amber'],da_quyet_toan:['Đã quyết toán','green'],huy:['Không duyệt','']};
+  const openAdv=(adv||[]).filter(a=>a.kind==='tam_ung_chi_phi'&&a.status==='mo');
+  m.innerHTML=`<h2>Chi phí & ứng tiền</h2>
+   <div class="card"><b>Ghi chi phí chuyến</b>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0" id="eit">${Object.entries(EXP).map(([k,l],i)=>`<button class="pill ${i===0?'red':''}" data-i="${k}" style="border:0;padding:8px 12px">${l}</button>`).join('')}</div>
+    <label class="f">Số tiền (đ)<input class="in" id="eam" type="number" inputmode="numeric" placeholder="VD 1200000"></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><label class="f">Số lít<input class="in" id="eli" type="number" inputmode="decimal"></label><label class="f">Km đồng hồ<input class="in" id="ekm" type="number" inputmode="numeric"></label></div>
+    <label class="f">Xe<select class="in" id="eve">${Object.values(VEH).sort((a,b)=>a.plate.localeCompare(b.plate)).map(v=>`<option value="${v.id}" ${v.id===ME.vehicle_id?'selected':''}>${esc(v.plate)}</option>`).join('')}<option value="">Không gắn xe</option></select></label>
+    <label class="f">Cách trả<select class="in" id="epm"><option value="tien_mat">Tiền mặt của tôi / công ty</option><option value="cong_no">Ghi nợ (cây xăng, garage)</option><option value="chuyen_khoan">Công ty chuyển khoản</option>${openAdv.length?'<option value="tam_ung">Trừ vào tiền tạm ứng</option>':''}</select></label>
+    <label class="f">Nơi chi / cây xăng<input class="in" id="esu" placeholder="VD Petrolimex QL13"></label>
+    <label class="f">Ghi chú<input class="in" id="eno"></label>
+    <button class="big" id="esave">Lưu chi phí</button></div>
+   <div class="card"><b>Xin ứng tiền</b>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><label class="f">Loại<select class="in" id="ak"><option value="ung_luong">Ứng lương</option><option value="tam_ung_chi_phi">Tạm ứng chi phí chuyến</option></select></label><label class="f">Số tiền<input class="in" id="aam" type="number" inputmode="numeric"></label></div>
+    <label class="f">Lý do<input class="in" id="apu"></label><button class="big o" id="asave">Gửi yêu cầu ứng</button>
+    ${(adv||[]).map(a=>`<div class="li">${a.kind==='ung_luong'?'Ứng lương':'Tạm ứng chi phí'} <b>${fmtM(a.amount)}</b> · ${fmtD(a.advanced_on)} <span class="pill ${ADS[a.status][1]}">${ADS[a.status][0]}</span>${a.kind==='tam_ung_chi_phi'&&a.status==='mo'?`<div class="small">Đã quyết toán ${fmtM(a.settled_amount)} / ${fmtM(a.amount)}</div>`:''}</div>`).join('')}</div>
+   <div class="card"><b>Chi phí đã ghi</b>${(ex||[]).map(e=>`<div class="li">${fmtD(e.spent_on)} · ${EXP[e.item]||e.item} · <b>${fmtM(e.amount)}</b>${e.liters?' · '+e.liters+' L':''}<div class="small">${esc(VEH[e.vehicle_id]?.plate||'')} ${e.payment_method==='cong_no'?'· ghi nợ':''} ${esc(e.supplier||'')}</div></div>`).join('')||'<div class="empty">Chưa có.</div>'}</div>`;
+  let item='nhien_lieu';
+  m.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{item=b.dataset.i;m.querySelectorAll('[data-i]').forEach(x=>x.classList.toggle('red',x===b))});
+  $('#esave').onclick=async()=>{const amt=Number($('#eam').value);if(!amt)return toast('Nhập số tiền');$('#esave').disabled=true;
+    const pm=$('#epm').value;const cat=['nhien_lieu','cau_duong','sua_chua','khac'].includes(item)?item:item==='phi_cong'?'cau_duong':item==='bao_tri'?'sua_chua':'khac';
+    const {error}=await sb.from('khg_expenses').insert({spent_on:today(),item,category:cat,amount:amt,liters:Number($('#eli').value)||null,odometer_km:Number($('#ekm').value)||null,vehicle_id:$('#eve').value||null,person_id:ME.id,
+      payment_method:pm==='tam_ung'?'tien_mat':pm,advance_id:pm==='tam_ung'?openAdv[0].id:null,supplier:$('#esu').value||null,note:$('#eno').value||null,source:'khac'});
+    $('#esave').disabled=false;toast(error?error.message:'Đã lưu chi phí');if(!error)go('chi')};
+  $('#asave').onclick=async()=>{const amt=Number($('#aam').value);if(!amt)return toast('Nhập số tiền');
+    const {error}=await sb.from('khg_advances').insert({person_id:ME.id,kind:$('#ak').value,amount:amt,purpose:$('#apu').value||null,status:'cho_duyet',source:'app'});
+    toast(error?error.message:'Đã gửi, chờ kế toán duyệt');if(!error)go('chi')};
+};
+
+V.luong=async m=>{
+  const d=today();const ms=d.slice(0,8)+'01';const wk=isoD(new Date(Date.now()-((new Date().getDay()+6)%7)*864e5));
+  const [{data:s},{data:o}]=await Promise.all([sb.from('khg_salary').select('*').eq('person_id',ME.id).order('period_start',{ascending:false}).limit(12),
+    sb.from('khg_orders').select('id,trips,delivered_at,status').eq('driver_id',ME.id).in('status',['da_giao','doi_soat','xuat_hd','da_thu']).gte('delivered_at',ms+'T00:00:00+07:00')]);
+  const tm=(o||[]).reduce((a,x)=>a+(x.trips||1),0),tw=(o||[]).filter(x=>(x.delivered_at||'')>=wk).reduce((a,x)=>a+(x.trips||1),0);
+  m.innerHTML=`<h2>Lương & thu nhập</h2><div class="kpis"><div class="kpi"><div class="l">Chuyến tuần này</div><div class="v">${tw}</div></div><div class="kpi"><div class="l">Chuyến tháng này</div><div class="v">${tm}</div></div></div>
+   ${(s||[]).map(r=>`<div class="card"><div class="row"><b>Lương ${r.period_type==='tuan'?'tuần':'tháng'} ${fmtD(r.period_start)} – ${fmtD(r.period_end)}</b><span style="flex:1"></span><span class="pill ${r.status==='da_tra'?'green':r.status==='da_duyet'?'blue':''}">${r.status==='da_tra'?'Đã trả':r.status==='da_duyet'?'Đã duyệt':'Đang tính'}</span></div>
+    <div class="kv"><b>Ngày công</b><span>${r.work_days}/${r.std_days}</span><b>Lương công</b><span>${fmtM(r.base_pay)}</span><b>Tăng ca</b><span>${fmtM(r.ot_pay)}</span><b>Lương chuyến</b><span>${fmtM(r.trip_pay)} (${r.trips||0} chuyến)</span>
+    <b>Chuyên cần</b><span>${fmtM(r.attendance_bonus)}</span><b>Phụ cấp</b><span>${fmtM(r.allowance)}</span>${Number(r.other_income)?`<b>Khác</b><span>${fmtM(r.other_income)}</span>`:''}
+    <b>Trừ BH 10,5%</b><span>−${fmtM(r.insurance_employee)}</span><b>Đã ứng</b><span>−${fmtM(r.advance)}</span>${Number(r.deduction)?`<b>Khấu trừ</b><span>−${fmtM(r.deduction)}</span>`:''}</div>
+    <div class="row" style="font-size:18px"><b>Thực lĩnh</b><span style="flex:1"></span><b style="color:var(--red)">${fmtM(r.total)}</b></div></div>`).join('')||'<div class="card empty">Chưa có bảng lương.</div>'}`;
+};
+
+V.toi=async m=>{
+  const p=ME;
+  m.innerHTML=`<h2>Thông tin của tôi</h2><div class="card"><div class="kv"><b>Họ tên</b><span>${esc(p.full_name)}</span><b>Điện thoại</b><span>${esc(p.phone||'')}</span>
+   <b>Tình trạng</b><span>${({ung_vien:'Ứng viên',thu_viec:'Thử việc',chinh_thuc:'Chính thức',tam_nghi:'Tạm nghỉ',nghi_viec:'Nghỉ việc'})[p.employment_status]||''}</span>
+   <b>Nhận việc</b><span>${fmtD(p.hire_date)}</span><b>Chính thức</b><span>${fmtD(p.official_date)}</span><b>Đóng BHXH từ</b><span>${fmtD(p.insurance_start)}</span>
+   <b>Bằng lái</b><span>${esc(p.license_class||'')} ${p.license_until?'· hết hạn '+fmtD(p.license_until):''}</span><b>Xe phụ trách</b><span>${esc(VEH[p.vehicle_id]?.plate||'')}</span></div></div>
+   <div class="card"><b>Dùng như app</b><div class="small" style="margin-top:6px">Android (Chrome): menu ⋮ → <b>Thêm vào màn hình chính</b>.<br>iPhone (Safari): nút Chia sẻ → <b>Thêm vào MH chính</b>.<br>Bật thông báo để nhận đơn khi app đang mở; Telegram bot @khg_dieuphoi_bot báo cả khi đóng app (gửi <code>/link ${esc(p.phone||'số_điện_thoại')}</code>).</div>
+   <button class="big o" id="np" style="margin-top:10px">🔔 Bật thông báo</button></div>
+   <div class="card"><b>Đổi mật khẩu</b><label class="f" style="margin-top:8px">Mật khẩu mới<input class="in" id="pw" type="password" minlength="6"></label><button class="big o" id="pws">Đổi mật khẩu</button></div>
+   <button class="big d" id="lo">Đăng xuất</button>`;
+  $('#np').onclick=async()=>{if(!('Notification' in window))return toast('Trình duyệt không hỗ trợ');const r=await Notification.requestPermission();toast(r==='granted'?'Đã bật thông báo':'Chưa cho phép thông báo')};
+  $('#pws').onclick=async()=>{const v=$('#pw').value;if(v.length<6)return toast('Tối thiểu 6 ký tự');const {error}=await sb.auth.updateUser({password:v});toast(error?error.message:'Đã đổi mật khẩu')};
+  $('#lo').onclick=async()=>{await sb.auth.signOut();location.reload()};
+};
+
+(async()=>{const {data}=await sb.auth.getSession();if(data&&data.session)start();else $('#login').classList.remove('hidden')})();
+})();
+</script>
+</body></html>
