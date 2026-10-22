@@ -185,9 +185,12 @@ textarea.i{min-height:70px;resize:vertical}
     <div class="card" id="trackBox"><div class="empty">Mở link theo dõi KHG gửi cho bạn, hoặc chọn đơn trong mục <b>Đơn của tôi</b>.</div></div>
   </section>
 
+  <!-- ĐỐI SOÁT COD -->
+  <section id="v-ds" class="hidden"><div class="card" id="dsBox"><div class="empty">Đang tải…</div></div></section>
+
   <!-- ĐƠN CỦA TÔI -->
   <section id="v-orders" class="hidden">
-    <div class="card"><h2>Đơn của tôi</h2><div class="ol" id="olist"></div></div>
+    <div class="card"><h2>Đơn của tôi</h2><input class="i" id="oq" type="search" placeholder="🔍 Tìm mã đơn, địa chỉ…" style="margin-bottom:10px"><div class="ol" id="olist"></div></div>
   </section>
 
   <!-- TÀI KHOẢN -->
@@ -376,7 +379,7 @@ async function track(token){
       <div class="sum" style="margin-top:12px"><div><small>Lấy hàng</small><b style="font-size:13.5px">${o.scheduled_at?fmt(o.scheduled_at):'Sớm nhất'}</b></div><div><small>Quãng đường</small><b style="font-size:13.5px">${o.distance_km?o.distance_km+' km':'–'}</b></div><div><small>${o.price?'Cước xác nhận':'Tạm tính'}</small><b style="font-size:13.5px">${o.price||o.est_fare?vnd(o.price||o.est_fare):'–'}</b></div></div>
       <h2 style="margin-top:6px">Các điểm</h2>
       ${(o.stops||[]).map(s=>{const L=STOP_L[s.status]||[s.status,'m'];return `<div class="pt"><div class="ph"><span class="dot" style="background:${s.kind==='lay'?'#1E7A4C':DCOL[(s.seq-1)%DCOL.length]}"></span>${s.kind==='lay'?'Điểm lấy':s.kind==='thu_hoi'?'Thu hồi':s.kind==='tra_hang'?'Trả hàng':'Điểm giao '+s.seq}<span class="badge ${L[1]}" style="margin-left:auto">${esc(L[0])}</span></div>
-        <div style="font-size:13.5px;margin-top:4px">${esc(s.address)}${s.contact?' · '+esc(s.contact):''}</div>${s.reason?`<div style="font-size:12.5px;color:var(--amber)">${esc(s.reason)}</div>`:''}${s.done_at?`<div style="font-size:12px;color:var(--muted)">${fmt(s.done_at)}</div>`:''}</div>`}).join('')}
+        <div style="font-size:13.5px;margin-top:4px">${esc(s.address)}${s.contact?' · '+esc(s.contact):''}</div>${s.cod?`<div style="font-size:12.5px">Thu hộ: <b>${vnd(s.cod)}</b>${s.collected!=null?` · đã thu <b style="color:var(--green)">${vnd(s.collected)}</b>`:''}</div>`:''}${s.reason?`<div style="font-size:12.5px;color:var(--amber)">${esc(s.reason)}</div>`:''}${s.done_at?`<div style="font-size:12px;color:var(--muted)">${fmt(s.done_at)}</div>`:''}</div>`}).join('')}
       <h2 style="margin-top:6px">Lịch sử</h2><ul class="tl"><li>Đặt xe thành công <small>· ${fmt(o.created_at)}</small></li>${(o.events||[]).map(e=>`<li>${esc(e.label)}${e.note?` – ${esc(e.note)}`:''} <small>· ${fmt(e.at)}</small></li>`).join('')}</ul>
       <div class="acts" style="justify-content:flex-start"><button class="btn g" id="tCopy">Sao chép link</button><a class="btn g" style="text-decoration:none" href="tel:0399831228">Gọi điều phối</a></div>
       <div class="note">Tự cập nhật mỗi 20 giây.</div>`;
@@ -387,6 +390,25 @@ async function track(token){
 }
 
 // ===== Đơn của tôi
+async function settlement(token){
+  NAV.forEach(([k])=>$('#v-'+k).classList.add('hidden'));$('#v-ds').classList.remove('hidden');
+  const box=$('#dsBox');const load=async(action,name,note)=>{const {data,error}=await sb.rpc('khg_public_settlement',{p_token:token,p_action:action||null,p_name:name||null,p_note:note||null});
+    if(error){box.innerHTML='<div class="err">'+esc(error.message.replace(/^.*?:\s*/,''))+'</div>';return}
+    const d=data;const ST={nhap:'Nháp',da_gui:'Chờ khách xác nhận',khach_xac_nhan:'Khách đã xác nhận',khach_khieu_nai:'Khách đang khiếu nại',da_tra:'KHG đã thanh toán'};
+    box.innerHTML=`<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><div style="font-size:12.5px;color:var(--muted)">Bảng đối soát tiền thu hộ (COD)</div><div class="code" style="font-size:20px">${esc(d.code)}</div><div>${esc(d.customer||'')} · ${new Date(d.period_from).toLocaleDateString('vi-VN')} – ${new Date(d.period_to).toLocaleDateString('vi-VN')}</div></div>
+      <span class="badge ${['khach_xac_nhan','da_tra'].includes(d.status)?'g':d.status==='khach_khieu_nai'?'':'a'}">${ST[d.status]||d.status}</span></div>
+     <div class="sum" style="margin-top:12px"><div><small>Tổng COD đã thu</small><b>${vnd(d.cod_total)}</b></div><div><small>Cấn trừ cước/phí</small><b>${vnd(d.fee_deduct)}</b></div><div><small>KHG chuyển trả</small><b style="color:var(--red)">${vnd(d.net_pay)}</b></div></div>
+     <div style="overflow:auto;margin-top:8px"><table style="width:100%;border-collapse:collapse;font-size:13.5px"><thead><tr style="background:#F8F5F4"><th style="text-align:left;padding:8px">Mã đơn</th><th style="text-align:left;padding:8px">Ngày giao</th><th style="text-align:left;padding:8px">Điểm giao</th><th style="text-align:right;padding:8px">COD</th><th style="text-align:right;padding:8px">Thực thu</th></tr></thead>
+      <tbody>${(d.orders||[]).map(o=>`<tr style="border-bottom:1px solid var(--line)"><td style="padding:8px"><b>${esc(o.code)}</b></td><td style="padding:8px">${o.date?new Date(o.date).toLocaleDateString('vi-VN'):''}</td><td style="padding:8px">${esc(o.dropoff||'')}</td><td style="padding:8px;text-align:right">${vnd(o.cod)}</td><td style="padding:8px;text-align:right">${o.collected!=null?vnd(o.collected):'—'}</td></tr>`).join('')}</tbody></table></div>
+     ${d.confirmed_at?`<p class="note">Xác nhận bởi <b>${esc(d.confirm_name||'')}</b> lúc ${new Date(d.confirmed_at).toLocaleString('vi-VN')}.</p>`:''}${d.paid_at?`<p class="note">KHG đã chuyển trả lúc ${new Date(d.paid_at).toLocaleString('vi-VN')}.</p>`:''}
+     ${['da_gui','khach_khieu_nai'].includes(d.status)?`<label class="f">Họ tên người xác nhận *</label><input class="i" id="dsn" value="${esc(LS.get('khg_me',{}).name||'')}"><label class="f">Ý kiến (nếu có)</label><textarea class="i" id="dsx" placeholder="Nếu có sai lệch, ghi rõ mã đơn và số tiền"></textarea>
+      <div class="acts" style="justify-content:flex-start"><button class="btn p" id="dsok">✓ Xác nhận số liệu đúng</button><button class="btn g" id="dsko">Khiếu nại / sai lệch</button></div>
+      <p class="note">Khi xác nhận, KHG chuyển trả số tiền trên vào tài khoản đã đăng ký của quý khách và gửi chứng từ thanh toán.</p>`:''}
+     <div class="acts" style="justify-content:flex-start"><a class="btn g" style="text-decoration:none" href="tel:0399831228">Gọi kế toán KHG</a></div>`;
+    const go_=a=>{const n=$('#dsn').value.trim();if(!n)return toast('Ghi họ tên người xác nhận');if(a==='khieu_nai'&&!$('#dsx').value.trim())return toast('Ghi rõ nội dung sai lệch');load(a,n,$('#dsx').value.trim())};
+    if($('#dsok'))$('#dsok').onclick=()=>go_('xac_nhan');if($('#dsko'))$('#dsko').onclick=()=>go_('khieu_nai')};
+  load();
+}
 async function myOrders(){
   const host=$('#olist'); host.innerHTML='<div class="empty">Đang tải…</div>';
   let list=[]; const {data:{session}}=await sb.auth.getSession();
@@ -396,6 +418,7 @@ async function myOrders(){
       <div class="r">${esc(o.pickup)} → ${esc(o.dropoff)}</div><div class="r" style="color:var(--muted)">${new Date(o.created_at).toLocaleString('vi-VN')}${o.price||o.est_fare?' · '+vnd(o.price||o.est_fare):''}</div></div>`),
     ...local.map(o=>`<div class="oc" data-t="${esc(o.token)}"><div class="t"><b>${esc(o.code)}</b><span class="badge m">Xem trạng thái</span></div><div class="r">${esc(o.pickup)} · ${o.drops} điểm giao</div><div class="r" style="color:var(--muted)">${new Date(o.at).toLocaleString('vi-VN')} · lưu trên máy này</div></div>`)].join('');
   host.innerHTML=html||`<div class="empty">Chưa có đơn nào.<br><button class="btn p" style="margin-top:10px" onclick="go('book')">Đặt xe ngay</button>${session?'':'<br><br>Đã đặt trên máy khác? <a href="#" onclick="go(\'acc\');return false">Đăng nhập</a> để xem đủ lịch sử.'}</div>`;
+  $('#oq').oninput=()=>{const q=$('#oq').value.toLowerCase();host.querySelectorAll('.oc').forEach(el=>el.style.display=!q||el.textContent.toLowerCase().includes(q)?'':'none')};
   host.querySelectorAll('.oc').forEach(el=>el.onclick=()=>{history.replaceState(null,'','?t='+el.dataset.t);go('track');track(el.dataset.t)});
 }
 
@@ -458,7 +481,7 @@ $$('#when button').forEach(b=>b.onclick=()=>{S.when=b.dataset.v;$$('#when button
 $('#trips').oninput=calc; $('#vat').onchange=calc;
 $('#fBook').addEventListener('submit',submit);
 prefill(); calc();
-const t0=new URLSearchParams(location.search).get('t'); if(t0){go('track');track(t0)}else go('book');
+const t0=new URLSearchParams(location.search).get('t'),ds0=new URLSearchParams(location.search).get('ds'); if(ds0){settlement(ds0)}else if(t0){go('track');track(t0)}else go('book');
 let deferred=null; window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('#install').classList.add('show')});
 $('#btnInstall').onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('#install').classList.remove('show')};
 </script>

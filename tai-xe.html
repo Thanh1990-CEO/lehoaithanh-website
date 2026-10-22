@@ -54,7 +54,7 @@ h2{font-size:19px;margin:4px 0 10px}
 .bar{height:10px;background:#F2EBE8;border-radius:6px;overflow:hidden;margin-top:6px}.bar div{height:100%;background:var(--green)}
 label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px}
 label.f .in{font-weight:400;color:var(--ink)}
-nav.bn{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:10}
+nav.bn{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:10}
 nav.bn button{border:0;background:none;padding:8px 2px 9px;font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
 nav.bn button b{font-size:20px;font-weight:400}
 nav.bn button.on{color:var(--red);font-weight:700}
@@ -86,6 +86,9 @@ nav.bn button em{position:absolute;top:4px;right:calc(50% - 22px);background:var
 .est{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.est div{background:#F5F1EF;border-radius:10px;padding:8px;text-align:center}.est small{display:block;font-size:11px;color:var(--muted)}.est b{font-size:15px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.chips button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:8px 12px;font-size:13px}
 .chips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+#vi .big2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.qr{display:block;margin:10px auto;width:min(280px,78vw);border:1px solid var(--line);border-radius:12px;background:#fff}
+.seg2{display:flex;gap:6px;margin:8px 0}.seg2 button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px;font-weight:700}.seg2 button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.warn{background:#FFF3E6;border:1px solid #F5C99B;color:#8A4B12;border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:10px}
 #banner{background:var(--red);color:#fff;padding:12px 14px;border-radius:14px;margin-bottom:12px;font-weight:700}
 </style></head><body>
 
@@ -95,6 +98,8 @@ nav.bn button em{position:absolute;top:4px;right:calc(50% - 22px);background:var
     <input class="in" id="lphone" type="tel" inputmode="tel" placeholder="Số điện thoại" autocomplete="username" required>
     <input class="in" id="lpass" type="password" placeholder="Mật khẩu do công ty cấp" autocomplete="current-password" required>
     <button class="big" id="lbtn">Đăng nhập</button>
+    <button type="button" class="big o" id="lotp">📲 Nhận mã OTP qua Telegram</button>
+    <div id="lotpb" class="hidden" style="gap:8px"><input class="in" id="lotpc" inputmode="numeric" maxlength="6" placeholder="Mã 6 số"><button type="button" class="big g" id="lotpok" style="margin-top:8px">Xác nhận mã</button></div>
     <div class="err" id="lerr"></div>
   </form>
   <div class="small">Chưa có mật khẩu? Liên hệ điều phối KHG – 0399 831 228.</div>
@@ -105,6 +110,7 @@ nav.bn button em{position:absolute;top:4px;right:calc(50% - 22px);background:var
   <main id="main"></main>
   <nav class="bn" id="bn">
     <button data-v="don" class="on"><b>🚚</b>Đơn<em id="donc" class="hidden"></em></button>
+    <button data-v="vi"><b>👛</b>Ví COD</button>
     <button data-v="cong"><b>🕒</b>Chấm công</button>
     <button data-v="chi"><b>⛽</b>Chi phí</button>
     <button data-v="luong"><b>💵</b>Lương</button>
@@ -161,7 +167,15 @@ let ME=null,VIEW='don',VEH={};
 $('#lf').onsubmit=async e=>{e.preventDefault();$('#lerr').textContent='';$('#lbtn').disabled=true;
   const {data,error}=await sb.auth.signInWithPassword({email:phoneEmail($('#lphone').value),password:$('#lpass').value});
   $('#lbtn').disabled=false;if(error){$('#lerr').textContent='Sai số điện thoại hoặc mật khẩu.';return}start()};
+const otpCall=async b=>{const r=await fetch('https://kbpcmifwplbtggfcnfrx.supabase.co/functions/v1/khg-admin',{method:'POST',headers:{'content-type':'application/json',apikey:'sb_publishable_buS_4Iky59zQlMME9dn2NQ_1FqIwlVt'},body:JSON.stringify(b)});return r.json().catch(()=>({error:'Lỗi kết nối'}))};
+$('#lotp').onclick=async()=>{const ph=$('#lphone').value.trim();if(!ph){$('#lerr').textContent='Nhập số điện thoại trước';return}$('#lotp').disabled=true;const r=await otpCall({action:'otp_request',login:ph});$('#lotp').disabled=false;
+  if(r.error){$('#lerr').textContent=r.error;return}$('#lerr').textContent='Đã gửi mã qua bot Telegram KHG';$('#lotpb').classList.remove('hidden');$('#lotpc').focus()};
+$('#lotpok').onclick=async()=>{const r=await otpCall({action:'otp_verify',login:$('#lphone').value.trim(),code:$('#lotpc').value});if(r.error){$('#lerr').textContent=r.error;return}
+  const {error}=await sb.auth.verifyOtp({type:'magiclink',token_hash:r.token_hash});if(error){$('#lerr').textContent=error.message;return}start()};
 async function start(){
+  const {data:ss}=await sb.auth.getSession();
+  if(ss?.session?.user?.user_metadata?.must_change){$('#login').classList.add('hidden');await new Promise(res=>{sheet(`<h2>🔐 Đặt mật khẩu mới</h2><p class="small">Bạn đang dùng mật khẩu tạm. Đặt mật khẩu riêng để tiếp tục.</p><label class="f">Mật khẩu mới<input class="in" id="np1" type="password"></label><label class="f">Nhập lại<input class="in" id="np2" type="password"></label><button class="big" id="npok">Lưu</button>`);
+    $('#sheet').onclick=null;$('#npok').onclick=async()=>{const a=$('#np1').value;if(a.length<6)return toast('Tối thiểu 6 ký tự');if(a!==$('#np2').value)return toast('Không khớp');const {error}=await sb.auth.updateUser({password:a,data:{must_change:false}});if(error)return toast(error.message);closeSheet();$('#sheet').onclick=e=>{if(e.target.id==='sheet')closeSheet()};res()}})}
   const {data:id}=await sb.rpc('khg_me');
   if(!id){$('#login').classList.remove('hidden');$('#app').classList.add('hidden');$('#lerr').textContent='Tài khoản chưa gắn với nhân sự KHG. Liên hệ điều phối.';await sb.auth.signOut();return}
   const {data:p}=await sb.from('khg_people').select('*').eq('id',id).maybeSingle();ME=p;
@@ -214,8 +228,12 @@ async function go(v,quiet){VIEW=v;document.querySelectorAll('#bn button').forEac
 
 // ---------- vị trí (không bắt buộc) ----------
 const where=()=>new Promise(r=>{if(!navigator.geolocation)return r(null);navigator.geolocation.getCurrentPosition(p=>r(p.coords),()=>r(null),{timeout:6000,maximumAge:120000,enableHighAccuracy:false})});
+const codOf=o=>Math.max(Number(o.cod_amount)||0,(STOPS_BY[o.id]||[]).reduce((a,s)=>a+Number(s.cod_amount||0),0));
+let STOPS_BY={};
 async function trip(o,status,note){
   if(NEED_REASON.includes(status)&&!note)return askReason(o,status);
+  if(status==='da_lay_hang'&&codOf(o)>0&&!SELFIE[o.id])return selfieThen(o,()=>trip(o,status,note));
+  if(status==='da_giao'){const miss=(STOPS_BY[o.id]||[]).find(s=>s.kind!=='lay'&&Number(s.cod_amount)>0&&s.cod_collected==null&&!['that_bai','tra_ve'].includes(s.status));if(miss)return codCollect(o,miss,()=>trip(o,status,note))}
   const c=await where();
   const {error}=await sb.rpc('khg_trip_update',{p_order:o.id,p_status:status,p_note:note||null,p_lat:c?c.latitude:null,p_lng:c?c.longitude:null,p_source:'app'});
   if(error){toast(error.message);return false}
@@ -244,6 +262,7 @@ function otherStatus(o){
   $('#sx').onclick=closeSheet;document.querySelectorAll('#sbx [data-k]').forEach(b=>b.onclick=()=>trip(o,b.dataset.k));
 }
 async function stopUpd(o,s,status,reason){
+  if(status==='xong'&&s.kind!=='lay'&&Number(s.cod_amount)>0&&s.cod_collected==null)return codCollect(o,s,()=>stopUpd(o,s,status,reason));
   if(['that_bai','tra_ve','giao_mot_phan'].includes(status)&&!reason)return askReason(o,status==='that_bai'?'giao_that_bai':status==='tra_ve'?'tra_hang_ve':'giao_mot_phan',{...s,_st:status});
   const c=await where();
   const {error}=await sb.rpc('khg_stop_update',{p_stop:s.id,p_status:s._st||status,p_reason:reason||null,p_lat:c?c.latitude:null,p_lng:c?c.longitude:null});
@@ -273,6 +292,48 @@ function photo(o,type,title,stop){
       const {error:e2}=await sb.from('khg_files').insert({entity_type:'order',entity_id:o.id,doc_type:vid?'video':$('#pt').value,file_path:path,file_name:f.name||('file.'+ext),mime,size_bytes:blob.size,uploaded_by:ME.id,
         stop_id:stop?.id||null,lat:c?c.latitude:null,lng:c?c.longitude:null,note:$('#pn').value||null});if(!e2)n++;else toast(e2.message)}
     toast('Đã gửi '+n+' tệp');closeSheet();go('don',true)};
+}
+const BANKS={'970436':'Vietcombank','970415':'VietinBank','970418':'BIDV','970405':'Agribank','970407':'Techcombank','970422':'MB Bank','970416':'ACB','970432':'VPBank','970403':'Sacombank','970423':'TPBank','970441':'VIB','970443':'SHB','970437':'HDBank','970448':'OCB','970426':'MSB','970440':'SeABank','970431':'Eximbank','970449':'LPBank','970428':'Nam A Bank','970409':'Bac A Bank','970412':'PVcomBank','970425':'ABBank','970452':'Kienlongbank','970427':'VietABank','970400':'Saigonbank','970419':'NCB','970438':'BaoViet Bank','970454':'Ban Viet','970429':'SCB','970408':'GPBank','970430':'PG Bank','970433':'Vietbank','970406':'DongA Bank','970444':'CB Bank','970414':'OceanBank','546034':'CAKE by VPBank','546035':'Ubank by VPBank'};
+const qrUrl=(a,amt,info)=>a&&a.bank_bin&&a.account_no?`https://img.vietqr.io/image/${a.bank_bin}-${encodeURIComponent(a.account_no)}-compact2.png?${amt?'amount='+Math.round(amt)+'&':''}addInfo=${encodeURIComponent(info||'')}&accountName=${encodeURIComponent(a.account_name||'')}`:'';
+async function companyAcc(purpose){const {data}=await sb.from('khg_pay_accounts').select('*').eq('owner_type','cong_ty').eq('active',true);const l=data||[];return l.find(a=>a.purpose===purpose)||l.find(a=>a.is_default)||l[0]||null}
+async function qrBlock(purpose,amt,info){const a=await companyAcc(purpose);if(!a)return '<div class="warn">Công ty chưa khai báo tài khoản nhận tiền. Liên hệ kế toán 0399 831 228.</div>';
+  const u=qrUrl(a,amt,info)||(a.qr_path?(await sb.storage.from(BUCKET).createSignedUrl(a.qr_path,900)).data?.signedUrl:'');
+  return `${u?`<img class="qr" src="${u}" alt="QR">`:''}<div class="small" style="text-align:center;line-height:1.6">${esc(BANKS[a.bank_bin]||a.bank_name||'')} · <b>${esc(a.account_no||'')}</b><br>${esc(a.account_name||'')}<br>Số tiền: <b>${fmtM(amt)}</b> · Nội dung: <b>${esc(info)}</b></div>
+   <button class="big o" style="margin-top:6px" onclick="navigator.clipboard&&navigator.clipboard.writeText('${esc(a.account_no||'')}');this.textContent='Đã sao chép số TK'">📋 Sao chép số tài khoản</button>`}
+async function upPhoto(file,path){const blob=file.type.startsWith('image')?await shrink(file):file;const {error}=await sb.storage.from(BUCKET).upload(path,blob,{contentType:file.type.startsWith('image')?'image/jpeg':file.type});if(error)throw error;return {path,size:blob.size}}
+const SELFIE={};
+function selfieThen(o,after){
+  sheet(`<h2>🤳 Ảnh chân dung nhận hàng</h2><p class="small">Đơn <b>${esc(o.code)}</b> có thu hộ COD. Chụp ảnh chân dung của bạn tại điểm lấy hàng (thấy rõ mặt, có xe/hàng phía sau). Ảnh lưu kèm giờ và vị trí GPS.</p>
+   <label class="big" style="display:block;text-align:center">📸 Chụp ảnh chân dung<input id="sf" type="file" accept="image/*" capture="user" class="hidden"></label><div id="sfp" class="thumbs" style="justify-content:center;margin:10px 0"></div>
+   <div class="acts"><button class="big g" id="sfok" disabled>Xác nhận & ĐÃ LẤY HÀNG</button><button class="big o" id="sfno">Quay lại</button></div>`);
+  let f=null;$('#sf').onchange=e=>{f=e.target.files[0];if(f){$('#sfp').innerHTML=`<img src="${URL.createObjectURL(f)}" style="width:140px;height:140px">`;$('#sfok').disabled=false}};
+  $('#sfno').onclick=closeSheet;
+  $('#sfok').onclick=async()=>{$('#sfok').disabled=true;$('#sfok').textContent='Đang gửi…';try{const c=await where();const r=await upPhoto(f,`order/${o.id}/selfie_${Date.now()}.jpg`);
+    const {error}=await sb.from('khg_files').insert({entity_type:'order',entity_id:o.id,doc_type:'selfie',file_path:r.path,file_name:'selfie.jpg',mime:'image/jpeg',size_bytes:r.size,uploaded_by:ME.id,lat:c?c.latitude:null,lng:c?c.longitude:null,note:'Ảnh chân dung khi nhận hàng COD'});
+    if(error)throw error;SELFIE[o.id]=true;closeSheet();after()}catch(e){toast(e.message);$('#sfok').disabled=false;$('#sfok').textContent='Thử lại'}};
+}
+function codCollect(o,s,after){
+  const due=Number(s.cod_amount)||0;const info=`${o.code} D${s.seq}`;let method='tien_mat';
+  sheet(`<h2>💵 Thu COD · điểm ${s.seq}</h2><p class="small">${esc(s.address||'')}${s.contact_name?' · '+esc(s.contact_name):''}</p>
+   <div class="kpi" style="margin:8px 0"><div class="l">Phải thu</div><div class="v" style="color:var(--red)">${fmtM(due)}</div></div>
+   <label class="f">Số tiền thực thu<input class="in" id="ca" type="number" inputmode="numeric" value="${due}"></label>
+   <div class="seg2"><button class="on" data-m="tien_mat">💵 Tiền mặt</button><button data-m="chuyen_khoan">🏦 Khách CK vào TK công ty</button></div>
+   <div id="cqr"></div>
+   <label class="big o" style="display:block;text-align:center">📷 Chụp tiền / phiếu thu / biên lai CK (bắt buộc)<input id="cp" type="file" accept="image/*" capture="environment" class="hidden"></label><div id="cpp" class="thumbs" style="margin:8px 0"></div>
+   <div class="small">Tiền mặt: bạn giữ và phải nộp về công ty trong 24 giờ (mục Ví COD). Khách chuyển khoản: tiền vào thẳng TK công ty, kế toán xác nhận.</div>
+   <div class="acts"><button class="big g" id="cok" disabled>Xác nhận đã thu</button><button class="big o" id="cno">Quay lại</button></div>`);
+  let f=null;const ck=()=>{$('#cok').disabled=!f};
+  document.querySelectorAll('.seg2 button').forEach(b=>b.onclick=async()=>{method=b.dataset.m;document.querySelectorAll('.seg2 button').forEach(x=>x.classList.toggle('on',x===b));
+    $('#cqr').innerHTML=method==='chuyen_khoan'?await qrBlock('cod',Number($('#ca').value)||due,info):''});
+  $('#ca').oninput=async()=>{if(method==='chuyen_khoan')$('#cqr').innerHTML=await qrBlock('cod',Number($('#ca').value)||due,info)};
+  $('#cp').onchange=e=>{f=e.target.files[0];$('#cpp').innerHTML=f?`<img src="${URL.createObjectURL(f)}">`:'';ck()};
+  $('#cno').onclick=closeSheet;
+  $('#cok').onclick=async()=>{const amt=Number($('#ca').value);if(isNaN(amt)||amt<0)return toast('Nhập số tiền');if(amt!==due&&!confirm(`Số thu ${fmtM(amt)} khác số phải thu ${fmtM(due)}. Điều phối sẽ được báo lệch. Tiếp tục?`))return;
+    $('#cok').disabled=true;$('#cok').textContent='Đang gửi…';
+    try{const c=await where();const r=await upPhoto(f,`order/${o.id}/cod_${s.seq}_${Date.now()}.jpg`);
+      await sb.from('khg_files').insert({entity_type:'order',entity_id:o.id,doc_type:'chung_tu_cod',file_path:r.path,file_name:'cod.jpg',mime:'image/jpeg',size_bytes:r.size,uploaded_by:ME.id,stop_id:s.id,lat:c?c.latitude:null,lng:c?c.longitude:null,note:`Thu COD ${fmtM(amt)} (${method==='tien_mat'?'tiền mặt':'CK'})`});
+      const {error}=await sb.rpc('khg_cod_collect',{p_stop:s.id,p_amount:amt,p_method:method,p_proof:r.path,p_lat:c?c.latitude:null,p_lng:c?c.longitude:null});if(error)throw error;
+      s.cod_collected=amt;toast('✔ Đã ghi thu COD '+fmtM(amt));closeSheet();after&&after()}catch(e){toast(e.message);$('#cok').disabled=false;$('#cok').textContent='Thử lại'}};
 }
 // nén ảnh còn ~1600px để tải nhanh bằng 4G
 function shrink(file){return new Promise(res=>{const img=new Image();const u=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,1600/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(b=>{URL.revokeObjectURL(u);res(b||file)},'image/jpeg',.82)};img.onerror=()=>res(file);img.src=u})}
@@ -310,14 +371,14 @@ V.don=async m=>{
   const ids=active.map(x=>x.id);
   const [{data:files},{data:stops}]=ids.length?await Promise.all([sb.from('khg_files').select('entity_id,doc_type').eq('entity_type','order').in('entity_id',ids),
     sb.from('khg_order_stops').select('*').in('order_id',ids).order('seq')]):[{data:[]},{data:[]}];
-  const stOf=id=>(stops||[]).filter(s=>s.order_id===id);
+  const stOf=id=>(stops||[]).filter(s=>s.order_id===id);STOPS_BY={};(stops||[]).forEach(s=>(STOPS_BY[s.order_id]=STOPS_BY[s.order_id]||[]).push(s));(files||[]).forEach(f=>{if(f.doc_type==='selfie')SELFIE[f.entity_id]=true});
   const card=x=>{const cu=cust[x.customer_id];const st=x.trip_status||'cho_nhan';const idx=STEP_OF(st);const nf=(files||[]).filter(f=>f.entity_id===x.id).length;const S=stOf(x.id);const nx=NEXT[st];
     const pickS=S.find(s=>s.kind==='lay')||{address:x.pickup,lat:x.pickup_lat,lng:x.pickup_lng};const cod=S.reduce((a,s)=>a+Number(s.cod_amount||0),0)||Number(x.cod_amount||0);
     const stopRow=s=>{const L=STOP[s.status]||[s.status,''];const dn=['xong'].includes(s.status),bad=['that_bai','tra_ve'].includes(s.status);
       const btn=s.kind==='lay'?'':s.status==='cho'?`<button class="pr" data-sp="${s.id}" data-s="dang_den">Đang đến</button>`:s.status==='dang_den'?`<button class="pr" data-sp="${s.id}" data-s="da_den">Đã đến</button>`:s.status==='da_den'||s.status==='luu_dem'?`<button class="pr" data-sp="${s.id}" data-s="xong">✔ Giao xong</button><button data-sp="${s.id}" data-s="giao_mot_phan">Một phần</button><button data-sp="${s.id}" data-s="that_bai">Thất bại</button><button data-sp="${s.id}" data-s="tra_ve">Trả về</button><button data-sp="${s.id}" data-s="luu_dem">Lưu đêm</button>`:'';
       return `<div class="stp ${dn?'done':bad?'bad':''}"><div class="h"><span class="n" style="background:${s.kind==='lay'?'var(--green)':'var(--red)'}">${s.kind==='lay'?'L':s.seq}</span>${KIND[s.kind]||''}${s.kind!=='lay'?` <span class="pill ${L[1]}">${L[0]}</span>`:''}</div>
-       <div class="ad">${esc(s.address||'')}</div><div class="sm">${s.contact_name?esc(s.contact_name):''}${s.phone?` · <a href="tel:${esc(s.phone)}">📞 ${esc(s.phone)}</a>`:''}${Number(s.cod_amount)?` · <b style="color:var(--red)">THU HỘ ${fmtM(s.cod_amount)}</b>`:''}${s.note?' · '+esc(s.note):''}${s.reason?` · <i>${esc(s.reason)}</i>`:''}</div>
-       <div class="bt"><a href="${navTo(s)}" target="_blank" rel="noopener">🧭 Dẫn đường</a>${btn}<button data-ps="${s.id}">📷</button></div></div>`};
+       <div class="ad">${esc(s.address||'')}</div><div class="sm">${s.contact_name?esc(s.contact_name):''}${s.phone?` · <a href="tel:${esc(s.phone)}">📞 ${esc(s.phone)}</a>`:''}${Number(s.cod_amount)?(s.cod_collected!=null?` · <b style="color:var(--green)">ĐÃ THU ${fmtM(s.cod_collected)} (${s.cod_method==='tien_mat'?'TM':'CK'})</b>`:` · <b style="color:var(--red)">THU HỘ ${fmtM(s.cod_amount)}</b>`):''}${s.note?' · '+esc(s.note):''}${s.reason?` · <i>${esc(s.reason)}</i>`:''}</div>
+       <div class="bt"><a href="${navTo(s)}" target="_blank" rel="noopener">🧭 Dẫn đường</a>${s.kind!=='lay'&&Number(s.cod_amount)>0&&s.cod_collected==null&&['da_den','dang_den','luu_dem'].includes(s.status)?`<button class="pr" data-cod="${s.id}" style="background:var(--red);border-color:var(--red)">💵 Thu COD</button>`:''}${btn}<button data-ps="${s.id}">📷</button></div></div>`};
     return `<div class="card ${st==='cho_nhan'?'new':''}" data-o="${x.id}">
      <div class="row"><span class="code">${esc(x.code)}</span><span style="flex:1"></span><span class="pill ${PILL[st]||''}">${TRIP[st]||st}</span></div>
      <div class="steps">${ORDER.slice(1).map((s2,i)=>`<span class="${idx>i?'on':''}"></span>`).join('')}</div>
@@ -336,7 +397,7 @@ V.don=async m=>{
       <div class="two"><button class="big o" data-ph="1">📷 Ảnh / video (${nf})</button><button class="big o" data-more="1">⋯ Trạng thái khác</button></div>
       <div class="two"><button class="big o" data-ev="1">🕘 Hành trình</button><a class="big o" style="text-align:center;text-decoration:none" href="tel:0399831228">📞 Điều phối</a></div></div></div>`};
   m.innerHTML=`${fresh.length?`<div id="banner">🔔 Có ${fresh.length} đơn mới – bấm NHẬN ĐƠN để xác nhận với điều phối</div>`:''}
-   <h2>Đơn của tôi (${active.length})</h2>${active.map(card).join('')||'<div class="card empty">Chưa có đơn nào được giao.<br>Khi điều phối giao đơn, app sẽ đổ chuông.</div>'}
+   <h2>Đơn của tôi (${active.length})</h2>${active.length>2||done.length?`<input class="in" id="dq" type="search" placeholder="🔍 Tìm mã đơn, địa chỉ, khách, SĐT…" style="margin-bottom:10px" value="${esc(window._dq||'')}">`:''}${active.map(card).join('')||'<div class="card empty">Chưa có đơn nào được giao.<br>Khi điều phối giao đơn, app sẽ đổ chuông.</div>'}
    ${done.length?`<h2>Đã giao gần đây</h2><div class="card">${done.map(x=>`<div class="li"><b>${esc(x.code)}</b> · ${esc(cust[x.customer_id]?.name||x.customer_text||'')}<div class="small">${esc(x.pickup||'')} → ${esc(x.dropoff||'')} · ${fmtDT(x.delivered_at||x.scheduled_at)}</div></div>`).join('')}</div>`:''}`;
   m.querySelectorAll('[data-o]').forEach(el=>{const x=active.find(a=>a.id===el.dataset.o);const S=stOf(x.id);
     el.querySelectorAll('[data-t]').forEach(b=>b.onclick=async()=>{b.disabled=true;stopRing();await trip(x,b.dataset.t);b.disabled=false});
@@ -344,9 +405,11 @@ V.don=async m=>{
     el.querySelector('[data-ph]').onclick=()=>photo(x,['dang_tra_hang','dang_giao','den_diem_giao'].includes(x.trip_status)?'bien_ban_giao_nhan':'hinh_hang');
     el.querySelector('[data-ev]').onclick=()=>events(x);
     el.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>stopUpd(x,S.find(s=>s.id===b.dataset.sp),b.dataset.s));
+    el.querySelectorAll('[data-cod]').forEach(b=>b.onclick=()=>codCollect(x,S.find(s=>s.id===b.dataset.cod),()=>go('don',true)));
     el.querySelectorAll('[data-ps]').forEach(b=>b.onclick=()=>{const s=S.find(z=>z.id===b.dataset.ps);photo(x,s.kind==='lay'?'hinh_hang':'pod','Ảnh / video điểm '+(s.kind==='lay'?'lấy hàng':s.seq),s)});
     if(!x.distance_km||!x.duration_min)estimate(x,S).then(e=>{const box=el.querySelector('[data-est]');if(e&&box){box.children[0].querySelector('b').textContent=fmtN(Math.round(e.km*10)/10)+' km';box.children[1].querySelector('b').textContent=hm(e.min)}else if(box){box.children[0].querySelector('b').textContent='—';box.children[1].querySelector('b').textContent='—'}});
   });
+  const dq=$('#dq');if(dq){const flt=()=>{const q=(dq.value||'').toLowerCase().trim();window._dq=dq.value;m.querySelectorAll('[data-o]').forEach(el=>{el.style.display=!q||el.textContent.toLowerCase().includes(q)?'':'none'});m.querySelectorAll('.card .li').forEach(el=>{el.style.display=!q||el.textContent.toLowerCase().includes(q)?'':'none'})};dq.oninput=flt;flt()}
   // còn đơn chờ nhận mà chưa xem → đổ chuông lại
   const seen=JSON.parse(localStorage.getItem('khg_seen')||'{}');const unseen=fresh.filter(x=>seen[x.id]!==x.updated_at);
   if(unseen.length&&!$('#ring')){alertNew(unseen.length>1?`Có ${unseen.length} đơn mới`:'Đơn mới '+unseen[0].code,(unseen[0].pickup||'')+' → '+(unseen[0].dropoff||''),unseen[0].id)}
@@ -437,6 +500,55 @@ V.luong=async m=>{
     <div class="row" style="font-size:18px"><b>Thực lĩnh</b><span style="flex:1"></span><b style="color:var(--red)">${fmtM(r.total)}</b></div></div>`).join('')||'<div class="card empty">Chưa có bảng lương.</div>'}`;
 };
 
+V.vi=async m=>{
+  const [{data:w},{data:tx},{data:mine}]=await Promise.all([sb.rpc('khg_wallet',{p_person:ME.id}),sb.from('khg_wallet_tx').select('*').eq('person_id',ME.id).order('created_at',{ascending:false}).limit(60),
+    sb.from('khg_pay_accounts').select('*').eq('owner_type','nhan_su').eq('person_id',ME.id).eq('active',true)]);
+  const r=(w||[])[0]||{deposit:0,cod_holding:0,cod_pending:0,cod_limit:0,commit_ok:false,blocked:false};
+  const hrs=r.cod_oldest?Math.round((Date.now()-new Date(r.cod_oldest))/36e5):0;const phone=(ME.phone||'').replace(/\D/g,'');
+  const K={ky_quy_nop:'Nộp ký quỹ',ky_quy_hoan:'Hoàn ký quỹ',ky_quy_tru:'Trừ ký quỹ',cod_thu:'Thu COD tiền mặt',cod_nop:'Nộp COD',cod_ck_cty:'Khách CK COD',thuong:'Thưởng',phat:'Phạt',khau_tru:'Khấu trừ',dieu_chinh:'Điều chỉnh'};
+  const SS={cho_xac_nhan:['Chờ xác nhận','amber'],da_xac_nhan:['Đã xác nhận','green'],tu_choi:['Từ chối','red']};
+  m.innerHTML=`<div id="vi"><h2>Ví COD & ký quỹ</h2>
+   ${r.blocked?'<div class="warn">⛔ Tài khoản đang bị khóa nhận đơn COD. Liên hệ kế toán.</div>':''}
+   ${r.cod_holding>0?`<div class="warn" style="${hrs>24?'background:#FDECEC;border-color:#F3B3B3;color:#9B1C1C':''}">Bạn đang giữ <b>${fmtM(r.cod_holding)}</b> tiền thu hộ ${hrs?`(từ ${hrs} giờ trước)`:''}. Nộp về công ty trong 24 giờ.</div>`:''}
+   <div class="kpis"><div class="kpi"><div class="l">Ký quỹ</div><div class="v">${fmtN(r.deposit)}</div></div><div class="kpi"><div class="l">Hạn mức COD</div><div class="v">${fmtN(r.cod_limit)}</div></div>
+    <div class="kpi"><div class="l">Đang giữ COD</div><div class="v" style="color:${r.cod_holding>0?'var(--red)':'inherit'}">${fmtN(r.cod_holding)}</div></div><div class="kpi"><div class="l">Chờ xác nhận</div><div class="v">${fmtN(r.cod_pending)}</div></div></div>
+   ${r.commit_ok?'':`<div class="card"><b>✍️ Ký cam kết thu hộ COD</b><div class="small" style="margin:8px 0;line-height:1.6">Tôi cam kết: thu đúng, đủ số tiền COD theo đơn; chụp chứng từ mỗi lần thu; nộp toàn bộ tiền thu hộ về tài khoản Công ty TNHH Kim Hoàng Gia trong vòng 24 giờ; không giữ, không dùng tiền thu hộ vào việc riêng; chịu trách nhiệm bồi thường toàn bộ tiền thiếu, mất và đồng ý cho công ty cấn trừ vào ký quỹ, lương, tiền chuyến; chiếm giữ tiền thu hộ sẽ bị xử lý theo quy định pháp luật.</div>
+     <label class="f">Họ và tên (gõ đúng như CCCD)<input class="in" id="cmn" value="${esc(ME.full_name||'')}"></label>
+     <label class="big o" style="display:block;text-align:center">🤳 Chụp ảnh chân dung<input id="cmf" type="file" accept="image/*" capture="user" class="hidden"></label><div id="cmp" class="thumbs" style="margin:8px 0"></div>
+     <label style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin:8px 0"><input type="checkbox" id="cmk" style="width:22px;height:22px"> Tôi đã đọc, hiểu và đồng ý cam kết trên.</label>
+     <button class="big" id="cms" disabled>Ký cam kết</button></div>`}
+   <div class="big2"><button class="big" id="vcod" ${r.cod_holding>0?'':'style="opacity:.6"'}>💸 Nộp COD về công ty</button><button class="big o" id="vdep">🔐 Nộp ký quỹ</button></div>
+   <div class="card" style="margin-top:12px"><b>Lịch sử ví</b>${(tx||[]).map(t=>`<div class="li"><div class="row"><b>${K[t.kind]||t.kind}</b><span style="flex:1"></span><b>${['cod_thu','ky_quy_nop','thuong','cod_ck_cty'].includes(t.kind)?'+':'−'}${fmtN(t.amount)}</b></div><div class="small">${fmtDT(t.created_at)} · ${t.method==='tien_mat'?'Tiền mặt':t.method==='chuyen_khoan'?'Chuyển khoản':''} <span class="pill ${SS[t.status][1]}">${SS[t.status][0]}</span>${t.reject_reason?' · '+esc(t.reject_reason):''}<br>${esc(t.note||'')}</div></div>`).join('')||'<div class="empty">Chưa có giao dịch.</div>'}</div>
+   <div class="card"><b>Tài khoản nhận tiền của tôi</b><div class="small" style="margin:6px 0">Dùng để công ty chuyển lương, hoàn ký quỹ, thưởng.</div>
+    ${(mine||[]).map(a=>`<div class="li">${esc(BANKS[a.bank_bin]||a.bank_name||'')} · <b>${esc(a.account_no)}</b> · ${esc(a.account_name)}${qrUrl(a)?`<img src="${qrUrl(a,0,'')}" style="width:120px;display:block;margin-top:6px">`:''}</div>`).join('')}
+    <label class="f">Ngân hàng<select class="in" id="mbk">${Object.entries(BANKS).sort((a,b)=>a[1].localeCompare(b[1])).map(([k,v])=>`<option value="${k}" ${k==='970436'?'selected':''}>${v}</option>`).join('')}</select></label>
+    <label class="f">Số tài khoản<input class="in" id="mac" inputmode="numeric"></label><label class="f">Tên chủ tài khoản<input class="in" id="man" value="${esc((ME.full_name||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toUpperCase())}"></label>
+    <button class="big o" id="msv">Lưu tài khoản</button></div></div>`;
+  // cam kết
+  if(!r.commit_ok){let f=null;const ok=()=>{$('#cms').disabled=!(f&&$('#cmk').checked&&$('#cmn').value.trim())};
+    $('#cmf').onchange=e=>{f=e.target.files[0];$('#cmp').innerHTML=f?`<img src="${URL.createObjectURL(f)}">`:'';ok()};$('#cmk').onchange=ok;$('#cmn').oninput=ok;
+    $('#cms').onclick=async()=>{$('#cms').disabled=true;try{const u=await upPhoto(f,`person/${ME.id}/cam_ket_cod_${Date.now()}.jpg`);
+      await sb.from('khg_files').insert({entity_type:'person',entity_id:ME.id,doc_type:'cam_ket',file_path:u.path,file_name:'cam-ket-cod.jpg',mime:'image/jpeg',size_bytes:u.size,uploaded_by:ME.id,note:'Ảnh chân dung ký cam kết COD'});
+      const {error}=await sb.rpc('khg_cod_commit',{p_name:$('#cmn').value.trim(),p_photo:u.path});if(error)throw error;toast('✔ Đã ký cam kết COD');go('vi')}catch(e){toast(e.message);$('#cms').disabled=false}}}
+  // nộp tiền
+  const pay=(kind)=>{const amt0=kind==='cod_nop'?Number(r.cod_holding)||0:0;const ref=(kind==='cod_nop'?'COD ':'KYQUY ')+phone;let method='chuyen_khoan';
+    sheet(`<h2>${kind==='cod_nop'?'💸 Nộp tiền COD về công ty':'🔐 Nộp ký quỹ'}</h2>
+     <label class="f">Số tiền<input class="in" id="pa" type="number" inputmode="numeric" value="${amt0||''}"></label>
+     <div class="seg2"><button class="on" data-m="chuyen_khoan">🏦 Chuyển khoản (QR)</button><button data-m="tien_mat">💵 Tiền mặt cho kế toán</button></div>
+     <div id="pq"></div>
+     <label class="big o" style="display:block;text-align:center">📷 Chụp biên lai CK / phiếu thu (bắt buộc)<input id="pf" type="file" accept="image/*" capture="environment" class="hidden"></label><div id="pp" class="thumbs" style="margin:8px 0"></div>
+     <label class="f">Ghi chú<input class="in" id="pn" placeholder="VD: nộp COD các đơn ngày 22/10"></label>
+     <div class="acts"><button class="big g" id="pok" disabled>Gửi xác nhận</button><button class="big o" id="pno">Đóng</button></div>`);
+    let f=null;const drawQ=async()=>{$('#pq').innerHTML=method==='chuyen_khoan'?await qrBlock(kind==='cod_nop'?'cod':'ky_quy',Number($('#pa').value)||0,ref):'<div class="small">Nộp tiền mặt trực tiếp cho kế toán / điều phối, chụp phiếu thu có chữ ký người nhận.</div>'};
+    document.querySelectorAll('.seg2 button').forEach(b=>b.onclick=()=>{method=b.dataset.m;document.querySelectorAll('.seg2 button').forEach(x=>x.classList.toggle('on',x===b));drawQ()});
+    let t;$('#pa').oninput=()=>{clearTimeout(t);t=setTimeout(drawQ,400)};drawQ();
+    $('#pf').onchange=e=>{f=e.target.files[0];$('#pp').innerHTML=f?`<img src="${URL.createObjectURL(f)}">`:'';$('#pok').disabled=!f};$('#pno').onclick=closeSheet;
+    $('#pok').onclick=async()=>{const amt=Number($('#pa').value);if(!amt)return toast('Nhập số tiền');$('#pok').disabled=true;
+      try{const u=await upPhoto(f,`person/${ME.id}/vi/${kind}_${Date.now()}.jpg`);const {error}=await sb.rpc('khg_wallet_submit',{p_kind:kind,p_amount:amt,p_method:method,p_proof:u.path,p_note:$('#pn').value||null,p_order_ids:null});if(error)throw error;
+        toast('Đã gửi, chờ kế toán xác nhận');closeSheet();go('vi')}catch(e){toast(e.message);$('#pok').disabled=false}}};
+  $('#vcod').onclick=()=>pay('cod_nop');$('#vdep').onclick=()=>pay('ky_quy_nop');
+  $('#msv').onclick=async()=>{const acc=$('#mac').value.replace(/\s/g,'');if(acc.length<6)return toast('Nhập số tài khoản');const {error}=await sb.from('khg_pay_accounts').insert({owner_type:'nhan_su',person_id:ME.id,bank_bin:$('#mbk').value,bank_name:BANKS[$('#mbk').value],account_no:acc,account_name:$('#man').value.trim().toUpperCase(),purpose:'luong',label:'TK của '+ME.full_name});toast(error?error.message:'Đã lưu');if(!error)go('vi')};
+};
 V.toi=async m=>{
   const p=ME;
   m.innerHTML=`<h2>Thông tin của tôi</h2><div class="card"><div class="kv"><b>Họ tên</b><span>${esc(p.full_name)}</span><b>Điện thoại</b><span>${esc(p.phone||'')}</span>
