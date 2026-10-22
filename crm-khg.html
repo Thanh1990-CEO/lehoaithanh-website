@@ -109,7 +109,98 @@ td:first-child{white-space:nowrap}
 td input[type=checkbox],th input[type=checkbox]{width:16px;height:16px}
 @media (max-width:820px){.form{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){header.top a{display:none}.form{grid-template-columns:1fr}.hb .lb{width:96px}.hb .vl{width:86px}.board{grid-template-columns:repeat(5,82vw)}}
-</style></head><body>
+
+/* ===== Giao diện điều hành CEO (v3) ===== */
+:root{--red:#C8102E;--red-d:#9E0B23;--red-soft:#FDECEF;--ink:#111827;--muted:#6B7280;--bg:#F3F4F7;--alt:#F7F7F9;--line:#E6E8EE;--white:#fff;
+  --side:#0F141C;--side2:#171E29;--side-t:#A9B2C1;--green:#15803D;--amber:#B45309;--blue:#1D4ED8;--grey:#9CA3AF;--sh:0 1px 2px rgba(16,24,40,.04),0 2px 8px rgba(16,24,40,.05)}
+body{background:var(--bg);font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+#app{display:block}
+#side{position:fixed;inset:0 auto 0 0;width:252px;background:var(--side);color:var(--side-t);display:flex;flex-direction:column;z-index:30;transition:transform .2s}
+#side .brand{display:flex;align-items:center;gap:11px;padding:18px 18px 16px;border-bottom:1px solid #1F2733}
+#side .brand .logo{width:38px;height:38px;border-radius:10px;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:900;font-size:13px;letter-spacing:.5px;box-shadow:0 4px 14px rgba(200,16,46,.35)}
+#side .brand b{color:#fff;font-size:15px;display:block;line-height:1.2}
+#side .brand small{color:#7C8696;font-size:11.5px;letter-spacing:.3px}
+nav.tabs{position:static;display:block;background:transparent;border:0;padding:10px 10px 20px;overflow:auto;flex:1}
+nav.tabs .grp{font-size:10.5px;text-transform:uppercase;letter-spacing:1.1px;color:#5E6878;font-weight:700;padding:14px 10px 6px}
+nav.tabs button{display:flex;align-items:center;gap:10px;width:100%;border:0;border-radius:9px;background:transparent;color:var(--side-t);padding:9px 10px;margin:1px 0;font-weight:500;font-size:13.5px;text-align:left;cursor:pointer;border-bottom:0}
+nav.tabs button svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+nav.tabs button:hover{background:var(--side2);color:#fff}
+nav.tabs button.on{background:linear-gradient(90deg,rgba(200,16,46,.22),rgba(200,16,46,.06));color:#fff;box-shadow:inset 3px 0 0 var(--red)}
+nav.tabs button.on svg{opacity:1;color:#FF5A72}
+#side .side-foot{padding:12px 18px;border-top:1px solid #1F2733;font-size:12px;color:#7C8696}
+#side .side-foot a{color:#C9D1DD;text-decoration:none}
+#shade{display:none}
+header.top{position:sticky;top:0;z-index:20;margin-left:252px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);color:var(--ink);border-bottom:1px solid var(--line);padding:10px 26px;gap:14px;min-height:62px}
+header.top .ttl b{font-size:17px;display:block;letter-spacing:-.2px}
+header.top .ttl small{color:var(--muted);font-size:12px}
+header.top button,header.top .lnk{background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:7px 11px;cursor:pointer;font-size:13px;text-decoration:none}
+header.top button:hover{border-color:#CBD0DA}
+#burger{display:none}
+header.top .user{display:flex;align-items:center;gap:9px}
+header.top .av{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+header.top .me{font-size:12.5px;color:var(--muted);line-height:1.25;max-width:220px}
+header.top .me b{display:block;color:var(--ink);font-size:13px}
+main{margin-left:252px;max-width:none;padding:24px 26px 70px}
+main>h2{font-size:22px;letter-spacing:-.3px;margin:0 0 4px}
+.sub{color:var(--muted)}
+.btn{border-radius:9px;border-color:var(--line);box-shadow:0 1px 1px rgba(16,24,40,.03)}
+.btn:hover{border-color:#C9CED8}
+.btn.p{background:var(--red);border-color:var(--red)}.btn.p:hover{background:var(--red-d)}
+.bar input,.bar select,.form input,.form select,.form textarea{border-color:var(--line);border-radius:9px}
+.bar input:focus,.bar select:focus,.form input:focus,.form select:focus,.form textarea:focus{outline:2px solid rgba(200,16,46,.18);border-color:var(--red)}
+.card,.kpi,.tw{border-color:var(--line);border-radius:14px;box-shadow:var(--sh)}
+.card{padding:16px 18px}
+.card h3{font-size:14.5px;letter-spacing:-.1px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.kpi{position:relative;padding:16px 16px 14px;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#D7DBE3}
+.kpi.hot::before{background:var(--red)}.kpi.hot{background:#fff;border-color:var(--line)}
+.kpi .l{font-size:11.5px;letter-spacing:.5px;font-weight:600}
+.kpi .v{font-size:25px;letter-spacing:-.5px}
+th{background:#F9FAFB;color:#6B7280;font-size:11.5px;letter-spacing:.4px;border-bottom:1px solid var(--line)}
+td{border-bottom-color:#EEF0F4}
+tr.rw:hover td{background:#FFF7F8}
+.pill{font-weight:600;border-radius:7px;padding:2px 8px}
+.pill.green{background:#E7F6EC}.pill.amber{background:#FDF1E3}.pill.blue{background:#E8EEFD}.pill.red{background:var(--red-soft)}
+.subtabs button{border-radius:9px}
+.subtabs button.on{background:var(--ink);border-color:var(--ink)}
+.col{background:#EDEFF3;border-radius:14px}
+.oc{border-radius:11px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.hb .tr{background:#EEF0F4;height:12px}.hb .fl{background:#9AA3B2;border-radius:6px}.hb .fl.r{background:var(--red)}
+#modal .box{border-radius:16px}
+#notif{top:66px;border-radius:14px}
+.board{grid-template-columns:repeat(5,minmax(200px,1fr))}
+header.top button{white-space:nowrap}
+/* CEO hero */
+.hero{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px;margin:0 0 18px;padding:20px 22px;border-radius:16px;color:#fff;
+  background:radial-gradient(1200px 300px at 100% 0,rgba(200,16,46,.55),transparent 60%),linear-gradient(120deg,#111827,#1F2937);box-shadow:var(--sh)}
+.hero h1{margin:0;font-size:22px;letter-spacing:-.3px}
+.hero p{margin:4px 0 0;color:#C7CEDA;font-size:13px}
+.hero .sp{flex:1}
+.hero .q{display:flex;gap:8px;flex-wrap:wrap}
+.hero .q button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:9px;padding:7px 12px;cursor:pointer;font-weight:600;font-size:13px}
+.hero .q button:hover{background:rgba(255,255,255,.18)}
+.spark{display:flex;align-items:flex-end;gap:5px;height:130px;padding-top:6px}
+.spark div{flex:1;background:linear-gradient(180deg,#E3354F,#C8102E);border-radius:5px 5px 2px 2px;min-height:2px;position:relative}
+.spark div.z{background:#E5E7EB}
+.spark-x{display:flex;gap:5px;font-size:10.5px;color:var(--muted);margin-top:5px}.spark-x span{flex:1;text-align:center}
+/* Nhật ký bot */
+.chat{display:flex;flex-direction:column;gap:8px}
+.msg{max-width:min(720px,88%);padding:9px 12px;border-radius:13px;font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;box-shadow:var(--sh)}
+.msg.in{align-self:flex-start;background:#fff;border:1px solid var(--line);border-top-left-radius:4px}
+.msg.out{align-self:flex-end;background:#111827;color:#E5E7EB;border-top-right-radius:4px}
+.msg .mh{font-size:11.5px;color:var(--muted);margin-bottom:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;white-space:normal}
+.msg.out .mh{color:#9CA3AF}
+.day{align-self:center;font-size:11.5px;color:var(--muted);background:#E9EBF0;border-radius:99px;padding:2px 10px;margin:6px 0}
+@media (max-width:980px){
+  #side{transform:translateX(-100%)}#app.open #side{transform:none}
+  #app.open #shade{display:block;position:fixed;inset:0;background:rgba(15,20,28,.45);z-index:25}
+  header.top,main{margin-left:0}#burger{display:inline-block}
+  header.top{padding:10px 14px}main{padding:16px 14px 60px}header.top .me,header.top .lnk{display:none}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head><body>
 
 <section id="login" class="hidden">
   <form id="login-form">
@@ -124,15 +215,21 @@ td input[type=checkbox],th input[type=checkbox]{width:16px;height:16px}
 </section>
 
 <div id="app" class="hidden">
+  <aside id="side">
+    <div class="brand"><div class="logo">KHG</div><div><b>Kim Hoàng Gia</b><small>CRM điều hành vận tải</small></div></div>
+    <nav class="tabs" id="tabs"></nav>
+    <div class="side-foot"><a href="tai-xe.html" target="_blank">App tài xế</a> · <a href="https://t.me/khg_dieuphoi_bot" target="_blank" rel="noopener">Bot Telegram</a></div>
+  </aside>
+  <div id="shade"></div>
   <header class="top">
-    <div class="logo">KHG</div>
-    <div><b>Kim Hoàng Gia</b><div class="me" id="me"></div></div>
+    <button id="burger" title="Menu">☰</button>
+    <div class="ttl"><b id="ptitle">Tổng quan</b><small id="pdate"></small></div>
     <div class="sp"></div>
-    <a href="crm.html" style="color:#D9CFCC;font-size:13px">CRM chung</a>
+    <a href="crm.html" class="lnk">CRM chung</a>
     <button id="bell" title="Thông báo">🔔<span id="bellc" class="hidden">0</span></button>
+    <div class="user"><span class="av" id="av">K</span><div class="me" id="me"></div></div>
     <button id="logout">Đăng xuất</button>
   </header>
-  <nav class="tabs" id="tabs"></nav>
   <main id="main"></main>
 </div>
 <div id="notif" class="hidden"></div>
@@ -191,6 +288,7 @@ const O={
   period_type:{tuan:'Tuần',thang:'Tháng'},
   pay_status:{nhap:'Nháp',da_duyet:'Đã duyệt',da_tra:'Đã trả'},
   adv_kind:{ung_luong:'Ứng lương',tam_ung_chi_phi:'Tạm ứng chi phí'},
+  pay_kind:{thuong:'Thưởng',phu_cap:'Phụ cấp',phat:'Phạt',khau_tru:'Khấu trừ'},
   adv_status:{cho_duyet:'Chờ duyệt',mo:'Đã chi – đang mở',da_quyet_toan:'Đã quyết toán',huy:'Hủy'},
   account:{tien_mat:'Tiền mặt',ngan_hang:'Ngân hàng'},
   cash_dir:{thu:'Thu',chi:'Chi'},
@@ -289,6 +387,9 @@ const E={
    {k:'valid_from',l:'Hiệu lực từ',t:'date'},{k:'valid_until',l:'Hiệu lực đến',t:'date',hint:'Bảo hiểm, đăng kiểm, phí đường bộ, bảo dưỡng → tự cập nhật hạn của xe'},
    {k:'order_id',l:'Đơn',t:'fk',ref:'orders'},{k:'warehouse_id',l:'Kho',t:'fk',ref:'warehouses'},{k:'person_id',l:'Người chi',t:'fk',ref:'people',list:true},{k:'advance_id',l:'Trừ vào tạm ứng',t:'fk',ref:'advances'},
    {k:'source',l:'Nguồn',t:'sel',o:'source',list:true,def:'web'},{k:'note',l:'Ghi chú',t:'text',list:true}]},
+ pay_items:{table:'khg_pay_items',title:'Thưởng, phạt, phụ cấp',order:['item_date',false],dateKey:'item_date',filters:[['kind','pay_kind'],['person_id','@people']],
+  f:[{k:'item_date',l:'Ngày',t:'date',list:true,req:true,def:()=>today()},{k:'person_id',l:'Nhân sự',t:'fk',ref:'people',list:true,req:true},{k:'kind',l:'Loại',t:'sel',o:'pay_kind',list:true,req:true,def:'thuong'},
+   {k:'amount',l:'Số tiền',t:'money',list:true,req:true},{k:'note',l:'Lý do',t:'text',list:true},{k:'source',l:'Nguồn',t:'sel',o:'source',list:true,ro:true}]},
  advances:{table:'khg_advances',title:'Tạm ứng & ứng lương',order:['advanced_on',false],dateKey:'advanced_on',filters:[['status','adv_status'],['kind','adv_kind'],['person_id','@people']],
   f:[{k:'advanced_on',l:'Ngày',t:'date',list:true,req:true,def:()=>today()},{k:'person_id',l:'Người ứng',t:'fk',ref:'people',list:true,req:true},{k:'kind',l:'Loại',t:'sel',o:'adv_kind',list:true,def:'ung_luong',req:true},
    {k:'amount',l:'Số tiền',t:'money',list:true,req:true},{k:'account',l:'Chi từ',t:'sel',o:'account',def:'tien_mat'},{k:'purpose',l:'Mục đích',t:'text',list:true},
@@ -333,8 +434,22 @@ const TABS=[
  ['hr','Nhân sự',['admin','ke_toan']],['payroll','Chấm công & lương',['admin','ke_toan','dieu_phoi']],
  ['fleet','Đội xe & thiết bị',['admin','dieu_phoi','ke_toan']],['wh','Kho bãi',['admin','ke_toan','kinh_doanh','dieu_phoi']],
  ['customers','Khách hàng',ALL],['requests','Nhu cầu',ALL],['purchases','Mua hàng',['admin','ke_toan']],['contracts','Hợp đồng',['admin','ke_toan','kinh_doanh']],
- ['filesv','Kho chứng từ',['admin','ke_toan','dieu_phoi']],['policies','Chính sách',ALL],['documents','Hồ sơ',ALL],['bot','Bot, app & phân quyền',['admin','dieu_phoi']],
+ ['filesv','Kho chứng từ',['admin','ke_toan','dieu_phoi']],['policies','Chính sách',ALL],['documents','Hồ sơ',ALL],['botlog','Nhật ký bot',['admin','dieu_phoi','ke_toan']],['bot','Bot, app & phân quyền',['admin','dieu_phoi']],
 ];
+const INTENT_LABEL={tao_don:'Tạo đơn',nhu_cau:'Nhu cầu',chi_phi:'Chi phí',tam_ung:'Tạm ứng',cham_cong:'Chấm công',nhan_su:'Lương – nhân sự',thu_tien:'Thu tiền',cap_nhat_don:'Cập nhật đơn',bao_cao:'Báo cáo',tro_chuyen:'Trò chuyện',khac:'Khác',nut_bam:'Bấm nút'};
+const NAV_GROUPS=[['Điều hành',['overview','analytics']],['Vận hành',['dispatch','orders','requests','fleet','wh']],['Tài chính',['accounting','expenses','purchases']],
+ ['Nhân sự',['hr','payroll']],['Khách hàng & hồ sơ',['customers','contracts','filesv','documents','policies']],['Hệ thống',['botlog','bot']]];
+const IC=p=>`<svg viewBox="0 0 24 24">${p}</svg>`;
+const ICONS={overview:IC('<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'),
+ analytics:IC('<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>'),dispatch:IC('<path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>'),
+ orders:IC('<path d="M8 4h8l1 3H7z"/><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 12h6M9 16h4"/>'),requests:IC('<path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/>'),
+ fleet:IC('<rect x="2" y="8" width="13" height="8" rx="1"/><path d="M15 11h4l3 3v2h-7"/><circle cx="6" cy="18" r="1.8"/><circle cx="18" cy="18" r="1.8"/>'),wh:IC('<path d="M3 10l9-6 9 6v10H3z"/><path d="M8 20v-6h8v6"/>'),
+ accounting:IC('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h8"/>'),expenses:IC('<path d="M12 2v20M17 6.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2 2.7 5 3.5 5 1.6 5 3.5-2.2 3-5 3-5-1.1-5-3"/>'),
+ purchases:IC('<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h12L22 7H6"/>'),hr:IC('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.8c1.9.8 3.1 2.5 3.5 5.2"/>'),
+ payroll:IC('<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h3"/>'),customers:IC('<path d="M4 21v-1a6 6 0 0116 0v1"/><circle cx="12" cy="8" r="4"/>'),
+ contracts:IC('<path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>'),filesv:IC('<path d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'),
+ documents:IC('<path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/>'),policies:IC('<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>'),
+ botlog:IC('<path d="M21 12a8 8 0 01-11.6 7.2L4 20l1-4.6A8 8 0 1121 12z"/><path d="M8 11h.01M12 11h.01M16 11h.01"/>'),bot:IC('<rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9.5 16.5h5"/>')};
 const ROLE_DESC={admin:'Toàn quyền: mọi mục, cấp tài khoản, duyệt lương, xóa dữ liệu.',dieu_phoi:'Điều phối đơn, giao xe – tài xế, theo dõi chuyến, chấm công, chi phí xe, duyệt sự cố. Không xem kế toán, lương.',
  ke_toan:'Kế toán: sổ quỹ, công nợ thu – trả, chi phí, tạm ứng, bảng lương, hồ sơ nhân sự, báo cáo tuần/tháng/quý.',kinh_doanh:'Kinh doanh: khách hàng, nhu cầu, báo giá, đơn hàng, hợp đồng, kho cho thuê.',
  tai_xe:'Tài xế: chỉ dùng app tài xế và bot – nhận đơn được giao, cập nhật tình trạng chuyến, ảnh chứng từ, chấm công, chi phí, xin ứng tiền, xem lương của mình.'};
@@ -641,7 +756,11 @@ const bars=(rows,valKey,lab,fmt=fmtTr,max=8)=>{const r=rows.slice(0,max);const m
 // ===================== TỔNG QUAN =====================
 const PST={overview:{kind:'thang'},analytics:{kind:'thang'},acc:{kind:'thang'},report:{gran:'thang',year:new Date().getFullYear()}};
 async function viewOverview(m){
-  m.innerHTML=`<h2>Tổng quan</h2><div class="bar" id="pp"></div><div id="ov"><div class="empty">Đang tải…</div></div>`;
+  const hr=new Date().getHours(),hi=hr<11?'Chào buổi sáng':hr<14?'Chào buổi trưa':hr<18?'Chào buổi chiều':'Chào buổi tối';
+  m.innerHTML=`<div class="hero"><div><h1>${hi}, ${esc((ME?.full_name||'').trim().split(/\s+/).pop()||'anh')}</h1><p>Bức tranh vận hành và tài chính Kim Hoàng Gia · ${new Date().toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})}</p></div><div class="sp"></div>
+   <div class="q"><button data-go="dispatch">🚚 Điều phối</button><button data-go="orders">＋ Đơn hàng</button><button data-go="accounting">💰 Công nợ</button><button data-go="payroll">🧮 Lương</button><button data-go="botlog">💬 Nhật ký bot</button></div></div>
+   <div class="bar" id="pp"></div><div id="ov"><div class="empty">Đang tải…</div></div>`;
+  m.querySelectorAll('.hero [data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
   await Promise.all(['customers','vehicles','people'].map(ensureRef));
   const render=async p=>{
     const ov=$('#ov');ov.innerHTML='<div class="empty">Đang tải…</div>';
@@ -659,6 +778,10 @@ async function viewOverview(m){
       sb.from('khg_attendance').select('status').eq('work_date',d0),
       sb.from('khg_leases').select('kind,area_m2,warehouse_id').eq('status','hieu_luc'),
     ]);
+    const s0=addDays(d0,-13);
+    const [{data:so},blog]=await Promise.all([sb.from('khg_orders').select('revenue,delivered_at,scheduled_at,created_at,status').neq('status','huy').gte('created_at',tsFrom(addDays(d0,-60))).limit(5000),
+      sb.from('khg_bot_log').select('created_at,sender,text,intent').eq('direction','vao').order('created_at',{ascending:false}).limit(7)]);
+    const spark=Array.from({length:14},(_,i)=>{const d=addDays(s0,i);return {d,v:sum((so||[]).filter(o=>orderDay(o)===d),o=>o.revenue)}});const smax=Math.max(0,...spark.map(x=>x.v));
     if(D.err){ov.innerHTML='<div class="empty">Lỗi: '+esc(D.err.message)+'</div>';return}
     const pl=computePL(D,p.from,p.to);
     const recs=(r.data||[]).filter(a=>Number(a.amount)>Number(a.paid_amount));const owed=sum(recs,a=>a.amount-a.paid_amount);const overdue=sum(recs.filter(a=>a.due_on&&a.due_on<d0),a=>a.amount-a.paid_amount);
@@ -684,6 +807,10 @@ async function viewOverview(m){
      <div class="kpi"><div class="l">Có mặt hôm nay</div><div class="v">${(att.data||[]).filter(a=>['co_mat','nua_ngay'].includes(a.status)).length}</div><div class="h">Lấp đầy kho ${occ}% (hòa vốn ~97%)</div></div>
      <div class="kpi ${(adv.data||[]).length?'hot':''}"><div class="l">Tạm ứng chờ duyệt</div><div class="v">${(adv.data||[]).length}</div><div class="h">${fmtTr(sum(adv.data||[],a=>a.amount))}</div></div>
      <div class="kpi ${dues.length?'hot':''}"><div class="l">Giấy tờ sắp hết hạn</div><div class="v">${dues.length}</div><div class="h">Trong 30 ngày tới</div></div>
+    </div>
+    <div class="grid2" style="margin-bottom:16px">
+     <div class="card"><h3>Doanh thu 14 ngày gần nhất<span class="sp"></span><span style="font-size:12px;color:var(--muted);font-weight:500">${fmtTr(sum(spark,x=>x.v))}</span></h3><div class="spark">${spark.map(x=>`<div class="${x.v?'':'z'}" style="height:${smax?Math.max(2,x.v*100/smax):2}%" title="${fmtD(x.d)}: ${fmtM(x.v)}"></div>`).join('')}</div><div class="spark-x">${spark.map((x,i)=>`<span>${i%2?'':x.d.slice(8,10)}</span>`).join('')}</div></div>
+     <div class="card"><h3>Bot vừa ghi nhận<span class="sp"></span><button class="btn s" data-go="botlog">Xem tất cả →</button></h3><div class="list">${(blog.data||[]).map(b=>`<div class="it"><span class="pill ${b.intent==='tao_don'?'blue':b.intent==='chi_phi'?'amber':b.intent==='cham_cong'||b.intent==='nhan_su'?'green':''}">${esc(INTENT_LABEL[b.intent]||b.intent||'tin nhắn')}</span> <b>${esc(b.sender||'')}</b> ${esc(String(b.text||'').slice(0,110))} <span style="color:var(--muted)">· ${fmtDT(b.created_at)}</span></div>`).join('')||'<div class="empty">Chưa có tin nhắn nào với bot.</div>'}</div></div>
     </div>
     <div class="grid3">
      <div class="card"><h3>Doanh thu theo mảng</h3>${bars(revRows,'v',x=>x.l)}</div>
@@ -961,9 +1088,10 @@ O._acc={set_password:'Cấp / đổi mật khẩu',disable:'Khóa tài khoản'}
 async function viewPayroll(m){
   const canPay=['admin','ke_toan'].includes(ROLE);
   m.innerHTML=`<h2>Chấm công & lương</h2><p class="sub">Lương = lương cứng theo ngày công (chuẩn 26) + tăng ca (150% ngày thường, 200% ngày nghỉ, 300% lễ Tết theo Bộ luật Lao động) + lương chuyến + chuyên cần (đủ 26 công) + phụ cấp + khác − BHXH, BHYT, BHTN người lao động 10,5% (khi đã đến ngày đóng) − khấu trừ − ứng lương.</p>
-   <div class="subtabs" id="st"><button data-s="sum" class="on">Tổng hợp công</button><button data-s="att">Chấm công</button>${canPay?'<button data-s="sal">Bảng lương</button>':''}</div><div id="h"></div>`;
+   <div class="subtabs" id="st"><button data-s="sum" class="on">Tổng hợp công</button><button data-s="att">Chấm công</button>${canPay?'<button data-s="pi">Thưởng / phạt</button><button data-s="sal">Bảng lương</button>':''}</div><div id="h"></div>`;
   const sw=async n=>{m.querySelectorAll('#st button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));const h=$('#h');h.innerHTML='';
     if(n==='att')return renderList('attendance',h);
+    if(n==='pi')return renderList('pay_items',h,{sumKey:'amount'});
     if(n==='sum'){
       h.innerHTML='<div class="bar" id="pp"></div><div id="sb"></div>';await ensureRef('people');
       const draw=async p=>{const [{data:a},{data:o},{data:pp}]=await Promise.all([sb.from('khg_attendance').select('*').gte('work_date',p.from).lte('work_date',p.to).limit(10000),
@@ -1029,6 +1157,34 @@ const VIEWS={
    const nameOf=r=>({order:REF.orders,person:REF.people,vehicle:REF.vehicles,customer:REF.customers}[r.entity_type]||{})[r.entity_id]||'';
    await renderList('files',m.querySelector('#h'),{exportExtra:r=>({'Thuộc đối tượng':nameOf(r)}),rowActions:r=>`<span style="font-size:12px">${esc(nameOf(r))}</span> <button class="btn s" data-act="open" data-id="${r.id}">Mở</button>`,
      onActs:async(a,id,r)=>{const u=await signed(r.file_path);if(u)window.open(u,'_blank')}})},
+ botlog:async m=>{
+   await ensureRef('people');
+   const st=STATE.botlog=STATE.botlog||{q:'',person:'',intent:'',from:addDays(today(),-7),to:today()};
+   m.innerHTML=`<h2>Nhật ký bot</h2><p class="sub">Toàn bộ tin nhắn qua lại với bot @khg_dieuphoi_bot – chat riêng và nhóm – được lưu tại đây, kèm ý định bot hiểu được và dữ liệu đã ghi vào CRM. Tin mới hiện tức thì.</p>
+   <div class="bar"><input type="search" id="bq" placeholder="Tìm nội dung…" value="${esc(st.q)}"><select id="bp"><option value="">Mọi người</option>${Object.entries(REF.people||{}).map(([k,v])=>`<option value="${k}" ${st.person===k?'selected':''}>${esc(v)}</option>`).join('')}</select>
+   <select id="bi"><option value="">Mọi loại</option>${Object.entries(INTENT_LABEL).map(([k,v])=>`<option value="${k}" ${st.intent===k?'selected':''}>${v}</option>`).join('')}</select>
+   <label>Từ <input type="date" id="bf" value="${st.from}"></label><label>đến <input type="date" id="bt" value="${st.to}"></label><span style="flex:1"></span><button class="btn" id="bx">⬇ Excel</button></div>
+   <div class="kpis" id="bk"></div><div class="card"><div class="chat" id="bc"><div class="empty">Đang tải…</div></div></div>`;
+   let rows=[];
+   const load=async()=>{
+     let q=sb.from('khg_bot_log').select('*').gte('created_at',tsFrom(st.from)).lt('created_at',tsTo(st.to)).order('created_at',{ascending:true}).limit(2000);
+     if(st.person)q=q.eq('person_id',st.person);if(st.intent)q=q.eq('intent',st.intent);if(st.q)q=q.ilike('text','%'+st.q+'%');
+     const {data,error}=await q;if(error){$('#bc').innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}rows=data||[];
+     const vin=rows.filter(r=>r.direction==='vao');const by=k=>vin.filter(r=>r.intent===k).length;
+     $('#bk').innerHTML=`<div class="kpi hot"><div class="l">Tin nhận</div><div class="v">${vin.length}</div><div class="h">${new Set(vin.map(r=>r.person_id).filter(Boolean)).size} người · ${new Set(vin.filter(r=>r.is_group).map(r=>r.chat_id)).size} nhóm</div></div>
+       <div class="kpi"><div class="l">Tạo đơn</div><div class="v">${by('tao_don')}</div></div><div class="kpi"><div class="l">Chi phí & ứng</div><div class="v">${by('chi_phi')+by('tam_ung')}</div></div>
+       <div class="kpi"><div class="l">Chấm công & lương</div><div class="v">${by('cham_cong')+by('nhan_su')}</div></div><div class="kpi"><div class="l">Cập nhật chuyến</div><div class="v">${by('cap_nhat_don')+by('nut_bam')}</div></div>`;
+     let last='';
+     $('#bc').innerHTML=rows.map(r=>{const d=vnDate(r.created_at);const head=d!==last?`<div class="day">${fmtD(d)}</div>`:'';last=d;
+       const who=r.direction==='vao'?(r.sender||REF.people[r.person_id]||'Ẩn danh'):'Bot KHG → '+(REF.people[r.person_id]||r.chat_title||(r.chat_id>0?'chat riêng':'nhóm'));
+       return head+`<div class="msg ${r.direction==='vao'?'in':'out'}"><div class="mh"><b>${esc(who)}</b>${r.is_group?`<span class="pill blue">${esc(r.chat_title||'Nhóm')}</span>`:''}${r.intent?`<span class="pill ${r.direction==='vao'?'green':''}">${esc(INTENT_LABEL[r.intent]||r.intent)}</span>`:''}<span>${new Date(r.created_at).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}</span></div>${esc(r.text||'')}</div>`}).join('')||'<div class="empty">Không có tin nhắn trong khoảng này.</div>';
+   };
+   const bind=(id,k)=>$('#'+id).onchange=e=>{st[k]=e.target.value;load()};
+   bind('bp','person');bind('bi','intent');bind('bf','from');bind('bt','to');let tq;$('#bq').oninput=e=>{st.q=e.target.value;clearTimeout(tq);tq=setTimeout(load,350)};
+   $('#bx').onclick=()=>xlsx('Nhat_ky_bot_KHG',{'Nhật ký':rows.map(r=>({'Thời gian':new Date(r.created_at).toLocaleString('vi-VN'),'Chiều':r.direction==='vao'?'Nhận':'Bot trả lời','Người':r.sender||REF.people[r.person_id]||'','Nhóm':r.is_group?(r.chat_title||r.chat_id):'','Loại':INTENT_LABEL[r.intent]||r.intent||'','Nội dung':r.text||''}))});
+   await load();
+   try{if(window._blc)sb.removeChannel(window._blc);window._blc=sb.channel('khg-botlog').on('postgres_changes',{event:'INSERT',schema:'public',table:'khg_bot_log'},()=>{if(cur==='botlog'&&st.to>=today()){clearTimeout(window._blt);window._blt=setTimeout(load,600)}}).subscribe()}catch(e){}
+ },
  bot:async m=>{
    const [{data:p},{data:gs}]=await Promise.all([sb.from('khg_people').select('full_name,role,phone,telegram_chat_id,user_id,active').order('full_name'),sb.from('khg_tg_groups').select('*').order('created_at')]);
    m.innerHTML=`<h2>Bot, app tài xế & phân quyền</h2><p class="sub">Bot <a href="https://t.me/khg_dieuphoi_bot" target="_blank" rel="noopener">@khg_dieuphoi_bot</a> và app tài xế <a href="tai-xe.html" target="_blank">lehoaithanh.org/tai-xe.html</a> ghi mọi phát sinh vào CRM này.</p>
@@ -1058,9 +1214,13 @@ $('#bell').onclick=()=>{$('#notif').classList.toggle('hidden');loadNotif()};
 let cur='overview';
 const allowed=()=>TABS.filter(t=>t[2].includes(ROLE));
 function nav(){
-  $('#tabs').innerHTML=allowed().map(([k,l])=>`<button data-t="${k}" class="${k===cur?'on':''}">${l}</button>`).join('');
-  $('#tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>go(b.dataset.t));
+  const ok=Object.fromEntries(allowed().map(t=>[t[0],t[1]]));
+  $('#tabs').innerHTML=NAV_GROUPS.map(([g,ks])=>{const items=ks.filter(k=>ok[k]);return items.length?`<div class="grp">${g}</div>`+items.map(k=>`<button data-t="${k}" class="${k===cur?'on':''}">${ICONS[k]||''}<span>${ok[k]}</span></button>`).join(''):''}).join('');
+  $('#tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#app').classList.remove('open');go(b.dataset.t)});
+  const t=TABS.find(x=>x[0]===cur);$('#ptitle').textContent=t?t[1]:'';
 }
+$('#burger').onclick=()=>$('#app').classList.toggle('open');$('#shade').onclick=()=>$('#app').classList.remove('open');
+$('#pdate').textContent=new Date().toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
 async function go(t){if(!allowed().find(x=>x[0]===t))t='overview';cur=t;nav();history.replaceState(null,'','#'+t);const m=$('#main');m.innerHTML='';try{await VIEWS[t](m)}catch(e){console.error(e);m.innerHTML='<div class="empty">Lỗi: '+esc(e.message)+'</div>'}}
 async function start(session){
   const [{data:role},{data:meId}]=await Promise.all([sb.rpc('khg_role'),sb.rpc('khg_me')]);
@@ -1070,7 +1230,7 @@ async function start(session){
     $('#main').innerHTML=role==='tai_xe'?'<div class="empty">Tài khoản tài xế dùng <a href="tai-xe.html">app tài xế</a>.</div>':'<div class="empty">Tài khoản này chưa có quyền vào CRM KHG. Quản trị cần thêm email này vào mục Nhân sự với vai trò quản lý.</div>';return}
   ROLE=role;
   if(meId){const {data}=await sb.from('khg_people').select('id,full_name,role').eq('id',meId).maybeSingle();ME=data||{id:meId}}
-  $('#me').textContent=(ME?.full_name||session.user.email)+' · '+(O.role[ROLE]||ROLE);
+  $('#me').innerHTML='<b>'+esc(ME?.full_name||session.user.email)+'</b>'+esc(O.role[ROLE]||ROLE);$('#av').textContent=(ME?.full_name||session.user.email||'K').trim().split(/\s+/).pop().charAt(0).toUpperCase();
   const h=location.hash.slice(1);cur=VIEWS[h]?h:'overview';go(cur);loadNotif();
   try{sb.channel('khg-crm').on('postgres_changes',{event:'*',schema:'public',table:'khg_orders'},p=>{
       if(p.eventType==='INSERT')toast('🆕 Đơn mới '+(p.new.code||''));
