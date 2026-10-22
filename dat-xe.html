@@ -1,0 +1,465 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Đặt xe tải KHG</title>
+<meta name="description" content="Đặt xe tải chở hàng Kim Hoàng Gia: 1 điểm lấy nhiều điểm giao, báo giá tạm tính tức thì, theo dõi tài xế theo thời gian thực.">
+<meta name="theme-color" content="#C8102E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Đặt xe KHG">
+<link rel="manifest" href="dat-xe.webmanifest">
+<link rel="icon" href="images/logo.jpg" type="image/jpeg">
+<link rel="apple-touch-icon" href="images/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--red:#C8102E;--red2:#9F0C24;--soft:#FCEBEE;--ink:#141414;--ink2:#3A3A3A;--muted:#6B6B6B;--bg:#F5F3F2;--card:#fff;--line:#E6E1DF;--green:#1E7A4C;--amber:#B5651D;--blue:#1C5FA8;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--red)}
+.hidden{display:none!important}
+header{background:var(--ink);color:#fff;position:sticky;top:0;z-index:50}
+.hd{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 16px}
+.hd>svg{width:38px;height:38px;flex:none;border-radius:10px}
+@media(max-width:480px){.hd .nm span{display:none}.hot{padding:8px 10px;font-size:13px}}
+.hd .nm{line-height:1.15}.hd .nm b{display:block;font-size:15px;letter-spacing:.2px}.hd .nm span{font-size:12px;color:#C9C9C9}
+.hd .sp{flex:1}
+.hot{display:flex;align-items:center;gap:6px;background:var(--red);color:#fff;text-decoration:none;font-weight:700;padding:8px 12px;border-radius:999px;font-size:14px;white-space:nowrap}
+.tabs{display:none}
+@media(min-width:900px){.tabs{display:flex;gap:4px}.tabs button{background:none;border:0;color:#D6D6D6;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}.tabs button.on{background:#2A2A2A;color:#fff}body{padding-bottom:24px}nav.bot{display:none!important}}
+nav.bot{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:60;padding-bottom:env(safe-area-inset-bottom)}
+nav.bot button{flex:1;background:none;border:0;padding:8px 2px 9px;font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:600}
+nav.bot button svg{width:22px;height:22px}
+nav.bot button.on{color:var(--red)}
+main{max-width:1180px;margin:0 auto;padding:16px}
+.grid{display:grid;gap:16px}
+@media(min-width:900px){.grid.book{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:start}.sticky{position:sticky;top:76px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px}
+.card h2 .n{width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-size:12.5px;flex:none}
+.hero{background:linear-gradient(120deg,#1A1A1A,#3B0A14);color:#fff;border-radius:var(--r);padding:18px 18px 16px;margin-bottom:16px}
+.hero h1{margin:0 0 4px;font-size:22px;line-height:1.25}.hero p{margin:0;color:#E2D3D6;font-size:13.5px}
+.hero .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.hero .chips span{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:3px 9px;border-radius:999px;font-size:12px}
+label.f{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);margin:10px 0 4px}
+input.i,select.i,textarea.i{width:100%;border:1px solid var(--line);background:#FBFAFA;border-radius:10px;padding:11px 12px;outline:none;min-height:44px}
+input.i:focus,select.i:focus,textarea.i:focus{border-color:var(--red);background:#fff;box-shadow:0 0 0 3px var(--soft)}
+textarea.i{min-height:70px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:520px){.row3{grid-template-columns:1fr 1fr}}
+.pt{position:relative;border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px;margin-bottom:10px;background:#fff}
+.pt .ph{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px}
+.pt .dot{width:12px;height:12px;border-radius:50%;flex:none}
+.pt .x{margin-left:auto;background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 6px}
+.ac{position:relative}
+.sug{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.12);z-index:40;max-height:280px;overflow:auto}
+.sug div{padding:9px 12px;cursor:pointer;font-size:13.5px;border-bottom:1px solid #F2EEED}.sug div:hover,.sug div.on{background:var(--soft)}
+.sug small{display:block;color:var(--muted);font-size:12px}
+.loc{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;color:var(--blue);background:none;border:0;padding:6px 0 0;cursor:pointer;font-weight:600}
+.ok{color:var(--green);font-size:12px;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;min-height:46px}
+.btn.p{background:var(--red);color:#fff}.btn.p:hover{background:var(--red2)}.btn.p:disabled{opacity:.55;cursor:not-allowed}
+.btn.g{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn.w{width:100%}
+.add{width:100%;border:1.5px dashed #D9CFCC;background:#FDFCFC;color:var(--red);font-weight:700;border-radius:12px;padding:10px;cursor:pointer}
+.vc{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px}
+.vc button{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:10px;text-align:left;cursor:pointer;min-height:74px}
+.vc button b{display:block;font-size:14px}.vc button span{font-size:11.5px;color:var(--muted);line-height:1.3;display:block;margin-top:2px}
+.vc button.on{border-color:var(--red);background:var(--soft)}
+.seg{display:flex;background:#F0ECEB;border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:none;border-radius:8px;padding:9px;font-weight:600;cursor:pointer;color:var(--ink2)}
+.seg button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:var(--ink)}
+.chk{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:14px;cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--red);margin-top:1px}
+#map{height:240px;border-radius:12px;border:1px solid var(--line);background:#EEE;z-index:1}
+@media(min-width:900px){#map{height:300px}}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.sum div{background:#F8F5F4;border-radius:10px;padding:10px}.sum small{display:block;color:var(--muted);font-size:11.5px}.sum b{font-size:16px}
+.fare{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:10px;margin-top:4px}
+.fare .big{font-size:26px;font-weight:800;color:var(--red)}
+.note{font-size:12px;color:var(--muted);line-height:1.45;margin-top:8px}
+.lines{font-size:13.5px}.lines div{display:flex;justify-content:space-between;padding:3px 0}.lines div span:last-child{font-weight:600}
+.err{background:#FDECEC;color:#9B1C1C;border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.done{text-align:center;padding:26px 16px}
+.done .ic{width:64px;height:64px;border-radius:50%;background:#E5F4EC;color:var(--green);display:grid;place-items:center;margin:0 auto 10px}
+.done h2{justify-content:center;font-size:20px}
+.code{font-size:24px;font-weight:800;letter-spacing:.5px;color:var(--red)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.st{display:flex;gap:6px;margin:14px 0 6px}
+.st i{flex:1;height:6px;border-radius:3px;background:#EAE4E2}.st i.on{background:var(--red)}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--soft);color:var(--red)}
+.badge.g{background:#E5F4EC;color:var(--green)}.badge.a{background:#FBEFE3;color:var(--amber)}.badge.m{background:#EFEFEF;color:#555}
+.drv{display:flex;align-items:center;gap:12px;background:#F8F5F4;border-radius:12px;padding:12px;margin-top:12px}
+.drv .av{width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700}
+.tl{list-style:none;margin:10px 0 0;padding:0}.tl li{position:relative;padding:0 0 12px 22px;font-size:13.5px}
+.tl li:before{content:"";position:absolute;left:5px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--red)}
+.tl li:after{content:"";position:absolute;left:8.5px;top:16px;bottom:0;width:1px;background:var(--line)}.tl li:last-child:after{display:none}
+.tl small{color:var(--muted)}
+.ol{display:grid;gap:10px}
+.oc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+.oc .t{display:flex;justify-content:space-between;gap:8px;align-items:center}.oc .r{font-size:13px;color:var(--ink2);margin-top:4px}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.auth{max-width:440px;margin:0 auto}
+.foot{max-width:1180px;margin:10px auto 0;padding:0 16px 20px;color:var(--muted);font-size:12px;text-align:center}
+.install{display:none;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:14px;align-items:center;gap:10px;font-size:13.5px}
+.install.show{display:flex}
+.hp{position:absolute;left:-5000px;width:1px;height:1px;opacity:0}
+</style></head><body>
+<header><div class="hd">
+  <svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" rx="20" fill="#C8102E"/><path d="M34 46 L38 22 L50 35 L60 16 L70 35 L82 22 L86 46 Z" fill="#fff"/><text x="60" y="92" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="34" fill="#fff">KHG</text></svg>
+  <div class="nm"><b>KIM HOÀNG GIA</b><span>Vận tải · Kho bãi · Phân phối</span></div>
+  <div class="sp"></div>
+  <div class="tabs" id="tabsTop"></div>
+  <a class="hot" href="tel:0399831228"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>0399 831 228</a>
+</div></header>
+
+<main>
+  <div class="install" id="install"><span>📲 Cài <b>Đặt xe KHG</b> lên màn hình để đặt nhanh lần sau.</span><button class="btn p" style="min-height:36px;padding:6px 12px;margin-left:auto" id="btnInstall">Cài app</button></div>
+
+  <!-- ĐẶT XE -->
+  <section id="v-book">
+    <div class="hero"><h1>Đặt xe tải chở hàng</h1><p>1 điểm lấy – nhiều điểm giao. Báo giá tạm tính ngay, điều phối KHG xác nhận và giao tài xế trong ít phút.</p>
+      <div class="chips"><span>Xe 1 – 18 tấn</span><span>Thùng kín · thùng bạt</span><span>Thu hộ COD</span><span>Bốc xếp</span><span>Theo dõi realtime</span></div></div>
+    <form id="fBook" class="grid book" autocomplete="on" novalidate>
+      <div class="grid">
+        <div class="card"><h2><span class="n">1</span>Lộ trình</h2>
+          <div class="pt" id="pick"><div class="ph"><span class="dot" style="background:var(--green)"></span>Điểm lấy hàng</div>
+            <div class="ac"><input class="i addr" id="pickAddr" placeholder="Nhập địa chỉ, KCN, kho… (vd: KCN VSIP 1, Thuận An)" required></div>
+            <button type="button" class="loc" id="btnLoc">◎ Dùng vị trí hiện tại của tôi</button> <span class="ok hidden" id="pickOk">✓ đã xác định vị trí</span>
+            <div class="row" style="margin-top:6px"><div><label class="f">Người giao hàng tại kho</label><input class="i" id="pickContact" placeholder="Tên (không bắt buộc)"></div>
+              <div><label class="f">SĐT tại điểm lấy</label><input class="i" id="pickPhone" inputmode="tel" placeholder="Số điện thoại"></div></div>
+          </div>
+          <div id="drops"></div>
+          <button type="button" class="add" id="btnAdd">+ Thêm điểm giao</button>
+          <div id="map" style="margin-top:12px"></div>
+        </div>
+
+        <div class="card"><h2><span class="n">2</span>Loại xe</h2>
+          <div class="vc" id="vc"></div>
+          <div class="row" style="margin-top:6px">
+            <div><label class="f">Thùng xe</label><select class="i" id="body"><option>Thùng kín</option><option>Thùng bạt</option><option>Thùng lửng</option><option>Không yêu cầu</option></select></div>
+            <div><label class="f">Số chuyến</label><input class="i" id="trips" type="number" min="1" value="1" inputmode="numeric"></div>
+          </div>
+        </div>
+
+        <div class="card"><h2><span class="n">3</span>Thời gian & hàng hóa</h2>
+          <div class="seg" id="when"><button type="button" class="on" data-v="now">Càng sớm càng tốt</button><button type="button" data-v="later">Hẹn giờ lấy hàng</button></div>
+          <div id="whenAt" class="hidden"><label class="f">Thời gian lấy hàng</label><input class="i" id="schedAt" type="datetime-local"></div>
+          <label class="f">Hàng hóa</label><input class="i" id="cargo" placeholder="Vd: thùng carton nước giải khát, pallet, máy móc…">
+          <div class="row3"><div><label class="f">Khối lượng (tấn)</label><input class="i" id="weight" type="number" step="0.1" min="0" inputmode="decimal"></div>
+            <div><label class="f">Thể tích (m³)</label><input class="i" id="vol" type="number" step="0.1" min="0" inputmode="decimal"></div>
+            <div><label class="f">Số kiện</label><input class="i" id="pcs" type="number" min="0" inputmode="numeric"></div></div>
+          <label class="chk"><input type="checkbox" id="loading"><span>Cần KHG bố trí bốc xếp<br><small style="color:var(--muted)">Phí bốc xếp tính theo Bảng giá KHG, điều phối báo khi xác nhận.</small></span></label>
+          <label class="f">Ghi chú cho tài xế</label><textarea class="i" id="note" placeholder="Giờ nhận hàng của kho, đường cấm tải, hàng dễ vỡ…"></textarea>
+        </div>
+
+        <div class="card"><h2><span class="n">4</span>Người đặt xe</h2>
+          <div class="row"><div><label class="f">Họ tên *</label><input class="i" id="cName" autocomplete="name" required></div>
+            <div><label class="f">Số điện thoại *</label><input class="i" id="cPhone" inputmode="tel" autocomplete="tel" required></div></div>
+          <div class="row"><div><label class="f">Công ty</label><input class="i" id="cCompany" autocomplete="organization"></div>
+            <div><label class="f">Email nhận hóa đơn</label><input class="i" id="cEmail" type="email" autocomplete="email"></div></div>
+          <label class="chk"><input type="checkbox" id="vat"><span>Xuất hóa đơn GTGT (VAT 8%)</span></label>
+          <input class="hp" id="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        </div>
+      </div>
+
+      <div class="sticky">
+        <div class="card"><h2>Báo giá tạm tính</h2>
+          <div class="sum"><div><small>Quãng đường</small><b id="sKm">–</b></div><div><small>Thời gian chạy</small><b id="sTime">–</b></div><div><small>Điểm giao</small><b id="sStops">1</b></div></div>
+          <div class="lines" id="fLines"></div>
+          <div class="fare"><span>Tạm tính<br><small style="color:var(--muted)" id="fVatNote">chưa gồm VAT</small></span><span class="big" id="fTotal">–</span></div>
+          <div class="note">Giá tính theo Bảng giá nguyên chuyến KHG theo km; giá chính thức do điều phối xác nhận. Phụ phí thêm điểm giao, bốc xếp, chờ quá 60 phút, quay đầu trả hàng, cầu đường áp dụng theo Bảng giá KHG.</div>
+          <div class="err hidden" id="bErr"></div>
+          <button class="btn p w" style="margin-top:12px" id="btnBook" type="submit">Đặt xe ngay</button>
+          <a class="btn g w" style="margin-top:8px;text-decoration:none" id="gmap" target="_blank" rel="noopener">Xem lộ trình trên Google Maps</a>
+        </div>
+      </div>
+    </form>
+    <div class="card done hidden" id="bDone"></div>
+  </section>
+
+  <!-- THEO DÕI -->
+  <section id="v-track" class="hidden">
+    <div class="card" id="trackBox"><div class="empty">Mở link theo dõi KHG gửi cho bạn, hoặc chọn đơn trong mục <b>Đơn của tôi</b>.</div></div>
+  </section>
+
+  <!-- ĐƠN CỦA TÔI -->
+  <section id="v-orders" class="hidden">
+    <div class="card"><h2>Đơn của tôi</h2><div class="ol" id="olist"></div></div>
+  </section>
+
+  <!-- TÀI KHOẢN -->
+  <section id="v-acc" class="hidden"><div class="auth" id="accBox"></div></section>
+</main>
+<div class="foot">Công ty TNHH Kim Hoàng Gia · MST 3700416538 · Số 376 Nguyễn Văn Trỗi, P. Phú Lợi, TP.HCM · Hotline 0399 831 228</div>
+
+<nav class="bot" id="nav"></nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const SUPABASE_URL='https://kbpcmifwplbtggfcnfrx.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_buS_4Iky59zQlMME9dn2NQ_1FqIwlVt';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const vnd=n=>Math.round(Number(n)||0).toLocaleString('vi-VN')+' đ';
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+// ===== Bảng giá nguyên chuyến KHG (đ, chưa VAT): giá mở cửa gồm 35 km đầu; đơn giá/km theo bậc 36–100, 101–250, trên 250 km
+const VC=[
+ {k:'1-2t',l:'Xe 1 – 2 tấn',d:'Thùng 4,3×1,75×1,7m · nội thành',b:1180000,r:[23500,16500,9000],f:1.15},
+ {k:'2.5t',l:'Xe 2,5 tấn',d:'Thùng 4,3×1,75×1,7m · KCN',b:1360000,r:[24000,17500,9500],f:1.15},
+ {k:'3.5t',l:'Xe 3,5 tấn',d:'Thùng như xe 5 tấn',b:1700000,r:[24500,19500,11000],f:1.15},
+ {k:'5t',l:'Xe 5 tấn',d:'Pallet, hàng khối',b:2230000,r:[25000,22000,12000],f:1.3},
+ {k:'7t',l:'Xe 6,5 – 7 tấn',d:'Hàng khối, liên tỉnh',b:2680000,r:[28500,25500,14000],f:1.3},
+ {k:'8t',l:'Xe 8 tấn',d:'Hàng nặng, liên tỉnh',b:3120000,r:[31000,27500,15000],f:1.3},
+ {k:'15t',l:'Xe 15 tấn',d:'Tải lớn, đường dài',b:4460000,r:[40000,35000,19000],f:1.45},
+ {k:'18t',l:'Xe 18 tấn',d:'Tải lớn, đường dài',b:5130000,r:[44000,38500,21000],f:1.45},
+];
+function fareOf(v,km){
+  km=Math.max(0,Math.ceil(km||0));
+  const parts=[['Giá mở cửa (gồm 35 km đầu)',v.b]];
+  const seg=(a,b,rate,label)=>{const n=Math.max(0,Math.min(km,b)-a);if(n>0)parts.push([`${label}: ${n} km × ${rate.toLocaleString('vi-VN')} đ`,n*rate])};
+  seg(35,100,v.r[0],'Km 36–100');seg(100,250,v.r[1],'Km 101–250');seg(250,1e6,v.r[2],'Km trên 250');
+  return {parts,total:parts.reduce((a,p)=>a+p[1],0)};
+}
+
+// ===== Trạng thái
+const S={pick:{addr:'',lat:null,lng:null},drops:[],vc:'2.5t',route:null,when:'now'};
+const DCOL=['#C8102E','#1C5FA8','#B5651D','#6A3FA0','#1E7A4C','#A23B72','#2B6F77','#8A6D1D'];
+
+// ===== Gợi ý địa chỉ (Photon/OSM) + định vị (Nominatim)
+let acTimer=null;
+function attachAC(inp,onPick){
+  const wrap=inp.parentElement; let box=null, items=[], idx=-1, seq=0;
+  const close=()=>{box&&box.remove();box=null;idx=-1};
+  inp.addEventListener('input',()=>{onPick(null);clearTimeout(acTimer);const q=inp.value.trim();if(q.length<3){close();return}
+    const my=++seq; acTimer=setTimeout(async()=>{
+      try{const r=await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lat=10.85&lon=106.70&limit=6&bbox=102,8.3,110,23.5`);const j=await r.json();if(my!==seq)return;
+        items=(j.features||[]).map(f=>{const p=f.properties||{};const main=[p.name,p.housenumber&&p.street?p.housenumber+' '+p.street:p.street].filter(Boolean).join(', ');
+          const sub=[p.district,p.city||p.county,p.state].filter(Boolean).join(', ');return {main:main||sub,sub,lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0]}}).filter(x=>x.main);
+        close(); if(!items.length) return; box=document.createElement('div');box.className='sug';
+        box.innerHTML=items.map((x,i)=>`<div data-i="${i}">${esc(x.main)}<small>${esc(x.sub)}</small></div>`).join('')+'<div style="font-size:11px;color:#999;cursor:default">Dữ liệu bản đồ © OpenStreetMap</div>';
+        box.onmousedown=e=>{const d=e.target.closest('[data-i]');if(!d)return;e.preventDefault();pick(+d.dataset.i)};wrap.appendChild(box);
+      }catch(e){}
+    },350)});
+  const pick=i=>{const x=items[i];inp.value=x.main+(x.sub?', '+x.sub:'');onPick({addr:inp.value,lat:x.lat,lng:x.lng});close()};
+  inp.addEventListener('keydown',e=>{if(!box)return;const ds=[...box.querySelectorAll('[data-i]')];
+    if(e.key==='ArrowDown'){idx=Math.min(ds.length-1,idx+1);e.preventDefault()}else if(e.key==='ArrowUp'){idx=Math.max(0,idx-1);e.preventDefault()}else if(e.key==='Enter'&&idx>=0){e.preventDefault();pick(idx);return}else if(e.key==='Escape'){close();return}else return;
+    ds.forEach((d,j)=>d.classList.toggle('on',j===idx))});
+  inp.addEventListener('blur',()=>setTimeout(async()=>{close();if(inp.value.trim().length>=5&&!inp._geo){const g=await geocode(inp.value.trim());if(g&&!inp._geo)onPick({addr:inp.value.trim(),lat:g.lat,lng:g.lng,soft:true})}},200));
+}
+async function geocode(q){try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=vn&accept-language=vi&q=${encodeURIComponent(q)}`);const j=await r.json();return j[0]?{lat:+j[0].lat,lng:+j[0].lon}:null}catch(e){return null}}
+
+// ===== Điểm giao
+function addDrop(d={}){S.drops.push({addr:d.addr||'',lat:d.lat??null,lng:d.lng??null,contact:d.contact||'',phone:d.phone||'',cod:d.cod||'',note:d.note||''});renderDrops();
+  setTimeout(()=>{const ins=$$('#drops .addr');ins[ins.length-1]?.focus()},30)}
+function renderDrops(){
+  const host=$('#drops'); host.innerHTML=S.drops.map((d,i)=>`<div class="pt" data-i="${i}"><div class="ph"><span class="dot" style="background:${DCOL[i%DCOL.length]}"></span>Điểm giao ${S.drops.length>1?i+1:''}
+    ${S.drops.length>1?`<button type="button" class="x" data-del="${i}">✕ Xóa</button>`:''}</div>
+    <div class="ac"><input class="i addr" data-k="addr" value="${esc(d.addr)}" placeholder="Địa chỉ giao hàng"></div>
+    <span class="ok ${d.lat?'':'hidden'}" data-ok>✓ đã xác định vị trí</span>
+    <div class="row3" style="margin-top:4px"><div><label class="f">Người nhận</label><input class="i" data-k="contact" value="${esc(d.contact)}"></div>
+    <div><label class="f">SĐT người nhận</label><input class="i" data-k="phone" inputmode="tel" value="${esc(d.phone)}"></div>
+    <div><label class="f">Thu hộ (đ)</label><input class="i" data-k="cod" inputmode="numeric" value="${esc(d.cod)}" placeholder="0"></div></div>
+    <label class="f">Ghi chú điểm giao</label><input class="i" data-k="note" value="${esc(d.note)}" placeholder="Giờ nhận, cổng số, tầng…"></div>`).join('');
+  host.querySelectorAll('.pt').forEach(el=>{const i=+el.dataset.i;
+    el.querySelectorAll('input[data-k]').forEach(inp=>inp.addEventListener('input',()=>{const k=inp.dataset.k;S.drops[i][k]=k==='cod'?inp.value.replace(/\D/g,''):inp.value;if(k==='cod'){inp.value=S.drops[i].cod?(+S.drops[i].cod).toLocaleString('vi-VN'):''}}));
+    const a=el.querySelector('.addr'); attachAC(a,g=>{if(g){a._geo=!g.soft;Object.assign(S.drops[i],{addr:g.addr,lat:g.lat,lng:g.lng});el.querySelector('[data-ok]').classList.remove('hidden');route()}else{a._geo=false;S.drops[i].lat=S.drops[i].lng=null;S.drops[i].addr=a.value;el.querySelector('[data-ok]').classList.add('hidden')}});
+  });
+  host.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{S.drops.splice(+b.dataset.del,1);renderDrops();route()});
+  $('#sStops').textContent=S.drops.length; $('#btnAdd').classList.toggle('hidden',S.drops.length>=20);
+}
+
+// ===== Loại xe
+function renderVC(){$('#vc').innerHTML=VC.map(v=>`<button type="button" data-k="${v.k}" class="${v.k===S.vc?'on':''}"><b>${v.l}</b><span>${v.d}</span><span style="color:var(--red);font-weight:700;margin-top:4px">từ ${(v.b/1000).toLocaleString('vi-VN')}k</span></button>`).join('');
+  $$('#vc button').forEach(b=>b.onclick=()=>{S.vc=b.dataset.k;renderVC();calc()})}
+
+// ===== Bản đồ + tuyến đường (OSRM)
+let map,layer;
+function initMap(){if(!window.L){$('#map').classList.add('hidden');return}map=L.map('map',{zoomControl:true,attributionControl:true}).setView([10.9,106.7],10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);layer=L.layerGroup().addTo(map)}
+const pin=(c,t)=>L.divIcon({className:'',html:`<div style="background:${c};color:#fff;width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)"><b style="transform:rotate(45deg);font-size:11px">${t}</b></div>`,iconSize:[26,26],iconAnchor:[13,26]});
+let rSeq=0;
+async function route(){
+  const pts=[S.pick,...S.drops].filter(p=>p.lat!=null);
+  if(map){layer.clearLayers(); pts.forEach((p,i)=>L.marker([p.lat,p.lng],{icon:pin(i===0?'#1E7A4C':DCOL[(i-1)%DCOL.length],i===0?'L':i)}).addTo(layer));
+  if(pts.length) map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lng])).pad(.25),{maxZoom:14});}
+  gmapLink();
+  const ok=S.pick.lat!=null&&S.drops.length&&S.drops.every(d=>d.lat!=null);
+  if(!ok){S.route=null;calc();return}
+  const my=++rSeq;
+  try{const coords=[S.pick,...S.drops].map(p=>`${p.lng},${p.lat}`).join(';');
+    const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`);const j=await r.json();if(my!==rSeq)return;
+    if(j.routes&&j.routes[0]){const rt=j.routes[0];S.route={km:rt.distance/1000,min:rt.duration/60};if(map)L.geoJSON(rt.geometry,{style:{color:'#C8102E',weight:5,opacity:.8}}).addTo(layer)}
+  }catch(e){S.route=null}
+  calc();
+}
+function gmapLink(){const P=[S.pick,...S.drops].filter(p=>p.addr||p.lat!=null);const f=p=>p.lat!=null?`${p.lat},${p.lng}`:encodeURIComponent(p.addr);
+  const a=$('#gmap'); if(P.length<2){a.classList.add('hidden');return ''} a.classList.remove('hidden');
+  const u=`https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=${f(P[0])}&destination=${f(P[P.length-1])}`+(P.length>2?`&waypoints=${P.slice(1,-1).map(f).join('%7C')}`:'');a.href=u;return u}
+
+function calc(){
+  const v=VC.find(x=>x.k===S.vc); const trips=Math.max(1,+$('#trips').value||1);
+  if(!S.route){$('#sKm').textContent='–';$('#sTime').textContent='–';$('#fLines').innerHTML=`<div><span>${v.l} – giá mở cửa</span><span>${vnd(v.b)}</span></div>`;$('#fTotal').textContent='từ '+vnd(v.b);S.fare=null;return}
+  const km=S.route.km, min=S.route.min*v.f; const F=fareOf(v,km);
+  $('#sKm').textContent=(Math.round(km*10)/10).toLocaleString('vi-VN')+' km';
+  $('#sTime').textContent=min>=60?`${Math.floor(min/60)}g ${Math.round(min%60)}p`:`${Math.round(min)} phút`;
+  let total=F.total*trips; const vat=$('#vat').checked;
+  $('#fLines').innerHTML=F.parts.map(p=>`<div><span>${p[0]}</span><span>${vnd(p[1])}</span></div>`).join('')+(trips>1?`<div><span>× ${trips} chuyến</span><span></span></div>`:'')+(S.drops.length>1?`<div><span style="color:var(--muted)">${S.drops.length-1} điểm giao thêm</span><span style="color:var(--muted)">theo bảng giá</span></div>`:'')+(vat?`<div><span>VAT 8%</span><span>${vnd(total*0.08)}</span></div>`:'');
+  if(vat) total=total*1.08;
+  $('#fTotal').textContent=vnd(Math.round(total/1000)*1000); $('#fVatNote').textContent=vat?'đã gồm VAT 8%':'chưa gồm VAT';
+  S.fare=Math.round(F.total*trips/1000)*1000; S.km=Math.round(km*10)/10; S.min=Math.round(min);
+}
+
+// ===== Gửi đơn
+async function submit(e){
+  e.preventDefault(); const err=$('#bErr'); err.classList.add('hidden');
+  const fail=m=>{err.textContent=m;err.classList.remove('hidden');err.scrollIntoView({behavior:'smooth',block:'center'})};
+  S.pick.addr=$('#pickAddr').value.trim();
+  if(!S.pick.addr) return fail('Vui lòng nhập điểm lấy hàng.');
+  S.drops.forEach((d,i)=>{d.addr=$$('#drops .addr')[i].value.trim()}); if(S.drops.some(d=>!d.addr)) return fail('Vui lòng nhập đủ địa chỉ các điểm giao (hoặc xóa điểm trống).');
+  const name=$('#cName').value.trim(), phone=$('#cPhone').value.trim();
+  if(!name||phone.replace(/\D/g,'').length<9) return fail('Vui lòng nhập họ tên và số điện thoại người đặt xe.');
+  if(S.when==='later'&&!$('#schedAt').value) return fail('Vui lòng chọn thời gian lấy hàng.');
+  const v=VC.find(x=>x.k===S.vc), trips=Math.max(1,+$('#trips').value||1);
+  const extra=[$('#body').value!=='Không yêu cầu'?$('#body').value:'',trips>1?trips+' chuyến':'',$('#pcs').value?$('#pcs').value+' kiện':'',$('#vat').checked?'Xuất HĐ VAT':''].filter(Boolean).join(' · ');
+  const p={hp:$('#hp').value,name,phone,company:$('#cCompany').value.trim(),email:$('#cEmail').value.trim(),
+    pickup:S.pick.addr,pickup_lat:S.pick.lat,pickup_lng:S.pick.lng,pickup_contact:$('#pickContact').value.trim(),pickup_phone:$('#pickPhone').value.trim(),
+    drops:S.drops.map(d=>({address:d.addr,lat:d.lat,lng:d.lng,contact:d.contact,phone:d.phone,cod:d.cod,note:d.note})),
+    vehicle_class:v.k,vehicle_label:v.l+' – '+$('#body').value,distance_km:S.route?S.km:null,duration_min:S.route?S.min:null,est_fare:S.fare,
+    scheduled_at:S.when==='later'?new Date($('#schedAt').value).toISOString():null,cargo:$('#cargo').value.trim(),weight_t:$('#weight').value||null,volume_m3:$('#vol').value||null,
+    need_loading:$('#loading').checked,cod_total:S.drops.reduce((a,d)=>a+(+d.cod||0),0),route_url:gmapLink(),
+    note:[extra,$('#note').value.trim()].filter(Boolean).join('\n')};
+  const btn=$('#btnBook'); btn.disabled=true; btn.textContent='Đang gửi đơn…';
+  const {data,error}=await sb.rpc('khg_public_order',{p});
+  btn.disabled=false; btn.textContent='Đặt xe ngay';
+  if(error) return fail(error.message.replace(/^.*?:\s*/,''));
+  LS.set('khg_me',{name,phone,company:p.company,email:p.email});
+  const mine=LS.get('khg_orders',[]); mine.unshift({code:data.code,token:data.token,at:Date.now(),pickup:p.pickup,drops:p.drops.length}); LS.set('khg_orders',mine.slice(0,50));
+  const link=location.origin+location.pathname+'?t='+data.token;
+  $('#fBook').classList.add('hidden'); $('.hero').classList.add('hidden');
+  const d=$('#bDone'); d.classList.remove('hidden');
+  d.innerHTML=`<div class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12l5 5L20 7"/></svg></div>
+   <h2>Đã gửi yêu cầu đặt xe</h2><div>Mã đơn</div><div class="code">${esc(data.code)}</div>
+   <p style="color:var(--ink2);max-width:520px;margin:10px auto 0">Điều phối KHG đã nhận đơn và sẽ gọi xác nhận giá, giao tài xế trong ít phút. Bạn theo dõi tài xế và từng điểm giao bằng link bên dưới.</p>
+   <div class="acts"><button class="btn p" id="dTrack">Theo dõi đơn</button><button class="btn g" id="dCopy">Sao chép link theo dõi</button><button class="btn g" id="dShare">Chia sẻ</button><button class="btn g" id="dNew">Đặt đơn khác</button></div>`;
+  $('#dTrack').onclick=()=>{history.replaceState(null,'','?t='+data.token);go('track');track(data.token)};
+  $('#dCopy').onclick=()=>{navigator.clipboard?.writeText(link).then(()=>toast('Đã sao chép link'))};
+  $('#dShare').onclick=()=>{const t=`Đơn KHG ${data.code} – theo dõi: ${link}`;if(navigator.share)navigator.share({title:'Đơn KHG '+data.code,text:t,url:link}).catch(()=>{});else window.open('https://zalo.me/share?url='+encodeURIComponent(link))};
+  $('#dNew').onclick=()=>{d.classList.add('hidden');$('#fBook').classList.remove('hidden');$('.hero').classList.remove('hidden');S.drops=[];addDrop();route();window.scrollTo(0,0)};
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ===== Theo dõi đơn
+const STEPS=['Đã đặt','Đã giao tài xế','Đang lấy hàng','Đang giao','Hoàn thành'];
+function stepOf(o){const t=o.trip_status,s=o.status;if(['da_giao'].includes(t)||['da_giao','doi_soat','xuat_hd','da_thu'].includes(s))return 4;
+  if(['da_lay_hang','dang_giao','den_diem_giao','giao_mot_phan','dang_tra_hang','luu_dem'].includes(t))return 3;if(['da_nhan','da_xac_nhan','dang_den_lay','cho_boc_hang'].includes(t))return 2;if(o.driver)return 1;return 0}
+const STOP_L={cho:['Chờ','m'],dang_den:['Đang đến','a'],da_den:['Đã đến','a'],xong:['Hoàn thành','g'],giao_mot_phan:['Giao một phần','a'],that_bai:['Không giao được',''],tra_ve:['Trả hàng về',''],luu_dem:['Lưu hàng qua đêm','a']};
+let trackTimer=null;
+async function track(token){
+  clearInterval(trackTimer); const box=$('#trackBox');
+  if(!token){box.innerHTML='<div class="empty">Mở link theo dõi KHG gửi cho bạn, hoặc chọn đơn trong mục <b>Đơn của tôi</b>.</div>';return}
+  const load=async()=>{const {data,error}=await sb.rpc('khg_public_track',{p_token:token});
+    if(error||!data){box.innerHTML='<div class="empty">Không tìm thấy đơn. Link có thể đã hết hiệu lực – vui lòng gọi 0399 831 228.</div>';clearInterval(trackTimer);return}
+    const o=data, st=stepOf(o), cancel=o.status==='huy';
+    const fmt=t=>t?new Date(t).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'';
+    box.innerHTML=`<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap"><div><div style="font-size:12.5px;color:var(--muted)">Đơn hàng</div><div class="code" style="font-size:20px">${esc(o.code)}</div></div>
+      <span class="badge ${cancel?'':st===4?'g':'a'}">${cancel?'Đã hủy':esc(st===0?'Chờ điều phối':o.trip_label||STEPS[st])}</span></div>
+      <div class="st">${STEPS.map((x,i)=>`<i class="${!cancel&&i<=st?'on':''}"></i>`).join('')}</div>
+      <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)">${STEPS.map(x=>`<span>${x}</span>`).join('')}</div>
+      ${o.driver?`<div class="drv"><div class="av">${esc((o.driver.name||'?').trim().split(' ').pop()[0]||'?')}</div><div style="flex:1"><b>${esc(o.driver.name)}</b><div style="font-size:13px;color:var(--ink2)">${esc(o.plate||'')} ${o.vehicle?'· '+esc(o.vehicle):''}</div></div>${o.driver.phone?`<a class="btn p" style="min-height:40px;padding:8px 14px;text-decoration:none" href="tel:${esc(o.driver.phone)}">Gọi tài xế</a>`:''}</div>`:`<div class="drv"><div class="av">…</div><div>Điều phối KHG đang sắp xếp tài xế cho đơn của bạn.</div></div>`}
+      <div class="sum" style="margin-top:12px"><div><small>Lấy hàng</small><b style="font-size:13.5px">${o.scheduled_at?fmt(o.scheduled_at):'Sớm nhất'}</b></div><div><small>Quãng đường</small><b style="font-size:13.5px">${o.distance_km?o.distance_km+' km':'–'}</b></div><div><small>${o.price?'Cước xác nhận':'Tạm tính'}</small><b style="font-size:13.5px">${o.price||o.est_fare?vnd(o.price||o.est_fare):'–'}</b></div></div>
+      <h2 style="margin-top:6px">Các điểm</h2>
+      ${(o.stops||[]).map(s=>{const L=STOP_L[s.status]||[s.status,'m'];return `<div class="pt"><div class="ph"><span class="dot" style="background:${s.kind==='lay'?'#1E7A4C':DCOL[(s.seq-1)%DCOL.length]}"></span>${s.kind==='lay'?'Điểm lấy':s.kind==='thu_hoi'?'Thu hồi':s.kind==='tra_hang'?'Trả hàng':'Điểm giao '+s.seq}<span class="badge ${L[1]}" style="margin-left:auto">${esc(L[0])}</span></div>
+        <div style="font-size:13.5px;margin-top:4px">${esc(s.address)}${s.contact?' · '+esc(s.contact):''}</div>${s.reason?`<div style="font-size:12.5px;color:var(--amber)">${esc(s.reason)}</div>`:''}${s.done_at?`<div style="font-size:12px;color:var(--muted)">${fmt(s.done_at)}</div>`:''}</div>`}).join('')}
+      <h2 style="margin-top:6px">Lịch sử</h2><ul class="tl"><li>Đặt xe thành công <small>· ${fmt(o.created_at)}</small></li>${(o.events||[]).map(e=>`<li>${esc(e.label)}${e.note?` – ${esc(e.note)}`:''} <small>· ${fmt(e.at)}</small></li>`).join('')}</ul>
+      <div class="acts" style="justify-content:flex-start"><button class="btn g" id="tCopy">Sao chép link</button><a class="btn g" style="text-decoration:none" href="tel:0399831228">Gọi điều phối</a></div>
+      <div class="note">Tự cập nhật mỗi 20 giây.</div>`;
+    $('#tCopy').onclick=()=>navigator.clipboard?.writeText(location.origin+location.pathname+'?t='+token).then(()=>toast('Đã sao chép link'));
+    if(st===4||cancel) clearInterval(trackTimer);
+  };
+  box.innerHTML='<div class="empty">Đang tải…</div>'; await load(); trackTimer=setInterval(()=>{if(!document.hidden&&!$('#v-track').classList.contains('hidden'))load()},20000);
+}
+
+// ===== Đơn của tôi
+async function myOrders(){
+  const host=$('#olist'); host.innerHTML='<div class="empty">Đang tải…</div>';
+  let list=[]; const {data:{session}}=await sb.auth.getSession();
+  if(session){const {data}=await sb.rpc('khg_my_orders');list=(data||[]).map(o=>({...o,remote:true}))}
+  const known=new Set(list.map(o=>o.token)); const local=LS.get('khg_orders',[]).filter(o=>!known.has(o.token));
+  const html=[...list.map(o=>`<div class="oc" data-t="${esc(o.token)}"><div class="t"><b>${esc(o.code)}</b><span class="badge ${['da_giao','doi_soat','xuat_hd','da_thu'].includes(o.status)?'g':o.status==='huy'?'':'a'}">${esc(o.status==='moi'?'Chờ điều phối':o.status==='huy'?'Đã hủy':o.trip_label)}</span></div>
+      <div class="r">${esc(o.pickup)} → ${esc(o.dropoff)}</div><div class="r" style="color:var(--muted)">${new Date(o.created_at).toLocaleString('vi-VN')}${o.price||o.est_fare?' · '+vnd(o.price||o.est_fare):''}</div></div>`),
+    ...local.map(o=>`<div class="oc" data-t="${esc(o.token)}"><div class="t"><b>${esc(o.code)}</b><span class="badge m">Xem trạng thái</span></div><div class="r">${esc(o.pickup)} · ${o.drops} điểm giao</div><div class="r" style="color:var(--muted)">${new Date(o.at).toLocaleString('vi-VN')} · lưu trên máy này</div></div>`)].join('');
+  host.innerHTML=html||`<div class="empty">Chưa có đơn nào.<br><button class="btn p" style="margin-top:10px" onclick="go('book')">Đặt xe ngay</button>${session?'':'<br><br>Đã đặt trên máy khác? <a href="#" onclick="go(\'acc\');return false">Đăng nhập</a> để xem đủ lịch sử.'}</div>`;
+  host.querySelectorAll('.oc').forEach(el=>el.onclick=()=>{history.replaceState(null,'','?t='+el.dataset.t);go('track');track(el.dataset.t)});
+}
+
+// ===== Tài khoản khách hàng
+const phoneEmail=p=>{let d=String(p).replace(/\D/g,'');if(d.startsWith('84'))d='0'+d.slice(2);return d+'@khach.kimhoanggia.vn'};
+async function renderAcc(){
+  const box=$('#accBox'); const {data:{session}}=await sb.auth.getSession();
+  if(session){const {data:cu}=await sb.from('khg_customer_users').select('*').eq('user_id',session.user.id).maybeSingle();
+    box.innerHTML=`<div class="card"><h2>Tài khoản</h2><div style="font-size:15px"><b>${esc(cu?.full_name||session.user.user_metadata?.full_name||'')}</b></div><div style="color:var(--ink2)">${esc(cu?.phone||'')}${cu?.company?' · '+esc(cu.company):''}</div>
+      <div class="acts" style="justify-content:flex-start"><button class="btn p" onclick="go('orders')">Đơn của tôi</button><button class="btn g" id="aOut">Đăng xuất</button></div>
+      <h2 style="margin-top:16px">Đổi mật khẩu</h2><input class="i" id="aNew" type="password" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" autocomplete="new-password"><button class="btn g w" style="margin-top:8px" id="aChg">Cập nhật mật khẩu</button></div>`;
+    $('#aOut').onclick=async()=>{await sb.auth.signOut();renderAcc()};
+    $('#aChg').onclick=async()=>{const pw=$('#aNew').value;if(pw.length<6)return toast('Mật khẩu tối thiểu 6 ký tự');const {error}=await sb.auth.updateUser({password:pw});toast(error?error.message:'Đã đổi mật khẩu')};
+    return}
+  const me=LS.get('khg_me',{});
+  box.innerHTML=`<div class="card"><div class="seg" id="aSeg"><button type="button" class="on" data-v="in">Đăng nhập</button><button type="button" data-v="up">Tạo tài khoản</button></div>
+    <div id="aUp" class="hidden"><label class="f">Họ tên *</label><input class="i" id="rName" value="${esc(me.name||'')}" autocomplete="name"><label class="f">Công ty</label><input class="i" id="rCompany" value="${esc(me.company||'')}"><label class="f">Email</label><input class="i" id="rEmail" type="email" value="${esc(me.email||'')}"></div>
+    <label class="f">Số điện thoại</label><input class="i" id="aPhone" inputmode="tel" autocomplete="tel" value="${esc(me.phone||'')}">
+    <label class="f">Mật khẩu</label><input class="i" id="aPw" type="password" autocomplete="current-password">
+    <input class="hp" id="aHp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <div class="err hidden" id="aErr"></div>
+    <button class="btn p w" style="margin-top:12px" id="aGo">Đăng nhập</button>
+    <div class="note">Tài khoản giúp bạn xem toàn bộ lịch sử đơn trên mọi thiết bị và điền sẵn thông tin khi đặt xe. Quên mật khẩu: gọi 0399 831 228.</div></div>`;
+  let mode='in'; $$('#aSeg button').forEach(b=>b.onclick=()=>{mode=b.dataset.v;$$('#aSeg button').forEach(x=>x.classList.toggle('on',x===b));$('#aUp').classList.toggle('hidden',mode!=='up');$('#aGo').textContent=mode==='up'?'Tạo tài khoản':'Đăng nhập';$('#aPw').autocomplete=mode==='up'?'new-password':'current-password'});
+  $('#aGo').onclick=async()=>{const e=$('#aErr');e.classList.add('hidden');const phone=$('#aPhone').value.trim(),pw=$('#aPw').value;const show=m=>{e.textContent=m;e.classList.remove('hidden')};
+    if(phone.replace(/\D/g,'').length<9)return show('Số điện thoại không hợp lệ.'); if(pw.length<6)return show('Mật khẩu tối thiểu 6 ký tự.');
+    const b=$('#aGo');b.disabled=true;
+    if(mode==='up'){const r=await fetch(SUPABASE_URL+'/functions/v1/khg-public',{method:'POST',headers:{'content-type':'application/json',apikey:SUPABASE_ANON_KEY},body:JSON.stringify({action:'register',hp:$('#aHp').value,phone,password:pw,name:$('#rName').value,company:$('#rCompany').value,email:$('#rEmail').value})});
+      const j=await r.json().catch(()=>({error:'Lỗi kết nối'}));if(j.error){b.disabled=false;return show(j.error)}}
+    const {error}=await sb.auth.signInWithPassword({email:phoneEmail(phone),password:pw}); b.disabled=false;
+    if(error)return show(/invalid/i.test(error.message)?'Sai số điện thoại hoặc mật khẩu.':error.message);
+    toast(mode==='up'?'Đã tạo tài khoản':'Đã đăng nhập'); prefill(); go('orders');
+  };
+}
+async function prefill(){const me=LS.get('khg_me',{});const {data:{session}}=await sb.auth.getSession();
+  if(session){const {data:cu}=await sb.from('khg_customer_users').select('*').eq('user_id',session.user.id).maybeSingle();if(cu){me.name=me.name||cu.full_name;me.phone=cu.phone;me.company=me.company||cu.company;me.email=me.email||cu.email}}
+  if(!$('#cName').value)$('#cName').value=me.name||''; if(!$('#cPhone').value)$('#cPhone').value=me.phone||''; if(!$('#cCompany').value)$('#cCompany').value=me.company||''; if(!$('#cEmail').value)$('#cEmail').value=me.email||''}
+
+// ===== Điều hướng
+const NAV=[['book','Đặt xe','<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>'],
+  ['track','Theo dõi','<circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/>'],
+  ['orders','Đơn của tôi','<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'],
+  ['acc','Tài khoản','<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>']];
+function go(v){NAV.forEach(([k])=>$('#v-'+k).classList.toggle('hidden',k!==v));$$('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===v));
+  if(v==='orders')myOrders(); if(v==='acc')renderAcc(); if(v==='book'&&map)setTimeout(()=>map.invalidateSize(),50); if(v==='track'&&!new URLSearchParams(location.search).get('t'))track(null); window.scrollTo(0,0)}
+$('#nav').innerHTML=NAV.map(([k,l,ic])=>`<button data-nav="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>${l}</button>`).join('');
+$('#tabsTop').innerHTML=NAV.map(([k,l])=>`<button data-nav="${k}">${l}</button>`).join('');
+$$('[data-nav]').forEach(b=>b.onclick=()=>go(b.dataset.nav));
+
+// ===== Khởi động
+initMap(); renderVC(); addDrop();
+attachAC($('#pickAddr'),g=>{if(g){$('#pickAddr')._geo=!g.soft;Object.assign(S.pick,g);$('#pickOk').classList.remove('hidden');route()}else{$('#pickAddr')._geo=false;S.pick.lat=S.pick.lng=null;$('#pickOk').classList.add('hidden')}});
+$('#btnAdd').onclick=()=>addDrop();
+$('#btnLoc').onclick=()=>{if(!navigator.geolocation)return toast('Thiết bị không hỗ trợ định vị');toast('Đang lấy vị trí…');
+  navigator.geolocation.getCurrentPosition(async pos=>{const {latitude:lat,longitude:lng}=pos.coords;let addr=`${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&accept-language=vi&lat=${lat}&lon=${lng}`);const j=await r.json();if(j.display_name)addr=j.display_name}catch(e){}
+    $('#pickAddr').value=addr;$('#pickAddr')._geo=true;Object.assign(S.pick,{addr,lat,lng});$('#pickOk').classList.remove('hidden');route()},()=>toast('Không lấy được vị trí – vui lòng nhập địa chỉ'),{enableHighAccuracy:true,timeout:12000})};
+$$('#when button').forEach(b=>b.onclick=()=>{S.when=b.dataset.v;$$('#when button').forEach(x=>x.classList.toggle('on',x===b));$('#whenAt').classList.toggle('hidden',S.when!=='later');
+  if(S.when==='later'&&!$('#schedAt').value){const d=new Date(Date.now()+3*3600e3);d.setMinutes(0,0,0);$('#schedAt').value=new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,16)}});
+$('#trips').oninput=calc; $('#vat').onchange=calc;
+$('#fBook').addEventListener('submit',submit);
+prefill(); calc();
+const t0=new URLSearchParams(location.search).get('t'); if(t0){go('track');track(t0)}else go('book');
+let deferred=null; window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('#install').classList.add('show')});
+$('#btnInstall').onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('#install').classList.remove('show')};
+</script>
+</body></html>

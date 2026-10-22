@@ -74,6 +74,14 @@ td.neg{color:var(--red)}
 .subtabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .subtabs button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;cursor:pointer}
 .subtabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.newq{border:1.5px solid var(--red);background:#FFF7F8;border-radius:14px;padding:12px;margin-bottom:14px}
+.newq h3{margin:0 0 8px;display:flex;align-items:center;gap:8px}.newq .nq{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.nqc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:13px}.nqc .t{display:flex;justify-content:space-between;gap:6px;font-weight:700}
+.nqc .m{color:var(--muted);font-size:12.5px;margin-top:2px}.nqc .a{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.ring{animation:ring 1s infinite}@keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(200,16,46,.5)}50%{box-shadow:0 0 0 8px rgba(200,16,46,0)}}
+#alarm{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:300;background:#C8102E;color:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 12px 34px rgba(0,0,0,.3);display:flex;gap:12px;align-items:center;max-width:92vw;cursor:pointer}
+.drl{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:10px}.drl label{display:flex;gap:10px;align-items:center;padding:9px 10px;border-bottom:1px solid var(--line);cursor:pointer}
+.drl label:hover{background:#F7F7F9}.drl input{accent-color:#C8102E}.drl .bz{margin-left:auto;font-size:12px}
 .board{display:grid;grid-template-columns:repeat(5,minmax(230px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}
 .col{background:var(--alt);border-radius:12px;padding:10px;min-height:120px}
 .col h4{margin:0 0 8px;font-size:13px;display:flex;justify-content:space-between}
@@ -243,7 +251,7 @@ const SUPABASE_URL='https://kbpcmifwplbtggfcnfrx.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_buS_4Iky59zQlMME9dn2NQ_1FqIwlVt';
 const BUCKET='khg-files';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const $=s=>document.querySelector(s);
+const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmtN=n=>(Number(n)||0).toLocaleString('vi-VN');
 const fmtM=n=>fmtN(Math.round(Number(n)||0))+' đ';
@@ -265,9 +273,9 @@ const O={
   order_type:{chuyen:'Đơn chuyến',lo:'Đơn lô',dat_truoc:'Lịch đặt trước'},
   service:{van_chuyen:'Vận chuyển',phan_phoi:'Phân phối',boc_xep:'Bốc xếp',xe_cau:'Xe cẩu',xe_nang:'Xe nâng',kho:'Kho bãi',tron_goi:'Trọn gói'},
   order_status:{moi:'Mới',xac_nhan:'Đã xác nhận',dang_chay:'Đang chạy',da_giao:'Đã giao',doi_soat:'Đối soát',xuat_hd:'Đã xuất HĐ',da_thu:'Đã thu tiền',huy:'Hủy'},
-  trip:{cho_nhan:'Chờ tài xế nhận',da_nhan:'Đã nhận đơn',da_xac_nhan:'Đã xác nhận',da_lay_hang:'Đã lấy hàng',dang_giao:'Đang giao',dang_tra_hang:'Đang trả hàng',da_giao:'Đã giao',huy_chuyen:'Tài xế hủy chuyến'},
+  trip:{cho_nhan:'Chờ tài xế nhận',da_nhan:'Đã nhận đơn',da_xac_nhan:'Đã xác nhận',dang_den_lay:'Đang đến lấy',cho_boc_hang:'Chờ bốc hàng',da_lay_hang:'Đã lấy hàng',dang_giao:'Đang giao',den_diem_giao:'Đến điểm giao',giao_mot_phan:'Giao một phần',dang_tra_hang:'Đang trả hàng',da_giao:'Đã giao',giao_that_bai:'Giao thất bại',tra_hang_ve:'Trả hàng về',thu_hoi:'Thu hồi',luu_dem:'Lưu hàng qua đêm',su_co:'Sự cố',huy_chuyen:'Tài xế hủy chuyến'},
   unit:{chuyen:'Chuyến',m3:'m³ (khối)',tan:'Tấn',km:'Km',gio:'Giờ',ngay:'Ngày',kien:'Kiện',tron_goi:'Trọn gói'},
-  source:{web:'Web',telegram:'Telegram',app:'App',khac:'Khác'},
+  source:{web:'Web',telegram:'Telegram',app:'App',khach_hang:'Khách tự đặt',khac:'Khác'},
   segment:{1:'1 · FMCG đang phục vụ',2:'2 · FMCG mới',3:'3 · Nhà máy 5 KCN',4:'4 · TMĐT, chuyển phát',5:'5 · Lắp đặt nhà xưởng',6:'6 · Đại lý Đông Nam Bộ',7:'7 · Chủ xe, đội xe nhỏ'},
   stage:{tiem_nang:'Tiềm năng',da_lien_he:'Đã liên hệ',bao_gia:'Đã báo giá',dang_phuc_vu:'Đang phục vụ',tam_dung:'Tạm dừng',mat:'Mất'},
   role:{admin:'Quản trị',dieu_phoi:'Điều phối',ke_toan:'Kế toán',kinh_doanh:'Kinh doanh',tai_xe:'Tài xế',boc_xep:'Bốc xếp',kho:'Thủ kho',khac:'Khác'},
@@ -838,7 +846,7 @@ const gRow=x=>({'Nhóm':x.label,'Số đơn':x.orders,'Số chuyến':x.trips,'D
 let dispatchTimer=null;
 async function viewDispatch(m){
   m.innerHTML=`<h2>Điều phối</h2><p class="sub">Theo dõi tình trạng chuyến do tài xế cập nhật từ app và bot. Tự làm mới khi có thay đổi.</p>
-   <div class="bar"><label>Ngày <input type="date" id="dd" value="${today()}"></label><label><input type="checkbox" id="dall"> Gồm cả đơn chưa lên lịch</label><span style="flex:1"></span><button class="btn p" id="dnew">+ Đơn mới</button></div><div id="board" class="board"></div><h3 style="margin-top:18px">Nhật ký chuyến gần đây</h3><div id="evlog" class="card"></div>`;
+   <div id="newq"></div><div class="bar"><label>Ngày <input type="date" id="dd" value="${today()}"></label><label><input type="checkbox" id="dall"> Gồm cả đơn chưa lên lịch</label><span style="flex:1"></span><button class="btn p" id="dnew">+ Đơn mới</button></div><div id="board" class="board"></div><h3 style="margin-top:18px">Nhật ký chuyến gần đây</h3><div id="evlog" class="card"></div>`;
   await Promise.all(['customers','vehicles','people'].map(ensureRef));
   const COLS=[['cho','Chờ giao / chờ nhận',o=>!o.driver_id||o.trip_status==='cho_nhan'||o.trip_status==='huy_chuyen'],
     ['nhan','Đã nhận / xác nhận',o=>o.driver_id&&['da_nhan','da_xac_nhan'].includes(o.trip_status)],
@@ -849,7 +857,9 @@ async function viewDispatch(m){
     const d=$('#dd').value;
     let q=sb.from('khg_orders').select('*').neq('status','huy').order('scheduled_at',{ascending:true,nullsFirst:true}).limit(400);
     q=$('#dall').checked?q.or(`and(scheduled_at.gte.${tsFrom(d)},scheduled_at.lt.${tsTo(d)}),scheduled_at.is.null`):q.gte('scheduled_at',tsFrom(d)).lt('scheduled_at',tsTo(d));
-    const [{data,error},{data:ev}]=await Promise.all([q,sb.from('khg_order_events').select('*,khg_orders(code)').order('created_at',{ascending:false}).limit(25)]);
+    const [{data,error},{data:ev},{data:nq}]=await Promise.all([q,sb.from('khg_order_events').select('*,khg_orders(code)').order('created_at',{ascending:false}).limit(25),
+      sb.from('khg_orders').select('*').eq('status','moi').is('driver_id',null).order('created_at',{ascending:false}).limit(60)]);
+    renderNewQ(nq||[],load);
     if(error){$('#board').innerHTML='<div class="empty">Lỗi: '+esc(error.message)+'</div>';return}
     const now=Date.now();
     const used=new Set();
@@ -868,12 +878,93 @@ async function viewDispatch(m){
   await load();
 }
 let DISPATCH_RELOAD=null;
+// ---- Hàng chờ: đơn khách tự đặt / đơn chưa có tài xế
+function renderNewQ(list,after){
+  const h=$('#newq');if(!h)return;
+  if(!list.length){h.innerHTML='';return}
+  const ago=t=>{const m=Math.round((Date.now()-new Date(t))/6e4);return m<60?m+' phút trước':m<1440?Math.round(m/60)+' giờ trước':fmtDT(t)};
+  h.innerHTML=`<div class="newq"><h3>🔔 Đơn chờ điều phối <span class="pill">${list.length}</span><span style="flex:1"></span><span style="font-size:12px;font-weight:500;color:var(--muted)">Khách đặt trên lehoaithanh.org/dat-xe và đơn chưa có tài xế</span></h3><div class="nq">${list.map(o=>`
+    <div class="nqc ${o.source==='khach_hang'&&Date.now()-new Date(o.created_at)<10*6e4?'ring':''}"><div class="t"><span>${esc(o.code)} ${o.source==='khach_hang'?'<span class="pill" style="background:#FCEBEE;color:#C8102E">Khách tự đặt</span>':''}</span><span style="font-weight:500;color:var(--muted);font-size:12px">${ago(o.created_at)}</span></div>
+    <div style="margin-top:4px"><b>${esc(REF.customers[o.customer_id]||o.customer_text||'?')}</b>${o.customer_phone?` · <a href="tel:${esc(o.customer_phone)}">${esc(o.customer_phone)}</a>`:''}</div>
+    <div class="m">🕒 ${o.scheduled_at?fmtDT(o.scheduled_at):'Càng sớm càng tốt'} · 🚛 ${esc(o.vehicle_req||o.vehicle_class||'?')}${o.distance_km?' · '+fmtN(o.distance_km)+' km':''}${o.stops_count>1?' · '+o.stops_count+' điểm giao':''}${o.need_loading?' · cần bốc xếp':''}</div>
+    <div class="m">📍 ${esc(o.pickup||'?')} → ${esc(o.dropoff||'?')}</div>
+    ${o.est_fare||o.revenue?`<div class="m">💰 ${o.revenue?'Giá chốt '+fmtM(o.revenue):'Tạm tính '+fmtM(o.est_fare)}</div>`:''}
+    <div class="a"><button class="btn p s" data-as="${o.id}">Giao tài xế</button><button class="btn s" data-op="${o.id}">Chi tiết</button>${o.route_url?`<a class="btn s" href="${esc(o.route_url)}" target="_blank" rel="noopener">Bản đồ</a>`:''}<button class="btn s" data-cx="${o.id}">Hủy đơn</button></div></div>`).join('')}</div></div>`;
+  const find=id=>list.find(o=>o.id===id);
+  h.querySelectorAll('[data-as]').forEach(b=>b.onclick=()=>openAssign(find(b.dataset.as),after));
+  h.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>openOrder(find(b.dataset.op),after));
+  h.querySelectorAll('[data-cx]').forEach(b=>b.onclick=async()=>{const r=prompt('Lý do hủy đơn (khách hủy, không có xe, trùng đơn…):');if(!r)return;
+    const {error}=await sb.from('khg_orders').update({status:'huy',trip_note:r}).eq('id',b.dataset.cx);if(error)return toast(error.message);toast('Đã hủy đơn');after&&after()});
+}
+// ---- Giao đơn cho tài xế KHG hoặc tài xế ngoài
+async function openAssign(o,after){
+  await Promise.all(['customers','vehicles','people'].map(ensureRef));
+  const [{data:drv},{data:act},{data:stops}]=await Promise.all([
+    sb.from('khg_people').select('id,full_name,phone,vehicle_id,telegram_chat_id,user_id,note').eq('role','tai_xe').eq('active',true).order('full_name'),
+    sb.from('khg_orders').select('driver_id,trip_status,code').not('driver_id','is',null).not('trip_status','in','(da_giao,huy_chuyen,giao_that_bai,tra_hang_ve)').not('status','in','(huy,da_giao,doi_soat,xuat_hd,da_thu)'),
+    sb.from('khg_order_stops').select('*').eq('order_id',o.id).order('seq')]);
+  const busy={};(act||[]).forEach(a=>{(busy[a.driver_id]=busy[a.driver_id]||[]).push(a.code)});
+  const need=parseFloat(String(o.vehicle_class||o.vehicle_req||'').replace(',','.').match(/[\d.]+(?=\s*t)/i)?.[0]||String(o.vehicle_class||'').split('-').pop())||0;
+  const rows=(drv||[]).map(d=>{const v=d.vehicle_id?VEH[d.vehicle_id]:null;return {...d,v,busy:busy[d.id]||[],fit:!need||!v||!v.load_t||Number(v.load_t)>=need*0.95}})
+    .sort((a,b)=>(a.busy.length-b.busy.length)||((b.fit?1:0)-(a.fit?1:0))||a.full_name.localeCompare(b.full_name));
+  modal(`<h3>Giao đơn ${esc(o.code)}</h3>
+   <div class="sub" style="margin-bottom:8px">${esc(REF.customers[o.customer_id]||o.customer_text||'')} · ${o.scheduled_at?fmtDT(o.scheduled_at):'càng sớm càng tốt'} · ${esc(o.vehicle_req||o.vehicle_class||'')}${o.distance_km?' · '+fmtN(o.distance_km)+' km':''}</div>
+   <div class="sub">${(stops||[]).map(s=>`${s.kind==='lay'?'📍 Lấy':'🏁 Giao '+s.seq}: ${esc(s.address)}${s.contact_name?' – '+esc(s.contact_name):''}${s.phone?' '+esc(s.phone):''}${Number(s.cod_amount)?' · thu hộ '+fmtM(s.cod_amount):''}`).join('<br>')||esc((o.pickup||'')+' → '+(o.dropoff||''))}</div>
+   <div class="subtabs" id="asT" style="margin-top:10px"><button class="on" data-v="khg">Tài xế KHG (${rows.length})</button><button data-v="ngoai">Tài xế / xe ngoài</button></div>
+   <div id="asKhg"><input id="asQ" placeholder="Tìm tên, SĐT, biển số…" style="width:100%;margin-bottom:8px">
+     <div class="drl" id="asL">${rows.map(d=>`<label data-q="${esc((d.full_name+' '+(d.phone||'')+' '+(d.v?.plate||'')).toLowerCase())}"><input type="radio" name="asD" value="${d.id}" data-veh="${d.vehicle_id||''}">
+       <div><b>${esc(d.full_name)}</b> ${d.phone?`<span style="color:var(--muted)">${esc(d.phone)}</span>`:''}<div style="font-size:12px;color:var(--muted)">${d.v?esc(d.v.plate)+(d.v.load_t?' · '+d.v.load_t+' tấn':''):'chưa gán xe'}${d.telegram_chat_id?' · 🔔 Telegram':''}${d.user_id?' · 📱 App':''}${!d.fit?' · <b style="color:#B5651D">xe nhỏ hơn yêu cầu</b>':''}</div></div>
+       <span class="bz">${d.busy.length?`<span class="pill" style="background:#FBEFE3;color:#B5651D">Đang chạy ${d.busy.length}</span>`:'<span class="pill" style="background:#E5F4EC;color:#1E7A4C">Rảnh</span>'}</span></label>`).join('')||'<div class="empty">Chưa có tài xế. Thêm ở mục Nhân sự hoặc chọn tab Tài xế ngoài.</div>'}</div>
+     <div class="form" style="margin-top:8px"><label>Xe chạy đơn này<select id="asV"><option value="">— theo xe của tài xế —</option>${Object.values(VEH).sort((a,b)=>a.plate.localeCompare(b.plate)).map(v=>`<option value="${v.id}">${esc(v.plate)}${v.load_t?' · '+v.load_t+'t':''}${v.ownership==='lien_ket'?' · liên kết':''}</option>`).join('')}</select></label></div></div>
+   <div id="asExt" class="hidden"><div class="form"><label>Tên tài xế<input id="exN"></label><label>SĐT tài xế *<input id="exP" inputmode="tel"></label><label>Biển số xe<input id="exPl" placeholder="61C-123.45"></label><label>Tải trọng (tấn)<input id="exL" type="number" step="0.1"></label><label>Chủ xe / nhà xe<input id="exO"></label></div>
+     <p class="sub">Tài xế và xe ngoài được lưu lại để lần sau chọn nhanh trong danh sách.</p></div>
+   <div class="form" style="margin-top:8px"><label>Giá chốt với khách (đ)<input id="asPr" type="number" value="${Math.round(o.revenue||o.est_fare||0)||''}"></label><label>Chi phí trả xe ngoài (đ)<input id="asCo" type="number" value="${Math.round(o.partner_cost||0)||''}"></label><label style="grid-column:1/-1">Ghi chú cho tài xế<input id="asNo" value="${esc(o.trip_note||'')}"></label></div>
+   <div class="bar" style="margin-top:12px"><button class="btn p" id="asGo">Giao đơn & báo tài xế</button><button class="btn" id="asClose">Đóng</button></div><div id="asOut"></div>`);
+  let mode='khg';$('#asClose').onclick=closeModal;
+  $$('#asT button').forEach(b=>b.onclick=()=>{mode=b.dataset.v;$$('#asT button').forEach(x=>x.classList.toggle('on',x===b));$('#asKhg').classList.toggle('hidden',mode!=='khg');$('#asExt').classList.toggle('hidden',mode==='khg')});
+  $('#asQ').oninput=()=>{const q=$('#asQ').value.toLowerCase().trim();$$('#asL label').forEach(l=>l.classList.toggle('hidden',q&&!l.dataset.q.includes(q)))};
+  $$('#asL input').forEach(r=>r.onchange=()=>{if(r.dataset.veh)$('#asV').value=r.dataset.veh});
+  $('#asGo').onclick=async()=>{
+    let d=null,v=null,ext=null;
+    if(mode==='khg'){d=document.querySelector('input[name=asD]:checked')?.value;if(!d)return toast('Chọn tài xế');v=$('#asV').value||null}
+    else{ext={name:$('#exN').value.trim(),phone:$('#exP').value.trim(),plate:$('#exPl').value.trim(),load_t:$('#exL').value,owner:$('#exO').value.trim()};if(ext.phone.replace(/\D/g,'').length<9)return toast('Nhập SĐT tài xế ngoài')}
+    const b=$('#asGo');b.disabled=true;
+    const {data,error}=await sb.rpc('khg_dispatch',{p_order:o.id,p_driver:d,p_vehicle:v,p_ext:ext,p_price:Number($('#asPr').value)||null,p_cost:Number($('#asCo').value)||null,p_note:$('#asNo').value.trim()||null});
+    b.disabled=false;if(error)return toast(error.message);
+    delete REF.people;delete REF.vehicles;await Promise.all(['people','vehicles'].map(ensureRef));
+    const name=REF.people[data.driver_id]||ext?.name||'', plate=REF.vehicles[data.vehicle_id]||ext?.plate||'';
+    const txt=`🚚 ĐƠN ${o.code} – KHG\nTài xế: ${name}${plate?' · xe '+plate:''}\nLấy hàng: ${o.scheduled_at?fmtDT(o.scheduled_at):'ngay'}\n`+(stops||[]).map(s=>`${s.kind==='lay'?'📍 Lấy':'🏁 Giao '+s.seq}: ${s.address}${s.contact_name?' – '+s.contact_name:''}${s.phone?' '+s.phone:''}${Number(s.cod_amount)?' · THU HỘ '+fmtM(s.cod_amount):''}${s.note?' ('+s.note+')':''}`).join('\n')+
+      (o.cargo?`\n📦 ${o.cargo}`:'')+($('#asNo').value?`\n📝 ${$('#asNo').value}`:'')+(o.route_url?`\n🗺 Dẫn đường: ${o.route_url}`:'')+`\n📱 App tài xế: https://lehoaithanh.org/tai-xe.html\n☎️ Điều phối: 0399 831 228`;
+    $('#asOut').innerHTML=`<div class="card" style="margin-top:10px"><b>✅ Đã giao đơn cho ${esc(name)}.</b> ${mode==='khg'?'Tài xế nhận chuông báo trên app và tin Telegram.':'Gửi thông tin chuyến cho tài xế ngoài qua Zalo/SMS:'}<textarea style="width:100%;height:150px;margin-top:8px" id="asTx">${esc(txt)}</textarea>
+      <div class="bar"><button class="btn p s" id="asCp">Sao chép</button><a class="btn s" href="https://zalo.me/${esc((ext?.phone||'').replace(/\D/g,''))}" target="_blank" rel="noopener">Mở Zalo</a><a class="btn s" href="sms:${esc(ext?.phone||'')}?body=${encodeURIComponent(txt)}">Gửi SMS</a><button class="btn s" id="asSh">Chia sẻ…</button></div></div>`;
+    $('#asCp').onclick=()=>navigator.clipboard.writeText($('#asTx').value).then(()=>toast('Đã sao chép'));
+    $('#asSh').onclick=()=>navigator.share?navigator.share({text:$('#asTx').value}).catch(()=>{}):toast('Thiết bị không hỗ trợ chia sẻ');
+    $('#asGo').classList.add('hidden');after&&after();
+  };
+}
+// ---- Chuông báo đơn mới (kéo dài tới khi bấm xem)
+let ALARM=null;
+function ringAlarm(o){
+  try{if(!ALARM){const ctx=new (window.AudioContext||window.webkitAudioContext)();let on=true,n=0;
+    const beep=()=>{if(!on)return;const t=ctx.currentTime;[880,1175,880,1175].forEach((f,i)=>{const g=ctx.createGain(),os=ctx.createOscillator();os.type='square';os.frequency.value=f;g.gain.setValueAtTime(.0001,t+i*.18);g.gain.exponentialRampToValueAtTime(.25,t+i*.18+.02);g.gain.exponentialRampToValueAtTime(.0001,t+i*.18+.16);os.connect(g).connect(ctx.destination);os.start(t+i*.18);os.stop(t+i*.18+.17)});
+      if(++n<40)setTimeout(beep,1500);else stop()};
+    const stop=()=>{on=false;ctx.close().catch(()=>{});$('#alarm')?.remove();ALARM=null};ALARM={stop};beep()}}catch(e){}
+  $('#alarm')?.remove();const d=document.createElement('div');d.id='alarm';
+  d.innerHTML=`<span style="font-size:22px">🔔</span><div><b>Đơn mới ${esc(o.code||'')}</b><div style="font-size:13px;opacity:.9">${esc(o.customer_text||'')} · ${esc(o.pickup||'')}</div></div><b style="background:#fff;color:#C8102E;border-radius:8px;padding:6px 10px">Xem & giao</b>`;
+  d.onclick=async()=>{ALARM&&ALARM.stop();d.remove();if(cur!=='dispatch')await go('dispatch');const {data}=await sb.from('khg_orders').select('*').eq('id',o.id).maybeSingle();if(data)openAssign(data,DISPATCH_RELOAD)};
+  document.body.appendChild(d);
+  try{if('Notification' in window&&Notification.permission==='granted'){const n=new Notification('KHG – Đơn mới '+(o.code||''),{body:(o.customer_text||'')+': '+(o.pickup||'')+' → '+(o.dropoff||''),tag:o.id,requireInteraction:true});n.onclick=()=>{window.focus();d.click()}}}catch(e){}
+  if(navigator.vibrate)navigator.vibrate([400,200,400,200,400]);
+}
 async function openOrder(o,after){
   const {data:ev}=await sb.from('khg_order_events').select('*').eq('order_id',o.id).order('created_at');
   await ensureRef('people');
   const tl=`<h3 style="margin-top:16px">Hành trình chuyến</h3>${(ev||[]).length?`<ul class="tl">${ev.map(e=>`<li>${pill('trip',e.status)} ${esc(REF.people[e.person_id]||'')} · ${fmtDT(e.created_at)}${e.note?' · '+esc(e.note):''}${e.lat?` · <a href="https://maps.google.com/?q=${e.lat},${e.lng}" target="_blank" rel="noopener">vị trí</a>`:''}</li>`).join('')}</ul>`:'<p class="sub">Tài xế chưa cập nhật.</p>'}
+   <div class="bar"><button class="btn p s" id="ooAssign">${o.driver_id?'Đổi tài xế':'Giao tài xế'}</button>${o.route_url?`<a class="btn s" href="${esc(o.route_url)}" target="_blank" rel="noopener">Bản đồ lộ trình</a>`:''}${o.track_token?`<button class="btn s" id="ooTrack">Link theo dõi cho khách</button>`:''}</div>
    <div class="bar"><span style="font-size:12px;color:var(--muted)">Điều phối cập nhật thay tài xế:</span>${Object.entries(O.trip).filter(([k])=>k!=='cho_nhan').map(([k,l])=>`<button class="btn s" data-trip="${k}">${esc(l)}</button>`).join('')}</div>`;
   await openForm('orders',o,after,{},tl);
+  $('#ooAssign')&&($('#ooAssign').onclick=()=>openAssign(o,after));
+  $('#ooTrack')&&($('#ooTrack').onclick=()=>{const u='https://lehoaithanh.org/dat-xe?t='+o.track_token;navigator.clipboard.writeText(`KHG – theo dõi đơn ${o.code}: ${u}`).then(()=>toast('Đã sao chép link theo dõi'))});
   document.querySelectorAll('[data-trip]').forEach(b=>b.onclick=async()=>{
     let note=null;if(b.dataset.trip==='huy_chuyen'){note=prompt('Lý do hủy chuyến:');if(!note)return}
     const {error}=await sb.rpc('khg_trip_update',{p_order:o.id,p_status:b.dataset.trip,p_note:note,p_source:'web'});
@@ -1231,9 +1322,12 @@ async function start(session){
   ROLE=role;
   if(meId){const {data}=await sb.from('khg_people').select('id,full_name,role').eq('id',meId).maybeSingle();ME=data||{id:meId}}
   $('#me').innerHTML='<b>'+esc(ME?.full_name||session.user.email)+'</b>'+esc(O.role[ROLE]||ROLE);$('#av').textContent=(ME?.full_name||session.user.email||'K').trim().split(/\s+/).pop().charAt(0).toUpperCase();
-  const h=location.hash.slice(1);cur=VIEWS[h]?h:'overview';go(cur);loadNotif();
+  const h=location.hash.slice(1);
+  if(h.startsWith('rec/')){const [,ent,id]=h.split('/');cur=ent==='orders'?'dispatch':'overview';await go(cur);if(ent==='orders'&&id){const {data}=await sb.from('khg_orders').select('*').eq('id',id).maybeSingle();if(data)(data.driver_id?openOrder:openAssign)(data,DISPATCH_RELOAD)}}
+  else{cur=VIEWS[h]?h:'overview';go(cur)}loadNotif();
+  if(['admin','dieu_phoi'].includes(ROLE)&&'Notification' in window&&Notification.permission==='default')document.addEventListener('click',()=>Notification.requestPermission().catch(()=>{}),{once:true});
   try{sb.channel('khg-crm').on('postgres_changes',{event:'*',schema:'public',table:'khg_orders'},p=>{
-      if(p.eventType==='INSERT')toast('🆕 Đơn mới '+(p.new.code||''));
+      if(p.eventType==='INSERT'){if(p.new.source==='khach_hang'&&['admin','dieu_phoi'].includes(ROLE))ringAlarm(p.new);else toast('🆕 Đơn mới '+(p.new.code||''))}
       if(cur==='dispatch'&&DISPATCH_RELOAD){clearTimeout(window._dr);window._dr=setTimeout(DISPATCH_RELOAD,800)}})
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'khg_notifications'},p=>{if(ME&&p.new.person_id===ME.id){toast('🔔 '+p.new.title);loadNotif()}}).subscribe()}catch(e){}
 }
