@@ -123,7 +123,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmtN=n=>(Number(n)||0).toLocaleString('vi-VN');const fmtM=n=>fmtN(Math.round(Number(n)||0))+' đ';
 const isoD=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10)};
-const today=()=>isoD(new Date());
+const today=()=>new Date(Date.now()+7*3600e3).toISOString().slice(0,10); // ngày theo giờ Việt Nam
 const fmtD=s=>s?String(s).slice(0,10).split('-').reverse().join('/'):'';
 const fmtDT=s=>{if(!s)return'';const d=new Date(s);return d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})};
 const fmtT=s=>s?new Date(s).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'';
@@ -370,12 +370,16 @@ V.cong=async m=>{
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><button class="big o" id="chalf">Nửa ngày</button><button class="big o" id="cleave">Xin nghỉ phép</button></div></div>
    <div class="kpis"><div class="kpi"><div class="l">Công tháng này</div><div class="v">${wd}/26</div><div class="bar"><div style="width:${Math.min(100,wd*100/26)}%"></div></div><div class="small">${wd>=26?'Đạt chuyên cần 🎉':'Còn '+(26-wd)+' công để đạt chuyên cần'}</div></div><div class="kpi"><div class="l">Giờ tăng ca</div><div class="v">${ot}</div></div></div>
    <div class="card"><b>Chi tiết tháng</b>${(data||[]).map(a=>`<div class="li">${fmtD(a.work_date)} · ${a.status==='co_mat'?'Có mặt':a.status==='nua_ngay'?'Nửa ngày':a.status==='nghi_phep'?'Nghỉ phép':'Vắng'}${a.day_type&&a.day_type!=='thuong'?' · '+(a.day_type==='le'?'Lễ':'Ngày nghỉ'):''}<span class="small"> · ${fmtT(a.check_in)||''}${a.check_out?'–'+fmtT(a.check_out):''}${a.ot_hours?' · TC '+a.ot_hours+'h':''}</span></div>`).join('')||'<div class="empty">Chưa có.</div>'}</div>`;
-  const now=new Date().toISOString();const dow=new Date().getDay();
-  const up=async patch=>{const {error}=await sb.from('khg_attendance').upsert({person_id:ME.id,work_date:d,source:'app',day_type:cur?.day_type||(dow===0?'cuoi_tuan':'thuong'),...patch},{onConflict:'person_id,work_date'});toast(error?error.message:'Đã chấm công');go('cong')};
-  $('#cin').onclick=()=>up({status:'co_mat',check_in:now});
-  $('#cout').onclick=()=>up({status:cur?.status||'co_mat',check_in:cur?.check_in,check_out:now});
-  $('#chalf').onclick=()=>up({status:'nua_ngay',check_in:cur?.check_in||now});
-  $('#cleave').onclick=()=>{if(confirm('Báo nghỉ phép hôm nay?'))up({status:'nghi_phep'})};
+  const up=async(action,btn,note)=>{if(btn){btn.disabled=true;btn.textContent='Đang gửi…'}
+    const c=action==='vao_ca'||action==='ra_ca'?await where():null;
+    const {error}=await sb.rpc('khg_attendance_self',{p_action:action,p_lat:c?c.latitude:null,p_lng:c?c.longitude:null,p_note:note||null});
+    if(error){toast(/fetch|network|Failed/i.test(error.message)?'Mất kết nối mạng – thử lại':error.message);go('cong',true);return}
+    toast({vao_ca:'✔ Đã vào ca',ra_ca:'✔ Đã ra ca',nua_ngay:'✔ Đã chấm nửa ngày',nghi_phep:'✔ Đã báo nghỉ phép'}[action]);go('cong',true)};
+  $('#cin').onclick=e=>up('vao_ca',e.currentTarget);
+  $('#cout').onclick=e=>up('ra_ca',e.currentTarget);
+  $('#chalf').onclick=e=>up('nua_ngay',e.currentTarget);
+  $('#cleave').onclick=()=>{sheet(`<h2>Xin nghỉ phép hôm nay</h2><label class="f">Lý do<input class="in" id="lvr" placeholder="VD: việc gia đình"></label><div class="acts"><button class="big" id="lvok">Gửi</button><button class="big o" id="lvno">Không</button></div>`);
+    $('#lvno').onclick=closeSheet;$('#lvok').onclick=async()=>{closeSheet();await up('nghi_phep',null,$('#lvr')?.value||'')}};
 };
 
 V.chi=async m=>{
