@@ -102,6 +102,12 @@ td.neg{color:var(--red)}
 .tl li::before{content:"";position:absolute;left:-6px;top:9px;width:10px;height:10px;border-radius:50%;background:var(--red)}
 #modal{position:fixed;inset:0;background:rgba(27,22,22,.45);display:grid;place-items:center;z-index:50;padding:12px}
 #modal .box{background:#fff;border-radius:14px;width:100%;max-width:820px;max-height:92vh;overflow:auto;padding:18px}
+.cmp{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:14px;align-items:start}.cfrm{max-height:64vh;overflow:auto;padding-right:6px}
+.cfrm details{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:8px}.cfrm summary{font-weight:700;cursor:pointer}.cfrm .form{grid-template-columns:1fr 1fr;margin-top:8px}
+.cchk{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-top:4px}.cchk input{width:auto!important;margin:0;flex:none}.form .cchk label{flex-direction:row;align-items:center;gap:6px;font-weight:500;color:var(--ink,#222);font-size:13px}
+.cpv{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#f6f6f6}.cpvh{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fff;border-bottom:1px solid var(--line)}.cpvh .sp{flex:1}
+.cpv iframe{width:100%;height:64vh;border:0;background:#fff}
+@media (max-width:900px){.cmp{grid-template-columns:1fr}.cfrm{max-height:none}.cpv iframe{height:60vh}.cfrm .form,.cchk{grid-template-columns:1fr}}
 #modal h3{margin:0 0 12px}
 .form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 14px}
 .form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:600;min-width:0}
@@ -333,7 +339,7 @@ const O={
   pay_kind:{xe_lien_ket:'Xe liên kết',nha_cung_cap:'Nhà cung cấp',thue_kho:'Thuê kho',luong:'Lương',bao_hiem:'Bảo hiểm',thue:'Thuế',khac:'Khác'},
   pur_cat:{hang_phan_phoi:'Hàng phân phối',vat_tu:'Vật tư',thiet_bi:'Thiết bị',phu_tung:'Phụ tùng',khac:'Khác'},
   pur_status:{dat_hang:'Đặt hàng',da_nhan:'Đã nhận',da_tra_tien:'Đã trả tiền',huy:'Hủy'},
-  con_kind:{khach_hang:'Với khách hàng',doi_tac_xe:'Với đối tác xe',thue_kho:'Đi thuê kho',cho_thue_kho:'Cho thuê kho',mua_hang:'Mua hàng',lao_dong:'Lao động',vay:'Vay vốn',khac:'Khác'},
+  con_kind:{nguyen_tac:'HĐ nguyên tắc dịch vụ',phu_luc:'Phụ lục hợp đồng',khach_hang:'Với khách hàng',van_chuyen:'Vận chuyển (mẫu cũ)',doi_tac_xe:'Với đối tác xe',thue_xe:'Thuê xe',thue_kho:'Đi thuê kho',cho_thue_kho:'Cho thuê kho',dich_vu_kho:'Dịch vụ kho',boc_xep:'Bốc xếp, xe nâng, xe cẩu',mua_hang:'Mua bán hàng',lao_dong:'Lao động',thu_viec:'Thử việc',khoan_tai_xe:'Khoán tài xế',ban_giao_xe:'Bàn giao xe',bao_mat:'Cam kết bảo mật',vay:'Vay vốn',thanh_ly:'Thanh lý',khac:'Khác'},
   con_status:{du_thao:'Dự thảo',hieu_luc:'Hiệu lực',het_han:'Hết hạn',thanh_ly:'Thanh lý'},
   pol_cat:{gia:'Giá',cong_no:'Công nợ',dau_tu:'Đầu tư',luong:'Lương',an_toan:'An toàn',khach_hang:'Khách hàng',van_hanh:'Vận hành',khac:'Khác'},
   req_kind:{nhu_cau:'Nhu cầu',bao_gia:'Báo giá',su_co:'Sự cố',viec:'Việc',khac:'Khác'},
@@ -712,7 +718,7 @@ function readForm(cfg,frm,row){
   }
   return data;
 }
-function modal(html){$('#modal-box').innerHTML=html;$('#modal').classList.remove('hidden')}
+function modal(html,wide){const b=$('#modal-box');b.style.maxWidth=wide?'1240px':'';b.innerHTML=html;$('#modal').classList.remove('hidden')}
 const closeModal=()=>$('#modal').classList.add('hidden');
 async function openForm(name,row,after,defaults={},extraHTML=''){
   const base=E[name];await ensureRefs(base);
@@ -756,6 +762,75 @@ function bulkEdit(name,list,after){
     closeModal();toast(err?`Lỗi: ${err}`:`Đã cập nhật ${ok} dòng`);if(cfg.label)delete REF[name];after&&after()};
 }
 // Mở bản ghi bất kỳ theo link #rec/<mục>/<id>
+
+// ===== Soạn hợp đồng từ mẫu (khg-contract): form động, khách CRM, tra MST, xem trước, xuất Word + PDF =====
+const cfn=async(body)=>{const {data,error}=await sb.functions.invoke('khg-contract',{body});const msg=error?((await error.context?.json?.().catch(()=>null))?.error||error.message):data?.error;return msg?{error:msg,...(data||{})}:data};
+let TPLS=null;
+async function loadTpls(){if(TPLS)return TPLS;const r=await cfn({action:'templates'});if(r.error){toast(r.error);return []}TPLS=r.templates;return TPLS}
+const TPL_ORDER=['hd_nguyen_tac','phu_luc_dv','phu_luc_sd'];
+async function openCompose(tplKey='hd_nguyen_tac',data={},ctx={}){
+  const list=await loadTpls();if(!list.length)return;
+  const custs=(await sb.from('khg_customers').select('id,name,tax_code,address,phone,email,contact_name,payment_terms_days').is('archived_at',null).order('name').limit(2000)).data||[];
+  ctx={...ctx};let tp=list.find(t=>t.key===tplKey)||list[0];
+  const sorted=[...list].sort((a,b)=>(TPL_ORDER.indexOf(a.key)+1||99)-(TPL_ORDER.indexOf(b.key)+1||99));
+  modal(`<h3>📝 Soạn hợp đồng${ctx.contract_id?' · cập nhật bản đã soạn':''}</h3>
+   <div class="form" style="grid-template-columns:2fr 2fr 1.4fr">
+    <label>Mẫu<select id="ctpl">${sorted.map(t=>`<option value="${t.key}" ${t.key===tp.key?'selected':''}>${esc(t.title)}</option>`).join('')}</select></label>
+    <label>Khách hàng trong CRM (điền sẵn Bên A)<input id="ccus" list="ccusl" placeholder="Gõ tên hoặc MST…" value="${esc(custs.find(c=>c.id===ctx.customer_id)?.name||'')}"><datalist id="ccusl">${custs.map(c=>`<option value="${esc(c.name)}">${esc(c.tax_code||'')}</option>`).join('')}</datalist></label>
+    <label>Tra mã số thuế<span style="display:flex;gap:6px"><input id="cmst" placeholder="0312345678" style="flex:1;min-width:0"><button class="btn" id="cmstb" type="button">🔎 Tra</button></span></label>
+   </div>
+   <p class="sub" id="cdesc" style="margin:8px 0"></p>
+   <div class="cmp"><div id="cfrm" class="cfrm"></div><div class="cpv"><div class="cpvh"><b>Xem trước</b><span class="sp"></span><button class="btn s" id="cprev" type="button">↻ Cập nhật</button></div><iframe id="cifr" title="Xem trước hợp đồng"></iframe></div></div>
+   <div id="cout"></div>
+   <div class="acts"><span class="sub" style="margin-right:auto">Ô để trống in thành dòng chấm để điền tay. Vàng = thông tin đã điền.</span><button class="btn" id="cclose">Đóng</button><button class="btn p" id="cgo">⬇ Xuất Word + PDF</button></div>`,true);
+  const box=$('#modal-box');
+  const fieldHTML=(f,v)=>{const id='cf_'+f.k,ph=esc(f.hint||'');
+    if(f.t==='area')return `<label class="w">${esc(f.l)}<textarea id="${id}" rows="2" placeholder="${ph}">${esc(v??'')}</textarea></label>`;
+    if(f.t==='rows'){const val=Array.isArray(v)?v.map(r=>Array.isArray(r)?r.join(' | '):Object.values(r).join(' | ')).join('\n'):(v??'');
+      return `<label class="w">${esc(f.l)} <span style="font-weight:400">(${esc((f.cols||[]).join(' | '))})</span><textarea id="${id}" rows="4" placeholder="${ph}" style="font-family:ui-monospace,monospace;font-size:12px">${esc(val)}</textarea></label>`}
+    if(f.t==='multi'){const on=Array.isArray(v)?v:String(v||'').split(',');return `<label class="w">${esc(f.l)}<div class="cchk">${Object.entries(f.o||{}).map(([k,l])=>`<label><input type="checkbox" data-m="${f.k}" value="${k}" ${on.includes(k)?'checked':''}> ${esc(l)}</label>`).join('')}</div></label>`}
+    if(f.t==='sel')return `<label>${esc(f.l)}<select id="${id}">${Object.entries(f.o||{}).map(([k,l])=>`<option value="${esc(k)}" ${String(v??f.def??'')===k?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
+    return `<label>${esc(f.l)}${f.req?' *':''}<input id="${id}" type="${f.t==='date'?'date':'text'}" value="${esc(v??'')}" placeholder="${ph}" ${f.t==='money'||f.t==='num'?'inputmode="numeric"':''}></label>`};
+  const draw=()=>{
+    $('#cdesc').textContent=tp.desc||'';const groups={};
+    for(const f of tp.fields)(groups[f.g||'Khác']=groups[f.g||'Khác']||[]).push(f);
+    $('#cfrm').innerHTML=Object.entries(groups).map(([g,fs],i)=>`<details open><summary>${esc(g)}</summary><div class="form">${fs.map(f=>fieldHTML(f,data[f.k]??(f.t==='date'||f.t==='multi'||f.t==='rows'?undefined:f.def))).join('')}</div></details>`).join('');
+    $('#cfrm').querySelectorAll('input,textarea,select').forEach(x=>x.addEventListener('change',()=>{collect();schedule()}));
+  };
+  const collect=()=>{for(const f of tp.fields){
+      if(f.t==='multi'){data[f.k]=[...box.querySelectorAll(`[data-m="${f.k}"]:checked`)].map(x=>x.value);continue}
+      const el=$('#cf_'+f.k);if(el)data[f.k]=el.value.trim()}
+    return data};
+  let tm=null;const schedule=()=>{clearTimeout(tm);tm=setTimeout(preview,700)};
+  async function preview(){collect();const r=await cfn({action:'preview',template:tp.key,data,customer_id:ctx.customer_id});if(r.error)return toast(r.error);const f=$('#cifr');if(f)f.srcdoc=r.html.replace('</head>','<style>body{font-size:11pt;margin:14px auto;padding:0 18px}h1{font-size:13.5pt}</style></head>')}
+  const setV=(k,v)=>{if(v==null||v==='')return;data[k]=v;const el=$('#cf_'+k);if(el)el.value=v};
+  const useCustomer=async c=>{ctx.customer_id=c.id;$('#ccus').value=c.name;
+    setV('b_name',c.name);setV('b_tax',c.tax_code);setV('b_addr',c.address);setV('b_phone',c.phone);setV('b_email',c.email);
+    if(c.contact_name)setV('b_contact',c.contact_name+(c.phone?' – '+c.phone:''));
+    if(c.payment_terms_days&&!data.tt_han)setV('tt_han',`Trong vòng ${c.payment_terms_days} ngày kể từ ngày Bên A nhận hóa đơn GTGT và bảng kê đã xác nhận`);
+    if(tp.key.startsWith('phu_luc')&&!data.hd_goc){const {data:pc}=await sb.from('khg_contracts').select('id,contract_no,signed_on,data,created_at').eq('customer_id',c.id).eq('kind','nguyen_tac').order('created_at',{ascending:false}).limit(1);
+      if(pc?.[0]){setV('hd_goc',pc[0].contract_no);setV('ngay_hd_goc',pc[0].signed_on||pc[0].data?.ngay_ky||String(pc[0].created_at).slice(0,10));ctx.parent_id=pc[0].id;
+        for(const k of ['b_rep','b_title'])if(!data[k])setV(k,pc[0].data?.[k])}}
+    schedule()};
+  $('#ccus').onchange=()=>{const v=$('#ccus').value.trim().toLowerCase();const c=custs.find(x=>x.name.toLowerCase()===v)||custs.find(x=>(x.tax_code||'')===v);if(c)useCustomer(c)};
+  $('#cmstb').onclick=async()=>{const mst=$('#cmst').value.trim()||$('#cf_b_tax')?.value.trim();if(!mst)return toast('Nhập mã số thuế');const b=$('#cmstb');b.disabled=true;
+    const r=await cfn({action:'mst',mst});b.disabled=false;if(r.error)return toast(r.error);
+    if(r.customer){const c=custs.find(x=>x.id===r.customer.id)||r.customer;await useCustomer(c);toast('Đã có trong CRM: '+c.name)}
+    if(r.registry){setV('b_tax',r.mst);if(!r.customer)setV('b_name',r.registry.name);setV('b_addr',data.b_addr||r.registry.address);toast('Tra MST: '+r.registry.name);schedule()}
+    else if(!r.customer)toast('Không tra được MST này, nhập tay giúp')};
+  $('#ctpl').onchange=()=>{collect();tp=list.find(t=>t.key===$('#ctpl').value);ctx.contract_id=null;draw();schedule()};
+  $('#cprev').onclick=preview;$('#cclose').onclick=closeModal;
+  $('#cgo').onclick=async()=>{collect();const miss=tp.fields.filter(f=>f.req&&!String(data[f.k]??'').trim()).map(f=>f.l);if(miss.length)return toast('Cần nhập: '+miss.join(', '));
+    const b=$('#cgo');b.disabled=true;b.textContent='Đang xuất…';
+    const r=await cfn({action:'render',template:tp.key,data,customer_id:ctx.customer_id||null,contract_id:ctx.contract_id||null,parent_id:ctx.parent_id||null,inline:false});
+    b.disabled=false;b.textContent='⬇ Xuất lại Word + PDF';if(r.error)return toast(r.error);
+    ctx.contract_id=r.contract_id;Object.assign(data,{so_hd:r.data?.so_hd||r.so_hd,hd_goc:r.data?.hd_goc||data.hd_goc,ngay_ky:r.data?.ngay_ky||data.ngay_ky});setV('so_hd',data.so_hd);setV('ngay_ky',data.ngay_ky);
+    $('#cout').innerHTML=`<div class="card" style="margin-top:12px"><b>✅ Đã xuất ${esc(tp.title)} số ${esc(r.so_hd)}</b> – lưu trong mục Hợp đồng.<div class="acts" style="justify-content:flex-start"><a class="btn p" href="${esc(r.docx_url)}" target="_blank" rel="noopener">⬇ Word (.docx)</a><a class="btn p" href="${esc(r.pdf_url)}" target="_blank" rel="noopener">⬇ PDF</a><button class="btn" id="ccpy" type="button">🔗 Sao chép link tải PDF</button></div></div>`;
+    $('#ccpy').onclick=()=>copyText(r.pdf_url,'Đã sao chép link PDF (hiệu lực 7 ngày)');preview();if(cur==='contracts')go('contracts')};
+  draw();preview();
+}
+async function contractFile(r,kind){const p=r[kind+'_path'];if(!p)return toast('Chưa có file');const x=await kh({action:'signed_url',path:p});if(x.error)return toast(x.error);window.open(x.url,'_blank')}
+
 async function openRecord(name,id){
   const cfg=E[name];if(!cfg)return;const {data}=await sb.from(cfg.table).select('*').eq('id',id).maybeSingle();
   if(!data)return toast('Không tìm thấy bản ghi (đã lưu trữ hoặc bạn không có quyền xem)');
@@ -1390,7 +1465,10 @@ const VIEWS={
  requests:async m=>{m.innerHTML='<h2>Nhu cầu & việc phát sinh</h2><p class="sub">Nhu cầu khách, báo giá, sự cố và việc gửi từ bot Telegram.</p><div id="h"></div>';await renderList('requests',m.querySelector('#h'),{
    rowActions:r=>r.status==='moi'?`<button class="btn s" data-act="dang_xu_ly" data-id="${r.id}">Nhận xử lý</button>`:r.status==='dang_xu_ly'?`<button class="btn s" data-act="xong" data-id="${r.id}">Xong</button>`:'',
    onActs:async(st,id)=>{await sb.from('khg_requests').update({status:st}).eq('id',id)}})},
- customers:async m=>{m.innerHTML='<h2>Khách hàng</h2><p class="sub">Theo 7 nhóm khách mục tiêu của KHG.</p><div id="h"></div>';await renderList('customers',m.querySelector('#h'))},
+ customers:async m=>{m.innerHTML='<h2>Khách hàng</h2><p class="sub">Theo 7 nhóm khách mục tiêu của KHG.</p><div id="h"></div>';
+  const canC=has(['admin','ke_toan','kinh_doanh','dieu_phoi']);
+  await renderList('customers',m.querySelector('#h'),{rowActions:r=>canC&&!RO?`<button class="btn s" data-act="hd" data-id="${r.id}" title="Soạn hợp đồng nguyên tắc cho khách này">📝 Hợp đồng</button>`:'',
+   onActs:async(a,id,r)=>{if(a==='hd'){const c={customer_id:r.id};await openCompose('hd_nguyen_tac',{b_name:r.name,b_tax:r.tax_code||'',b_addr:r.address||'',b_phone:r.phone||'',b_email:r.email||'',b_contact:r.contact_name?(r.contact_name+(r.phone?' – '+r.phone:'')):'',...(r.payment_terms_days?{tt_han:`Trong vòng ${r.payment_terms_days} ngày kể từ ngày Bên A nhận hóa đơn GTGT và bảng kê đã xác nhận`}:{})},c)}}})},
  fleet:async m=>{m.innerHTML=`<h2>Đội xe & thiết bị</h2><p class="sub">Năng lực xe 1,9–18 tấn (sở hữu và liên kết), hạn bảo hiểm, đăng kiểm, phí đường bộ, bảo dưỡng. Ghi chi phí bảo hiểm/đăng kiểm có “Hiệu lực đến” → hạn của xe tự cập nhật.</p><div class="subtabs"><button data-s="vehicles" class="on">Xe tải</button><button data-s="equipment">Xe nâng, xe cẩu</button></div><div id="sum" class="kpis"></div><div id="h"></div>`;
    const {data:v}=await sb.from('khg_vehicles').select('load_t,ownership,status,insurance_until,inspection_until,road_fee_until,next_maintenance_on');
    const g=(a,b)=>(v||[]).filter(x=>x.load_t>=a&&x.load_t<=b).length;const lim=addDays(today(),30);
@@ -1405,7 +1483,13 @@ const VIEWS={
    const sw=n=>{m.querySelectorAll('.subtabs button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));renderList(n,m.querySelector('#h'))};
    m.querySelectorAll('.subtabs button').forEach(b=>b.onclick=()=>sw(b.dataset.s));sw('leases')},
  purchases:async m=>{m.innerHTML='<h2>Mua hàng</h2><p class="sub">Hàng phân phối, vật tư, phụ tùng, thiết bị.</p><div id="h"></div>';await renderList('purchases',m.querySelector('#h'),{sumKey:'amount'})},
- contracts:async m=>{m.innerHTML='<h2>Hợp đồng & cam kết</h2><p class="sub">Hợp đồng khách hàng, đối tác xe, thuê và cho thuê kho, mua hàng, lao động, vay. Bản scan đính kèm qua 📎.</p><div id="h"></div>';await renderList('contracts',m.querySelector('#h'))},
+ contracts:async m=>{m.innerHTML='<h2>Hợp đồng & cam kết</h2><p class="sub">Soạn hợp đồng nguyên tắc, phụ lục từ mẫu KHG (Word + PDF), hoặc nhắn bot Telegram “làm hợp đồng cho …”. Bản đã ký scan đính kèm qua 📎.</p><div id="h"></div>';
+  await renderList('contracts',m.querySelector('#h'),{extraBtns:RO?'':'<button class="btn p" data-compose>📝 Soạn hợp đồng</button>',
+   rowActions:r=>(r.docx_path?`<button class="btn s" data-act="docx" data-id="${r.id}" title="Tải Word">Word</button><button class="btn s" data-act="pdf" data-id="${r.id}" title="Tải PDF">PDF</button>`:'')+(r.template&&!RO?`<button class="btn s" data-act="redo" data-id="${r.id}" title="Sửa thông tin và xuất lại">✎ Soạn lại</button>`:'')+(r.kind==='nguyen_tac'&&!RO?`<button class="btn s" data-act="pl" data-id="${r.id}" title="Thêm phụ lục cho hợp đồng này">+ Phụ lục</button>`:''),
+   onActs:async(a,id,r)=>{if(a==='docx'||a==='pdf')return contractFile(r,a);
+     if(a==='redo')return openCompose(r.template,{...(r.data||{})},{contract_id:r.id,customer_id:r.customer_id,parent_id:r.parent_id});
+     if(a==='pl'){const d=r.data||{};return openCompose('phu_luc_dv',{b_name:d.b_name||r.party,b_rep:d.b_rep,b_title:d.b_title,hd_goc:r.contract_no,ngay_hd_goc:r.signed_on||d.ngay_ky},{customer_id:r.customer_id,parent_id:r.id})}},
+   bind:h=>{const b=h.querySelector('[data-compose]');if(b)b.onclick=()=>openCompose()}})},
  policies:async m=>{m.innerHTML='<h2>Chính sách</h2><p class="sub">Quy tắc giá, công nợ, đầu tư, lương, vận hành của KHG.</p><div id="h"></div>';await renderList('policies',m.querySelector('#h'))},
  documents:async m=>{m.innerHTML='<h2>Hồ sơ & tài liệu</h2><p class="sub">Hồ sơ năng lực, pháp lý, báo cáo.</p><div id="h"></div>';await renderList('documents',m.querySelector('#h'))},
  filesv:async m=>{m.innerHTML='<h2>Kho chứng từ</h2><p class="sub">Toàn bộ hình hàng hóa, hình xe, hóa đơn, biên bản giao nhận, hồ sơ nhân sự, giấy tờ xe đã tải lên. Tải lên tại từng đơn / người / xe (nút 📎).</p><div id="h"></div>';
