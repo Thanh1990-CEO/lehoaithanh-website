@@ -822,11 +822,13 @@ async function openCompose(tplKey='hd_nguyen_tac',data={},ctx={}){
   $('#cprev').onclick=preview;$('#cclose').onclick=closeModal;
   $('#cgo').onclick=async()=>{collect();const miss=tp.fields.filter(f=>f.req&&!String(data[f.k]??'').trim()).map(f=>f.l);if(miss.length)return toast('Cần nhập: '+miss.join(', '));
     const b=$('#cgo');b.disabled=true;b.textContent='Đang xuất…';
-    const r=await cfn({action:'render',template:tp.key,data,customer_id:ctx.customer_id||null,contract_id:ctx.contract_id||null,parent_id:ctx.parent_id||null,inline:false});
+    const call=async(formats,d,cid)=>{for(let i=0;i<2;i++){const x=await cfn({action:'render',template:tp.key,data:d,customer_id:ctx.customer_id||null,contract_id:cid,parent_id:ctx.parent_id||null,inline:false,formats});if(!x.error||/Thiếu|quyền|không tồn tại/.test(x.error))return x;await new Promise(o=>setTimeout(o,1200))}return {error:'Máy soạn hợp đồng đang bận, thử lại sau ít phút'}};
+    const r=await call(['docx'],data,ctx.contract_id||null);
+    if(!r.error){const p=await call(['pdf'],{...data,...(r.data||{})},r.contract_id);if(p.pdf_url)r.pdf_url=p.pdf_url;else toast('Đã có Word, PDF chưa xuất được – bấm Xuất lại')}
     b.disabled=false;b.textContent='⬇ Xuất lại Word + PDF';if(r.error)return toast(r.error);
     ctx.contract_id=r.contract_id;Object.assign(data,{so_hd:r.data?.so_hd||r.so_hd,hd_goc:r.data?.hd_goc||data.hd_goc,ngay_ky:r.data?.ngay_ky||data.ngay_ky});setV('so_hd',data.so_hd);setV('ngay_ky',data.ngay_ky);
-    $('#cout').innerHTML=`<div class="card" style="margin-top:12px"><b>✅ Đã xuất ${esc(tp.title)} số ${esc(r.so_hd)}</b> – lưu trong mục Hợp đồng.<div class="acts" style="justify-content:flex-start"><a class="btn p" href="${esc(r.docx_url)}" target="_blank" rel="noopener">⬇ Word (.docx)</a><a class="btn p" href="${esc(r.pdf_url)}" target="_blank" rel="noopener">⬇ PDF</a><button class="btn" id="ccpy" type="button">🔗 Sao chép link tải PDF</button></div></div>`;
-    $('#ccpy').onclick=()=>copyText(r.pdf_url,'Đã sao chép link PDF (hiệu lực 7 ngày)');preview();if(cur==='contracts')go('contracts')};
+    $('#cout').innerHTML=`<div class="card" style="margin-top:12px"><b>✅ Đã xuất ${esc(tp.title)} số ${esc(r.so_hd)}</b> – lưu trong mục Hợp đồng.<div class="acts" style="justify-content:flex-start"><a class="btn p" href="${esc(r.docx_url)}" target="_blank" rel="noopener">⬇ Word (.docx)</a>${r.pdf_url?`<a class="btn p" href="${esc(r.pdf_url)}" target="_blank" rel="noopener">⬇ PDF</a><button class="btn" id="ccpy" type="button">🔗 Sao chép link tải PDF</button>`:''}</div></div>`;
+    if($('#ccpy'))$('#ccpy').onclick=()=>copyText(r.pdf_url,'Đã sao chép link PDF (hiệu lực 7 ngày)');preview();if(cur==='contracts')go('contracts')};
   draw();preview();
 }
 async function contractFile(r,kind){const p=r[kind+'_path'];if(!p)return toast('Chưa có file');const x=await kh({action:'signed_url',path:p});if(x.error)return toast(x.error);window.open(x.url,'_blank')}
