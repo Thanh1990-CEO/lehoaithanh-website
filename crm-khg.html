@@ -1,5 +1,12 @@
 <!doctype html><html lang="vi"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KHG CRM">
+<link rel="manifest" href="/crm-khg.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/crm-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/crm-180.png">
 <title>CRM vận tải KHG — Kim Hoàng Gia</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="images/logo.jpg" type="image/jpeg">
@@ -255,6 +262,7 @@ tr.rw.sel td{background:#FDECEF!important}
     <div id="gs"><input id="gsi" placeholder="Tìm nhanh: mã đơn, biển số, khách, SĐT, nhân sự, hợp đồng…" autocomplete="off"><kbd>/</kbd><div id="gsr" class="hidden"></div></div>
     <div class="sp"></div>
     <a href="crm.html" class="lnk">CRM chung</a>
+    <button class="lnk" id="instb" style="border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;cursor:pointer" onclick="KInstall.open()">📲 Cài app</button>
     <button id="bell" title="Thông báo">🔔<span id="bellc" class="hidden">0</span></button>
     <div class="user"><span class="av" id="av">K</span><div class="me" id="me"></div></div>
     <button id="logout">Đăng xuất</button>
@@ -312,7 +320,7 @@ const O={
   lease_status:{du_kien:'Dự kiến',hieu_luc:'Hiệu lực',het_han:'Hết hạn',huy:'Hủy'},
   exp_item:{nhien_lieu:'Nhiên liệu',cau_duong:'Vé cầu đường',phi_cong:'Phí ra vào cổng',bao_tri:'Bảo trì, bảo dưỡng',sua_chua:'Sửa chữa',bao_hiem:'Bảo hiểm xe',dang_kiem:'Đăng kiểm',phi_duong_bo:'Phí đường bộ',thue_kho:'Thuê kho',dien_nuoc:'Điện nước',luong:'Lương (ghi tay)',tra_gop_xe:'Trả góp xe',xe_lien_ket:'Trả xe liên kết',mua_hang:'Mua hàng',boc_xep_thue:'Thuê bốc xếp',van_phong:'Văn phòng',thue_phi:'Thuế, phí',khac:'Khác'},
   pay_method:{tien_mat:'Tiền mặt',chuyen_khoan:'Chuyển khoản',cong_no:'Ghi công nợ'},
-  att_status:{co_mat:'Có mặt',nua_ngay:'Nửa ngày',vang:'Vắng',nghi_phep:'Nghỉ phép'},
+  att_status:{co_mat:'Có mặt',nua_ngay:'Nửa ngày',vang:'Vắng',nghi_phep:'Nghỉ phép'},att_appr:{tu_dong:'Hợp lệ (tự động)',cho_duyet:'Chờ duyệt',da_duyet:'Đã duyệt',tu_choi:'Từ chối'},
   day_type:{thuong:'Ngày thường',cuoi_tuan:'Ngày nghỉ hằng tuần',le:'Lễ, Tết'},
   period_type:{tuan:'Tuần',thang:'Tháng'},
   pay_status:{nhap:'Nháp',da_duyet:'Đã duyệt',da_tra:'Đã trả'},
@@ -340,7 +348,7 @@ const O={
   doc_type:{hinh_hang:'Hình hàng hóa',hinh_xe:'Hình xe',hoa_don:'Hóa đơn',bien_ban_giao_nhan:'Biên bản giao nhận',pod:'Chứng từ giao hàng (POD)',phieu_can:'Phiếu cân',ho_so_xin_viec:'Hồ sơ xin việc',cccd:'Căn cước công dân',bang_lai:'Bằng lái',anh_dai_dien:'Ảnh đại diện',hop_dong:'Hợp đồng',cam_ket:'Cam kết',bhxh:'Sổ / tờ khai BHXH',video:'Video',chung_tu_chi_phi:'Chứng từ chi phí',su_co:'Sự cố',hang_hu_hong:'Hàng hư hỏng',selfie:'Ảnh chân dung khi nhận hàng',chung_tu_cod:'Chứng từ thu COD',bien_lai_nop_tien:'Biên lai nộp tiền',qr:'Mã QR',giay_kham_suc_khoe:'Giấy khám sức khỏe',dang_ky_xe:'Đăng ký xe',dang_kiem:'Sổ đăng kiểm',bao_hiem:'Giấy bảo hiểm',khac:'Khác'},
 };
 const DOC_BY={order:['hinh_hang','hinh_xe','hoa_don','bien_ban_giao_nhan','pod','phieu_can','khac'],person:['anh_dai_dien','ho_so_xin_viec','cccd','bang_lai','hop_dong','cam_ket','bhxh','giay_kham_suc_khoe','khac'],vehicle:['dang_ky_xe','dang_kiem','bao_hiem','hinh_xe','hoa_don','khac'],contract:['hop_dong','cam_ket','hoa_don','khac'],expense:['hoa_don','khac'],customer:['hop_dong','khac'],other:['khac']};
-const PILL={cho_xac_nhan:'amber',da_xac_nhan:'green',tu_choi:'red',nhap:'',da_gui:'blue',khach_xac_nhan:'green',khach_khieu_nai:'red',da_tra:'green',moi:'red',xac_nhan:'blue',dang_chay:'amber',da_giao:'green',doi_soat:'blue',xuat_hd:'blue',da_thu:'green',huy:'',cho_nhan:'red',da_nhan:'blue',da_xac_nhan:'blue',da_lay_hang:'amber',dang_giao:'amber',dang_tra_hang:'amber',huy_chuyen:'red',
+const PILL={tu_dong:'green',cho_duyet:'amber',da_duyet:'green',cho_xac_nhan:'amber',da_xac_nhan:'green',tu_choi:'red',nhap:'',da_gui:'blue',khach_xac_nhan:'green',khach_khieu_nai:'red',da_tra:'green',moi:'red',xac_nhan:'blue',dang_chay:'amber',da_giao:'green',doi_soat:'blue',xuat_hd:'blue',da_thu:'green',huy:'',cho_nhan:'red',da_nhan:'blue',da_xac_nhan:'blue',da_lay_hang:'amber',dang_giao:'amber',dang_tra_hang:'amber',huy_chuyen:'red',
   dang_phuc_vu:'green',bao_gia:'blue',san_sang:'green',bao_duong:'amber',hieu_luc:'green',su_co:'red',dang_xu_ly:'amber',xong:'green',co_mat:'green',vang:'red',so_huu:'red',lien_ket:'blue',
   cho_duyet:'red',mo:'amber',da_quyet_toan:'green',nhap:'',da_duyet:'blue',da_tra:'green',thu:'green',chi:'red',chinh_thuc:'green',thu_viec:'amber',ung_vien:'blue',nghi_viec:'',cong_no:'amber'};
 const pill=(map,v)=>v==null||v===''?'':`<span class="pill ${PILL[v]||''}">${esc((O[map]||{})[v]??v)}</span>`;
@@ -403,9 +411,13 @@ const E={
    {k:'insurance_start',l:'Bắt đầu đóng BHXH',t:'date',list:true},{k:'insurance_no',l:'Số sổ BHXH',t:'text'},{k:'insurance_salary',l:'Lương đóng BHXH',t:'money'},
    {k:'bank_name',l:'Ngân hàng',t:'text'},{k:'bank_account',l:'Số tài khoản',t:'text'},
    {h:'Khác'},{k:'telegram_chat_id',l:'Mã Telegram',t:'num',ro:true},{k:'active',l:'Đang làm',t:'bool',list:true,def:true},{k:'note',l:'Ghi chú',t:'area'}]},
- attendance:{table:'khg_attendance',title:'Chấm công',order:['work_date',false],dateKey:'work_date',filters:[['status','att_status'],['day_type','day_type'],['person_id','@people']],
+ work_sites:{table:'khg_work_sites',title:'Điểm chấm công',order:['name',true],search:['name','address'],label:'name',
+  f:[{k:'name',l:'Tên điểm',t:'text',list:true,req:true},{k:'address',l:'Địa chỉ',t:'text',list:true},{k:'lat',l:'Vĩ độ (lat)',t:'num',list:true},{k:'lng',l:'Kinh độ (lng)',t:'num',list:true},
+   {k:'radius_m',l:'Bán kính hợp lệ (m)',t:'num',list:true,def:300},{k:'has_clock',l:'Có bảng đồng hồ điện tử',t:'bool',list:true,def:true},{k:'active',l:'Đang dùng',t:'bool',list:true,def:true},{k:'note',l:'Ghi chú',t:'text'}]},
+ attendance:{table:'khg_attendance',title:'Chấm công',order:['work_date',false],dateKey:'work_date',filters:[['approve_status','att_appr'],['status','att_status'],['day_type','day_type'],['person_id','@people']],
   f:[{k:'work_date',l:'Ngày',t:'date',list:true,req:true},{k:'person_id',l:'Nhân sự',t:'fk',ref:'people',list:true,req:true},{k:'status',l:'Trạng thái',t:'sel',o:'att_status',list:true,def:'co_mat'},
-   {k:'day_type',l:'Loại ngày',t:'sel',o:'day_type',list:true,def:'thuong'},{k:'check_in',l:'Vào',t:'dt',list:true},{k:'check_out',l:'Ra',t:'dt',list:true},{k:'ot_hours',l:'Tăng ca (giờ)',t:'num',list:true},
+   {k:'day_type',l:'Loại ngày',t:'sel',o:'day_type',list:true,def:'thuong'},{k:'check_in',l:'Vào',t:'dt',list:true},{k:'check_out',l:'Ra',t:'dt',list:true},{k:'ot_hours',l:'Tăng ca (giờ)',t:'num',list:true},{k:'ot_proposed',l:'TC đề xuất',t:'num',ro:true},
+   {k:'approve_status',l:'Duyệt',t:'sel',o:'att_appr',list:true,def:'da_duyet'},{k:'site_id',l:'Điểm làm việc',t:'fk',ref:'work_sites'},{k:'flags',l:'Cảnh báo',t:'arr',ro:true,list:true},
    {k:'source',l:'Nguồn',t:'sel',o:'source',list:true,def:'web'},{k:'note',l:'Ghi chú',t:'text'}]},
  salary:{table:'khg_salary',title:'Bảng lương',order:['period_start',false],dateKey:'period_start',filters:[['period_type','period_type'],['status','pay_status'],['person_id','@people']],
   f:[{h:'Kỳ lương'},{k:'person_id',l:'Nhân sự',t:'fk',ref:'people',list:true,req:true},{k:'period_type',l:'Kỳ',t:'sel',o:'period_type',list:true,def:'thang'},{k:'period_start',l:'Từ ngày',t:'date',list:true,req:true},{k:'period_end',l:'Đến ngày',t:'date',req:true},
@@ -503,7 +515,7 @@ let ROLE='admin',ME=null,ROLES=['admin'],PERMS={},RO=false;
 const has=arr=>ROLES.some(r=>arr.includes(r));
 const isAdmin=()=>ROLES.includes('admin');
 // thanh cuộn tới link bản ghi: entity → mục
-const ENT_VIEW={wallet_tx:'wallet',cod_settlements:'wallet',pay_accounts:'wallet',orders:'orders',customers:'customers',vehicles:'fleet',equipment:'fleet',people:'hr',expenses:'expenses',advances:'expenses',attendance:'payroll',salary:'payroll',pay_items:'payroll',
+const ENT_VIEW={work_sites:'payroll',wallet_tx:'wallet',cod_settlements:'wallet',pay_accounts:'wallet',orders:'orders',customers:'customers',vehicles:'fleet',equipment:'fleet',people:'hr',expenses:'expenses',advances:'expenses',attendance:'payroll',salary:'payroll',pay_items:'payroll',
   cash:'accounting',receivables:'accounting',payables:'accounting',purchases:'purchases',contracts:'contracts',leases:'wh',warehouses:'wh',requests:'requests',policies:'policies',documents:'documents',files:'filesv'};
 const LOCK=['code','created_at','total','settled_amount','paid_amount','paid_on','size_bytes','entity_id','telegram_chat_id','trip_status'];
 const recLink=(name,id)=>location.origin+location.pathname+'#rec/'+name+'/'+id;
@@ -1330,9 +1342,11 @@ async function openAccess(p){
 async function viewPayroll(m){
   const canPay=has(['admin','ke_toan']);
   m.innerHTML=`<h2>Chấm công & lương</h2><p class="sub">Lương = lương cứng theo ngày công (chuẩn 26) + tăng ca (150% ngày thường, 200% ngày nghỉ, 300% lễ Tết theo Bộ luật Lao động) + lương chuyến + chuyên cần (đủ 26 công) + phụ cấp + khác − BHXH, BHYT, BHTN người lao động 10,5% (khi đã đến ngày đóng) − khấu trừ − ứng lương.</p>
-   <div class="subtabs" id="st"><button data-s="sum" class="on">Tổng hợp công</button><button data-s="att">Chấm công</button>${canPay?'<button data-s="pi">Thưởng / phạt</button><button data-s="sal">Bảng lương</button>':''}</div><div id="h"></div>`;
+   <div class="subtabs" id="st"><button data-s="sum" class="on">Tổng hợp công</button><button data-s="rev">Duyệt chấm công</button><button data-s="att">Chấm công</button><button data-s="site">Điểm chấm công</button>${canPay?'<button data-s="pi">Thưởng / phạt</button><button data-s="sal">Bảng lương</button>':''}</div><div id="h"></div>`;
   const sw=async n=>{m.querySelectorAll('#st button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));const h=$('#h');h.innerHTML='';
     if(n==='att')return renderList('attendance',h);
+    if(n==='rev')return attReview(h);
+    if(n==='site')return renderList('work_sites',h,{extraBtns:'<button class="btn" id="here">📍 Thêm điểm tại vị trí hiện tại</button>',bind:(host,load)=>{host.querySelector('#here').onclick=async()=>{toast('Đang lấy vị trí…');const c=await KCam.gps();if(!c)return toast('Không lấy được vị trí');openForm('work_sites',null,load,{lat:+c.latitude.toFixed(6),lng:+c.longitude.toFixed(6),radius_m:300})}}});
     if(n==='pi')return renderList('pay_items',h,{sumKey:'amount'});
     if(n==='sum'){
       h.innerHTML='<div class="bar" id="pp"></div><div id="sb"></div>';await ensureRef('people');
@@ -1441,6 +1455,101 @@ const VIEWS={
  },
 };
 
+// ===== KCam: chụp ảnh trực tiếp bằng camera (không chọn ảnh cũ), đóng dấu giờ máy chủ + GPS + tên =====
+const KCam={offset:0,synced:false,
+  async sync(){try{const t0=Date.now();const {data}=await sb.rpc('khg_now');const t1=Date.now();if(data){this.offset=new Date(data).getTime()-(t0+t1)/2;this.synced=true}}catch(e){}},
+  now(){return new Date(Date.now()+this.offset)},
+  fmt(d){const p=n=>String(n).padStart(2,'0');return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`},
+  gps(){return new Promise(r=>{if(!navigator.geolocation)return r(null);navigator.geolocation.getCurrentPosition(p=>r(p.coords),()=>r(null),{enableHighAccuracy:true,timeout:9000,maximumAge:30000})})},
+  css(){if(document.getElementById('kcam-css'))return;const st=document.createElement('style');st.id='kcam-css';st.textContent=`
+#kcam{position:fixed;inset:0;z-index:200;background:#000;display:flex;flex-direction:column;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+#kcam .top{padding:calc(10px + env(safe-area-inset-top)) 14px 8px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.6)}
+#kcam .top b{font-size:16px}#kcam .clk{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;font-size:18px;background:#C8102E;border-radius:8px;padding:4px 8px}
+#kcam .vw{position:relative;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#kcam video,#kcam img{max-width:100%;max-height:100%;object-fit:contain}
+#kcam .guide{position:absolute;left:8%;right:8%;top:22%;bottom:30%;border:3px dashed rgba(255,255,255,.75);border-radius:14px;pointer-events:none}
+#kcam .tip{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:14px;padding:0 16px;text-shadow:0 1px 3px #000}
+#kcam .bot{display:flex;gap:10px;padding:12px 14px calc(14px + env(safe-area-inset-bottom));background:rgba(0,0,0,.75)}
+#kcam .bot button{flex:1;border:0;border-radius:14px;padding:15px;font-size:16px;font-weight:800}
+#kcam .shot{background:#fff;color:#C8102E;flex:2!important}#kcam .sec{background:#2a2a2a;color:#fff}`;document.head.appendChild(st)},
+  // Trả về {blob, live, at (Date giờ máy chủ), coords} hoặc null nếu hủy
+  shoot({title='Chụp ảnh',hint='',name='',facing='environment'}={}){
+    this.css();
+    return new Promise(async res=>{
+      const box=document.createElement('div');box.id='kcam';document.body.appendChild(box);
+      let stream=null,coords=null,tick=null,fac=facing;
+      const gp=this.gps().then(c=>coords=c);
+      const close=v=>{clearInterval(tick);try{stream&&stream.getTracks().forEach(t=>t.stop())}catch(e){}box.remove();res(v)};
+      const header=`<div class="top"><b>${title}</b><span class="clk" id="kclk"></span></div>`;
+      const runClock=()=>{const u=()=>{const e=document.getElementById('kclk');if(e)e.textContent=this.fmt(this.now()).slice(-8)};u();tick=setInterval(u,500)};
+      const stamp=(src,w,h)=>{const c=document.createElement('canvas');const s=Math.min(1,1600/Math.max(w,h));c.width=Math.round(w*s);c.height=Math.round(h*s);const g=c.getContext('2d');g.drawImage(src,0,0,c.width,c.height);
+        const at=this.now();const fs=Math.max(16,Math.round(c.width/38));const lines=[`KHG · ${name} · ${title}`,`${this.fmt(at)} (giờ hệ thống)`,coords?`GPS ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)} ±${Math.round(coords.accuracy||0)}m`:'GPS: không lấy được vị trí'];
+        const bh=fs*1.45*lines.length+fs*.8;g.fillStyle='rgba(0,0,0,.62)';g.fillRect(0,c.height-bh,c.width,bh);g.fillStyle='#fff';g.font=`700 ${fs}px Arial`;
+        lines.forEach((l,i)=>g.fillText(l,fs*.6,c.height-bh+fs*1.3+i*fs*1.45));g.fillStyle='#C8102E';g.fillRect(0,c.height-bh,8,bh);
+        return new Promise(r=>c.toBlob(b=>r({blob:b,at}),'image/jpeg',.85))};
+      const review=async(blob,at,live)=>{box.innerHTML=header+`<div class="vw"><img id="kprev"></div><div class="bot"><button class="sec" id="kre">↺ Chụp lại</button><button class="shot" id="kok">✓ Dùng ảnh này</button></div>`;
+        runClock();document.getElementById('kprev').src=URL.createObjectURL(blob);
+        document.getElementById('kre').onclick=()=>{clearInterval(tick);live?start():fallback()};document.getElementById('kok').onclick=()=>close({blob,live,at,coords})};
+      const fallback=()=>{box.innerHTML=header+`<div class="vw" style="flex-direction:column;gap:14px;padding:20px;text-align:center"><div>Thiết bị không mở được camera trực tiếp trong trình duyệt.<br>Bấm nút dưới để chụp bằng camera máy (ảnh sẽ được đánh dấu chờ duyệt).</div>
+        <label class="shot" style="display:block;background:#fff;color:#C8102E;border-radius:14px;padding:15px;font-weight:800;width:100%">📷 Mở camera<input type="file" accept="image/*" capture="${fac}" id="kfile" style="display:none"></label></div><div class="bot"><button class="sec" id="kx">Hủy</button></div>`;
+        runClock();document.getElementById('kx').onclick=()=>close(null);
+        document.getElementById('kfile').onchange=async e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=async()=>{await gp;const r=await stamp(img,img.naturalWidth,img.naturalHeight);clearInterval(tick);review(r.blob,r.at,false)};img.src=URL.createObjectURL(f)}};
+      const start=async()=>{clearInterval(tick);try{stream&&stream.getTracks().forEach(t=>t.stop())}catch(e){}
+        box.innerHTML=header+`<div class="vw"><video id="kvid" playsinline autoplay muted></video><div class="guide"></div><div class="tip">${hint}</div></div><div class="bot"><button class="sec" id="kx">✕</button><button class="sec" id="kflip">🔄</button><button class="shot" id="kshot">📸 CHỤP</button></div>`;
+        runClock();document.getElementById('kx').onclick=()=>close(null);
+        try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:fac},width:{ideal:1920},height:{ideal:1080}},audio:false});const v=document.getElementById('kvid');v.srcObject=stream;await v.play().catch(()=>{});
+          document.getElementById('kflip').onclick=()=>{fac=fac==='environment'?'user':'environment';start()};
+          document.getElementById('kshot').onclick=async()=>{if(!v.videoWidth)return;await Promise.race([gp,new Promise(r=>setTimeout(r,2500))]);const r=await stamp(v,v.videoWidth,v.videoHeight);clearInterval(tick);try{stream.getTracks().forEach(t=>t.stop())}catch(e){}review(r.blob,r.at,true)};
+        }catch(e){fallback()}};
+      if(!this.synced)await this.sync();
+      if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)start();else fallback();
+    });
+  }
+};
+
+const addDaysA=(d,n)=>{const x=new Date(d+'T12:00:00+07:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+const vnHM=x=>new Date(x.getTime()+7*3600e3).toISOString().slice(11,16);
+// Chấm công có ảnh bảng đồng hồ (dùng trong Của tôi)
+async function punchFlow(kind,after,opt={}){
+  const shot=opt.shot||await KCam.shoot({title:kind==='in'?'VÀO CA':'RA CA',hint:'Đưa bảng đồng hồ KHG vào khung – thấy rõ NGÀY, GIỜ, GIÂY',name:ME.full_name});if(!shot)return;
+  const {data:sites}=await sb.from('khg_work_sites').select('id,name').eq('active',true).order('name');
+  modal(`<h3>${kind==='in'?'▶ Vào ca':'■ Ra ca'}</h3><div class="grid2"><img src="${URL.createObjectURL(shot.blob)}" style="width:100%;border-radius:12px">
+   <div><div class="form" style="grid-template-columns:1fr"><label>Ngày<input id="pd" type="date" value="${opt.date||today()}" max="${today()}" min="${addDaysA(today(),-7)}"></label><label>Giờ theo bảng đồng hồ<input id="pt" type="time" value="${vnHM(shot.at)}"></label>
+   <label>Điểm làm việc<select id="ps"><option value=""></option>${(sites||[]).map(x=>`<option value="${x.id}" ${localStorage.getItem('khg_site')===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label><label>Ghi chú / lý do<input id="pn"></label></div>
+   ${shot.live?'':'<p class="sub" style="color:var(--red)">Ảnh không chụp trực tiếp → chờ duyệt.</p>'}</div></div>
+   <div class="acts"><span class="sp"></span><button class="btn" id="pno">Hủy</button><button class="btn p" id="pok">Gửi chấm công</button></div>`);
+  $('#pno').onclick=closeModal;
+  $('#pok').onclick=async()=>{$('#pok').disabled=true;try{const date=$('#pd').value;const path=`person/${ME.id}/cham-cong/${date}_${kind}_${Date.now()}.jpg`;
+    const up=await sb.storage.from(BUCKET).upload(path,shot.blob,{contentType:'image/jpeg'});if(up.error)throw up.error;try{localStorage.setItem('khg_site',$('#ps').value)}catch(e){}
+    const {data,error}=await sb.rpc('khg_attendance_punch',{p_kind:kind,p_date:date,p_time:new Date(`${date}T${$('#pt').value}:00+07:00`).toISOString(),p_photo:path,p_live:shot.live,p_lat:shot.coords?.latitude??null,p_lng:shot.coords?.longitude??null,p_site:$('#ps').value||null,p_note:$('#pn').value.trim()||null,p_status:null});
+    if(error)throw error;closeModal();toast(data.approve_status==='tu_dong'?'✔ Đã chấm công':'Đã gửi – chờ duyệt');after&&after()}catch(e){toast(e.message);$('#pok').disabled=false}};
+}
+async function attReview(h){
+  await Promise.all(['people','work_sites'].map(ensureRef));
+  const st=STATE.attrev=STATE.attrev||{s:'cho_duyet',from:addDaysA(today(),-14),to:today(),p:''};
+  h.innerHTML=`<div class="bar"><select id="ar_s"><option value="cho_duyet">Chờ duyệt</option><option value="tu_dong">Hợp lệ tự động</option><option value="da_duyet">Đã duyệt</option><option value="tu_choi">Từ chối</option><option value="">Tất cả</option></select>
+   <select id="ar_p"><option value="">Mọi nhân sự</option>${Object.entries(REF.people||{}).map(([k,v])=>`<option value="${k}">${esc(v)}</option>`).join('')}</select><label>Từ <input type="date" id="ar_f" value="${st.from}"></label><label>đến <input type="date" id="ar_t" value="${st.to}"></label>
+   <span style="flex:1"></span><button class="btn" id="ar_all">Chọn tất cả</button><button class="btn p" id="ar_ok">✓ Duyệt đã chọn</button><button class="btn" id="ar_no" style="color:var(--red)">✕ Từ chối đã chọn</button></div><div id="ar_list"><div class="empty">Đang tải…</div></div>`;
+  $('#ar_s').value=st.s;$('#ar_p').value=st.p;
+  const FL={cham_bo_sung:'Chấm bổ sung',anh_khong_chup_truc_tiep:'Ảnh không chụp trực tiếp',khong_co_gps:'Không GPS',khong_anh_dong_ho:'Không ảnh đồng hồ'};
+  const flt=f=>FL[f]||f.replace(/^lech_(\d+)_phut$/,'Giờ nhập lệch $1 phút').replace(/^ngoai_diem_(\d+)m$/,'Cách điểm $1 m').replace(/^bao_(.*)$/,'Báo $1');
+  const load=async()=>{let q=sb.from('khg_attendance').select('*').gte('work_date',st.from).lte('work_date',st.to).order('work_date',{ascending:false}).limit(500);if(st.s)q=q.eq('approve_status',st.s);if(st.p)q=q.eq('person_id',st.p);
+    const {data,error}=await q;if(error){$('#ar_list').innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}
+    const rows=data||[];const urls={};await Promise.all(rows.flatMap(r=>[r.in_photo,r.out_photo].filter(Boolean)).map(async p=>{urls[p]=await signed(p)}));
+    const T=x=>x?new Date(x).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'—';const S=x=>x?new Date(x).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'';
+    $('#ar_list').innerHTML=rows.length?`<div class="tw"><table><thead><tr><th class="ck"></th><th>Ngày</th><th>Nhân sự</th><th>Ảnh vào</th><th>Vào (nhập / gửi lúc)</th><th>Ảnh ra</th><th>Ra (nhập / gửi lúc)</th><th>Trạng thái</th><th class="n">TC đề xuất</th><th>Cảnh báo</th><th>Duyệt</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="ck"><input type="checkbox" data-r="${r.id}"></td><td><b>${fmtD(r.work_date)}</b></td><td>${esc(REF.people[r.person_id]||'')}<div class="sub">${esc(REF.work_sites?.[r.site_id]||'')}</div></td>
+      <td>${r.in_photo?`<a href="${urls[r.in_photo]}" target="_blank" rel="noopener"><img src="${urls[r.in_photo]}" style="width:72px;height:72px;object-fit:cover;border-radius:8px"></a>`:'—'}</td><td><b>${T(r.check_in)}</b><div class="sub">gửi ${S(r.in_server_at)}${r.in_dist_m!=null?' · '+r.in_dist_m+'m':''}</div></td>
+      <td>${r.out_photo?`<a href="${urls[r.out_photo]}" target="_blank" rel="noopener"><img src="${urls[r.out_photo]}" style="width:72px;height:72px;object-fit:cover;border-radius:8px"></a>`:'—'}</td><td><b>${T(r.check_out)}</b><div class="sub">gửi ${S(r.out_server_at)}${r.out_dist_m!=null?' · '+r.out_dist_m+'m':''}</div></td>
+      <td>${pill('att_status',r.status)}</td><td class="n">${r.ot_proposed??''}</td><td>${(r.flags||[]).map(f=>`<span class="pill amber" style="margin:1px">${esc(flt(f))}</span>`).join(' ')}${r.note?`<div class="sub">${esc(r.note)}</div>`:''}</td><td>${pill('att_appr',r.approve_status||'da_duyet')}${r.reject_reason?`<div class="sub">${esc(r.reject_reason)}</div>`:''}</td></tr>`).join('')}</tbody></table></div>
+      <p class="sub">Đối chiếu giờ trên ảnh bảng đồng hồ với giờ nhập. “Gửi lúc” là giờ máy chủ nhận dữ liệu. Duyệt sẽ áp dụng tăng ca đề xuất (quá 9 tiếng/ngày, làm tròn 0,5 giờ).</p>`:'<div class="empty">Không có dòng nào.</div>'};
+  const sel=()=>$$('#ar_list [data-r]').filter(c=>c.checked).map(c=>c.dataset.r);
+  const bind=(id,k)=>$('#'+id).onchange=e=>{st[k]=e.target.value;load()};bind('ar_s','s');bind('ar_p','p');bind('ar_f','from');bind('ar_t','to');
+  $('#ar_all').onclick=()=>$$('#ar_list [data-r]').forEach(c=>c.checked=true);
+  $('#ar_ok').onclick=async()=>{const ids=sel();if(!ids.length)return toast('Chọn dòng cần duyệt');const {data,error}=await sb.rpc('khg_attendance_review',{p_ids:ids,p_ok:true,p_reason:null,p_ot:null});toast(error?error.message:'Đã duyệt '+data);load()};
+  $('#ar_no').onclick=async()=>{const ids=sel();if(!ids.length)return toast('Chọn dòng cần từ chối');const r=prompt('Lý do từ chối:');if(!r)return;const {data,error}=await sb.rpc('khg_attendance_review',{p_ids:ids,p_ok:false,p_reason:r,p_ot:null});toast(error?error.message:'Đã từ chối '+data);load()};
+  load();
+}
+
 // ===================== VÍ TÀI XẾ & COD =====================
 const vietqr=(a,amt,info)=>a.qr_path&&!a.bank_bin?null:`https://img.vietqr.io/image/${a.bank_bin}-${encodeURIComponent(a.account_no)}-compact2.png?${amt?'amount='+Math.round(amt)+'&':''}addInfo=${encodeURIComponent(info||'')}&accountName=${encodeURIComponent(a.account_name||'')}`;
 async function qrImg(a,amt,info){if(a.bank_bin&&a.account_no)return vietqr(a,amt,info);if(a.qr_path)return await signed(a.qr_path);return ''}
@@ -1548,7 +1657,8 @@ VIEWS.me=async m=>{
   const T=x=>x?new Date(x).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'—';
   m.innerHTML=`<h2>Của tôi</h2><p class="sub">${esc(ME.full_name||'')} · ${esc(ROLES.map(r=>O.role[r]||r).join(', '))}. Chấm công, xem công, lương, thưởng/phạt và xin ứng lương của riêng bạn.</p>
    <div class="grid2"><div class="card"><h3>Hôm nay ${fmtD(d)} ${cur0?pill('att_status',cur0.status):'<span class="pill">Chưa chấm</span>'}</h3><p class="sub">Vào ca <b>${T(cur0?.check_in)}</b> · Ra ca <b>${T(cur0?.check_out)}</b></p>
-     <div class="mecard"><button class="btn p" data-a="vao_ca" ${cur0?.check_in?'disabled':''}>▶ Vào ca</button><button class="btn" data-a="ra_ca" ${!cur0?.check_in||cur0?.check_out?'disabled':''}>■ Ra ca</button><button class="btn" data-a="nua_ngay">½ Nửa ngày</button><button class="btn" data-a="nghi_phep">Xin nghỉ phép</button></div></div>
+     <div class="mecard"><button class="btn p" data-pk="in" ${cur0?.check_in?'disabled':''}>▶ Vào ca (chụp bảng đồng hồ)</button><button class="btn" data-pk="out" ${!cur0?.check_in||cur0?.check_out?'disabled':''}>■ Ra ca</button><button class="btn" data-a="nua_ngay">½ Nửa ngày</button><button class="btn" data-a="nghi_phep">Xin nghỉ phép</button><button class="btn" data-pk="add">＋ Chấm bổ sung ngày khác</button></div>
+     ${cur0?`<p class="sub" style="margin-top:8px">Trạng thái duyệt: ${pill('att_appr',cur0.approve_status||'da_duyet')}</p>`:''}</div>
     <div class="card"><h3>Tháng này</h3><div class="kpis"><div class="kpi hot"><div class="l">Ngày công</div><div class="v">${wd}/26</div><div class="h">${wd>=26?'Đạt chuyên cần':'Còn '+(26-wd)+' công để đạt chuyên cần'}</div></div><div class="kpi"><div class="l">Giờ tăng ca</div><div class="v">${ot}</div></div></div></div></div>
    <div class="grid2" style="margin-top:14px"><div class="card"><h3>Bảng lương của tôi</h3>${(sal||[]).map(r=>`<div class="list"><div class="it"><b>${r.period_type==='tuan'?'Tuần':'Tháng'} ${fmtD(r.period_start)} – ${fmtD(r.period_end)}</b> ${pill('pay_status',r.status)}<br>Công ${r.work_days}/${r.std_days} · Lương công ${fmtM(r.base_pay)} · Tăng ca ${fmtM(r.ot_pay)} · Chuyến ${fmtM(r.trip_pay)} · Chuyên cần ${fmtM(r.attendance_bonus)} · Phụ cấp ${fmtM(r.allowance)}${Number(r.other_income)?' · Khác '+fmtM(r.other_income):''} · Trừ BH ${fmtM(r.insurance_employee)} · Ứng ${fmtM(r.advance)}${Number(r.deduction)?' · Khấu trừ '+fmtM(r.deduction):''}<br><b style="color:var(--red)">Thực lĩnh ${fmtM(r.total)}</b></div></div>`).join('')||'<div class="empty">Chưa có bảng lương.</div>'}</div>
     <div class="card"><h3>Thưởng / phạt / phụ cấp</h3><div class="list">${(pi||[]).map(r=>`<div class="it">${fmtD(r.item_date)} · ${pill('pay_kind',r.kind)} <b>${fmtM(r.amount)}</b> ${esc(r.note||'')}</div>`).join('')||'<div class="empty">Chưa có.</div>'}</div>
@@ -1557,9 +1667,13 @@ VIEWS.me=async m=>{
    <div class="card" style="margin-top:14px"><h3>Chi tiết chấm công tháng</h3><div class="list">${(att||[]).map(a=>`<div class="it">${fmtD(a.work_date)} · ${pill('att_status',a.status)} ${a.day_type&&a.day_type!=='thuong'?pill('day_type',a.day_type):''} · ${T(a.check_in)}–${T(a.check_out)}${a.ot_hours?' · TC '+a.ot_hours+'h':''}${a.note?' · '+esc(a.note):''}</div>`).join('')||'<div class="empty">Chưa có.</div>'}</div></div>
    <div class="card" style="margin-top:14px"><h3>Đổi mật khẩu</h3><div class="form"><label>Mật khẩu mới<input id="npw" type="password" minlength="6" autocomplete="new-password"></label></div><div class="acts" style="justify-content:flex-start"><button class="btn" id="npws">Đổi mật khẩu</button></div></div>`;
   const where=()=>new Promise(r=>{if(!navigator.geolocation)return r(null);navigator.geolocation.getCurrentPosition(p=>r(p.coords),()=>r(null),{timeout:6000,maximumAge:120000})});
-  $$('[data-a]').forEach(b=>b.onclick=async()=>{const a=b.dataset.a;let note=null;if(a==='nghi_phep'){note=prompt('Lý do nghỉ phép:');if(note===null)return}b.disabled=true;
-    const c=['vao_ca','ra_ca'].includes(a)?await where():null;const {error}=await sb.rpc('khg_attendance_self',{p_action:a,p_lat:c?.latitude??null,p_lng:c?.longitude??null,p_note:note});
-    toast(error?error.message:'Đã ghi nhận');VIEWS.me(m)});
+  $$('[data-pk]').forEach(b=>b.onclick=async()=>{const k=b.dataset.pk;
+    if(k==='add'){const date=addDaysA(today(),-1);const kind=confirm('OK = giờ VÀO ca, Hủy = giờ RA ca')?'in':'out';
+      const shot=await KCam.shoot({title:'CHẤM BỔ SUNG',hint:'Chụp bảng đồng hồ / bằng chứng',name:ME.full_name});if(!shot)return;return punchFlow(kind,()=>VIEWS.me(m),{shot,date})}
+    punchFlow(k,()=>VIEWS.me(m))});
+  $$('[data-a]').forEach(b=>b.onclick=async()=>{const a=b.dataset.a;const note=prompt(a==='nghi_phep'?'Lý do nghỉ phép:':'Lý do nghỉ nửa ngày:');if(!note)return;b.disabled=true;
+    const {error}=await sb.rpc('khg_attendance_punch',{p_kind:'day',p_date:d,p_time:null,p_photo:null,p_live:true,p_lat:null,p_lng:null,p_site:null,p_note:note,p_status:a});
+    toast(error?error.message:'Đã gửi – chờ duyệt');VIEWS.me(m)});
   $('#msend').onclick=async()=>{const amt=Number($('#ma').value);if(!amt)return toast('Nhập số tiền');const {error}=await sb.from('khg_advances').insert({person_id:ME.id,kind:$('#mk').value,amount:amt,purpose:$('#mp').value||null,status:'cho_duyet',source:'web',advanced_on:d});toast(error?error.message:'Đã gửi, chờ kế toán duyệt');if(!error)VIEWS.me(m)};
   $('#npws').onclick=async()=>{const v=$('#npw').value;if(v.length<6)return toast('Tối thiểu 6 ký tự');const {error}=await sb.auth.updateUser({password:v,data:{must_change:false}});toast(error?error.message:'Đã đổi mật khẩu')};
 };
@@ -1649,6 +1763,61 @@ $('#otp-ok').onclick=async()=>{const r=await otpCall({action:'otp_verify',login:
   const {data,error}=await sb.auth.verifyOtp({type:'magiclink',token_hash:r.token_hash});if(error){$('#login-error').textContent=error.message;return}start(data.session)};
 $('#logout').onclick=async()=>{await sb.auth.signOut().catch(()=>{});location.hash='';location.reload()};
 (async()=>{const {data}=await sb.auth.getSession();if(data&&data.session)start(data.session);else $('#login').classList.remove('hidden')})();
+})();
+</script>
+<script>
+// ===== KInstall: cài app lên màn hình chính (Android, iPhone, máy tính) =====
+(function(){
+  const ua=navigator.userAgent||'';
+  const isIOS=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const isAndroid=/Android/i.test(ua);
+  const inApp=/Zalo|FBAN|FBAV|FB_IAB|Messenger|Instagram|Line\/|TikTok|musical_ly|ZaloTheme/i.test(ua);
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  let deferred=null;
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/khg-sw.js',{scope:'/'}).catch(()=>{}));
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;show()});
+  window.addEventListener('appinstalled',()=>{try{localStorage.setItem('khg_installed','1')}catch(e){}hide()});
+  const css=`#kins{position:fixed;left:10px;right:10px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:120;background:#111827;color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto}
+#kins img{width:40px;height:40px;border-radius:10px}#kins b{display:block;font-size:15px}#kins .x{background:none;border:0;color:#9CA3AF;font-size:20px;padding:4px}
+#kins .go{background:#C8102E;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;white-space:nowrap}
+#kinsg{position:fixed;inset:0;z-index:130;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center}
+#kinsg .bx{background:#fff;color:#111;width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+#kinsg ol{padding-left:20px;margin:8px 0}#kinsg li{margin:8px 0}#kinsg .k{display:inline-block;border:1px solid #ddd;border-radius:6px;padding:0 6px;background:#f6f6f6}
+#kinsg button{width:100%;border:0;border-radius:12px;padding:13px;font-weight:800;margin-top:8px}#kinsg .p{background:#C8102E;color:#fff}#kinsg .o{background:#f1f1f1}`;
+  const icon=(document.querySelector('link[rel=apple-touch-icon]')||{}).href||'';
+  const name=(document.querySelector('meta[name=apple-mobile-web-app-title]')||{}).content||'KHG';
+  function ensureCss(){if(!document.getElementById('kins-css')){const s=document.createElement('style');s.id='kins-css';s.textContent=css;document.head.appendChild(s)}}
+  function hide(){document.getElementById('kins')?.remove()}
+  function show(force){
+    if(standalone)return;
+    try{if(!force&&(localStorage.getItem('khg_ins_hide')>Date.now()||localStorage.getItem('khg_installed')))return}catch(e){}
+    ensureCss();
+    hide();const d=document.createElement('div');d.id='kins';
+    d.innerHTML=`${icon?`<img src="${icon}" alt="">`:''}<div style="flex:1"><b>Cài “${name}” lên màn hình chính</b>${inApp?'Đang mở trong Zalo/Facebook – mở bằng trình duyệt để cài':'Mở nhanh như app, nhận chuông báo'}</div><button class="go">Cài app</button><button class="x" aria-label="Đóng">✕</button>`;
+    document.body.appendChild(d);
+    d.querySelector('.x').onclick=()=>{try{localStorage.setItem('khg_ins_hide',Date.now()+3*864e5)}catch(e){}hide()};
+    d.querySelector('.go').onclick=()=>KInstall.open();
+  }
+  function guide(html){ensureCss();document.getElementById('kinsg')?.remove();const g=document.createElement('div');g.id='kinsg';g.innerHTML=`<div class="bx">${html}<button class="o" id="kgc">Đóng</button></div>`;
+    document.body.appendChild(g);g.onclick=e=>{if(e.target.id==='kinsg')g.remove()};document.getElementById('kgc').onclick=()=>g.remove()}
+  window.KInstall={
+    standalone,isIOS,isAndroid,inApp,show:()=>show(true),
+    async open(){
+      const url=location.href.split('#')[0];
+      if(inApp){
+        const intent=`intent://${location.host}${location.pathname}${location.search}#Intent;scheme=https;package=com.android.chrome;end`;
+        guide(`<h3 style="margin:0 0 6px">Mở bằng trình duyệt để cài app</h3><p>Zalo / Facebook không cho cài app. Hãy mở link này bằng ${isIOS?'<b>Safari</b>':'<b>Chrome</b>'}:</p>
+          <ol><li>Bấm nút <span class="k">⋯</span> hoặc <span class="k">⋮</span> ở góc trên.</li><li>Chọn <b>Mở bằng trình duyệt</b> / <b>Open in ${isIOS?'Safari':'Chrome'}</b>.</li><li>Trong trình duyệt, bấm lại <b>Cài app</b>.</li></ol>
+          ${isAndroid?`<a href="${intent}"><button class="p">Mở bằng Chrome</button></a>`:''}<button class="o" id="kcp">📋 Sao chép link</button>`);
+        document.getElementById('kcp').onclick=()=>{navigator.clipboard?.writeText(url);document.getElementById('kcp').textContent='Đã sao chép – dán vào '+(isIOS?'Safari':'Chrome')};return}
+      if(deferred){deferred.prompt();const r=await deferred.userChoice;deferred=null;if(r.outcome==='accepted')hide();return}
+      if(isIOS){guide(`<h3 style="margin:0 0 6px">Cài lên iPhone / iPad</h3><ol><li>Mở trang này bằng <b>Safari</b>.</li><li>Bấm nút <b>Chia sẻ</b> <span class="k">⬆︎</span> ở thanh dưới (hoặc trên).</li><li>Kéo xuống, chọn <b>Thêm vào MH chính</b> (Add to Home Screen).</li><li>Bấm <b>Thêm</b>. Biểu tượng ${name} xuất hiện trên màn hình chính.</li></ol><p style="font-size:13px;color:#666">Mở app từ biểu tượng để nhận thông báo (iOS 16.4 trở lên).</p>`);return}
+      guide(`<h3 style="margin:0 0 6px">Cài lên ${isAndroid?'điện thoại Android':'máy tính'}</h3><ol>${isAndroid?'<li>Mở bằng <b>Chrome</b>.</li><li>Bấm <span class="k">⋮</span> góc phải trên.</li><li>Chọn <b>Cài đặt ứng dụng</b> / <b>Thêm vào màn hình chính</b>.</li><li>Bấm <b>Cài đặt</b>.</li>':'<li>Mở bằng Chrome hoặc Edge.</li><li>Bấm biểu tượng <b>Cài đặt</b> ⊕ ở cuối thanh địa chỉ.</li><li>Bấm <b>Cài đặt</b> – app mở thành cửa sổ riêng, ghim vào thanh tác vụ.</li>'}</ol>`);
+    }
+  };
+  // hiện gợi ý sau 4 giây trên điện thoại
+  if(/[?&]install=1/.test(location.search)&&!standalone)setTimeout(()=>KInstall.open(),900);
+  else if(!standalone&&(isIOS||isAndroid||inApp))setTimeout(()=>show(false),4000);
 })();
 </script>
 </body></html>

@@ -1,13 +1,14 @@
 <!doctype html><html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Đặt xe tải KHG</title>
-<meta name="description" content="Đặt xe tải chở hàng Kim Hoàng Gia: 1 điểm lấy nhiều điểm giao, báo giá tạm tính tức thì, theo dõi tài xế theo thời gian thực.">
 <meta name="theme-color" content="#C8102E">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Đặt xe KHG">
-<link rel="manifest" href="dat-xe.webmanifest">
-<link rel="icon" href="images/logo.jpg" type="image/jpeg">
-<link rel="apple-touch-icon" href="images/logo.jpg">
+<link rel="manifest" href="/dat-xe.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/datxe-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/datxe-180.png">
+<meta name="description" content="Đặt xe tải chở hàng Kim Hoàng Gia: 1 điểm lấy nhiều điểm giao, báo giá tạm tính tức thì, theo dõi tài xế theo thời gian thực.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -116,7 +117,6 @@ textarea.i{min-height:70px;resize:vertical}
 </div></header>
 
 <main>
-  <div class="install" id="install"><span>📲 Cài <b>Đặt xe KHG</b> lên màn hình để đặt nhanh lần sau.</span><button class="btn p" style="min-height:36px;padding:6px 12px;margin-left:auto" id="btnInstall">Cài app</button></div>
 
   <!-- ĐẶT XE -->
   <section id="v-book">
@@ -482,7 +482,61 @@ $('#trips').oninput=calc; $('#vat').onchange=calc;
 $('#fBook').addEventListener('submit',submit);
 prefill(); calc();
 const t0=new URLSearchParams(location.search).get('t'),ds0=new URLSearchParams(location.search).get('ds'); if(ds0){settlement(ds0)}else if(t0){go('track');track(t0)}else go('book');
-let deferred=null; window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('#install').classList.add('show')});
-$('#btnInstall').onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('#install').classList.remove('show')};
+
+</script>
+<script>
+// ===== KInstall: cài app lên màn hình chính (Android, iPhone, máy tính) =====
+(function(){
+  const ua=navigator.userAgent||'';
+  const isIOS=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const isAndroid=/Android/i.test(ua);
+  const inApp=/Zalo|FBAN|FBAV|FB_IAB|Messenger|Instagram|Line\/|TikTok|musical_ly|ZaloTheme/i.test(ua);
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  let deferred=null;
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/khg-sw.js',{scope:'/'}).catch(()=>{}));
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;show()});
+  window.addEventListener('appinstalled',()=>{try{localStorage.setItem('khg_installed','1')}catch(e){}hide()});
+  const css=`#kins{position:fixed;left:10px;right:10px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:120;background:#111827;color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto}
+#kins img{width:40px;height:40px;border-radius:10px}#kins b{display:block;font-size:15px}#kins .x{background:none;border:0;color:#9CA3AF;font-size:20px;padding:4px}
+#kins .go{background:#C8102E;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;white-space:nowrap}
+#kinsg{position:fixed;inset:0;z-index:130;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center}
+#kinsg .bx{background:#fff;color:#111;width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+#kinsg ol{padding-left:20px;margin:8px 0}#kinsg li{margin:8px 0}#kinsg .k{display:inline-block;border:1px solid #ddd;border-radius:6px;padding:0 6px;background:#f6f6f6}
+#kinsg button{width:100%;border:0;border-radius:12px;padding:13px;font-weight:800;margin-top:8px}#kinsg .p{background:#C8102E;color:#fff}#kinsg .o{background:#f1f1f1}`;
+  const icon=(document.querySelector('link[rel=apple-touch-icon]')||{}).href||'';
+  const name=(document.querySelector('meta[name=apple-mobile-web-app-title]')||{}).content||'KHG';
+  function ensureCss(){if(!document.getElementById('kins-css')){const s=document.createElement('style');s.id='kins-css';s.textContent=css;document.head.appendChild(s)}}
+  function hide(){document.getElementById('kins')?.remove()}
+  function show(force){
+    if(standalone)return;
+    try{if(!force&&(localStorage.getItem('khg_ins_hide')>Date.now()||localStorage.getItem('khg_installed')))return}catch(e){}
+    ensureCss();
+    hide();const d=document.createElement('div');d.id='kins';
+    d.innerHTML=`${icon?`<img src="${icon}" alt="">`:''}<div style="flex:1"><b>Cài “${name}” lên màn hình chính</b>${inApp?'Đang mở trong Zalo/Facebook – mở bằng trình duyệt để cài':'Mở nhanh như app, nhận chuông báo'}</div><button class="go">Cài app</button><button class="x" aria-label="Đóng">✕</button>`;
+    document.body.appendChild(d);
+    d.querySelector('.x').onclick=()=>{try{localStorage.setItem('khg_ins_hide',Date.now()+3*864e5)}catch(e){}hide()};
+    d.querySelector('.go').onclick=()=>KInstall.open();
+  }
+  function guide(html){ensureCss();document.getElementById('kinsg')?.remove();const g=document.createElement('div');g.id='kinsg';g.innerHTML=`<div class="bx">${html}<button class="o" id="kgc">Đóng</button></div>`;
+    document.body.appendChild(g);g.onclick=e=>{if(e.target.id==='kinsg')g.remove()};document.getElementById('kgc').onclick=()=>g.remove()}
+  window.KInstall={
+    standalone,isIOS,isAndroid,inApp,show:()=>show(true),
+    async open(){
+      const url=location.href.split('#')[0];
+      if(inApp){
+        const intent=`intent://${location.host}${location.pathname}${location.search}#Intent;scheme=https;package=com.android.chrome;end`;
+        guide(`<h3 style="margin:0 0 6px">Mở bằng trình duyệt để cài app</h3><p>Zalo / Facebook không cho cài app. Hãy mở link này bằng ${isIOS?'<b>Safari</b>':'<b>Chrome</b>'}:</p>
+          <ol><li>Bấm nút <span class="k">⋯</span> hoặc <span class="k">⋮</span> ở góc trên.</li><li>Chọn <b>Mở bằng trình duyệt</b> / <b>Open in ${isIOS?'Safari':'Chrome'}</b>.</li><li>Trong trình duyệt, bấm lại <b>Cài app</b>.</li></ol>
+          ${isAndroid?`<a href="${intent}"><button class="p">Mở bằng Chrome</button></a>`:''}<button class="o" id="kcp">📋 Sao chép link</button>`);
+        document.getElementById('kcp').onclick=()=>{navigator.clipboard?.writeText(url);document.getElementById('kcp').textContent='Đã sao chép – dán vào '+(isIOS?'Safari':'Chrome')};return}
+      if(deferred){deferred.prompt();const r=await deferred.userChoice;deferred=null;if(r.outcome==='accepted')hide();return}
+      if(isIOS){guide(`<h3 style="margin:0 0 6px">Cài lên iPhone / iPad</h3><ol><li>Mở trang này bằng <b>Safari</b>.</li><li>Bấm nút <b>Chia sẻ</b> <span class="k">⬆︎</span> ở thanh dưới (hoặc trên).</li><li>Kéo xuống, chọn <b>Thêm vào MH chính</b> (Add to Home Screen).</li><li>Bấm <b>Thêm</b>. Biểu tượng ${name} xuất hiện trên màn hình chính.</li></ol><p style="font-size:13px;color:#666">Mở app từ biểu tượng để nhận thông báo (iOS 16.4 trở lên).</p>`);return}
+      guide(`<h3 style="margin:0 0 6px">Cài lên ${isAndroid?'điện thoại Android':'máy tính'}</h3><ol>${isAndroid?'<li>Mở bằng <b>Chrome</b>.</li><li>Bấm <span class="k">⋮</span> góc phải trên.</li><li>Chọn <b>Cài đặt ứng dụng</b> / <b>Thêm vào màn hình chính</b>.</li><li>Bấm <b>Cài đặt</b>.</li>':'<li>Mở bằng Chrome hoặc Edge.</li><li>Bấm biểu tượng <b>Cài đặt</b> ⊕ ở cuối thanh địa chỉ.</li><li>Bấm <b>Cài đặt</b> – app mở thành cửa sổ riêng, ghim vào thanh tác vụ.</li>'}</ol>`);
+    }
+  };
+  // hiện gợi ý sau 4 giây trên điện thoại
+  if(/[?&]install=1/.test(location.search)&&!standalone)setTimeout(()=>KInstall.open(),900);
+  else if(!standalone&&(isIOS||isAndroid||inApp))setTimeout(()=>show(false),4000);
+})();
 </script>
 </body></html>
