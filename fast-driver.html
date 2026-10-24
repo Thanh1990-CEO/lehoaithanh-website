@@ -1,0 +1,394 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fast Driver – Tìm tài xế ở đây</title>
+<meta name="theme-color" content="#0E7C66">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fast Driver">
+<link rel="manifest" href="/fast-driver.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/fastdriver-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/fastdriver-180.png">
+<meta name="description" content="Fast Driver – Tìm tài xế ở đây. Tài xế đăng ký, nộp hồ sơ, tập huấn và nhận việc lái thuê theo chuyến, ngày, ca, tuyến cố định, tuần, tháng cho mọi loại xe đúng hạng bằng lái. Doanh nghiệp thuê tài xế nhanh qua KIM HOÀNG GIA.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--red:#C8102E;--ink:#141414;--ink2:#3A3A3A;--muted:#6B6B6B;--bg:#F4F4F2;--card:#fff;--line:#E4E1DE;--green:#1E7A4C;--amber:#B5651D;--blue:#1C5FA8;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--acc)}
+.hidden{display:none!important}
+header{background:var(--ink);color:#fff;position:sticky;top:0;z-index:50}
+.hd{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 16px}
+.hd img{width:38px;height:38px;border-radius:10px;flex:none}
+.hd .nm{line-height:1.15;min-width:0}.hd .nm b{display:block;font-size:15px}.hd .nm span{font-size:12px;color:#C9C9C9;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+.hd .sp{flex:1}
+.hb{background:#2A2A2A;color:#fff;border:0;border-radius:999px;padding:8px 12px;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.hb.a{background:var(--acc)}
+.tabs{display:none}
+nav.bot{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:60;padding-bottom:env(safe-area-inset-bottom)}
+nav.bot button{flex:1;background:none;border:0;padding:8px 2px 9px;font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:600;position:relative;cursor:pointer}
+nav.bot button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.bot button.on{color:var(--acc)}
+nav.bot .dot{position:absolute;top:4px;left:calc(50% + 6px);background:var(--red);color:#fff;border-radius:999px;font-size:10px;min-width:17px;height:17px;display:grid;place-items:center;padding:0 4px}
+@media(min-width:900px){body{padding-bottom:24px}nav.bot{position:sticky;top:58px;bottom:auto;max-width:1100px;margin:0 auto;border:1px solid var(--line);border-radius:0 0 14px 14px}nav.bot button{flex-direction:row;justify-content:center;font-size:13.5px;padding:11px 6px}}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:16.5px}
+.card h3{margin:0 0 8px;font-size:15px}
+h1.pg{font-size:20px;margin:2px 0 12px}
+label.f{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);margin:10px 0 4px}
+.i{width:100%;border:1px solid var(--line);background:#FBFAF9;border-radius:10px;padding:10px 12px;outline:none;min-height:44px}
+.i:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px var(--soft)}
+textarea.i{min-height:70px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.row.s1{grid-template-columns:1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:12px;padding:11px 15px;font-weight:700;cursor:pointer;min-height:44px;text-decoration:none;font-size:14.5px}
+.btn.p{background:var(--acc);color:#fff}.btn.p:disabled{opacity:.55;cursor:not-allowed}
+.btn.g{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn.r{background:#FDECEC;color:#9B1C1C}
+.btn.k{background:var(--green);color:#fff}
+.btn.s{min-height:36px;padding:7px 11px;font-size:13px;border-radius:10px}
+.btn.w{width:100%}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.seg{display:flex;background:#ECE9E6;border-radius:10px;padding:3px;gap:3px;margin-bottom:12px;overflow-x:auto}
+.seg button{flex:1;border:0;background:none;border-radius:8px;padding:8px 10px;font-weight:600;cursor:pointer;color:var(--ink2);white-space:nowrap}
+.seg button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips label{display:inline-flex}.chips input{display:none}
+.chips span{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer;user-select:none}
+.chips input:checked+span{border-color:var(--acc);background:var(--soft);color:var(--acc);font-weight:700}
+.grp{font-size:12px;font-weight:700;color:var(--muted);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.3px}
+.kp{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:700px){.kp{grid-template-columns:repeat(4,1fr)}}
+.kp div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.kp small{display:block;color:var(--muted);font-size:12px}.kp b{font-size:19px;display:block;margin-top:2px}.kp em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.kp .hl{background:var(--soft);border-color:transparent}.kp .hl b{color:var(--acc)}
+.list{display:grid;gap:10px}
+@media(min-width:900px){.list.two{grid-template-columns:1fr 1fr}}
+.it{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+.it .t{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.it .t b{font-size:15px}
+.it .m{font-size:13px;color:var(--ink2);margin-top:4px}
+.it .m div{margin-top:2px}
+.it .pr{font-size:18px;font-weight:800;color:var(--acc);white-space:nowrap}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;background:#EFEFEF;color:#555;white-space:nowrap}
+.pill.green{background:#E5F4EC;color:var(--green)}.pill.amber{background:#FBEFE3;color:var(--amber)}.pill.red{background:#FDECEC;color:#B42318}.pill.blue{background:#E6EEF8;color:var(--blue)}
+.empty{text-align:center;color:var(--muted);padding:26px 10px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.5}
+.warn{background:#FFF7E8;border:1px solid #F3D9A8;border-radius:12px;padding:12px;font-size:13.5px;margin-bottom:14px}
+.err{background:#FDECEC;color:#9B1C1C;border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;z-index:200;max-width:92vw;text-align:center}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150;display:flex;align-items:flex-end;justify-content:center}
+.sheet .bx{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+@media(min-width:700px){.sheet{align-items:center}.sheet .bx{border-radius:18px}}
+.sheet h3{margin:0 0 8px;font-size:17px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td{padding:7px 6px;border-bottom:1px solid #EFECE9;text-align:left}table.t .n{text-align:right;white-space:nowrap}
+.tw{overflow-x:auto}
+.bars{display:flex;align-items:flex-end;gap:3px;height:90px;margin-top:8px}
+.bars i{flex:1;background:var(--acc);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:8px}
+.files a{display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;text-decoration:none;color:var(--ink2);font-size:11px;background:#FAFAFA}
+.files img{width:100%;height:76px;object-fit:cover;display:block}.files span{display:block;padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.files .x{height:76px;display:grid;place-items:center;font-weight:800;color:var(--muted)}
+.doc{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fff}
+.doc .ic{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;flex:none}
+.doc .ic.ok{background:#E5F4EC;color:var(--green)}.doc .ic.no{background:#F1EFEE;color:var(--muted)}
+.doc div{flex:1;min-width:0}.doc small{display:block;color:var(--muted);font-size:12px}
+.steps{display:flex;gap:4px;margin:8px 0 4px}.steps i{flex:1;height:6px;border-radius:3px;background:#E4E0DD}.steps i.on{background:var(--acc)}
+.stl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);gap:4px}.stl span{flex:1;text-align:center}
+.auth{max-width:460px;margin:0 auto}
+.hp{position:absolute;left:-5000px;width:1px;height:1px;opacity:0}
+.foot{max-width:1100px;margin:6px auto 0;padding:0 16px 22px;color:var(--muted);font-size:12px;text-align:center}
+#nl-badge-frame{bottom:calc(70px + env(safe-area-inset-bottom))!important}
+
+:root{--acc:#0E7C66;--soft:#E3F3EE}
+.hero{background:linear-gradient(130deg,#06352B,#0E7C66 70%,#14A085);color:#fff;border-radius:18px;padding:22px 18px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero h1{margin:0;font-size:26px;line-height:1.15;letter-spacing:-.3px}.hero h1 span{display:block;font-size:15px;font-weight:600;color:#BDEBDD;letter-spacing:0;margin-top:6px}
+.hero p{margin:10px 0 0;color:#D8F2EA;font-size:14px}
+.cta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.cta button{border:0;border-radius:14px;padding:14px 12px;font-weight:800;font-size:15px;cursor:pointer;text-align:left;line-height:1.25}
+.cta button small{display:block;font-weight:500;font-size:12px;opacity:.85;margin-top:3px}
+.cta .a{background:#fff;color:#06352B}.cta .b{background:#FFC93C;color:#3A2A00}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:700px){.modes{grid-template-columns:repeat(6,1fr)}}
+.modes div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;font-size:12.5px}.modes b{display:block;font-size:14px;color:var(--acc)}
+.how{counter-reset:s;display:grid;gap:8px}.how div{position:relative;padding-left:40px;font-size:14px}.how div:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:800}
+@media(min-width:900px){.wrap2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}}
+.jb{border-left:4px solid var(--acc)}.jb.no{border-left-color:#C9C4C0;opacity:.85}
+</style></head><body>
+<header><div class="hd"><img src="/icons/fastdriver-192.png" alt=""><div class="nm"><b>Fast Driver</b><span id="hName">Tìm tài xế ở đây · KIM HOÀNG GIA</span></div><div class="sp"></div>
+ <a class="hb a" href="tel:0399831228">☎ 0399 831 228</a><button class="hb hidden" id="hOut">Thoát</button></div></header>
+<nav class="bot hidden" id="nav"></nav>
+<main id="main"><div class="empty">Đang tải…</div></main>
+<div class="foot">Fast Driver là dịch vụ cung ứng tài xế của CÔNG TY TNHH TM DV VẬN TẢI KIM HOÀNG GIA · MST 3700416538 · 376 Nguyễn Văn Trỗi, P. Phú Lợi, TP.HCM</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL='https://kbpcmifwplbtggfcnfrx.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_buS_4Iky59zQlMME9dn2NQ_1FqIwlVt';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtN=n=>(Number(n)||0).toLocaleString('vi-VN');
+const fmtM=n=>fmtN(Math.round(Number(n)||0))+' đ';
+const fmtD=d=>d?new Date(String(d).length<=10?d+'T00:00:00':d).toLocaleDateString('vi-VN'):'';
+const fmtDT=d=>d?new Date(d).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'';
+const isoD=d=>{const x=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return x.toISOString().slice(0,10)};
+const today=()=>isoD(new Date());
+const normPhone=p=>{let d=String(p||'').replace(/\D/g,'');if(d.startsWith('84'))d='0'+d.slice(2);return d};
+const qs=k=>new URLSearchParams(location.search).get(k)||'';
+const tel=p=>p?`<a href="tel:${esc(p)}">${esc(p)}</a>`:'';
+function toast(t,ms=3200){let e=$('#toast');if(!e){e=document.createElement('div');e.id='toast';e.className='toast';document.body.appendChild(e)}e.textContent=t;e.classList.remove('hidden');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.add('hidden'),ms)}
+function sheet(html){closeSheet();const d=document.createElement('div');d.className='sheet';d.id='sheet';d.innerHTML=`<div class="bx">${html}</div>`;d.onclick=e=>{if(e.target===d)closeSheet()};document.body.appendChild(d);return d}
+const closeSheet=()=>$('#sheet')?.remove();
+const pill=(map,v,colors)=>v?`<span class="pill ${(colors||{})[v]||''}">${esc((map||{})[v]||v)}</span>`:'';
+const chips=(name,opts,sel=[])=>`<div class="chips">${Object.entries(opts).map(([k,l])=>`<label><input type="checkbox" name="${name}" value="${esc(k)}" ${sel.includes(k)?'checked':''}><span>${esc(l)}</span></label>`).join('')}</div>`;
+const radios=(name,opts,v)=>`<div class="chips">${Object.entries(opts).map(([k,l])=>`<label><input type="radio" name="${name}" value="${esc(k)}" ${v===k?'checked':''}><span>${esc(l)}</span></label>`).join('')}</div>`;
+const picked=(root,name)=>[...root.querySelectorAll(`input[name="${name}"]:checked`)].map(i=>i.value);
+const opt=(map,v,blank)=>(blank?`<option value="">${esc(blank)}</option>`:'')+Object.entries(map).map(([k,l])=>`<option value="${esc(k)}" ${String(v??'')===k?'selected':''}>${esc(l)}</option>`).join('');
+async function busy(btn,fn){if(btn){btn.disabled=true}try{return await fn()}catch(e){toast(e.message||String(e));}finally{if(btn)btn.disabled=false}}
+const rpc=async(n,a)=>{const {data,error}=await sb.rpc(n,a||{});if(error)throw new Error(error.message);return data};
+
+// loại xe trên thị trường (bảng khg_vehicle_types)
+let VT=[];const VTN={};
+async function loadVT(){if(VT.length)return VT;const {data}=await sb.from('khg_vehicle_types').select('*').order('sort');VT=data||[];VT.forEach(v=>VTN[v.code]=v.name);return VT}
+function vtChips(name,sel=[]){const g={};VT.forEach(v=>(g[v.grp]=g[v.grp]||[]).push(v));return Object.entries(g).map(([k,a])=>`<div class="grp">${esc(k)}</div>`+chips(name,Object.fromEntries(a.map(v=>[v.code,v.name])),sel)).join('')}
+function vtSelect(v,blank='— Chọn loại xe —'){const g={};VT.forEach(x=>(g[x.grp]=g[x.grp]||[]).push(x));return `<option value="">${blank}</option>`+Object.entries(g).map(([k,a])=>`<optgroup label="${esc(k)}">${a.map(x=>`<option value="${x.code}" ${v===x.code?'selected':''}>${esc(x.name)}${x.license?' · GPLX '+x.license:''}</option>`).join('')}</optgroup>`).join('')}
+
+// GPLX (Luật TTATGT 2024 – Điều 57) và bằng cấp trước 2025
+const LIC={A1:'A1 – mô tô ≤125cc',A:'A – mô tô >125cc',B1:'B1 – mô tô 3 bánh',B:'B – ô tô ≤8 chỗ khách, tải ≤3,5 t',C1:'C1 – tải 3,5–7,5 t',C:'C – tải >7,5 t',D1:'D1 – 9–16 chỗ khách',D2:'D2 – 17–29 chỗ khách',D:'D – >29 chỗ, giường nằm',
+  BE:'BE – hạng B kéo rơ moóc',C1E:'C1E – C1 kéo rơ moóc',CE:'CE – đầu kéo, container',D1E:'D1E',D2E:'D2E',DE:'DE'};
+const LIC_OLD={B2:'B2 (cũ) → B',C_CU:'C (cũ) → C',D_CU:'D (cũ) → D2',E_CU:'E (cũ) → D',FB2:'FB2 (cũ) → BE',FC:'FC (cũ) → CE',FD:'FD (cũ) → D2E',FE:'FE (cũ) → DE',B1_CU:'B1 số tự động (cũ) – không lái thuê'};
+const LIC_COVER={A1:['A1'],A:['A1','A'],B1:['A1','B1'],B:['B'],B2:['B'],C1:['B','C1'],C:['B','C1','C'],C_CU:['B','C1','C'],D1:['B','C1','C','D1'],D2:['B','C1','C','D1','D2'],D_CU:['B','C1','C','D1','D2'],
+  D:['B','C1','C','D1','D2','D'],E_CU:['B','C1','C','D1','D2','D'],BE:['B','BE'],FB2:['B','BE'],C1E:['B','C1','BE','C1E'],CE:['B','C1','C','BE','C1E','CE'],FC:['B','C1','C','BE','C1E','CE'],
+  D1E:['B','C1','C','D1','BE','C1E','CE','D1E'],D2E:['B','C1','C','D1','D2','BE','C1E','CE','D1E','D2E'],FD:['B','C1','C','D1','D2','BE','C1E','CE','D1E','D2E'],DE:['B','C1','C','D1','D2','D','BE','C1E','CE','D1E','D2E','DE'],FE:['B','C1','C','D1','D2','D','BE','C1E','CE','D1E','D2E','DE']};
+const covers=held=>[...new Set((held||[]).flatMap(h=>LIC_COVER[String(h).toUpperCase()]||[]))];
+const licOk=(held,need)=>!need||covers(held).includes(String(need).toUpperCase());
+
+// ảnh: nén trước khi tải lên
+async function shrink(file,max=1600){
+  if(!/^image\//.test(file.type)||/gif|svg/.test(file.type))return file;
+  try{const bmp=await createImageBitmap(file);const k=Math.min(1,max/Math.max(bmp.width,bmp.height));const c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.82));return b&&b.size<file.size?new File([b],file.name.replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):file}catch(e){return file}}
+const safeName=n=>String(n||'file').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').replace(/[^\w.-]+/g,'-').slice(-60);
+async function putFile(prefix,file){const f=await shrink(file);const path=`${prefix}/${Date.now()}-${safeName(f.name)}`;
+  const {error}=await sb.storage.from('khg-files').upload(path,f,{contentType:f.type||'application/octet-stream',upsert:false});if(error)throw new Error(error.message);return {path,name:f.name,mime:f.type,size:f.size}}
+async function signedMap(paths){if(!paths.length)return {};const {data}=await sb.storage.from('khg-files').createSignedUrls(paths,3600);const m={};(data||[]).forEach(x=>{if(x.signedUrl)m[x.path]=x.signedUrl});return m}
+async function fileGrid(files){const u=await signedMap(files.map(f=>f.file_path));return `<div class="files">${files.map(f=>{const url=u[f.file_path]||'#';return `<a href="${url}" target="_blank" rel="noopener">${/^image/.test(f.mime||'')||/\.(jpe?g|png|webp)$/i.test(f.file_path)?`<img src="${url}" alt="" loading="lazy">`:`<div class="x">${esc((f.file_path.split('.').pop()||'').toUpperCase())}</div>`}<span>${esc(DOCT[f.doc_type]||f.doc_type)}</span></a>`}).join('')}</div>`}
+const DOCT={cccd:'CCCD',bang_lai:'Bằng lái',anh_dai_dien:'Ảnh chân dung',giay_kham_suc_khoe:'Giấy khám sức khỏe',ly_lich_tu_phap:'Lý lịch tư pháp',chung_chi:'Chứng chỉ',xac_nhan_cu_tru:'Xác nhận cư trú',hop_dong:'Hợp đồng',
+  giay_phep_kd:'Giấy phép KD',uy_quyen:'Ủy quyền',dang_ky_xe:'Đăng ký xe',dang_kiem:'Đăng kiểm',bao_hiem:'Bảo hiểm',phu_hieu:'Phù hiệu',hinh_xe:'Hình xe',pod:'Chứng từ giao hàng',bien_ban_giao_nhan:'Biên bản giao nhận',hinh_hang:'Hình hàng',selfie:'Ảnh chân dung nhận hàng',hoa_don:'Hóa đơn',su_co:'Sự cố',chung_tu_cod:'Chứng từ COD',khac:'Khác'};
+// chọn tệp/ảnh rồi gọi cb(file)
+function pickFiles(accept,multiple,cb,capture){const i=document.createElement('input');i.type='file';i.accept=accept||'image/*,application/pdf';i.multiple=!!multiple;if(capture)i.capture='environment';i.onchange=()=>cb([...i.files]);i.click()}
+const IC=p=>`<svg viewBox="0 0 24 24">${p}</svg>`;
+
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{storageKey:'khg-fastdriver-auth',persistSession:true,autoRefreshToken:true}});
+const DOMAIN='@fastdriver.kimhoanggia.vn';
+const MODE={chuyen:'Theo chuyến',ngay:'Theo ngày',ca:'Theo ca',tuyen:'Cố định tuyến',tuan:'Theo tuần',thang:'Theo tháng'};
+const MODE_D={chuyen:'Chạy 1 chuyến / lượt',ngay:'Thuê trọn ngày',ca:'Ca sáng, chiều, đêm',tuyen:'Tuyến lặp lại hằng ngày',tuan:'Hợp đồng tuần',thang:'Hợp đồng tháng'};
+const UNIT={chuyen:'chuyến',ngay:'ngày',ca:'ca',tuan:'tuần',thang:'tháng',gio:'giờ'};
+const SHIFT={sang:'Ca sáng',chieu:'Ca chiều',toi:'Ca tối',dem:'Ca đêm',hanh_chinh:'Giờ hành chính',linh_hoat:'Linh hoạt'};
+const CERT={van_hanh_xe_nang:'Vận hành xe nâng',van_hanh_cau:'Vận hành cẩu',hang_nguy_hiem:'Vận chuyển hàng nguy hiểm'};
+const FST={cho_ho_so:'Chờ nộp hồ sơ',cho_xet_duyet:'Đang xét duyệt',cho_tap_huan:'Chờ tập huấn',da_duyet:'Sẵn sàng nhận việc',tam_khoa:'Tạm khóa',tu_choi:'Chưa đạt'};
+const FSC={cho_ho_so:'amber',cho_xet_duyet:'blue',cho_tap_huan:'blue',da_duyet:'green',tam_khoa:'red',tu_choi:'red'};
+const AST={ung_tuyen:'Đã ứng tuyển',duoc_chon:'Được chọn 🎉',tu_choi:'Chưa phù hợp',rut:'Đã rút',dang_lam:'Đang làm',hoan_thanh:'Hoàn thành'};
+const ASC={ung_tuyen:'blue',duoc_chon:'green',tu_choi:'',rut:'',dang_lam:'amber',hoan_thanh:'green'};
+const RST={dang_ky:'Đã đăng ký',da_tham_gia:'Đã tham gia',dat:'Đạt',khong_dat:'Chưa đạt',vang:'Vắng',huy:'Đã hủy'};
+const REQ_DOCS=[['cccd','CCCD (2 mặt)','Chụp rõ mặt trước và sau'],['bang_lai','Bằng lái xe','Mặt trước, sau (hoặc ảnh VNeID)'],['anh_dai_dien','Ảnh chân dung','Ảnh rõ mặt, nền sáng'],['giay_kham_suc_khoe','Giấy khám sức khỏe lái xe','Còn hạn theo quy định']];
+const OPT_DOCS=[['ly_lich_tu_phap','Lý lịch tư pháp','Khuyến khích – ưu tiên nhận việc'],['chung_chi','Chứng chỉ (xe nâng, cẩu, hàng nguy hiểm…)','Nếu có'],['xac_nhan_cu_tru','Xác nhận cư trú','Nếu có']];
+const PROV={'TP.HCM':'TP.HCM','Bình Dương (cũ)':'Bình Dương (cũ)','Đồng Nai':'Đồng Nai','Bà Rịa – Vũng Tàu (cũ)':'Bà Rịa – Vũng Tàu (cũ)','Tây Ninh – Long An':'Tây Ninh – Long An','Miền Tây':'Miền Tây','Miền Trung':'Miền Trung','Miền Bắc':'Miền Bắc','Toàn quốc':'Toàn quốc'};
+let D=null,CUR='jobs';
+
+// ================= Trang giới thiệu =================
+async function landing(focus){
+  $('#nav').classList.add('hidden');$('#hOut').classList.add('hidden');
+  $('#main').innerHTML=`<div class="hero"><h1>Fast Driver<span>Tìm tài xế ở đây – nhanh, đúng bằng, đã tập huấn</span></h1>
+    <p>Tài xế đăng ký một lần, nộp đủ pháp lý, tập huấn cùng KIM HOÀNG GIA rồi nhận việc lái thuê cho mọi loại xe – đúng hạng bằng lái theo Luật Trật tự, an toàn giao thông đường bộ 2024.</p>
+    <div class="cta"><button class="a" id="cDrv">🧑‍✈️ Tôi là tài xế<small>Đăng ký nhận việc</small></button><button class="b" id="cHire">🚚 Tôi cần thuê tài xế<small>Gửi yêu cầu trong 1 phút</small></button></div></div>
+   <div class="card"><h2>Thuê theo mọi hình thức</h2><div class="modes">${Object.entries(MODE).map(([k,l])=>`<div><b>${l}</b>${MODE_D[k]}</div>`).join('')}</div>
+    <p class="note" style="margin-top:10px">Xe tải nhỏ đến xe tải nặng, đầu kéo container, xe ben, xe bồn, xe cẩu, xe nâng, xe đông lạnh, ô tô con, limousine, xe khách 16–45 chỗ…</p></div>
+   <div class="wrap2"><div class="card"><h2>Tài xế: 4 bước để nhận việc</h2><div class="how"><div><b>Đăng ký</b> bằng số điện thoại, chọn hạng bằng lái.</div><div><b>Nộp hồ sơ</b>: CCCD, bằng lái, ảnh chân dung, giấy khám sức khỏe.</div><div><b>Tập huấn</b> an toàn & quy trình giao nhận của KHG.</div><div><b>Nhận việc</b> phù hợp hạng bằng – theo chuyến, ngày, ca, tuyến, tuần, tháng.</div></div>
+     <button class="btn p w" style="margin-top:14px" id="cDrv2">Đăng ký làm tài xế Fast Driver</button></div>
+    <div class="card"><h2>Việc đang tuyển</h2><div id="pubJobs"><div class="empty">Đang tải…</div></div></div></div>
+   <div class="card" id="thue"><h2>Thuê tài xế</h2><p class="note">Doanh nghiệp, chủ xe, nhà xe cần tài xế: điền yêu cầu, KHG gọi lại xác nhận và đề xuất tài xế phù hợp.</p><div id="hireBox"></div></div>
+   <div class="card auth" id="authBox"></div>`;
+  $('#cDrv').onclick=$('#cDrv2').onclick=()=>{authBox('up');$('#authBox').scrollIntoView({behavior:'smooth'})};
+  $('#cHire').onclick=()=>$('#thue').scrollIntoView({behavior:'smooth'});
+  authBox(focus==='up'?'up':'in');hireForm();
+  fetch(SUPABASE_URL+'/functions/v1/khg-public',{method:'POST',headers:{'content-type':'application/json',apikey:SUPABASE_ANON_KEY},body:JSON.stringify({action:'fd_jobs'})}).then(r=>r.json()).then(j=>{
+    $('#pubJobs').innerHTML=(j.jobs||[]).length?`<div class="list">${j.jobs.slice(0,8).map(x=>`<div class="it jb"><div class="t"><b>${esc(x.vehicle_name||'Tài xế')}</b><span class="pr" style="font-size:15px">${x.pay_amount?fmtN(x.pay_amount)+'/'+UNIT[x.pay_unit]:'Thỏa thuận'}</span></div><div class="m">${esc(MODE[x.mode]||'')} · ${esc([x.area,x.province].filter(Boolean).join(', '))}${x.license_req?' · GPLX '+esc(x.license_req):''}${x.quantity>1?' · cần '+x.quantity+' người':''}${x.start_date?' · từ '+fmtD(x.start_date):''}</div></div>`).join('')}</div><p class="note">Đăng nhập để ứng tuyển việc phù hợp hạng bằng của bạn.</p>`:'<div class="empty">Đang cập nhật việc mới – đăng ký để nhận thông báo sớm.</div>'}).catch(()=>{$('#pubJobs').innerHTML='<div class="empty">Không tải được.</div>'});
+  if(focus==='thue')setTimeout(()=>$('#thue').scrollIntoView(),300);
+}
+function authBox(mode){const reg=mode==='up';
+  $('#authBox').innerHTML=`<div class="seg"><button data-m="in" class="${reg?'':'on'}">Tài xế đăng nhập</button><button data-m="up" class="${reg?'on':''}">Tài xế đăng ký</button></div>
+   <form id="af"><input class="hp" id="aHp" tabindex="-1" autocomplete="off">${reg?'<label class="f">Họ và tên *</label><input class="i" id="aName" required autocomplete="name">':''}
+    <label class="f">Số điện thoại *</label><input class="i" id="aPhone" inputmode="tel" autocomplete="tel" required>
+    <label class="f">Mật khẩu *</label><input class="i" type="password" id="aPw" minlength="6" required autocomplete="${reg?'new-password':'current-password'}" placeholder="Tối thiểu 6 ký tự">
+    ${reg?`<label class="f">Hạng bằng lái đang có *</label>${chips('aLic',LIC)}<details style="margin-top:6px"><summary class="note">Bằng cấp trước 2025 (B2, C, E, FC…)</summary>${chips('aLic',LIC_OLD)}</details>
+     <label class="f">Khu vực muốn nhận việc</label>${chips('aProv',PROV)}<label class="f">Hình thức muốn nhận</label>${chips('aMode',MODE)}`:''}
+    <button class="btn p w" style="margin-top:14px" id="aGo">${reg?'Đăng ký tài xế':'Đăng nhập'}</button><div id="aErr"></div><p class="note" style="margin-top:8px">Quên mật khẩu? Gọi 0399 831 228.</p></form>`;
+  $$('#authBox .seg button').forEach(b=>b.onclick=()=>authBox(b.dataset.m));
+  $('#af').onsubmit=async e=>{e.preventDefault();$('#aErr').innerHTML='';const phone=normPhone($('#aPhone').value),pw=$('#aPw').value;
+    if(phone.length<9)return $('#aErr').innerHTML='<div class="err">Số điện thoại không hợp lệ</div>';
+    await busy($('#aGo'),async()=>{
+      if(reg){const lic=picked($('#af'),'aLic');if(!lic.length){$('#aErr').innerHTML='<div class="err">Chọn hạng bằng lái</div>';return}
+        const r=await fetch(SUPABASE_URL+'/functions/v1/khg-public',{method:'POST',headers:{'content-type':'application/json',apikey:SUPABASE_ANON_KEY},body:JSON.stringify({action:'fd_register',hp:$('#aHp').value,phone,password:pw,name:$('#aName').value,license_class:lic,province:picked($('#af'),'aProv')[0]||'',modes:picked($('#af'),'aMode'),ref:qs('ref')})});
+        const j=await r.json();if(!r.ok||j.error){$('#aErr').innerHTML=`<div class="err">${esc(j.error||'Không đăng ký được')}</div>`;return}}
+      const {error}=await sb.auth.signInWithPassword({email:phone+DOMAIN,password:pw});
+      if(error){$('#aErr').innerHTML=`<div class="err">${/Invalid/i.test(error.message)?'Sai số điện thoại hoặc mật khẩu':esc(error.message)}</div>`;return}
+      await boot(reg)})};
+}
+async function hireForm(){await loadVT();
+  $('#hireBox').innerHTML=`<form id="hf"><input class="hp" id="hHp" tabindex="-1" autocomplete="off"><div class="row s1"><div><label class="f">Người liên hệ *</label><input class="i" id="hN" required></div><div><label class="f">Số điện thoại *</label><input class="i" id="hP" inputmode="tel" required></div></div>
+   <label class="f">Công ty</label><input class="i" id="hC"><label class="f">Loại xe cần tài xế</label><select class="i" id="hT">${vtSelect('')}</select>
+   <label class="f">Hình thức thuê</label>${radios('hM',MODE,'chuyen')}
+   <div class="row"><div><label class="f">Bắt đầu</label><input class="i" type="date" id="hS" value="${today()}"></div><div><label class="f">Kết thúc (nếu có)</label><input class="i" type="date" id="hE"></div></div>
+   <div class="row"><div><label class="f">Số tài xế</label><input class="i" type="number" min="1" value="1" id="hQ"></div><div><label class="f">Ca / giờ làm</label><input class="i" id="hSh" placeholder="7h–17h"></div></div>
+   <label class="f">Tuyến / địa điểm làm việc</label><input class="i" id="hR" placeholder="VD: Kho Thuận An → Cảng Cát Lái, 2 chuyến/ngày">
+   <label class="f">Ngân sách dự kiến (đ)</label><input class="i" id="hB" inputmode="numeric" placeholder="VD: 900.000 / ngày">
+   <label class="f">Yêu cầu khác</label><textarea class="i" id="hNo" placeholder="Kinh nghiệm, chứng chỉ, ở lại công trình…"></textarea>
+   <button class="btn p w" style="margin-top:12px" id="hGo">Gửi yêu cầu thuê tài xế</button><div id="hOut2"></div></form>`;
+  $('#hf').onsubmit=e=>{e.preventDefault();busy($('#hGo'),async()=>{const r=await fetch(SUPABASE_URL+'/functions/v1/khg-public',{method:'POST',headers:{'content-type':'application/json',apikey:SUPABASE_ANON_KEY},body:JSON.stringify({action:'fd_hire',hp:$('#hHp').value,name:$('#hN').value,phone:$('#hP').value,company:$('#hC').value,
+      vehicle_type:$('#hT').value,mode:picked($('#hf'),'hM')[0],start_date:$('#hS').value,end_date:$('#hE').value,quantity:$('#hQ').value,shift_text:$('#hSh').value,route_text:$('#hR').value,budget:$('#hB').value,note:$('#hNo').value})});
+    const j=await r.json();if(!r.ok||j.error){$('#hOut2').innerHTML=`<div class="err">${esc(j.error||'Không gửi được')}</div>`;return}
+    $('#hf').innerHTML=`<div class="empty" style="color:var(--ink)"><b style="font-size:18px;color:var(--acc)">Đã nhận yêu cầu ${esc(j.code)}</b><br>KHG sẽ gọi lại xác nhận trong giờ làm việc. Cần gấp: <a href="tel:0399831228">0399 831 228</a>.</div>`})};
+}
+
+// ================= App tài xế =================
+const TABS=[['jobs','Việc làm',IC('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M3 13h18"/>')],['mine','Việc của tôi',IC('<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2h11"/>')],
+  ['train','Tập huấn',IC('<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>')],['profile','Hồ sơ',IC('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>')]];
+function navDraw(){$('#nav').innerHTML=TABS.map(([k,l,ic])=>`<button data-t="${k}" class="${k===CUR?'on':''}">${ic}<span>${l}</span>${k==='profile'&&D&&D.status==='cho_ho_so'?'<i class="dot">!</i>':''}</button>`).join('');$$('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.t))}
+async function boot(fresh){
+  try{D=await rpc('khg_fd_me')}catch(e){await sb.auth.signOut();landing('in');toast('Tài khoản này không phải tài khoản tài xế Fast Driver.',5000);return}
+  $('#hName').textContent=`${D.code} · ${D.full_name}`;$('#nav').classList.remove('hidden');$('#hOut').classList.remove('hidden');
+  $('#hOut').onclick=async()=>{await sb.auth.signOut();D=null;location.hash='';landing()};
+  await loadVT();const h=location.hash.slice(1);go(fresh||D.status==='cho_ho_so'?'profile':(TABS.some(t=>t[0]===h)?h:'jobs'));
+}
+async function go(t){CUR=t;location.hash=t;navDraw();$('#main').innerHTML='<div class="empty">Đang tải…</div>';window.scrollTo(0,0);try{await ({jobs,mine,train,profile})[t]()}catch(e){$('#main').innerHTML=`<div class="err">${esc(e.message)}</div>`}}
+const STEPS=['cho_ho_so','cho_xet_duyet','cho_tap_huan','da_duyet'];
+function progress(){const i=STEPS.indexOf(D.status);
+  return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>${esc(D.full_name)}</b>${pill(FST,D.status,FSC)}</div>
+   ${i>=0?`<div class="steps">${STEPS.map((s,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div><div class="stl"><span>Nộp hồ sơ</span><span>Xét duyệt</span><span>Tập huấn</span><span>Nhận việc</span></div>`:''}
+   ${D.reject_reason&&['tu_choi','tam_khoa'].includes(D.status)?`<div class="err">${esc(D.reject_reason)}</div>`:''}
+   <div class="note" style="margin-top:6px">${{cho_ho_so:'Tải đủ 4 giấy tờ bắt buộc ở mục Hồ sơ để KHG xét duyệt.',cho_xet_duyet:'KHG đang kiểm tra hồ sơ – sẽ gọi bạn trong 1–2 ngày làm việc.',cho_tap_huan:'Hồ sơ đạt! Đăng ký một buổi tập huấn ở mục Tập huấn.',da_duyet:'Bạn đã sẵn sàng – ứng tuyển việc phù hợp ngay.'}[D.status]||'Liên hệ 0399 831 228 để được hỗ trợ.'}</div></div>`}
+
+async function jobs(){
+  const list=await rpc('khg_fd_jobs');const ok=list.filter(j=>j.eligible);
+  $('#main').innerHTML=progress()+`<h1 class="pg">Việc đang tuyển</h1><div class="note" style="margin:-6px 0 10px">Bằng của bạn (${esc((D.license_class||[]).join(', ')||'chưa khai')}) lái được hạng: <b>${esc((D.covers||[]).join(', ')||'–')}</b>. ${ok.length} / ${list.length} việc phù hợp.</div>
+   <div class="list two">${list.map(j=>`<div class="it jb ${j.eligible?'':'no'}"><div class="t"><div><b>${esc(j.vehicle_name||j.vehicle_desc||'Tài xế')}</b><div class="m">${esc(j.code)} · ${esc(MODE[j.mode]||'')}${j.quantity>1?' · cần '+j.quantity+' người':''}</div></div><div class="pr">${j.pay_amount?fmtN(j.pay_amount)+'<small style="font-size:12px">/'+UNIT[j.pay_unit]+'</small>':'Thỏa thuận'}</div></div>
+     <div class="m">${j.start_date?`<div>📅 Từ ${fmtD(j.start_date)}${j.end_date?' đến '+fmtD(j.end_date):''}</div>`:''}${j.shift_text?`<div>🕒 ${esc(j.shift_text)}</div>`:''}${j.route_text||j.area||j.province?`<div>📍 ${esc([j.route_text,j.area,j.province].filter(Boolean).join(' · '))}</div>`:''}
+      <div>🪪 GPLX tối thiểu <b>${esc(j.license_req||'—')}</b>${j.cert_req?' + '+esc(CERT[j.cert_req]||j.cert_req):''}${j.eligible?' · <b style="color:var(--green)">Bạn đủ điều kiện</b>':' · <b style="color:#B42318">Chưa phù hợp bằng lái</b>'}</div>${j.requirements?`<div>📝 ${esc(j.requirements)}</div>`:''}${j.benefits?`<div>🎁 ${esc(j.benefits)}</div>`:''}</div>
+     <div class="btns">${j.my_app?`${pill(AST,j.my_app.status,ASC)}${j.my_app.status==='ung_tuyen'?`<button class="btn g s" data-w="${j.id}">Rút</button>`:''}`:j.eligible?`<button class="btn p s" data-a="${j.id}" ${D.status!=='da_duyet'?'disabled title="Hoàn tất duyệt & tập huấn trước"':''}>Nhận việc này</button>`:''}${j.applicants?`<span class="note">${j.applicants} người đã ứng tuyển</span>`:''}</div></div>`).join('')||'<div class="card empty">Chưa có việc đang tuyển. KHG sẽ cập nhật thường xuyên.</div>'}</div>`;
+  $$('[data-a]').forEach(b=>b.onclick=()=>{const n=prompt('Lời nhắn cho KHG (thời gian có thể bắt đầu, kinh nghiệm…):','');if(n===null)return;busy(b,async()=>{await rpc('khg_fd_apply',{p_job:b.dataset.a,p_note:n||null});toast('Đã ứng tuyển – KHG sẽ gọi xác nhận');jobs()})});
+  $$('[data-w]').forEach(b=>b.onclick=()=>{if(confirm('Rút ứng tuyển?'))busy(b,async()=>{await rpc('khg_fd_withdraw',{p_job:b.dataset.w});jobs()})});
+}
+async function mine(){
+  const list=(await rpc('khg_fd_jobs')).filter(j=>j.my_app);
+  $('#main').innerHTML=`<h1 class="pg">Việc của tôi</h1><div class="kp"><div class="hl"><small>Việc đã hoàn thành</small><b>${D.jobs_done||0}</b></div><div><small>Đánh giá</small><b>${D.rating?'★ '+D.rating:'–'}</b></div><div><small>Đang ứng tuyển</small><b>${list.filter(j=>j.my_app.status==='ung_tuyen').length}</b></div><div><small>Được chọn / đang làm</small><b>${list.filter(j=>['duoc_chon','dang_lam'].includes(j.my_app.status)).length}</b></div></div>
+   <div class="list two">${list.map(j=>`<div class="it jb"><div class="t"><div><b>${esc(j.vehicle_name||'Tài xế')}</b><div class="m">${esc(j.code)} · ${esc(MODE[j.mode]||'')}</div></div>${pill(AST,j.my_app.status,ASC)}</div>
+     <div class="m">${j.start_date?`📅 ${fmtD(j.start_date)}${j.end_date?' – '+fmtD(j.end_date):''} · `:''}${esc(j.shift_text||'')} ${j.route_text?'· 📍 '+esc(j.route_text):''}<div>💰 ${j.pay_amount?fmtM(j.pay_amount)+'/'+UNIT[j.pay_unit]:'Thỏa thuận'}</div>${j.my_app.staff_note?`<div>💬 KHG: ${esc(j.my_app.staff_note)}</div>`:''}
+     ${j.my_app.status==='duoc_chon'?'<div style="color:var(--green);font-weight:700">Điều phối KHG sẽ gọi bạn để bàn giao xe, lịch và địa điểm.</div>':''}</div></div>`).join('')||'<div class="card empty">Chưa có việc. Vào mục Việc làm để ứng tuyển.</div>'}</div>`;
+}
+async function train(){
+  const {data:ts}=await sb.from('khg_fd_trainings').select('*').in('status',['mo']).order('starts_at');
+  const mine=Object.fromEntries((D.trainings||[]).map(r=>[r.title+r.starts_at,r]));
+  const {data:regs}=await sb.from('khg_fd_training_regs').select('*');const byT=Object.fromEntries((regs||[]).map(r=>[r.training_id,r]));
+  $('#main').innerHTML=progress()+`<h1 class="pg">Tập huấn tài xế</h1><p class="note" style="margin-top:-6px">Nội dung: an toàn giao thông, quy trình nhận – giao hàng, chứng từ, xử lý sự cố, ứng xử với khách và quy định của KHG. Hoàn thành tập huấn là điều kiện nhận việc.</p>
+   <div class="list two">${(ts||[]).map(t=>{const r=byT[t.id];return `<div class="it jb"><div class="t"><div><b>${esc(t.title)}</b><div class="m">🗓 ${fmtDT(t.starts_at)} · ${t.kind==='online'?'Online':'Trực tiếp'}<div>📍 ${esc(t.location||'')}</div></div></div>${r?pill(RST,r.status,{dang_ky:'blue',dat:'green',khong_dat:'red'}):''}</div>${t.content?`<div class="m">${esc(t.content)}</div>`:''}
+     <div class="btns">${r&&r.status==='dang_ky'?`<button class="btn g s" data-c="${r.id}">Hủy đăng ký</button>`:r&&r.status==='huy'?`<button class="btn p s" data-r2="${r.id}">Đăng ký lại</button>`:r?'':`<button class="btn p s" data-r="${t.id}" ${['cho_ho_so','tu_choi','tam_khoa'].includes(D.status)?'disabled title="Nộp đủ hồ sơ trước"':''}>Đăng ký buổi này</button>`}</div></div>`}).join('')||'<div class="card empty">Chưa có lịch tập huấn mới. KHG sẽ thông báo khi mở lớp.</div>'}</div>
+   ${(D.trainings||[]).length?`<h3 style="margin:16px 0 8px">Lịch sử tập huấn</h3><div class="list">${D.trainings.map(r=>`<div class="it"><div class="t"><b>${esc(r.title)}</b>${pill(RST,r.status,{dat:'green',khong_dat:'red',dang_ky:'blue'})}</div><div class="m">${fmtDT(r.starts_at)}${r.score!=null?' · điểm '+r.score:''}</div></div>`).join('')}</div>`:''}`;
+  $$('[data-r]').forEach(b=>b.onclick=()=>busy(b,async()=>{const {error}=await sb.from('khg_fd_training_regs').insert({training_id:b.dataset.r,driver_id:D.id});if(error)throw new Error(error.message);D=await rpc('khg_fd_me');toast('Đã đăng ký tập huấn');train()}));
+  $$('[data-c]').forEach(b=>b.onclick=()=>busy(b,async()=>{const {error}=await sb.from('khg_fd_training_regs').update({status:'huy'}).eq('id',b.dataset.c);if(error)throw new Error(error.message);D=await rpc('khg_fd_me');train()}));
+  $$('[data-r2]').forEach(b=>b.onclick=()=>busy(b,async()=>{const {error}=await sb.from('khg_fd_training_regs').update({status:'dang_ky'}).eq('id',b.dataset.r2);if(error)throw new Error(error.message);D=await rpc('khg_fd_me');train()}));
+}
+async function profile(){
+  const have=new Set((D.docs||[]).map(d=>d.doc_type));const d=D;
+  const docRow=([k,l,h],req)=>`<div class="doc"><div class="ic ${have.has(k)?'ok':'no'}">${have.has(k)?'✓':req?'!':'+'}</div><div><b>${esc(l)}</b>${req?' <span class="pill red">bắt buộc</span>':''}<small>${esc(h)}${have.has(k)?' · đã nộp '+(D.docs.filter(x=>x.doc_type===k).length)+' ảnh':''}</small></div><button class="btn ${have.has(k)?'g':'p'} s" data-up="${k}">📷 ${have.has(k)?'Thêm':'Tải lên'}</button></div>`;
+  $('#main').innerHTML=progress()+`<div class="card"><h2>Giấy tờ</h2>${REQ_DOCS.map(x=>docRow(x,true)).join('')}${OPT_DOCS.map(x=>docRow(x,false)).join('')}
+    ${(D.docs||[]).length?`<details style="margin-top:8px"><summary class="note">Xem ảnh đã nộp (${D.docs.length})</summary><div id="docG"></div></details>`:''}<p class="note">Thông tin giấy tờ chỉ dùng để KHG xét duyệt và bàn giao xe; không chia sẻ cho bên khác khi chưa có sự đồng ý của bạn.</p></div>
+   <div class="card"><h2>Bằng lái & năng lực</h2><form id="pf">
+    <label class="f">Hạng bằng lái</label>${chips('lic',LIC,d.license_class||[])}<details ${(d.license_class||[]).some(x=>LIC_OLD[x])?'open':''} style="margin-top:6px"><summary class="note">Bằng cấp trước 2025</summary>${chips('lic',LIC_OLD,d.license_class||[])}</details>
+    <div class="note" id="covN" style="margin-top:6px"></div>
+    <div class="row"><div><label class="f">Số GPLX</label><input class="i" name="license_no" value="${esc(d.license_no||'')}"></div><div><label class="f">GPLX có giá trị đến</label><input class="i" type="date" name="license_until" value="${d.license_until||''}"></div></div>
+    <div class="row"><div><label class="f">Số năm kinh nghiệm</label><input class="i" type="number" name="years_exp" value="${d.years_exp??''}"></div><div><label class="f">Năm sinh</label><input class="i" type="number" name="birth_year" value="${d.birth_year??''}"></div></div>
+    <label class="f">Chứng chỉ</label>${chips('certs',CERT,d.certs||[])}
+    <label class="f">Loại xe bạn muốn lái</label><div id="vtBox">${vtChips('vts',d.vehicle_types||[])}</div>
+    <h3 style="margin-top:16px">Nhu cầu nhận việc</h3><label class="f">Hình thức</label>${chips('modes',MODE,d.modes||[])}<label class="f">Ca làm</label>${chips('shifts',SHIFT,d.shifts||[])}
+    <label class="f">Khu vực</label>${chips('areas',PROV,d.areas||[])}
+    <div class="row"><div><label class="f">Thu nhập mong muốn (đ)</label><input class="i" name="expected_pay" inputmode="numeric" value="${d.expected_pay??''}"></div><div><label class="f">Tính theo</label><select class="i" name="pay_unit">${opt(UNIT,d.pay_unit)}</select></div></div>
+    <label class="f">Có thể bắt đầu từ</label><input class="i" type="date" name="available_from" value="${d.available_from||''}">
+    <h3 style="margin-top:16px">Thông tin cá nhân</h3><div class="row"><div><label class="f">Họ tên</label><input class="i" name="full_name" value="${esc(d.full_name||'')}"></div><div><label class="f">Giới tính</label><select class="i" name="gender">${opt({Nam:'Nam',Nữ:'Nữ'},d.gender,'—')}</select></div></div>
+    <div class="row"><div><label class="f">Số CCCD</label><input class="i" name="id_number" value="${esc(d.id_number||'')}"></div><div><label class="f">Tỉnh/TP</label><input class="i" name="province" value="${esc(d.province||'')}"></div></div>
+    <label class="f">Địa chỉ</label><input class="i" name="address" value="${esc(d.address||'')}"><label class="f">Giới thiệu ngắn</label><textarea class="i" name="intro" placeholder="Kinh nghiệm chạy tuyến, loại hàng, xe đã lái…">${esc(d.intro||'')}</textarea>
+    <button class="btn p w" style="margin-top:14px" id="pGo">Lưu hồ sơ</button></form>
+    <div class="btns"><button class="btn g s" id="pIns">📲 Cài app Fast Driver</button></div></div>`;
+  const cov=()=>{const h=picked($('#pf'),'lic');const c=covers(h);$('#covN').innerHTML=h.includes('B1_CU')&&!c.length?'Bằng B1 số tự động (cũ) không được lái xe kinh doanh – cần bằng B trở lên.':`Lái được hạng: <b>${c.join(', ')||'–'}</b> → ${VT.filter(v=>v.license&&c.includes(v.license)).length} loại xe trên thị trường.`};
+  $$('#pf input[name=lic]').forEach(i=>i.onchange=cov);cov();
+  if($('#docG'))fileGrid(D.docs).then(h=>$('#docG').innerHTML=h);
+  $$('[data-up]').forEach(b=>b.onclick=()=>pickFiles('image/*,application/pdf',true,files=>busy(b,async()=>{let miss=[];for(const f of files){const u=await putFile(`fd/${D.id}/${b.dataset.up}`,f);const r=await rpc('khg_fd_add_file',{p_doc:b.dataset.up,p_path:u.path,p_name:u.name,p_mime:u.mime,p_size:u.size});miss=r.missing||[]}
+    D=await rpc('khg_fd_me');toast(miss.length?'Đã tải lên – còn thiếu '+miss.length+' giấy tờ bắt buộc':'Đã đủ giấy tờ bắt buộc – KHG sẽ xét duyệt');profile()})));
+  $('#pIns').onclick=()=>window.KInstall?KInstall.open():toast('Mở bằng Chrome/Safari để cài app');
+  $('#pf').onsubmit=e=>{e.preventDefault();busy($('#pGo'),async()=>{const f=$('#pf');const row={};['license_no','full_name','gender','id_number','province','address','intro'].forEach(k=>row[k]=f.elements[k].value.trim()||null);
+    ['license_until','available_from'].forEach(k=>row[k]=f.elements[k].value||null);['years_exp','birth_year'].forEach(k=>row[k]=f.elements[k].value?Number(f.elements[k].value):null);
+    row.expected_pay=Number(String(f.elements.expected_pay.value).replace(/\D/g,''))||null;row.pay_unit=f.elements.pay_unit.value;row.full_name=row.full_name||D.full_name;
+    row.license_class=picked(f,'lic');row.certs=picked(f,'certs');row.vehicle_types=picked(f,'vts');row.modes=picked(f,'modes');row.shifts=picked(f,'shifts');row.areas=picked(f,'areas');
+    const {error}=await sb.from('khg_fd_drivers').update(row).eq('id',D.id);if(error)throw new Error(error.message);D=await rpc('khg_fd_me');toast('Đã lưu hồ sơ');profile()})};
+}
+
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(D&&h!==CUR&&(TABS.some(t=>t[0]===h)))go(h)});
+// ===== KInstall: cài app lên màn hình chính (Android, iPhone, máy tính) =====
+(function(){
+  const ua=navigator.userAgent||'';
+  const isIOS=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const isAndroid=/Android/i.test(ua);
+  const inApp=/Zalo|FBAN|FBAV|FB_IAB|Messenger|Instagram|Line\/|TikTok|musical_ly|ZaloTheme/i.test(ua);
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  let deferred=null;
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/khg-sw.js',{scope:'/'}).catch(()=>{}));
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;show()});
+  window.addEventListener('appinstalled',()=>{try{localStorage.setItem('khg_installed','1')}catch(e){}hide()});
+  const css=`#kins{position:fixed;left:10px;right:10px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:120;background:#111827;color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto}
+#kins img{width:40px;height:40px;border-radius:10px}#kins b{display:block;font-size:15px}#kins .x{background:none;border:0;color:#9CA3AF;font-size:20px;padding:4px}
+#kins .go{background:#C8102E;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;white-space:nowrap}
+#kinsg{position:fixed;inset:0;z-index:130;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center}
+#kinsg .bx{background:#fff;color:#111;width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+#kinsg ol{padding-left:20px;margin:8px 0}#kinsg li{margin:8px 0}#kinsg .k{display:inline-block;border:1px solid #ddd;border-radius:6px;padding:0 6px;background:#f6f6f6}
+#kinsg button{width:100%;border:0;border-radius:12px;padding:13px;font-weight:800;margin-top:8px}#kinsg .p{background:#C8102E;color:#fff}#kinsg .o{background:#f1f1f1}`;
+  const icon=(document.querySelector('link[rel=apple-touch-icon]')||{}).href||'';
+  const name=(document.querySelector('meta[name=apple-mobile-web-app-title]')||{}).content||'KHG';
+  function ensureCss(){if(!document.getElementById('kins-css')){const s=document.createElement('style');s.id='kins-css';s.textContent=css;document.head.appendChild(s)}}
+  function hide(){document.getElementById('kins')?.remove()}
+  function show(force){
+    if(standalone)return;
+    try{if(!force&&(localStorage.getItem('khg_ins_hide')>Date.now()||localStorage.getItem('khg_installed')))return}catch(e){}
+    ensureCss();
+    hide();const d=document.createElement('div');d.id='kins';
+    d.innerHTML=`${icon?`<img src="${icon}" alt="">`:''}<div style="flex:1"><b>Cài “${name}” lên màn hình chính</b>${inApp?'Đang mở trong Zalo/Facebook – mở bằng trình duyệt để cài':'Mở nhanh như app, nhận chuông báo'}</div><button class="go">Cài app</button><button class="x" aria-label="Đóng">✕</button>`;
+    document.body.appendChild(d);
+    d.querySelector('.x').onclick=()=>{try{localStorage.setItem('khg_ins_hide',Date.now()+3*864e5)}catch(e){}hide()};
+    d.querySelector('.go').onclick=()=>KInstall.open();
+  }
+  function guide(html){ensureCss();document.getElementById('kinsg')?.remove();const g=document.createElement('div');g.id='kinsg';g.innerHTML=`<div class="bx">${html}<button class="o" id="kgc">Đóng</button></div>`;
+    document.body.appendChild(g);g.onclick=e=>{if(e.target.id==='kinsg')g.remove()};document.getElementById('kgc').onclick=()=>g.remove()}
+  window.KInstall={
+    standalone,isIOS,isAndroid,inApp,show:()=>show(true),
+    async open(){
+      const url=location.href.split('#')[0];
+      if(inApp){
+        const intent=`intent://${location.host}${location.pathname}${location.search}#Intent;scheme=https;package=com.android.chrome;end`;
+        guide(`<h3 style="margin:0 0 6px">Mở bằng trình duyệt để cài app</h3><p>Zalo / Facebook không cho cài app. Hãy mở link này bằng ${isIOS?'<b>Safari</b>':'<b>Chrome</b>'}:</p>
+          <ol><li>Bấm nút <span class="k">⋯</span> hoặc <span class="k">⋮</span> ở góc trên.</li><li>Chọn <b>Mở bằng trình duyệt</b> / <b>Open in ${isIOS?'Safari':'Chrome'}</b>.</li><li>Trong trình duyệt, bấm lại <b>Cài app</b>.</li></ol>
+          ${isAndroid?`<a href="${intent}"><button class="p">Mở bằng Chrome</button></a>`:''}<button class="o" id="kcp">📋 Sao chép link</button>`);
+        document.getElementById('kcp').onclick=()=>{navigator.clipboard?.writeText(url);document.getElementById('kcp').textContent='Đã sao chép – dán vào '+(isIOS?'Safari':'Chrome')};return}
+      if(deferred){deferred.prompt();const r=await deferred.userChoice;deferred=null;if(r.outcome==='accepted')hide();return}
+      if(isIOS){guide(`<h3 style="margin:0 0 6px">Cài lên iPhone / iPad</h3><ol><li>Mở trang này bằng <b>Safari</b>.</li><li>Bấm nút <b>Chia sẻ</b> <span class="k">⬆︎</span> ở thanh dưới (hoặc trên).</li><li>Kéo xuống, chọn <b>Thêm vào MH chính</b> (Add to Home Screen).</li><li>Bấm <b>Thêm</b>. Biểu tượng ${name} xuất hiện trên màn hình chính.</li></ol><p style="font-size:13px;color:#666">Mở app từ biểu tượng để nhận thông báo (iOS 16.4 trở lên).</p>`);return}
+      guide(`<h3 style="margin:0 0 6px">Cài lên ${isAndroid?'điện thoại Android':'máy tính'}</h3><ol>${isAndroid?'<li>Mở bằng <b>Chrome</b>.</li><li>Bấm <span class="k">⋮</span> góc phải trên.</li><li>Chọn <b>Cài đặt ứng dụng</b> / <b>Thêm vào màn hình chính</b>.</li><li>Bấm <b>Cài đặt</b>.</li>':'<li>Mở bằng Chrome hoặc Edge.</li><li>Bấm biểu tượng <b>Cài đặt</b> ⊕ ở cuối thanh địa chỉ.</li><li>Bấm <b>Cài đặt</b> – app mở thành cửa sổ riêng, ghim vào thanh tác vụ.</li>'}</ol>`);
+    }
+  };
+  // hiện gợi ý sau 4 giây trên điện thoại
+  if(/[?&]install=1/.test(location.search)&&!standalone)setTimeout(()=>KInstall.open(),900);
+  else if(!standalone&&(isIOS||isAndroid||inApp))setTimeout(()=>show(false),4000);
+})();
+
+(async()=>{const {data:{session}}=await sb.auth.getSession();
+  if(session&&String(session.user.email||'').endsWith(DOMAIN))boot();else{if(session)await sb.auth.signOut();landing(location.hash==='#thue'?'thue':qs('ref')?'up':'in')}})();
+</script></body></html>

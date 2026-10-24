@@ -42,7 +42,9 @@ h2{font-size:18px;margin:22px 0 10px}.steps{display:grid;gap:14px;grid-template-
 const A=[
  {k:'taixe',name:'KHG Tài xế & Nhân viên',url:'https://lehoaithanh.org/tai-xe.html',who:'Tài xế, bốc xếp, thủ kho, nhân viên: nhận đơn, dẫn đường, thu COD, chấm công chụp bảng đồng hồ, xem lương, ứng tiền.'},
  {k:'crm',name:'KHG CRM – Điều hành',url:'https://lehoaithanh.org/crm-khg',who:'Quản trị, điều phối, kế toán, kinh doanh: đơn hàng, điều phối, ví COD, công nợ, nhân sự, duyệt chấm công.'},
- {k:'datxe',name:'Đặt xe KHG',url:'https://lehoaithanh.org/dat-xe.html',who:'Khách hàng: đặt xe tải, báo giá tức thì, theo dõi tài xế, xác nhận đối soát COD.'}];
+ {k:'datxe',name:'Đặt xe KHG',url:'https://lehoaithanh.org/dat-xe.html',who:'Khách hàng: đặt xe tải, báo giá tức thì, theo dõi tài xế, xác nhận đối soát COD.'},
+ {k:'doitac',name:'Đối tác KHG – xe liên kết',url:'https://lehoaithanh.org/doi-tac.html',who:'Chủ xe, nhà xe, doanh nghiệp vận tải liên kết: nhận đơn KHG mời, cập nhật chuyến, sổ doanh thu – chi phí từng xe, xác nhận đối soát.'},
+ {k:'fastdriver',name:'Fast Driver – Tìm tài xế ở đây',url:'https://lehoaithanh.org/fast-driver.html',who:'Tài xế lái thuê: đăng ký, nộp hồ sơ, tập huấn, nhận việc theo chuyến – ngày – ca – tuyến – tuần – tháng. Khách cần thuê tài xế gửi yêu cầu tại đây.'}];
 document.getElementById('apps').innerHTML=A.map(a=>`<div class="card"><div class="hd"><img src="/icons/${a.k}-192.png" alt=""><div><b>${a.name}</b><span>lehoaithanh.org</span></div></div><div class="who">${a.who}</div>
  <div class="qr" id="qr-${a.k}"></div><div class="url">${a.url.replace('https://','')}</div>
  <a class="btn p" href="${a.url}${a.url.includes('?')?'&':'?'}install=1">📲 Mở & cài app</a><button class="btn o" data-u="${a.url}">📋 Sao chép link gửi nhân viên</button></div>`).join('');
