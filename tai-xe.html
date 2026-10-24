@@ -91,6 +91,15 @@ nav.bn button em{position:absolute;top:4px;right:calc(50% - 22px);background:var
 .seg2{display:flex;gap:6px;margin:8px 0}.seg2 button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px;font-weight:700}.seg2 button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .warn{background:#FFF3E6;border:1px solid #F5C99B;color:#8A4B12;border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:10px}
 #calls .cl{background:#FFF7E8;border:2px solid #F59E0B;border-radius:16px;padding:14px;margin-bottom:12px}#calls .cl.hl{box-shadow:0 0 0 4px rgba(200,16,46,.35)}#calls .pay{font-size:24px;font-weight:900;color:var(--green)}#calls .cd{font-weight:800;color:var(--red)}
+#tqz{position:fixed;inset:0;z-index:90;background:#F4F4F2;overflow:auto;padding-bottom:30px}
+.tqh{position:sticky;top:0;background:#141414;color:#fff;display:flex;gap:10px;align-items:center;padding:12px 14px;z-index:2}.tqh b:first-child{flex:1}.tqh button{background:#333;color:#fff;border:0;border-radius:8px;padding:6px 10px;font-size:16px}
+.tqb{max-width:640px;margin:0 auto;padding:14px}.tqb h3{font-size:17px;line-height:1.4;margin:10px 0}.tqi{max-width:420px;margin:8px auto}.tqi svg{width:100%;height:auto;display:block}
+.tqo{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid #E4E1DE;border-radius:12px;padding:12px;margin:0 0 8px;font:inherit;font-size:15px}.tqo.sel{border-color:var(--red);background:#FCEBEE}.tqo.ok{border-color:var(--green);background:#E5F4EC}.tqo.no{border-color:#B42318;background:#FDECEC}
+.tqe{border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px}.tqe.ok{background:#E5F4EC}.tqe.no{background:#FDECEC}
+.tqn{display:flex;gap:8px;margin:12px 0}.tqn button{flex:1;border:1px solid #ddd;background:#fff;border-radius:12px;padding:12px;font-weight:700;font-size:15px}.tqn button.p{background:var(--red);color:#fff;border-color:var(--red)}.tqn button:disabled{opacity:.4}
+.tqg{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:5px}.tqg button{border:1px solid #ddd;background:#fff;border-radius:8px;padding:7px 0;font-weight:700}.tqg button.a{background:var(--red);color:#fff;border-color:var(--red)}.tqg button.c{outline:2px solid #141414}
+.tqw{background:#fff;border:1px solid #E4E1DE;border-radius:12px;padding:10px;margin:8px 0;font-size:14px}
+.ibars{display:flex;align-items:flex-end;gap:3px;height:70px;margin-top:8px}.ibars i{flex:1;background:var(--green);border-radius:3px 3px 0 0;min-height:2px}
 #banner{background:var(--red);color:#fff;padding:12px 14px;border-radius:14px;margin-bottom:12px;font-weight:700}
 
 /* Logo "Powered by Netlify" (Netlify tự chèn) – nâng lên trên thanh nút */#nl-badge-frame{bottom:calc(70px + env(safe-area-inset-bottom))!important}
@@ -602,7 +611,12 @@ V.luong=async m=>{
   const [{data:s},{data:o}]=await Promise.all([sb.from('khg_salary').select('*').eq('person_id',ME.id).order('period_start',{ascending:false}).limit(12),
     sb.from('khg_orders').select('id,trips,delivered_at,status').eq('driver_id',ME.id).in('status',['da_giao','doi_soat','xuat_hd','da_thu']).gte('delivered_at',ms+'T00:00:00+07:00')]);
   const tm=(o||[]).reduce((a,x)=>a+(x.trips||1),0),tw=(o||[]).filter(x=>(x.delivered_at||'')>=wk).reduce((a,x)=>a+(x.trips||1),0);
-  m.innerHTML=`<h2>Lương & thu nhập</h2><div class="kpis"><div class="kpi"><div class="l">Chuyến tuần này</div><div class="v">${tw}</div></div><div class="kpi"><div class="l">Chuyến tháng này</div><div class="v">${tm}</div></div></div>
+  const {data:inc}=await sb.rpc('khg_my_income',{p_month:null});const I=inc||{};const bd=(I.by_day||[]).slice().reverse();const mx=Math.max(1,...bd.map(x=>Number(x.pay)||0));
+  m.innerHTML=`<h2>Lương & thu nhập</h2><div class="kpis"><div class="kpi"><div class="l">Tiền chuyến hôm nay</div><div class="v" style="color:var(--green)">${fmtM(I.today?.pay)}</div><div class="small">${I.today?.trips||0} chuyến</div></div><div class="kpi"><div class="l">Tiền chuyến tháng này</div><div class="v" style="color:var(--green)">${fmtM(I.done?.pay)}</div><div class="small">${I.done?.trips||tm} chuyến · tuần này ${tw} chuyến</div></div>
+    ${I.running?.orders?`<div class="kpi"><div class="l">Đang chạy</div><div class="v">${I.running.orders} đơn</div><div class="small">${Number(I.running.pay)?'dự kiến '+fmtM(I.running.pay):''}</div></div>`:''}</div>
+   ${bd.length?`<div class="card"><b>Tiền chuyến theo ngày</b><div class="ibars">${bd.map(x=>`<i title="${fmtD(x.d)}: ${fmtM(x.pay)}" style="height:${Math.round((Number(x.pay)||0)*100/mx)}%"></i>`).join('')}</div>
+    <details style="margin-top:8px"><summary class="small">Chi tiết ${(I.lines||[]).length} đơn đã giao tháng này</summary>${(I.lines||[]).map(l=>`<div class="li"><b>${esc(l.code)}</b> · ${fmtD(l.date)} <span style="float:right;font-weight:700;color:var(--green)">${l.pay?fmtM(l.pay):'—'}</span><div class="small">${esc(l.route||'')}</div></div>`).join('')}</details></div>`:''}
+   <div class="small" style="margin:-4px 0 10px">Tiền chuyến được cộng vào “Lương chuyến” khi kế toán tính lương. Đơn không ghi tiền chuyến tính theo đơn giá chuyến trong hồ sơ.</div>
    ${(s||[]).map(r=>`<div class="card"><div class="row"><b>Lương ${r.period_type==='tuan'?'tuần':'tháng'} ${fmtD(r.period_start)} – ${fmtD(r.period_end)}</b><span style="flex:1"></span><span class="pill ${r.status==='da_tra'?'green':r.status==='da_duyet'?'blue':''}">${r.status==='da_tra'?'Đã trả':r.status==='da_duyet'?'Đã duyệt':'Đang tính'}</span></div>
     <div class="kv"><b>Ngày công</b><span>${r.work_days}/${r.std_days}</span><b>Lương công</b><span>${fmtM(r.base_pay)}</span><b>Tăng ca</b><span>${fmtM(r.ot_pay)}</span><b>Lương chuyến</b><span>${fmtM(r.trip_pay)} (${r.trips||0} chuyến)</span>
     <b>Chuyên cần</b><span>${fmtM(r.attendance_bonus)}</span><b>Phụ cấp</b><span>${fmtM(r.allowance)}</span>${Number(r.other_income)?`<b>Khác</b><span>${fmtM(r.other_income)}</span>`:''}
@@ -660,11 +674,16 @@ V.vi=async m=>{
   $('#msv').onclick=async()=>{const acc=$('#mac').value.replace(/\s/g,'');if(acc.length<6)return toast('Nhập số tài khoản');const {error}=await sb.from('khg_pay_accounts').insert({owner_type:'nhan_su',person_id:ME.id,bank_bin:$('#mbk').value,bank_name:BANKS[$('#mbk').value],account_no:acc,account_name:$('#man').value.trim().toUpperCase(),purpose:'luong',label:'TK của '+ME.full_name});toast(error?error.message:'Đã lưu');if(!error)go('vi')};
 };
 V.toi=async m=>{
-  const p=ME;
+  const p=ME;const {data:exs}=await sb.rpc('khg_tx_exams');const E=exs||[];const best=E.find(e=>e.passed);
   m.innerHTML=`<h2>Thông tin của tôi</h2><div class="card"><div class="kv"><b>Họ tên</b><span>${esc(p.full_name)}</span><b>Điện thoại</b><span>${esc(p.phone||'')}</span>
    <b>Tình trạng</b><span>${({ung_vien:'Ứng viên',thu_viec:'Thử việc',chinh_thuc:'Chính thức',tam_nghi:'Tạm nghỉ',nghi_viec:'Nghỉ việc'})[p.employment_status]||''}</span>
    <b>Nhận việc</b><span>${fmtD(p.hire_date)}</span><b>Chính thức</b><span>${fmtD(p.official_date)}</span><b>Đóng BHXH từ</b><span>${fmtD(p.insurance_start)}</span>
    <b>Bằng lái</b><span>${esc(p.license_class||'')} ${p.license_until?'· hết hạn '+fmtD(p.license_until):''}</span><b>Xe phụ trách</b><span>${esc(VEH[p.vehicle_id]?.plate||'')}</span></div></div>
+   <div class="card"><b>📝 Bài thi tập huấn tài xế</b><div class="small" style="margin:6px 0">35 câu có hình minh họa, 30 phút: trách nhiệm nghề, giao nhận – COD, xếp dỡ – tải trọng, an toàn – biển báo, xử lý sự cố. Đạt: đúng từ 32/35 và không sai câu điểm liệt.</div>
+    ${best?`<div class="pill green" style="margin-bottom:6px">✅ Đã đạt ${best.score}/${best.total} · ${fmtD(best.at)}</div>`:''}
+    <div class="two"><button class="big o" id="tqp">📖 Ôn tập 20 câu</button><button class="big" id="tqe">🎯 Thi chính thức</button></div>
+    <label class="small" style="display:flex;gap:6px;align-items:center;margin-top:8px"><input type="checkbox" id="tqk"> Tôi lái xe khách / đưa đón (bài thi xe khách)</label>
+    ${E.length?`<div class="small" style="margin-top:6px">Lịch sử: ${E.slice(0,5).map(e=>`${e.score}/${e.total} ${e.passed?'✅':'❌'}`).join(' · ')}</div>`:''}</div>
    <div class="card"><b>Dùng như app</b><div class="small" style="margin-top:6px">Android (Chrome): menu ⋮ → <b>Thêm vào màn hình chính</b>.<br>iPhone (Safari): nút Chia sẻ → <b>Thêm vào MH chính</b>.<br>Bật thông báo để nhận đơn khi app đang mở; Telegram bot @khg_dieuphoi_bot báo cả khi đóng app (gửi <code>/link ${esc(p.phone||'số_điện_thoại')}</code>).</div>
    <button class="big" style="margin-top:10px" onclick="KInstall.open()">📲 Cài app lên màn hình chính</button><button class="big o" id="np" style="margin-top:8px">🔔 Bật thông báo</button></div>
    <div class="card"><b>Đổi mật khẩu</b><label class="f" style="margin-top:8px">Mật khẩu mới<input class="in" id="pw" type="password" minlength="6"></label><button class="big o" id="pws">Đổi mật khẩu</button></div>
@@ -672,7 +691,46 @@ V.toi=async m=>{
   $('#np').onclick=async()=>{if(!('Notification' in window))return toast('Trình duyệt không hỗ trợ');const r=await Notification.requestPermission();toast(r==='granted'?'Đã bật thông báo':'Chưa cho phép thông báo')};
   $('#pws').onclick=async()=>{const v=$('#pw').value;if(v.length<6)return toast('Tối thiểu 6 ký tự');const {error}=await sb.auth.updateUser({password:v});toast(error?error.message:'Đã đổi mật khẩu')};
   $('#lo').onclick=async()=>{await sb.auth.signOut();location.reload()};
+  $('#tqp').onclick=()=>tqStart('practice',$('#tqk').checked?'khach':'hang');
+  $('#tqe').onclick=()=>{if(confirm('Bắt đầu thi 35 câu trong 30 phút? Thoát giữa chừng vẫn tính 1 lượt.'))tqStart('exam',$('#tqk').checked?'khach':'hang')};
 };
+// ================= Bài thi tập huấn (tài xế KHG) – lớp phủ toàn màn hình =================
+const TQ={Z:null};
+function tqBox(){let d=document.getElementById('tqz');if(!d){d=document.createElement('div');d.id='tqz';document.body.appendChild(d)}return d}
+function tqClose(){clearInterval(window._tqt);TQ.Z=null;document.getElementById('tqz')?.remove();go('toi')}
+async function tqStart(mode,kind){
+  try{let qs,ex=null;
+    if(mode==='exam'){const r=await sb.rpc('khg_tx_exam_start',{p_kind:kind});if(r.error)throw r.error;ex=r.data;qs=ex.questions}
+    else{const r=await sb.rpc('khg_quiz_practice',{p_kind:kind,p_n:20});if(r.error)throw r.error;qs=r.data}
+    TQ.Z={mode,kind,ex,qs,ans:new Array(qs.length).fill(null),i:0,end:ex?new Date(ex.expires_at).getTime():0};tqDraw();
+    if(ex){clearInterval(window._tqt);window._tqt=setInterval(()=>{const s=Math.max(0,Math.round((TQ.Z?.end-Date.now())/1000));const t=document.getElementById('tqT');if(t)t.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;if(!s&&TQ.Z&&!TQ.Z.done){clearInterval(window._tqt);tqSubmit()}},1000)}
+  }catch(e){toast(e.message||String(e))}
+}
+function tqDraw(){const Z=TQ.Z,q=Z.qs[Z.i],a=Z.ans[Z.i],ex=Z.mode==='exam',show=!ex&&a!=null;const d=tqBox();
+  d.innerHTML=`<div class="tqh"><b>${ex?'Thi chính thức':'Ôn tập'} · ${Z.i+1}/${Z.qs.length}</b>${ex?'<b id="tqT" style="color:#FCA5A5">30:00</b>':''}<button id="tqX">✕</button></div><div class="tqb">
+   ${q.critical?'<span class="pill red">Câu điểm liệt – sai là trượt</span>':''}${q.image_svg?`<div class="tqi">${q.image_svg}</div>`:''}<h3>${esc(q.question)}</h3>
+   ${q.options.map((o,k)=>{let c='';if(show){if(k===q.correct)c='ok';else if(k===a)c='no'}else if(a===k)c='sel';return `<button class="tqo ${c}" data-k="${k}"><b>${String.fromCharCode(65+k)}.</b> ${esc(o)}</button>`}).join('')}
+   ${show?`<div class="tqe ${a===q.correct?'ok':'no'}"><b>${a===q.correct?'✓ Chính xác':'✗ Đáp án đúng: '+String.fromCharCode(65+q.correct)}</b><br>${esc(q.explanation||'')}</div>`:''}
+   <div class="tqn"><button id="tqP" ${Z.i?'':'disabled'}>← Trước</button>${Z.i<Z.qs.length-1?'<button id="tqN" class="p">Tiếp →</button>':`<button id="tqS" class="p">${ex?'Nộp bài':'Xem kết quả'}</button>`}</div>
+   <div class="tqg">${Z.qs.map((x,k)=>`<button data-j="${k}" class="${Z.ans[k]!=null?'a':''} ${k===Z.i?'c':''}">${k+1}</button>`).join('')}</div></div>`;
+  d.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{if(show)return;Z.ans[Z.i]=+b.dataset.k;if(ex&&Z.i<Z.qs.length-1)Z.i++;tqDraw()});
+  d.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{Z.i=+b.dataset.j;tqDraw()});
+  d.querySelector('#tqP').onclick=()=>{Z.i--;tqDraw()};const n=d.querySelector('#tqN');if(n)n.onclick=()=>{Z.i++;tqDraw()};
+  const s=d.querySelector('#tqS');if(s)s.onclick=()=>{const left=Z.ans.filter(x=>x==null).length;if(left&&!confirm(`Còn ${left} câu chưa trả lời. ${ex?'Nộp bài':'Kết thúc'}?`))return;tqSubmit()};
+  d.querySelector('#tqX').onclick=()=>{if(confirm(ex?'Thoát sẽ hủy lượt thi này (vẫn tính 1 lượt). Thoát?':'Thoát ôn tập?'))tqClose()};d.scrollTop=0;
+}
+async function tqSubmit(){const Z=TQ.Z;Z.done=true;clearInterval(window._tqt);let r;
+  if(Z.mode==='exam'){const x=await sb.rpc('khg_tx_exam_submit',{p_exam:Z.ex.exam_id,p_answers:Z.ans.map(v=>v==null?-1:v)});if(x.error){toast(x.error.message);return}r=x.data}
+  else{const rev=Z.qs.map((q,k)=>({...q,chosen:Z.ans[k]}));r={score:rev.filter(x=>x.chosen===x.correct).length,total:rev.length,critical_wrong:rev.filter(x=>x.critical&&x.chosen!==x.correct).length,review:rev};r.passed=!r.critical_wrong&&r.score>=Math.ceil(r.total*.9)}
+  const wrong=r.review.filter(x=>x.chosen!==x.correct);const d=tqBox();
+  d.innerHTML=`<div class="tqh"><b>Kết quả</b><button id="tqX">✕</button></div><div class="tqb" style="text-align:center"><div style="font-size:44px">${r.passed?'🎉':'📘'}</div><h2 style="margin:4px 0">${r.score}/${r.total} câu đúng</h2>
+   <div class="tqe ${r.passed?'ok':'no'}" style="text-align:left">${Z.mode==='exam'?(r.passed?'<b>ĐẠT bài thi tập huấn.</b> Kết quả đã gửi điều phối KHG.':`<b>CHƯA ĐẠT.</b> Cần đúng từ ${r.total-3}/${r.total} câu và không sai câu điểm liệt${r.critical_wrong?` (sai ${r.critical_wrong} câu điểm liệt)`:''}${r.late?' – nộp quá giờ':''}. Ôn tập rồi thi lại (tối đa 3 lượt/24 giờ).`):(r.passed?'Ôn tập tốt – sẵn sàng thi chính thức.':'Xem lại các câu sai bên dưới.')}</div>
+   <div class="tqn"><button class="p" id="tqA">Ôn tiếp 20 câu</button><button id="tqB">Đóng</button></div>
+   <div style="text-align:left">${wrong.map(q=>`<div class="tqw">${q.critical?'<span class="pill red">Điểm liệt</span>':''}${q.image_svg?`<div class="tqi" style="max-width:260px">${q.image_svg}</div>`:''}<b>${esc(q.question)}</b>
+     <div style="color:#B42318">✗ ${q.chosen!=null&&q.chosen>=0?esc(q.options[q.chosen]):'Chưa trả lời'}</div><div style="color:var(--green)">✓ ${esc(q.options[q.correct])}</div><div class="small">${esc(q.explanation||'')}</div></div>`).join('')}</div></div>`;
+  d.querySelector('#tqX').onclick=d.querySelector('#tqB').onclick=tqClose;d.querySelector('#tqA').onclick=()=>tqStart('practice',Z.kind);d.scrollTop=0;
+}
+
 
 (async()=>{const {data}=await sb.auth.getSession();if(data&&data.session)start();else $('#login').classList.remove('hidden')})();
 })();

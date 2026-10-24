@@ -411,7 +411,7 @@ const E={
    {k:'id_issued_on',l:'Ngày cấp CCCD',t:'date'},{k:'id_issued_place',l:'Nơi cấp',t:'text'},{k:'tax_code',l:'Mã số thuế cá nhân',t:'text'},
    {k:'address_permanent',l:'Địa chỉ thường trú',t:'text'},{k:'address_current',l:'Chỗ ở hiện tại',t:'text'},{k:'emergency_contact',l:'Liên hệ khẩn cấp',t:'text'},
    {h:'Công việc'},{k:'role',l:'Vai trò',t:'sel',o:'role',list:true,def:'tai_xe'},{k:'employment_status',l:'Tình trạng',t:'sel',o:'emp_status',list:true,def:'thu_viec'},{k:'vehicle_id',l:'Xe phụ trách',t:'fk',ref:'vehicles',list:true},
-   {k:'license_class',l:'Hạng bằng lái',t:'text',list:true},{k:'license_no',l:'Số bằng lái',t:'text'},{k:'license_until',l:'Bằng lái hết hạn',t:'date',list:true},
+   {k:'license_class',l:'Hạng bằng lái',t:'text',list:true},{k:'license_no',l:'Số bằng lái',t:'text'},{k:'license_until',l:'Bằng lái hết hạn',t:'date',list:true},{k:'exam_passed_at',l:'Đạt bài thi tập huấn',t:'dt',ro:true},{k:'exam_score',l:'Điểm bài thi',t:'num',ro:true},
    {h:'Mốc thời gian & hợp đồng'},{k:'hire_date',l:'Ngày nhận việc',t:'date',list:true},{k:'probation_start',l:'Bắt đầu thử việc',t:'date'},{k:'probation_end',l:'Kết thúc thử việc',t:'date'},
    {k:'official_date',l:'Ngày chính thức',t:'date',list:true},{k:'contract_type',l:'Loại hợp đồng',t:'sel',o:'contract_type'},{k:'contract_no',l:'Số hợp đồng',t:'text'},{k:'contract_end',l:'Hợp đồng hết hạn',t:'date'},
    {h:'Lương & bảo hiểm'},{k:'salary_type',l:'Cách tính lương',t:'sel',o:'salary_type',def:'thang'},{k:'base_salary',l:'Lương cứng / đơn giá',t:'money'},
@@ -1427,15 +1427,37 @@ async function openAccess(p){
 }
 
 // ===================== CHẤM CÔNG & LƯƠNG =====================
+
+// ---- Tiền chuyến tài xế: đối chiếu theo tài xế, sửa từng đơn, đưa vào lương chuyến ----
+async function tripPayView(h){
+  const t=today(),f0=t.slice(0,8)+'01';
+  h.innerHTML=`<p class="sub">Tiền chuyến trả tài xế nhập khi giao/phát đơn. Khi “Tính lương”, tổng tiền chuyến các đơn đã giao trong kỳ được đưa vào <b>Lương chuyến</b>; đơn chưa ghi tiền chuyến tính theo đơn giá chuyến trong hồ sơ (tài xế lương theo chuyến). Đơn chạy bởi đối tác xe không tính ở đây (đối soát riêng).</p>
+   <div class="bar"><label>Từ <input type="date" id="tpF" value="${f0}"></label><label>đến <input type="date" id="tpT" value="${t}"></label><button class="btn" id="tpGo">Xem</button><span style="flex:1"></span><button class="btn" id="tpX">⬇ Excel</button></div><div id="tpW"><div class="empty">Đang tải…</div></div>`;
+  let rows=[];
+  const load=async()=>{const {data,error}=await sb.rpc('khg_driver_pay_report',{p_from:$('#tpF').value,p_to:$('#tpT').value});if(error){$('#tpW').innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}rows=data||[];
+    const tot=rows.reduce((a,r)=>a+Number(r.pay||0),0),miss=rows.reduce((a,r)=>a+Number(r.missing||0),0);
+    $('#tpW').innerHTML=`<div class="kpis"><div class="kpi"><div class="l">Tổng tiền chuyến</div><div class="v">${fmtM(tot)}</div><div class="h">${rows.length} tài xế · ${rows.reduce((a,r)=>a+Number(r.orders||0),0)} đơn</div></div><div class="kpi ${miss?'hot':''}"><div class="l">Đơn chưa ghi tiền chuyến</div><div class="v">${miss}</div><div class="h">Nhập trực tiếp ở bảng dưới</div></div></div>
+     ${rows.map((r,i)=>`<div class="card" style="margin-bottom:10px"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b style="flex:1">${esc(r.name)} <span class="sub">${esc(r.phone||'')} · ${r.salary_type==='chuyen'?'lương chuyến '+fmtM(r.base_salary||0)+'/chuyến':'lương '+esc(r.salary_type||'')}</span></b>
+       <span>${r.trips} chuyến · ${r.orders} đơn</span><b style="font-size:17px">${fmtM(r.pay)}</b>${r.missing?`<span class="pill amber">${r.missing} đơn chưa ghi tiền</span>`:''}<button class="btn s" data-tp="${i}">Chi tiết</button></div><div id="tpL${i}" class="hidden"></div></div>`).join('')||'<div class="empty">Không có đơn tài xế KHG đã giao trong kỳ.</div>'}`;
+    $$('#tpW [data-tp]').forEach(b=>b.onclick=()=>{const i=+b.dataset.tp,r=rows[i],box=$('#tpL'+i);if(!box.classList.contains('hidden')){box.classList.add('hidden');return}
+      box.classList.remove('hidden');box.innerHTML=`<div class="tw" style="margin-top:8px"><table><thead><tr><th>Đơn</th><th>Ngày</th><th>Tuyến</th><th class="n">Chuyến</th><th class="n">Doanh thu</th><th class="n">Tiền chuyến tài xế</th><th></th></tr></thead><tbody>${r.lines.map(l=>`<tr><td>${esc(l.code)}</td><td>${fmtD(l.date)}</td><td>${esc(l.route||'')}</td><td class="n">${l.trips}</td><td class="n">${fmtN(l.revenue)}</td>
+        <td class="n">${RO?fmtN(l.driver_pay):`<input type="number" step="1000" style="width:120px;text-align:right" data-dp="${l.id}" value="${l.driver_pay??''}" placeholder="${r.salary_type==='chuyen'?fmtN((r.base_salary||0)*l.trips):'chưa ghi'}">`}</td><td>${RO?'':`<button class="btn s" data-sv="${l.id}">Lưu</button>`}</td></tr>`).join('')}</tbody></table></div>`;
+      box.querySelectorAll('[data-sv]').forEach(x=>x.onclick=async()=>{const v=box.querySelector(`[data-dp="${x.dataset.sv}"]`).value;const {error}=await sb.from('khg_orders').update({driver_pay:v===''?null:Number(v)}).eq('id',x.dataset.sv);toast(error?error.message:'Đã lưu tiền chuyến')})});
+  };
+  $('#tpGo').onclick=load;
+  $('#tpX').onclick=()=>xlsx('Tien-chuyen-tai-xe',{'Tổng hợp':rows.map(r=>({'Tài xế':r.name,'SĐT':r.phone,'Số chuyến':r.trips,'Số đơn':r.orders,'Tiền chuyến':Number(r.pay),'Đơn chưa ghi tiền':r.missing})),'Chi tiết':rows.flatMap(r=>r.lines.map(l=>({'Tài xế':r.name,'Đơn':l.code,'Ngày':fmtD(l.date),'Tuyến':l.route,'Chuyến':l.trips,'Doanh thu':Number(l.revenue||0),'Tiền chuyến':l.driver_pay==null?'':Number(l.driver_pay)})))});
+  await load();
+}
 async function viewPayroll(m){
   const canPay=has(['admin','ke_toan']);
   m.innerHTML=`<h2>Chấm công & lương</h2><p class="sub">Lương = lương cứng theo ngày công (chuẩn 26) + tăng ca (150% ngày thường, 200% ngày nghỉ, 300% lễ Tết theo Bộ luật Lao động) + lương chuyến + chuyên cần (đủ 26 công) + phụ cấp + khác − BHXH, BHYT, BHTN người lao động 10,5% (khi đã đến ngày đóng) − khấu trừ − ứng lương.</p>
-   <div class="subtabs" id="st"><button data-s="sum" class="on">Tổng hợp công</button><button data-s="rev">Duyệt chấm công</button><button data-s="att">Chấm công</button><button data-s="site">Điểm chấm công</button>${canPay?'<button data-s="pi">Thưởng / phạt</button><button data-s="sal">Bảng lương</button>':''}</div><div id="h"></div>`;
+   <div class="subtabs" id="st"><button data-s="sum" class="on">Tổng hợp công</button><button data-s="rev">Duyệt chấm công</button><button data-s="att">Chấm công</button><button data-s="site">Điểm chấm công</button><button data-s="trip">Tiền chuyến tài xế</button>${canPay?'<button data-s="pi">Thưởng / phạt</button><button data-s="sal">Bảng lương</button>':''}</div><div id="h"></div>`;
   const sw=async n=>{m.querySelectorAll('#st button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));const h=$('#h');h.innerHTML='';
     if(n==='att')return renderList('attendance',h);
     if(n==='rev')return attReview(h);
     if(n==='site')return renderList('work_sites',h,{extraBtns:'<button class="btn" id="here">📍 Thêm điểm tại vị trí hiện tại</button>',bind:(host,load)=>{host.querySelector('#here').onclick=async()=>{toast('Đang lấy vị trí…');const c=await KCam.gps();if(!c)return toast('Không lấy được vị trí');openForm('work_sites',null,load,{lat:+c.latitude.toFixed(6),lng:+c.longitude.toFixed(6),radius_m:300})}}});
     if(n==='pi')return renderList('pay_items',h,{sumKey:'amount'});
+    if(n==='trip')return tripPayView(h);
     if(n==='sum'){
       h.innerHTML='<div class="bar" id="pp"></div><div id="sb"></div>';await ensureRef('people');
       const draw=async p=>{const [{data:a},{data:o},{data:pp}]=await Promise.all([sb.from('khg_attendance').select('*').gte('work_date',p.from).lte('work_date',p.to).limit(10000),
@@ -1853,7 +1875,7 @@ Object.assign(E,{
    {k:'question',l:'Câu hỏi',t:'area',list:true,req:true},{k:'options',l:'Các đáp án – mỗi dòng một đáp án (dòng 1 = A, dòng 2 = B…)',t:'lines',req:true},{k:'correct',l:'Đáp án đúng (0 = A, 1 = B, 2 = C, 3 = D)',t:'num',list:true,req:true},
    {k:'explanation',l:'Giải thích',t:'area'},{k:'image_key',l:'Mã hình minh họa',t:'text'},{k:'image_svg',l:'Hình minh họa (SVG)',t:'area'},{k:'active',l:'Đang dùng',t:'bool',list:true,def:true},{k:'sort',l:'Thứ tự',t:'num'}]},
  fd_exams:{table:'khg_fd_exams',title:'Kết quả thi',order:['started_at',false],noNew:true,filters:[['passed','qcrit'],['kind','qkind']],
-  f:[{k:'driver_id',l:'Tài xế',t:'fk',ref:'fd_drivers',list:true,ro:true},{k:'kind',l:'Bài thi',t:'sel',o:'qkind',list:true,ro:true},{k:'score',l:'Đúng',t:'num',list:true,ro:true},{k:'total',l:'Tổng câu',t:'num',list:true,ro:true},
+  f:[{k:'driver_id',l:'Tài xế Fast Driver',t:'fk',ref:'fd_drivers',list:true,ro:true},{k:'person_id',l:'Tài xế KHG',t:'fk',ref:'people',list:true,ro:true},{k:'kind',l:'Bài thi',t:'sel',o:'qkind',list:true,ro:true},{k:'score',l:'Đúng',t:'num',list:true,ro:true},{k:'total',l:'Tổng câu',t:'num',list:true,ro:true},
    {k:'critical_wrong',l:'Sai điểm liệt',t:'num',list:true,ro:true},{k:'passed',l:'Đạt',t:'bool',list:true,ro:true},{k:'started_at',l:'Bắt đầu',t:'dt',list:true,ro:true},{k:'submitted_at',l:'Nộp bài',t:'dt',list:true,ro:true}]},
  job_apps:{table:'khg_driver_job_apps',title:'Ứng tuyển',order:['created_at',false],noNew:true,filters:[['status','app_status'],['job_id','@driver_jobs']],
   f:[{k:'job_id',l:'Nhu cầu',t:'fk',ref:'driver_jobs',list:true,ro:true},{k:'driver_id',l:'Tài xế',t:'fk',ref:'fd_drivers',list:true,ro:true},{k:'status',l:'Trạng thái',t:'sel',o:'app_status',list:true},
