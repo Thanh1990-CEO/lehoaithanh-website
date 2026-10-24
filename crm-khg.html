@@ -1480,8 +1480,8 @@ const VIEWS={
    onActs:async(st,id)=>{await sb.from('khg_requests').update({status:st}).eq('id',id)}})},
  customers:async m=>{m.innerHTML='<h2>Khách hàng</h2><p class="sub">Theo 7 nhóm khách mục tiêu của KHG.</p><div id="h"></div>';
   const canC=has(['admin','ke_toan','kinh_doanh','dieu_phoi']);
-  await renderList('customers',m.querySelector('#h'),{rowActions:r=>canC&&!RO?`<button class="btn s" data-act="hd" data-id="${r.id}" title="Soạn hợp đồng nguyên tắc cho khách này">📝 Hợp đồng</button>`:'',
-   onActs:async(a,id,r)=>{if(a==='hd'){const c={customer_id:r.id};await openCompose('hd_nguyen_tac',{b_name:r.name,b_tax:r.tax_code||'',b_addr:r.address||'',b_phone:r.phone||'',b_email:r.email||'',b_contact:r.contact_name?(r.contact_name+(r.phone?' – '+r.phone:'')):'',...(r.payment_terms_days?{tt_han:`Trong vòng ${r.payment_terms_days} ngày kể từ ngày Bên A nhận hóa đơn GTGT và bảng kê đã xác nhận`}:{})},c)}}})},
+  await renderList('customers',m.querySelector('#h'),{rowActions:r=>canC&&!RO?`<button class="btn s" data-act="hd" data-id="${r.id}" title="Soạn hợp đồng nguyên tắc cho khách này">📝 Hợp đồng</button><button class="btn s" data-act="pw" data-id="${r.id}" title="Cấp mật khẩu app Đặt xe">🔑 App</button>`:'',
+   onActs:async(a,id,r)=>{if(a==='pw')return extAccount('customer',r);if(a==='hd'){const c={customer_id:r.id};await openCompose('hd_nguyen_tac',{b_name:r.name,b_tax:r.tax_code||'',b_addr:r.address||'',b_phone:r.phone||'',b_email:r.email||'',b_contact:r.contact_name?(r.contact_name+(r.phone?' – '+r.phone:'')):'',...(r.payment_terms_days?{tt_han:`Trong vòng ${r.payment_terms_days} ngày kể từ ngày Bên A nhận hóa đơn GTGT và bảng kê đã xác nhận`}:{})},c)}}})},
  fleet:async m=>{m.innerHTML=`<h2>Đội xe & thiết bị</h2><p class="sub">Năng lực xe 1,9–18 tấn (sở hữu và liên kết), hạn bảo hiểm, đăng kiểm, phí đường bộ, bảo dưỡng. Ghi chi phí bảo hiểm/đăng kiểm có “Hiệu lực đến” → hạn của xe tự cập nhật.</p><div class="subtabs"><button data-s="vehicles" class="on">Xe tải</button><button data-s="equipment">Xe nâng, xe cẩu</button></div><div id="sum" class="kpis"></div><div id="h"></div>`;
    const {data:v}=await sb.from('khg_vehicles').select('load_t,ownership,status,insurance_until,inspection_until,road_fee_until,next_maintenance_on');
    const g=(a,b)=>(v||[]).filter(x=>x.load_t>=a&&x.load_t<=b).length;const lim=addDays(today(),30);
@@ -1747,6 +1747,22 @@ function bcResult(o,data,pay){
    <div class="bar"><button class="btn p s" id="bcCp">Sao chép tin phát đơn</button><button class="btn s" id="bcLk">🔗 Sao chép link nhận đơn</button></div></div>`;
   $('#bcCp').onclick=()=>copyText(txt,'Đã sao chép – dán vào nhóm Zalo tài xế');$('#bcLk').onclick=()=>copyText(data.link,'Đã sao chép link nhận đơn');
 }
+
+// ---- Cấp mật khẩu app cho đối tác xe, tài xế Fast Driver, khách hàng ----
+function extAccount(kind,r){
+  const L={partner:['App Đối tác KHG','doi-tac.html'],fd:['App Fast Driver','fast-driver.html'],customer:['App Đặt xe KHG','dat-xe.html']}[kind];
+  modal(`<h3>🔑 Tài khoản ${L[0]} · ${esc(r.full_name||r.name||'')}</h3>
+   <p class="sub">Đăng nhập bằng số điện thoại <b>${esc(r.phone||'(chưa có SĐT)')}</b> tại lehoaithanh.org/${L[1]}. Mật khẩu cũ không xem lại được – bấm nút dưới để cấp mật khẩu mới (chưa có tài khoản thì tự tạo).</p>
+   <div class="form"><label>Mật khẩu tạm<input id="exPw" placeholder="Để trống: hệ thống tự tạo"></label></div>
+   <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:14px"><input type="checkbox" id="exMc" checked> Bắt buộc đổi mật khẩu khi đăng nhập lần đầu</label>
+   <div id="exOut"></div><div class="acts"><span class="sp"></span><button class="btn" id="exC">Đóng</button><button class="btn p" id="exGo">Cấp mật khẩu</button></div>`);
+  $('#exC').onclick=closeModal;
+  $('#exGo').onclick=async()=>{const b=$('#exGo');b.disabled=true;const res=await kh({action:'ext_account',kind,id:r.id,password:$('#exPw').value.trim()||undefined,must_change:$('#exMc').checked});b.disabled=false;
+    if(res.error)return toast(res.error);
+    $('#exOut').innerHTML=`<div class="card" style="margin-top:12px"><b>✅ Đã cấp – gửi cho ${esc(r.full_name||r.name||'')}:</b><div class="share" style="margin-top:8px;white-space:pre-wrap">${esc(res.share)}</div>
+      <div class="acts" style="justify-content:flex-start"><button class="btn p" id="exCp">📋 Sao chép</button><a class="btn" target="_blank" rel="noopener" href="https://zalo.me/${esc(String(r.phone||'').replace(/\D/g,''))}">Mở Zalo</a></div><p class="sub">Mật khẩu chỉ hiện một lần. Quên thì cấp lại.</p></div>`;
+    $('#exCp').onclick=()=>copyText(res.share,'Đã sao chép thông tin đăng nhập')};
+}
 // ===================== Đối tác xe liên kết & Fast Driver =====================
 Object.assign(O,{
   partner_kind:{ca_nhan:'Cá nhân chủ xe',ho_kd:'Hộ kinh doanh',doanh_nghiep:'Doanh nghiệp',hop_tac_xa:'Hợp tác xã'},
@@ -1916,8 +1932,9 @@ VIEWS.partners=async m=>{
   const h=m.querySelector('#h');
   const subs={
     dt:()=>renderList('partners',h,{newDefaults:{source:'khg_moi',owner_id:ME?.id},
-      rowActions:r=>(RO?'':(['cho_duyet','tam_dung','tu_choi','ngung'].includes(r.status)?`<button class="btn s" data-act="ok" data-id="${r.id}">✔ Duyệt hợp tác</button>`:'')+(r.status==='cho_duyet'?`<button class="btn s" data-act="no" data-id="${r.id}">✕ Từ chối</button>`:'')+(r.status==='dang_hop_tac'?`<button class="btn s" data-act="pause" data-id="${r.id}">⏸ Tạm dừng</button>`:''))+`<button class="btn s" data-act="inv" data-id="${r.id}" title="Sao chép tin mời cài app gửi đối tác">📲 Mời cài app</button>`,
+      rowActions:r=>(RO?'':(['cho_duyet','tam_dung','tu_choi','ngung'].includes(r.status)?`<button class="btn s" data-act="ok" data-id="${r.id}">✔ Duyệt hợp tác</button>`:'')+(r.status==='cho_duyet'?`<button class="btn s" data-act="no" data-id="${r.id}">✕ Từ chối</button>`:'')+(r.status==='dang_hop_tac'?`<button class="btn s" data-act="pause" data-id="${r.id}">⏸ Tạm dừng</button>`:''))+`<button class="btn s" data-act="inv" data-id="${r.id}" title="Sao chép tin mời cài app gửi đối tác">📲 Mời cài app</button>`+(RO?'':`<button class="btn s" data-act="pw" data-id="${r.id}" title="Cấp mật khẩu đăng nhập app">🔑 Mật khẩu</button>`),
       onActs:async(a,id,r)=>{
+        if(a==='pw')return extAccount('partner',r);
         if(a==='inv')return copyText(`Chào ${r.rep_name||r.name}, KIM HOÀNG GIA gửi link app Đối tác KHG: ${appUrl('doi-tac.html','?sdt='+encodeURIComponent(r.phone||''))}\nĐăng ký bằng SĐT ${r.phone} để nhận đơn, cập nhật chuyến và xem đối soát. Hotline 0399 831 228.`,'Đã sao chép tin mời – gửi qua Zalo/SMS');
         let up=null;
         if(a==='ok')up={status:'dang_hop_tac',approved_at:new Date().toISOString(),approved_by:ME?.id,reject_reason:null};
@@ -1994,8 +2011,8 @@ VIEWS.fastdriver=async m=>{
    <div class="kpi ${c(js,'moi')?'hot':''}"><div class="l">Nhu cầu mới chờ xử lý</div><div class="v">${c(js,'moi')}</div><div class="h">${c(js,'dang_tuyen')} đang tuyển</div></div><div class="kpi ${c(as,'ung_tuyen')?'hot':''}"><div class="l">Ứng tuyển chờ chọn</div><div class="v">${c(as,'ung_tuyen')}</div></div>`;
   const h=m.querySelector('#h');
   const subs={
-    tx:()=>renderList('fd_drivers',h,{rowActions:r=>RO?'':(r.status==='cho_xet_duyet'||r.status==='cho_ho_so'?`<button class="btn s" data-act="th" data-id="${r.id}" title="Hồ sơ đạt – mời tập huấn">✔ Duyệt hồ sơ</button><button class="btn s" data-act="ok" data-id="${r.id}" title="Đã có kinh nghiệm/đã tập huấn – cho nhận việc ngay">✔✔ Duyệt luôn</button><button class="btn s" data-act="no" data-id="${r.id}">✕ Từ chối</button>`:'')+(r.status==='cho_tap_huan'?`<button class="btn s" data-act="ok" data-id="${r.id}">✔ Đạt tập huấn</button>`:'')+(r.status==='da_duyet'?`<button class="btn s" data-act="lock" data-id="${r.id}">⏸ Khóa</button>`:'')+(['tam_khoa','tu_choi'].includes(r.status)?`<button class="btn s" data-act="open" data-id="${r.id}">↺ Mở lại</button>`:''),
-      onActs:async(a,id)=>{let up=null;const now=new Date().toISOString();
+    tx:()=>renderList('fd_drivers',h,{rowActions:r=>RO?'':(r.status==='cho_xet_duyet'||r.status==='cho_ho_so'?`<button class="btn s" data-act="th" data-id="${r.id}" title="Hồ sơ đạt – mời tập huấn">✔ Duyệt hồ sơ</button><button class="btn s" data-act="ok" data-id="${r.id}" title="Đã có kinh nghiệm/đã tập huấn – cho nhận việc ngay">✔✔ Duyệt luôn</button><button class="btn s" data-act="no" data-id="${r.id}">✕ Từ chối</button>`:'')+(r.status==='cho_tap_huan'?`<button class="btn s" data-act="ok" data-id="${r.id}">✔ Đạt tập huấn</button>`:'')+(r.status==='da_duyet'?`<button class="btn s" data-act="lock" data-id="${r.id}">⏸ Khóa</button>`:'')+(['tam_khoa','tu_choi'].includes(r.status)?`<button class="btn s" data-act="open" data-id="${r.id}">↺ Mở lại</button>`:'')+(RO?'':`<button class="btn s" data-act="pw" data-id="${r.id}" title="Cấp mật khẩu đăng nhập app">🔑 Mật khẩu</button>`),
+      onActs:async(a,id,r)=>{if(a==='pw')return extAccount('fd',r);let up=null;const now=new Date().toISOString();
         if(a==='th'){const {data:ex}=await sb.from('khg_fd_exams').select('id').eq('driver_id',id).eq('passed',true).limit(1);up=ex&&ex.length?{status:'da_duyet',approved_at:now,approved_by:ME?.id,reject_reason:null}:{status:'cho_tap_huan',reject_reason:null};if(ex&&ex.length)toast('Tài xế đã đạt bài thi – chuyển thẳng sang Sẵn sàng nhận việc')}
         if(a==='ok')up={status:'da_duyet',approved_at:now,approved_by:ME?.id,training_done_at:now,reject_reason:null};
         if(a==='no'||a==='lock'){const why=prompt('Lý do (tài xế xem được trên app):');if(why===null)return;up={status:a==='no'?'tu_choi':'tam_khoa',reject_reason:why||null}}

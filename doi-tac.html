@@ -472,6 +472,16 @@ window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(P&&h
   else if(!standalone&&(isIOS||isAndroid||inApp))setTimeout(()=>show(false),4000);
 })();
 
+// Bắt buộc đổi mật khẩu tạm do KHG cấp
+(function(){function chk(){sb.auth.getSession().then(({data})=>{const u=data&&data.session&&data.session.user;if(!u||!(u.user_metadata||{}).must_change||document.getElementById('mcpw'))return;
+  const d=document.createElement('div');d.id='mcpw';d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:center;justify-content:center;padding:16px';
+  const st='width:100%;padding:11px 12px;border:1px solid #ddd;border-radius:10px;margin-bottom:8px;font:inherit;box-sizing:border-box';
+  d.innerHTML=`<div style="background:#fff;color:#111;border-radius:16px;padding:18px;max-width:380px;width:100%;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif"><h3 style="margin:0 0 6px">🔐 Đặt mật khẩu mới</h3><p style="margin:0 0 12px;color:#666;font-size:13px">Bạn đang dùng mật khẩu tạm do KHG cấp. Hãy đặt mật khẩu riêng để tiếp tục.</p><input id="mc1" type="password" autocomplete="new-password" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" style="${st}"><input id="mc2" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu" style="${st}"><button id="mcok" style="width:100%;padding:12px;border:0;border-radius:10px;background:#C8102E;color:#fff;font-weight:800;font-size:15px">Lưu mật khẩu</button><div id="mce" style="color:#B42318;font-size:13px;margin-top:6px"></div></div>`;
+  document.body.appendChild(d);
+  d.querySelector('#mcok').onclick=async()=>{const a=d.querySelector('#mc1').value,b=d.querySelector('#mc2').value,e=d.querySelector('#mce');if(a.length<6)return e.textContent='Tối thiểu 6 ký tự';if(a!==b)return e.textContent='Hai mật khẩu chưa khớp';
+    const r=await sb.auth.updateUser({password:a,data:{must_change:false}});if(r.error)return e.textContent=r.error.message;d.remove()}})}
+  try{sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_IN'||ev==='INITIAL_SESSION')setTimeout(chk,400)})}catch(e){}setTimeout(chk,1200)})();
+
 (async()=>{const {data:{session}}=await sb.auth.getSession();
   if(session&&String(session.user.email||'').endsWith(DOMAIN))boot();else{if(session)await sb.auth.signOut();authView(qs('sdt')||qs('ref')||location.hash==='#dangky'?'up':'in')}})();
 </script></body></html>
