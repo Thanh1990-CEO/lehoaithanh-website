@@ -386,7 +386,7 @@ function drvForm(d){d=d||{};const all={...LIC,...LIC_OLD};
 // ================= Hồ sơ đối tác =================
 async function meView(){await loadVT();const p=P;
   $('#main').innerHTML=banner()+`<div class="card"><h2>${esc(p.name)} ${pill(PST,p.status,PSC)}</h2><div class="note">${esc(p.code)} · ${esc(KIND[p.kind]||'')} · Đăng nhập bằng SĐT ${esc(p.phone)} · ${p.trips_done||0} chuyến đã chạy với KHG</div>
-   <div class="btns"><button class="btn g s" id="mDoc">📎 Giấy tờ pháp lý (${(p.docs||[]).length})</button><button class="btn g s" id="mJob">🧑‍✈️ Cần tài xế lái thuê</button><button class="btn g s" id="mIns">📲 Cài app</button><button class="btn r s" id="mOut">Đăng xuất</button></div></div>
+   <div class="btns"><button class="btn g s" id="mDoc">📎 Giấy tờ pháp lý (${(p.docs||[]).length})</button><button class="btn g s" id="mJob">🧑‍✈️ Cần tài xế lái thuê</button><button class="btn g s" id="mIns">📲 Cài app</button><button class="btn g s" id="mRef">🤝 Giới thiệu nhà xe khác</button><button class="btn g s" id="mFd">🧑‍✈️ Link tuyển tài xế</button><button class="btn r s" id="mOut">Đăng xuất</button></div></div>
    <div class="card"><h3>Thông tin hợp tác</h3><form id="pf">
     <label class="f">Tên đối tác</label><input class="i" name="name" value="${esc(p.name)}"><div class="row"><div><label class="f">Tên gọi tắt</label><input class="i" name="short_name" value="${esc(p.short_name||'')}"></div><div><label class="f">Loại hình</label><select class="i" name="kind">${opt(KIND,p.kind)}</select></div></div>
     <div class="row"><div><label class="f">Người đại diện</label><input class="i" name="rep_name" value="${esc(p.rep_name||'')}"></div><div><label class="f">Chức vụ</label><input class="i" name="rep_title" value="${esc(p.rep_title||'')}"></div></div>
@@ -403,6 +403,9 @@ async function meView(){await loadVT();const p=P;
     row.name=row.name||p.name;row.areas=picked(f,'areas');row.services=picked(f,'services');row.vehicle_types=picked(f,'vts');
     const {error}=await sb.from('khg_partners').update(row).eq('id',p.id);if(error)throw new Error(error.message);await refreshMe();toast('Đã lưu');meView()})};
   $('#mDoc').onclick=()=>filesSheet('partner',p.id,'Giấy tờ pháp lý đối tác',['giay_phep_kd','cccd','hop_dong','uy_quyen','khac'],refreshMe);
+  const shr=async(url,text)=>{try{if(navigator.share){await navigator.share({title:'KIM HOÀNG GIA',text,url});return}}catch(e){if(e.name==='AbortError')return}try{await navigator.clipboard.writeText(text+' '+url);toast('Đã sao chép link – dán vào Zalo/Facebook')}catch(e){prompt('Sao chép link:',url)}};
+  $('#mRef').onclick=()=>shr(location.origin+'/doi-tac.html?ref='+encodeURIComponent(p.code),'Mời anh/chị hợp tác chạy xe cùng KIM HOÀNG GIA – nhận đơn đều, đối soát minh bạch:');
+  $('#mFd').onclick=()=>shr(location.origin+'/fast-driver.html','Tuyển tài xế lái thuê mọi loại xe – đăng ký, ôn thi và nhận việc tại Fast Driver:');
   $('#mOut').onclick=async()=>{await sb.auth.signOut();P=null;authView('in')};
   $('#mIns').onclick=()=>window.KInstall?KInstall.open():toast('Mở bằng Chrome/Safari để cài app');
   $('#mJob').onclick=()=>{sheet(`<h3>Cần tài xế lái thuê cho xe của bạn</h3><p class="note">KHG tìm tài xế Fast Driver đã duyệt hồ sơ, đúng hạng bằng lái và đã tập huấn.</p>

@@ -90,6 +90,7 @@ nav.bn button em{position:absolute;top:4px;right:calc(50% - 22px);background:var
 #vi .big2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.qr{display:block;margin:10px auto;width:min(280px,78vw);border:1px solid var(--line);border-radius:12px;background:#fff}
 .seg2{display:flex;gap:6px;margin:8px 0}.seg2 button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px;font-weight:700}.seg2 button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .warn{background:#FFF3E6;border:1px solid #F5C99B;color:#8A4B12;border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:10px}
+#calls .cl{background:#FFF7E8;border:2px solid #F59E0B;border-radius:16px;padding:14px;margin-bottom:12px}#calls .cl.hl{box-shadow:0 0 0 4px rgba(200,16,46,.35)}#calls .pay{font-size:24px;font-weight:900;color:var(--green)}#calls .cd{font-weight:800;color:var(--red)}
 #banner{background:var(--red);color:#fff;padding:12px 14px;border-radius:14px;margin-bottom:12px;font-weight:700}
 
 /* Logo "Powered by Netlify" (Netlify tự chèn) – nâng lên trên thanh nút */#nl-badge-frame{bottom:calc(70px + env(safe-area-inset-bottom))!important}
@@ -187,7 +188,8 @@ async function start(){
   $('#hname').textContent=ME.full_name;$('#hsub').textContent=(ME.vehicle_id&&VEH[ME.vehicle_id]?'Xe '+VEH[ME.vehicle_id].plate+' · ':'')+'Tài xế KHG';
   const drv=ME.role==='tai_xe';document.querySelectorAll('#bn [data-v="don"],#bn [data-v="vi"]').forEach(b=>b.classList.toggle('hidden',!drv));
   if(!drv){$('#bn').style.gridTemplateColumns='repeat(4,1fr)';$('#hsub').textContent=({boc_xep:'Bốc xếp',kho:'Thủ kho',dieu_phoi:'Điều phối',ke_toan:'Kế toán',kinh_doanh:'Kinh doanh',admin:'Quản trị'})[ME.role]||'Nhân viên KHG'}
-  go(drv?'don':'cong');loadNotif();subscribe();
+  go(drv||/^#nhan\//.test(location.hash)?'don':'cong');loadNotif();subscribe();
+  window.addEventListener('hashchange',()=>{if(/^#nhan\//.test(location.hash))go('don')});
   if('Notification' in window&&Notification.permission==='default')setTimeout(()=>{Notification.requestPermission().catch(()=>{})},1500);
 }
 function subscribe(){
@@ -417,6 +419,7 @@ const addDaysA=(d,n)=>{const x=new Date(d+'T12:00:00+07:00');x.setDate(x.getDate
 // ---------- các màn hình ----------
 const V={};
 V.don=async m=>{
+  const callsP=sb.rpc('khg_driver_open_calls');
   const [{data:o},{data:c}]=await Promise.all([
     sb.from('khg_orders').select('*').eq('driver_id',ME.id).not('status','in','(huy,da_thu)').order('scheduled_at',{ascending:true,nullsFirst:false}).limit(60),
     sb.from('khg_customers').select('id,name,phone,contact_name')]);
@@ -446,7 +449,7 @@ V.don=async m=>{
       ${x.quantity?`<b>Số lượng</b><span>${fmtN(x.quantity)} ${UNIT[x.unit]||''}${x.trips>1?' · '+x.trips+' chuyến':''}</span>`:x.trips>1?`<b>Số chuyến</b><span>${x.trips}</span>`:''}
       <b>Xe</b><span>${esc(VEH[x.vehicle_id]?.plate||x.vehicle_req||'—')}</span>
       ${x.loading_included||x.need_loading?'<b>Bốc xếp</b><span>Có bốc xếp</span>':''}
-      ${cod?`<b>Thu hộ</b><span><b style="color:var(--red)">${fmtM(cod)}</b></span>`:''}</div>
+      ${cod?`<b>Thu hộ</b><span><b style="color:var(--red)">${fmtM(cod)}</b></span>`:''}${x.driver_pay?`<b>Tiền chuyến</b><span><b style="color:var(--green);font-size:16px">${fmtM(x.driver_pay)}</b></span>`:''}</div>
      <div class="est" data-est="${x.id}"><div><small>Quãng đường</small><b>${x.distance_km?fmtN(x.distance_km)+' km':'…'}</b></div><div><small>Thời gian chạy</small><b>${x.duration_min?hm(x.duration_min):'…'}</b></div><div><small>Điểm giao</small><b>${S.filter(s=>s.kind!=='lay').length||x.stops_count||1}</b></div></div>
      <div class="nav"><a href="${navTo(pickS)}" target="_blank" rel="noopener">🧭 Đến điểm lấy</a><a class="o" href="${routeUrl(x,S)}" target="_blank" rel="noopener">🗺️ Cả lộ trình</a></div>
      ${S.length?`<div class="stops">${S.map(stopRow).join('')}</div>`:`<div class="route"><div><i>🟢</i><span>${esc(x.pickup||'?')}</span><a href="${mapLink(x.pickup||'')}" target="_blank" rel="noopener">Chỉ đường</a></div><div><i>🔴</i><span>${esc(x.dropoff||'?')}</span><a href="${mapLink(x.dropoff||'')}" target="_blank" rel="noopener">Chỉ đường</a></div></div>`}
@@ -454,9 +457,17 @@ V.don=async m=>{
      <div class="acts">${nx?`<button class="big ${nx[2]}" data-t="${nx[0]}">${nx[1]}</button>`:''}
       <div class="two"><button class="big o" data-ph="1">📷 Ảnh / video (${nf})</button><button class="big o" data-more="1">⋯ Trạng thái khác</button></div>
       <div class="two"><button class="big o" data-ev="1">🕘 Hành trình</button><a class="big o" style="text-align:center;text-decoration:none" href="tel:0399831228">📞 Điều phối</a></div></div></div>`};
-  m.innerHTML=`${fresh.length?`<div id="banner">🔔 Có ${fresh.length} đơn mới – bấm NHẬN ĐƠN để xác nhận với điều phối</div>`:''}
+  const {data:calls}=await callsP;const CL=calls||[];
+  m.innerHTML=`${CL.length?`<div id="calls"><h2>📣 Đơn đang phát – ai nhận trước được giao (${CL.length})</h2>${CL.map(k=>`<div class="cl" id="cl-${k.order_id}"><div class="row"><span class="code">${esc(k.code)}</span><span style="flex:1"></span><span class="cd" data-until="${k.until}"></span></div>
+     <div class="pay">💰 ${k.pay?fmtM(k.pay):'Tiền chuyến: thỏa thuận'}</div><div class="kv"><b>Có mặt</b><span>${k.scheduled_at?fmtDT(k.scheduled_at):'Càng sớm càng tốt'}</span><b>Tuyến</b><span>${esc(k.from||'?')} → ${esc(k.to||'?')}</span>
+     ${k.cargo||k.weight_t?`<b>Hàng</b><span>${esc([k.cargo,k.weight_t?k.weight_t+' tấn':''].filter(Boolean).join(' · '))}</span>`:''}${k.distance_km?`<b>Quãng đường</b><span>${fmtN(k.distance_km)} km</span>`:''}${k.need_loading?'<b>Bốc xếp</b><span>Có</span>':''}${k.cod?'<b>Thu hộ</b><span>Có COD</span>':''}${k.note?`<b>Ghi chú</b><span>${esc(k.note)}</span>`:''}</div>
+     <div class="acts"><button class="big" data-claim="${k.order_id}">✋ NHẬN ĐƠN NGAY</button><button class="big o" data-skip="${k.order_id}">Bỏ qua</button></div></div>`).join('')}</div>`:''}${fresh.length?`<div id="banner">🔔 Có ${fresh.length} đơn mới – bấm NHẬN ĐƠN để xác nhận với điều phối</div>`:''}
    <h2>Đơn của tôi (${active.length})</h2>${active.length>2||done.length?`<input class="in" id="dq" type="search" placeholder="🔍 Tìm mã đơn, địa chỉ, khách, SĐT…" style="margin-bottom:10px" value="${esc(window._dq||'')}">`:''}${active.map(card).join('')||'<div class="card empty">Chưa có đơn nào được giao.<br>Khi điều phối giao đơn, app sẽ đổ chuông.</div>'}
    ${done.length?`<h2>Đã giao gần đây</h2><div class="card">${done.map(x=>`<div class="li"><b>${esc(x.code)}</b> · ${esc(cust[x.customer_id]?.name||x.customer_text||'')}<div class="small">${esc(x.pickup||'')} → ${esc(x.dropoff||'')} · ${fmtDT(x.delivered_at||x.scheduled_at)}</div></div>`).join('')}</div>`:''}`;
+  m.querySelectorAll('[data-claim]').forEach(b=>b.onclick=async()=>{b.disabled=true;stopRing();const {error}=await sb.rpc('khg_driver_claim',{p_order:b.dataset.claim});if(error){toast(error.message);go('don',true);return}toast('🎉 Bạn đã nhận đơn – chuẩn bị chạy!');location.hash='';go('don')});
+  m.querySelectorAll('[data-skip]').forEach(b=>b.onclick=async()=>{b.disabled=true;await sb.rpc('khg_driver_skip',{p_order:b.dataset.skip});go('don',true)});
+  const tick=()=>m.querySelectorAll('[data-until]').forEach(e=>{const s=Math.max(0,Math.round((new Date(e.dataset.until)-Date.now())/1000));e.textContent=s?`⏳ còn ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`:'Hết hạn'});tick();clearInterval(window._ct);if(CL.length)window._ct=setInterval(tick,1000);
+  const hn=(location.hash.match(/^#nhan\/(.+)$/)||[])[1];if(hn){const el=$('#cl-'+hn);if(el){el.classList.add('hl');el.scrollIntoView({block:'center'})}else if(!CL.length)toast('Đơn đã có người nhận hoặc hết thời gian nhận')}
   m.querySelectorAll('[data-o]').forEach(el=>{const x=active.find(a=>a.id===el.dataset.o);const S=stOf(x.id);
     el.querySelectorAll('[data-t]').forEach(b=>b.onclick=async()=>{b.disabled=true;stopRing();await trip(x,b.dataset.t);b.disabled=false});
     el.querySelector('[data-more]').onclick=()=>otherStatus(x);

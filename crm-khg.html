@@ -377,7 +377,7 @@ const E={
    {k:'vehicle_req',l:'Yêu cầu xe',t:'text'},{k:'vehicle_id',l:'Xe',t:'fk',ref:'vehicles',list:true},{k:'driver_id',l:'Tài xế',t:'fk',ref:'people',list:true},
    {k:'loading_included',l:'Kèm bốc xếp',t:'bool',def:false},
    {h:'Tính cước'},{k:'unit',l:'Đơn vị tính',t:'sel',o:'unit',def:'chuyen'},{k:'quantity',l:'Số lượng',t:'num'},{k:'unit_price',l:'Đơn giá',t:'money'},
-   {k:'extra_charge',l:'Phụ thu',t:'money'},{k:'revenue',l:'Doanh thu',t:'money',list:true,hint:'Tự tính = số lượng × đơn giá + phụ thu'},{k:'partner_cost',l:'Trả xe liên kết',t:'money'},
+   {k:'extra_charge',l:'Phụ thu',t:'money'},{k:'revenue',l:'Doanh thu',t:'money',list:true,hint:'Tự tính = số lượng × đơn giá + phụ thu'},{k:'partner_cost',l:'Trả xe liên kết',t:'money'},{k:'driver_pay',l:'Tiền chuyến trả tài xế',t:'money',hint:'Hiện trên app tài xế khi gán/phát đơn'},
    {h:'Tình trạng'},{k:'status',l:'Trạng thái đơn',t:'sel',o:'order_status',list:true,def:'moi'},{k:'trip_status',l:'Tình trạng chuyến',t:'sel',o:'trip',list:true,ro:true},
    {k:'trip_note',l:'Ghi chú chuyến (tài xế)',t:'text',ro:true},{k:'accepted_at',l:'Lúc nhận',t:'dt',ro:true},{k:'picked_at',l:'Lúc lấy hàng',t:'dt',ro:true},{k:'unloading_at',l:'Lúc trả hàng',t:'dt',ro:true},
    {k:'delivered_at',l:'Lúc giao xong',t:'dt',ro:true},{k:'source',l:'Nguồn',t:'sel',o:'source',def:'web'},{k:'created_at',l:'Tạo lúc',t:'dt',ro:true},{k:'note',l:'Ghi chú',t:'area'}]},
@@ -554,6 +554,7 @@ function cell(f,v){
     case 'fk':return esc((REF[f.ref]||{})[v]||'—');
     case 'bool':return v?'✓':'—';
     case 'arr':return esc((v||[]).join(', '));
+    case 'lines':return esc((v||[]).join(' | '));
     case 'area':return esc(String(v).length>90?String(v).slice(0,90)+'…':v);
     default:return f.k==='url'||f.k==='file_url'?`<a href="${esc(v)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Mở</a>`:esc(v);
   }
@@ -562,6 +563,7 @@ function plain(f,v){
   if(v==null||v==='')return '';
   switch(f.t){
     case 'money':case 'num':return Number(v);
+    case 'lines':return (v||[]).join(' | ');
     case 'date':return fmtD(v);
     case 'dt':return new Date(v).toLocaleString('vi-VN');
     case 'sel':return (O[f.o]||{})[v]??v;
@@ -705,17 +707,18 @@ function formHTML(cfg,row,defaults={}){
     if(f.t==='area') return `<textarea name="${f.k}" ${dis} ${rq}>${esc(val??'')}</textarea>`;
     if(f.t==='bool') return `<select name="${f.k}" ${dis}><option value="true" ${val===true?'selected':''}>Có</option><option value="false" ${val!==true?'selected':''}>Không</option></select>`;
     if(f.t==='arr') return `<input name="${f.k}" value="${esc((val||[]).join(', '))}" ${dis}>`;
+    if(f.t==='lines') return `<textarea name="${f.k}" ${dis} ${rq}>${esc((val||[]).join('\n'))}</textarea>`;
     const type={num:'number',money:'number',date:'date',dt:'datetime-local'}[f.t]||'text';
     const shown=f.t==='dt'?toLocalInput(val):f.t==='date'?(val?String(val).slice(0,10):''):(val??'');
     return `<input type="${type}" ${['num','money'].includes(f.t)?'step="any"':''} name="${f.k}" value="${esc(shown)}" ${dis} ${rq}>`;
   };
-  return cfg.f.filter(f=>f.h||!(f.ro&&!row)).map(f=>f.h?`<div class="hd">${esc(f.h)}</div>`:`<label class="${f.t==='area'?'w':''}">${esc(f.l)}${inp(f)}${f.hint?`<span class="hint">${esc(f.hint)}</span>`:''}</label>`).join('');
+  return cfg.f.filter(f=>f.h||!(f.ro&&!row)).map(f=>f.h?`<div class="hd">${esc(f.h)}</div>`:`<label class="${f.t==='area'||f.t==='lines'?'w':''}">${esc(f.l)}${inp(f)}${f.hint?`<span class="hint">${esc(f.hint)}</span>`:''}</label>`).join('');
 }
 function readForm(cfg,frm,row){
   const data={};
   for(const f of fields(cfg)){ if(f.ro||!frm.elements[f.k])continue;
     const raw=frm.elements[f.k].value;let val=raw===''?null:raw;
-    if(val!=null){ if(['num','money'].includes(f.t))val=Number(val); else if(f.t==='dt')val=new Date(val).toISOString(); else if(f.t==='bool')val=raw==='true'; else if(f.t==='arr')val=raw.split(',').map(s=>s.trim()).filter(Boolean); else if(f.t==='sel'&&f.o==='segment')val=Number(val)}
+    if(val!=null){ if(['num','money'].includes(f.t))val=Number(val); else if(f.t==='dt')val=new Date(val).toISOString(); else if(f.t==='bool')val=raw==='true'; else if(f.t==='arr')val=raw.split(',').map(s=>s.trim()).filter(Boolean); else if(f.t==='lines')val=raw.split('\n').map(s=>s.trim()).filter(Boolean); else if(f.t==='sel'&&f.o==='segment')val=Number(val)}
     if(f.t==='arr'&&val==null)val=[];
     data[f.k]=val;
   }
@@ -1109,21 +1112,24 @@ async function openAssign(o,after){
   modal(`<h3>Giao đơn ${esc(o.code)}</h3>
    <div class="sub" style="margin-bottom:8px">${esc(REF.customers[o.customer_id]||o.customer_text||'')} · ${o.scheduled_at?fmtDT(o.scheduled_at):'càng sớm càng tốt'} · ${esc(o.vehicle_req||o.vehicle_class||'')}${o.distance_km?' · '+fmtN(o.distance_km)+' km':''}</div>
    <div class="sub">${(stops||[]).map(s=>`${s.kind==='lay'?'📍 Lấy':'🏁 Giao '+s.seq}: ${esc(s.address)}${s.contact_name?' – '+esc(s.contact_name):''}${s.phone?' '+esc(s.phone):''}${Number(s.cod_amount)?' · thu hộ '+fmtM(s.cod_amount):''}`).join('<br>')||esc((o.pickup||'')+' → '+(o.dropoff||''))}</div>
-   <div class="subtabs" id="asT" style="margin-top:10px"><button class="on" data-v="khg">Tài xế KHG (${rows.length})</button><button data-v="ngoai">Tài xế / xe ngoài</button><button data-v="doitac">🤝 Mời đối tác xe</button></div>
+   <div class="subtabs" id="asT" style="margin-top:10px"><button class="on" data-v="khg">Tài xế KHG (${rows.length})</button><button data-v="ngoai">Tài xế / xe ngoài</button><button data-v="phat">📣 Phát đơn – ai nhận trước</button><button data-v="doitac">🤝 Mời đối tác xe</button></div>
    <div id="asKhg"><input id="asQ" placeholder="Tìm tên, SĐT, biển số…" style="width:100%;margin-bottom:8px">
      <div class="drl" id="asL">${rows.map(d=>`<label data-q="${esc((d.full_name+' '+(d.phone||'')+' '+(d.v?.plate||'')).toLowerCase())}"><input type="radio" name="asD" value="${d.id}" data-veh="${d.vehicle_id||''}">
        <div><b>${esc(d.full_name)}</b> ${d.phone?`<span style="color:var(--muted)">${esc(d.phone)}</span>`:''}<div style="font-size:12px;color:var(--muted)">${d.v?esc(d.v.plate)+(d.v.load_t?' · '+d.v.load_t+' tấn':''):'chưa gán xe'}${d.telegram_chat_id?' · 🔔 Telegram':''}${d.user_id?' · 📱 App':''}${!d.fit?' · <b style="color:#B5651D">xe nhỏ hơn yêu cầu</b>':''}</div></div>
        <span class="bz">${d.busy.length?`<span class="pill" style="background:#FBEFE3;color:#B5651D">Đang chạy ${d.busy.length}</span>`:'<span class="pill" style="background:#E5F4EC;color:#1E7A4C">Rảnh</span>'}</span></label>`).join('')||'<div class="empty">Chưa có tài xế. Thêm ở mục Nhân sự hoặc chọn tab Tài xế ngoài.</div>'}</div>
      <div class="form" style="margin-top:8px"><label>Xe chạy đơn này<select id="asV"><option value="">— theo xe của tài xế —</option>${Object.values(VEH).sort((a,b)=>a.plate.localeCompare(b.plate)).map(v=>`<option value="${v.id}">${esc(v.plate)}${v.load_t?' · '+v.load_t+'t':''}${v.ownership==='lien_ket'?' · liên kết':''}</option>`).join('')}</select></label></div></div>
    <div id="asExt" class="hidden"><div class="form"><label>Tên tài xế<input id="exN"></label><label>SĐT tài xế *<input id="exP" inputmode="tel"></label><label>Biển số xe<input id="exPl" placeholder="61C-123.45"></label><label>Tải trọng (tấn)<input id="exL" type="number" step="0.1"></label><label>Chủ xe / nhà xe<input id="exO"></label></div>
-     <p class="sub">Tài xế và xe ngoài được lưu lại để lần sau chọn nhanh trong danh sách.</p></div><div id="asPt" class="hidden"></div>
-   <div class="form" style="margin-top:8px"><label>Giá chốt với khách (đ)<input id="asPr" type="number" value="${Math.round(o.revenue||o.est_fare||0)||''}"></label><label>Chi phí trả xe ngoài (đ)<input id="asCo" type="number" value="${Math.round(o.partner_cost||0)||''}"></label><label style="grid-column:1/-1">Ghi chú cho tài xế<input id="asNo" value="${esc(o.trip_note||'')}"></label></div>
+     <p class="sub">Tài xế và xe ngoài được lưu lại để lần sau chọn nhanh trong danh sách.</p></div><div id="asPt" class="hidden"></div><div id="asBc" class="hidden"></div>
+   <div class="form" style="margin-top:8px"><label>Giá chốt với khách (đ)<input id="asPr" type="number" value="${Math.round(o.revenue||o.est_fare||0)||''}"></label><label>Chi phí trả xe ngoài (đ)<input id="asCo" type="number" value="${Math.round(o.partner_cost||0)||''}"></label><label>Tiền chuyến trả tài xế (đ) – hiện trên app<input id="asDp" type="number" value="${Math.round(o.driver_pay||0)||''}" placeholder="VD: 650000"></label><label style="grid-column:1/-1">Ghi chú cho tài xế<input id="asNo" value="${esc(o.trip_note||'')}"></label></div>
    <div class="bar" style="margin-top:12px"><button class="btn p" id="asGo">Giao đơn & báo tài xế</button><button class="btn" id="asClose">Đóng</button></div><div id="asOut"></div>`);
-  let mode='khg',ptGet=null;$('#asClose').onclick=closeModal;
-  $$('#asT button').forEach(b=>b.onclick=()=>{mode=b.dataset.v;$$('#asT button').forEach(x=>x.classList.toggle('on',x===b));$('#asKhg').classList.toggle('hidden',mode!=='khg');$('#asExt').classList.toggle('hidden',mode!=='ngoai');$('#asPt').classList.toggle('hidden',mode!=='doitac');if(mode==='doitac'&&!ptGet)partnerPicker($('#asPt'),o).then(g=>ptGet=g);$('#asGo').textContent=mode==='doitac'?'Gửi lời mời đối tác':'Giao đơn & báo tài xế'});
+  let mode='khg',ptGet=null,bcGet=null;$('#asClose').onclick=closeModal;
+  $$('#asT button').forEach(b=>b.onclick=()=>{mode=b.dataset.v;$$('#asT button').forEach(x=>x.classList.toggle('on',x===b));$('#asKhg').classList.toggle('hidden',mode!=='khg');$('#asExt').classList.toggle('hidden',mode!=='ngoai');$('#asPt').classList.toggle('hidden',mode!=='doitac');$('#asBc').classList.toggle('hidden',mode!=='phat');if(mode==='doitac'&&!ptGet)partnerPicker($('#asPt'),o).then(g=>ptGet=g);if(mode==='phat'&&!bcGet)bcGet=bcPanel($('#asBc'),o,rows);$('#asGo').textContent=mode==='doitac'?'Gửi lời mời đối tác':mode==='phat'?'📣 Phát đơn cho tài xế':'Giao đơn & báo tài xế'});
   $('#asQ').oninput=()=>{const q=$('#asQ').value.toLowerCase().trim();$$('#asL label').forEach(l=>l.classList.toggle('hidden',q&&!l.dataset.q.includes(q)))};
   $$('#asL input').forEach(r=>r.onchange=()=>{if(r.dataset.veh)$('#asV').value=r.dataset.veh});
   $('#asGo').onclick=async()=>{
+    if(mode==='phat'){const v=bcGet();if(!v.ids.length)return toast('Chọn ít nhất 1 tài xế');const b0=$('#asGo');b0.disabled=true;
+      const {data,error}=await sb.rpc('khg_broadcast',{p_order:o.id,p_pay:Number($('#asDp').value)||null,p_minutes:v.minutes,p_people:v.ids,p_note:$('#asNo').value.trim()||null});b0.disabled=false;if(error)return toast(error.message);
+      bcResult(o,data,Number($('#asDp').value)||null);after&&after();return}
     if(mode==='doitac'){if(!ptGet)return toast('Đang tải danh sách đối tác…');const b0=$('#asGo');b0.disabled=true;if(await sendOffer(o,ptGet())){closeModal();after&&after()}else b0.disabled=false;return}
     let d=null,v=null,ext=null;
     if(mode==='khg'){d=document.querySelector('input[name=asD]:checked')?.value;if(!d)return toast('Chọn tài xế');v=$('#asV').value||null}
@@ -1134,6 +1140,7 @@ async function openAssign(o,after){
       if(why){const r2=await sb.rpc('khg_cod_override',{p_order:o.id,p_reason:why});if(r2.error){b.disabled=false;return toast(r2.error.message)}
         ({data,error}=await sb.rpc('khg_dispatch',{p_order:o.id,p_driver:d,p_vehicle:v,p_ext:ext,p_price:Number($('#asPr').value)||null,p_cost:Number($('#asCo').value)||null,p_note:$('#asNo').value.trim()||null}))}}
     b.disabled=false;if(error)return toast(error.message);
+    {const dp=Number($('#asDp').value)||null;if(dp!==(Number(o.driver_pay)||null))await sb.from('khg_orders').update({driver_pay:dp}).eq('id',o.id)}
     delete REF.people;delete REF.vehicles;await Promise.all(['people','vehicles'].map(ensureRef));
     const name=REF.people[data.driver_id]||ext?.name||'', plate=REF.vehicles[data.vehicle_id]||ext?.plate||'';
     const txt=`🚚 ĐƠN ${o.code} – KHG\nTài xế: ${name}${plate?' · xe '+plate:''}\nLấy hàng: ${o.scheduled_at?fmtDT(o.scheduled_at):'ngay'}\n`+(stops||[]).map(s=>`${s.kind==='lay'?'📍 Lấy':'🏁 Giao '+s.seq}: ${s.address}${s.contact_name?' – '+s.contact_name:''}${s.phone?' '+s.phone:''}${Number(s.cod_amount)?' · THU HỘ '+fmtM(s.cod_amount):''}${s.note?' ('+s.note+')':''}`).join('\n')+
@@ -1719,6 +1726,27 @@ async function viewWallet(m){
   $$('#ws button').forEach(b=>b.onclick=()=>sw(b.dataset.s));sw('sum');
 }
 VIEWS.wallet=viewWallet;
+
+// ---- Phát đơn: tài xế phù hợp nhận trước được gán ----
+function bcPanel(host,o,rows){
+  host.innerHTML=`<div class="sub" style="margin:6px 0">Đơn được phát tới các tài xế đã chọn: app đổ chuông + tin Telegram có nút “Nhận đơn”. <b>Ai bấm nhận trước được gán đơn</b>, người khác thấy “đã có người nhận”. Tiền chuyến nhập ở ô “Tiền chuyến trả tài xế”.</div>
+   <label style="display:flex;gap:6px;align-items:center;margin-bottom:6px"><input type="checkbox" id="bcAll"> Chọn tất cả tài xế</label>
+   <div class="drl">${rows.map(d=>`<label><input type="checkbox" class="bcck" value="${d.id}" ${d.fit&&!d.busy.length?'checked':''}><div><b>${esc(d.full_name)}</b> <span style="color:var(--muted)">${esc(d.phone||'')}</span><div style="font-size:12px;color:var(--muted)">${d.v?esc(d.v.plate)+(d.v.load_t?' · '+d.v.load_t+' t':''):'chưa gán xe'}${d.user_id?' · 📱 App':''}${d.telegram_chat_id?' · 🔔 Telegram':''}${d.busy.length?' · đang chạy '+d.busy.length:''}${!d.fit?' · <b style="color:#B5651D">xe nhỏ hơn yêu cầu</b>':''}</div></div></label>`).join('')||'<div class="empty">Chưa có tài xế.</div>'}</div>
+   <div class="form" style="margin-top:8px"><label>Thời gian nhận<select id="bcM"><option value="5">5 phút</option><option value="10">10 phút</option><option value="15" selected>15 phút</option><option value="30">30 phút</option><option value="60">60 phút</option></select></label></div>
+   ${isAdmin()?`<details style="margin-top:8px"><summary class="sub">⚙ Tự phát đơn khách đặt trên app Đặt xe</summary><div class="form" id="bcSet"><div class="empty">Đang tải…</div></div></details>`:''}`;
+  const all=host.querySelector('#bcAll');all.onchange=()=>host.querySelectorAll('.bcck').forEach(c=>c.checked=all.checked);
+  if(isAdmin())sb.rpc('khg_bc_settings').then(({data:st})=>{const b=host.querySelector('#bcSet');if(!b||!st)return;
+    b.innerHTML=`<label>Tự phát đơn<select id="bsA"><option value="0" ${st.bc_auto!=='1'?'selected':''}>Tắt – điều phối tự phát</option><option value="1" ${st.bc_auto==='1'?'selected':''}>Bật – đơn khách đặt tự phát ngay</option></select></label>
+     <label>Tiền chuyến = % giá tạm tính<input id="bsP" type="number" step="1" value="${esc(st.bc_pay_pct||'')}" placeholder="VD: 70"></label><label>Thời gian nhận (phút)<input id="bsM" type="number" value="${esc(st.bc_minutes||'15')}"></label><label>&nbsp;<button class="btn s" id="bsS" type="button">Lưu cài đặt</button></label>`;
+    b.querySelector('#bsS').onclick=async()=>{const {error}=await sb.rpc('khg_bc_settings',{p_set:{bc_auto:$('#bsA').value,bc_pay_pct:$('#bsP').value,bc_minutes:$('#bsM').value}});toast(error?error.message:'Đã lưu cài đặt phát đơn')}});
+  return ()=>({ids:[...host.querySelectorAll('.bcck:checked')].map(c=>c.value),minutes:Number(host.querySelector('#bcM').value)});
+}
+function bcResult(o,data,pay){
+  const txt=`📣 ĐƠN ĐANG PHÁT ${o.code} – KHG\n🕒 ${o.scheduled_at?fmtDT(o.scheduled_at):'Càng sớm càng tốt'}\n📍 ${o.pickup||''} → ${o.dropoff||''}${o.cargo?'\n📦 '+o.cargo+(o.weight_t?' · '+o.weight_t+' tấn':''):''}\n💰 Tiền chuyến: ${pay?fmtM(pay):'thỏa thuận'}\n⏳ Nhận trước ${new Date(data.until).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})} – ai nhận trước được giao\n👉 Bấm nhận: ${data.link}`;
+  $('#asOut').innerHTML=`<div class="card" style="margin-top:10px"><b>✅ Đã phát đơn cho ${data.sent} tài xế.</b> App đổ chuông, Telegram có nút nhận. Có thể dán tin này vào nhóm Zalo tài xế:<textarea style="width:100%;height:150px;margin-top:8px">${esc(txt)}</textarea>
+   <div class="bar"><button class="btn p s" id="bcCp">Sao chép tin phát đơn</button><button class="btn s" id="bcLk">🔗 Sao chép link nhận đơn</button></div></div>`;
+  $('#bcCp').onclick=()=>copyText(txt,'Đã sao chép – dán vào nhóm Zalo tài xế');$('#bcLk').onclick=()=>copyText(data.link,'Đã sao chép link nhận đơn');
+}
 // ===================== Đối tác xe liên kết & Fast Driver =====================
 Object.assign(O,{
   partner_kind:{ca_nhan:'Cá nhân chủ xe',ho_kd:'Hộ kinh doanh',doanh_nghiep:'Doanh nghiệp',hop_tac_xa:'Hợp tác xã'},
@@ -1741,6 +1769,8 @@ Object.assign(O,{
   training_status:{mo:'Mở đăng ký',dong:'Đóng đăng ký',da_xong:'Đã xong',huy:'Hủy'},
   lic:{A1:'A1',A:'A',B1:'B1 (3 bánh)',B:'B',C1:'C1',C:'C',D1:'D1',D2:'D2',D:'D',BE:'BE',C1E:'C1E',CE:'CE',D1E:'D1E',D2E:'D2E',DE:'DE',B2:'B2 (cũ)',C_CU:'C (cũ)',D_CU:'D (cũ)',E_CU:'E (cũ)',FB2:'FB2 (cũ)',FC:'FC (cũ)',FD:'FD (cũ)',FE:'FE (cũ)'},
   cert:{van_hanh_xe_nang:'Vận hành xe nâng',van_hanh_cau:'Vận hành cẩu',hang_nguy_hiem:'Vận chuyển hàng nguy hiểm'},
+  qtopic:{nghe:'Trách nhiệm nghề',giao_nhan:'Giao nhận – chứng từ',xep_do:'Xếp dỡ – tải trọng',an_toan:'An toàn – biển báo',su_co:'Xử lý sự cố',hanh_khach:'Vận tải hành khách',quy_trinh:'Quy trình KHG'},
+  qaud:{chung:'Mọi tài xế',hang:'Tài xế xe hàng',khach:'Tài xế xe khách'},qcrit:{true:'Có',false:'Không'},qkind:{hang:'Xe hàng',khach:'Xe khách'},
   vtype:{xe_may:'Xe máy giao hàng',xe_ba_banh:'Xe ba bánh chở hàng',van:'Xe van / tải van (≤ 1 tấn)',ban_tai:'Xe bán tải',tai_1t5:'Xe tải 1 – 1,5 tấn',tai_2t5:'Xe tải 1,9 – 3,5 tấn',tai_5t:'Xe tải 3,5 – 7,5 tấn',tai_8t:'Xe tải 8 – 10 tấn',tai_15t:'Xe tải 10 – 18 tấn',tai_4chan:'Xe tải 4 – 5 chân',dau_keo_cont:'Đầu kéo container',dau_keo_somi:'Đầu kéo sơ mi rơ moóc',tai_keo_romooc:'Xe tải kéo rơ moóc',con_keo_romooc:'Ô tô con kéo rơ moóc',cau_tu_hanh:'Xe tải gắn cẩu',cau_banh_lop:'Xe cẩu bánh lốp',xe_nang:'Xe nâng hàng',xe_bon:'Xe bồn',xe_cho_xe:'Xe chở ô tô / cứu hộ',xe_rac:'Xe chuyên dùng',oto_4_7:'Ô tô 4 – 7 chỗ',limo_9:'Limousine / 9 chỗ',xe_16:'Xe 10 – 16 chỗ',xe_29:'Xe 17 – 29 chỗ',xe_45:'Xe khách 30 – 45 chỗ',bus_romooc:'Xe khách nối toa'},
 });
 O.veh_status.cho_duyet='Chờ duyệt (đối tác)';
@@ -1802,6 +1832,13 @@ Object.assign(E,{
    {k:'route_text',l:'Tuyến / điểm làm việc',t:'text',list:true},{k:'province',l:'Tỉnh/TP',t:'text'},{k:'area',l:'Khu vực',t:'text'},{k:'quantity',l:'Số tài xế cần',t:'num',def:1,list:true},{k:'requirements',l:'Yêu cầu thêm',t:'area'},{k:'benefits',l:'Quyền lợi tài xế',t:'area'},
    {h:'Giá & trạng thái'},{k:'hirer_price',l:'Giá thu bên thuê',t:'money',list:true},{k:'pay_amount',l:'Trả tài xế',t:'money',list:true},{k:'pay_unit',l:'Tính theo',t:'sel',o:'pay_unit',def:'ngay'},
    {k:'status',l:'Trạng thái',t:'sel',o:'job_status',list:true,def:'moi'},{k:'public',l:'Hiện trên app tài xế',t:'bool',def:false},{k:'source',l:'Nguồn',t:'sel',o:'job_source',def:'crm'},{k:'owner_id',l:'Phụ trách',t:'fk',ref:'people'},{k:'note',l:'Ghi chú nội bộ',t:'area'},{k:'created_at',l:'Tạo lúc',t:'dt',ro:true}]},
+ fd_questions:{table:'khg_fd_questions',title:'Câu hỏi tập huấn',order:['sort',true],search:['question','code','explanation'],filters:[['topic','qtopic'],['audience','qaud'],['critical','qcrit']],label:'code',
+  f:[{k:'code',l:'Mã',t:'text',list:true},{k:'topic',l:'Chủ đề',t:'sel',o:'qtopic',list:true,def:'nghe'},{k:'audience',l:'Áp dụng',t:'sel',o:'qaud',list:true,def:'chung'},{k:'critical',l:'Câu điểm liệt',t:'bool',list:true,def:false},
+   {k:'question',l:'Câu hỏi',t:'area',list:true,req:true},{k:'options',l:'Các đáp án – mỗi dòng một đáp án (dòng 1 = A, dòng 2 = B…)',t:'lines',req:true},{k:'correct',l:'Đáp án đúng (0 = A, 1 = B, 2 = C, 3 = D)',t:'num',list:true,req:true},
+   {k:'explanation',l:'Giải thích',t:'area'},{k:'image_key',l:'Mã hình minh họa',t:'text'},{k:'image_svg',l:'Hình minh họa (SVG)',t:'area'},{k:'active',l:'Đang dùng',t:'bool',list:true,def:true},{k:'sort',l:'Thứ tự',t:'num'}]},
+ fd_exams:{table:'khg_fd_exams',title:'Kết quả thi',order:['started_at',false],noNew:true,filters:[['passed','qcrit'],['kind','qkind']],
+  f:[{k:'driver_id',l:'Tài xế',t:'fk',ref:'fd_drivers',list:true,ro:true},{k:'kind',l:'Bài thi',t:'sel',o:'qkind',list:true,ro:true},{k:'score',l:'Đúng',t:'num',list:true,ro:true},{k:'total',l:'Tổng câu',t:'num',list:true,ro:true},
+   {k:'critical_wrong',l:'Sai điểm liệt',t:'num',list:true,ro:true},{k:'passed',l:'Đạt',t:'bool',list:true,ro:true},{k:'started_at',l:'Bắt đầu',t:'dt',list:true,ro:true},{k:'submitted_at',l:'Nộp bài',t:'dt',list:true,ro:true}]},
  job_apps:{table:'khg_driver_job_apps',title:'Ứng tuyển',order:['created_at',false],noNew:true,filters:[['status','app_status'],['job_id','@driver_jobs']],
   f:[{k:'job_id',l:'Nhu cầu',t:'fk',ref:'driver_jobs',list:true,ro:true},{k:'driver_id',l:'Tài xế',t:'fk',ref:'fd_drivers',list:true,ro:true},{k:'status',l:'Trạng thái',t:'sel',o:'app_status',list:true},
    {k:'note',l:'Tài xế ghi chú',t:'text',list:true,ro:true},{k:'staff_note',l:'KHG phản hồi (tài xế xem được)',t:'text',list:true},{k:'rating',l:'Đánh giá (1–5)',t:'num'},{k:'created_at',l:'Lúc',t:'dt',ro:true,list:true}]},
@@ -1810,7 +1847,7 @@ Object.assign(E,{
 (()=>{const f=E.vehicles.f;const i=f.findIndex(x=>x.k==='ownership');
   f.splice(i+1,0,{k:'vehicle_type',l:'Loại xe',t:'sel',o:'vtype',list:true},{k:'partner_id',l:'Đối tác xe',t:'fk',ref:'partners'},{k:'seats',l:'Số chỗ',t:'num'},{k:'made_year',l:'Năm sản xuất',t:'num'});
   E.vehicles.filters=[...(E.vehicles.filters||[]),['vehicle_type','vtype']];})();
-Object.assign(ENT_VIEW,{partners:'partners',partner_drivers:'partners',offers:'partners',psettlements:'partners',pexpenses:'partners',fd_drivers:'fastdriver',fd_trainings:'fastdriver',fd_regs:'fastdriver',driver_jobs:'fastdriver',job_apps:'fastdriver'});
+Object.assign(ENT_VIEW,{fd_questions:'fastdriver',fd_exams:'fastdriver',partners:'partners',partner_drivers:'partners',offers:'partners',psettlements:'partners',pexpenses:'partners',fd_drivers:'fastdriver',fd_trainings:'fastdriver',fd_regs:'fastdriver',driver_jobs:'fastdriver',job_apps:'fastdriver'});
 ICONS.partners=IC('<path d="M2 12l4-4 4 3 4-3 4 3 4-3"/><path d="M6 8v9a2 2 0 002 2h8a2 2 0 002-2V8"/><circle cx="9" cy="14" r="1.2"/><circle cx="15" cy="14" r="1.2"/>');
 ICONS.fastdriver=IC('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v6.5M4.5 16.5l5.4-3M19.5 16.5l-5.4-3"/>');
 
@@ -1891,8 +1928,9 @@ VIEWS.partners=async m=>{
       onActs:async(a,id)=>{if(a==='ok'){const {error}=await sb.from('khg_vehicles').update({status:'san_sang'}).eq('id',id);toast(error?error.message:'Xe đã được duyệt – đối tác chọn được khi nhận đơn');delete REF.vehicles}}}),
     tx:()=>renderList('partner_drivers',h),
     moi:()=>renderList('offers',h,{extraBtns:RO?'':'<button class="btn p" data-inv>+ Mời đối tác chạy đơn</button>',bind:(hh,load)=>{const b=hh.querySelector('[data-inv]');if(b)b.onclick=()=>pickOrderForOffer(load)},
-      rowActions:r=>!RO&&r.status==='moi'?`<button class="btn s" data-act="cancel" data-id="${r.id}">Thu hồi</button>`:'',
-      onActs:async(a,id)=>{if(a==='cancel'){const {error}=await sb.from('khg_order_offers').update({status:'huy'}).eq('id',id);toast(error?error.message:'Đã thu hồi lời mời')}}}),
+      rowActions:r=>(!RO&&r.status==='moi'?`<button class="btn s" data-act="cancel" data-id="${r.id}">Thu hồi</button>`:'')+(r.status==='moi'?`<button class="btn s" data-act="lk" data-id="${r.id}">🔗 Link nhận đơn</button>`:''),
+      onActs:async(a,id,r)=>{if(a==='lk')return copyText(`KHG mời anh/chị nhận đơn ${(REF.orders||{})[r.order_id]||''}${r.price_offer?' – giá '+fmtM(r.price_offer):''}. Mở app Đối tác KHG để nhận: ${appUrl('doi-tac.html','#offers')}`,'Đã sao chép – gửi đối tác qua Zalo');
+        if(a==='cancel'){const {error}=await sb.from('khg_order_offers').update({status:'huy'}).eq('id',id);toast(error?error.message:'Đã thu hồi lời mời')}}}),
     ds:()=>renderList('psettlements',h,{extraBtns:RO?'':'<button class="btn p" data-build>+ Lập đối soát</button>',
       rowActions:r=>`<button class="btn s" data-act="view" data-id="${r.id}">Chi tiết</button>`+(RO?'':(['nhap','khieu_nai'].includes(r.status)?`<button class="btn s" data-act="send" data-id="${r.id}">📤 Gửi đối tác</button>`:'')+(['gui_doi_tac','doi_tac_xac_nhan'].includes(r.status)?`<button class="btn s" data-act="paid" data-id="${r.id}">💸 Đã thanh toán</button>`:'')+(r.status==='nhap'?`<button class="btn s" data-act="huy" data-id="${r.id}">Hủy</button>`:'')),
       onActs:async(a,id,r)=>{if(a==='view')return openPset(id);let up=null;
@@ -1946,8 +1984,8 @@ async function openRegs(t){
 VIEWS.fastdriver=async m=>{
   const ref=ME?'?ref='+ME.id:'';
   m.innerHTML=`<h2>Fast Driver – Tìm tài xế ở đây</h2><p class="sub">Tài xế đăng ký trên app, nộp đủ pháp lý, tham gia tập huấn KHG rồi nhận việc lái thuê: theo chuyến, ngày, ca, cố định tuyến, tuần, tháng – chỉ những việc có loại xe đúng hạng bằng lái (Luật TTATGT 2024). Khách, đối tác hoặc chính KHG đăng nhu cầu thuê tài xế.</p>
-   ${linkBox([['App tài xế Fast Driver',appUrl('fast-driver.html',ref),`Tuyển tài xế lái thuê mọi loại xe (tải, đầu kéo, xe khách, cẩu, nâng…) – việc theo chuyến, ngày, ca, tuyến cố định, tháng. Đăng ký, nộp hồ sơ và nhận tập huấn tại app Fast Driver – KIM HOÀNG GIA: ${appUrl('fast-driver.html',ref)}`],['Trang khách thuê tài xế',appUrl('fast-driver.html','#thue'),`Cần thuê tài xế có bằng phù hợp, đã qua tập huấn? Gửi yêu cầu cho Fast Driver – KIM HOÀNG GIA: ${appUrl('fast-driver.html','#thue')} – Hotline 0399 831 228`]])}
-   <div id="sum" class="kpis"></div><div class="subtabs">${[['tx','Tài xế'],['nc','Nhu cầu thuê'],['ut','Ứng tuyển'],['th','Lịch tập huấn'],['dk','Đăng ký tập huấn']].map(([k,l],i)=>`<button data-s="${k}" class="${i?'':'on'}">${l}</button>`).join('')}</div><div id="h"></div>`;
+   ${linkBox([['App tài xế Fast Driver',appUrl('fast-driver.html',ref),`Tuyển tài xế lái thuê mọi loại xe (tải, đầu kéo, xe khách, cẩu, nâng…) – việc theo chuyến, ngày, ca, tuyến cố định, tháng. Đăng ký, nộp hồ sơ và nhận tập huấn tại app Fast Driver – KIM HOÀNG GIA: ${appUrl('fast-driver.html',ref)}`],['Ôn thi lý thuyết (công khai)',appUrl('fast-driver.html','#onthi'),`Ôn thi lý thuyết tài xế miễn phí – 100+ câu có hình minh họa, Fast Driver – KIM HOÀNG GIA: ${appUrl('fast-driver.html','#onthi')}`],['Bài thi chính thức (tài xế đăng nhập)',appUrl('fast-driver.html','#thi'),`Mời bạn làm bài thi lý thuyết 35 câu để được nhận việc Fast Driver: ${appUrl('fast-driver.html','#thi')}`],['Trang khách thuê tài xế',appUrl('fast-driver.html','#thue'),`Cần thuê tài xế có bằng phù hợp, đã qua tập huấn? Gửi yêu cầu cho Fast Driver – KIM HOÀNG GIA: ${appUrl('fast-driver.html','#thue')} – Hotline 0399 831 228`]])}
+   <div id="sum" class="kpis"></div><div class="subtabs">${[['tx','Tài xế'],['nc','Nhu cầu thuê'],['ut','Ứng tuyển'],['th','Lịch tập huấn'],['dk','Đăng ký tập huấn'],['ch','Ngân hàng câu hỏi'],['kq','Kết quả thi']].map(([k,l],i)=>`<button data-s="${k}" class="${i?'':'on'}">${l}</button>`).join('')}</div><div id="h"></div>`;
   bindLinks(m);
   const [{data:ds},{data:js},{data:as}]=await Promise.all([sb.from('khg_fd_drivers').select('status'),sb.from('khg_driver_jobs').select('status,quantity'),sb.from('khg_driver_job_apps').select('status')]);
   const c=(a,s)=>(a||[]).filter(x=>x.status===s).length;
@@ -1958,19 +1996,22 @@ VIEWS.fastdriver=async m=>{
   const subs={
     tx:()=>renderList('fd_drivers',h,{rowActions:r=>RO?'':(r.status==='cho_xet_duyet'||r.status==='cho_ho_so'?`<button class="btn s" data-act="th" data-id="${r.id}" title="Hồ sơ đạt – mời tập huấn">✔ Duyệt hồ sơ</button><button class="btn s" data-act="ok" data-id="${r.id}" title="Đã có kinh nghiệm/đã tập huấn – cho nhận việc ngay">✔✔ Duyệt luôn</button><button class="btn s" data-act="no" data-id="${r.id}">✕ Từ chối</button>`:'')+(r.status==='cho_tap_huan'?`<button class="btn s" data-act="ok" data-id="${r.id}">✔ Đạt tập huấn</button>`:'')+(r.status==='da_duyet'?`<button class="btn s" data-act="lock" data-id="${r.id}">⏸ Khóa</button>`:'')+(['tam_khoa','tu_choi'].includes(r.status)?`<button class="btn s" data-act="open" data-id="${r.id}">↺ Mở lại</button>`:''),
       onActs:async(a,id)=>{let up=null;const now=new Date().toISOString();
-        if(a==='th')up={status:'cho_tap_huan',reject_reason:null};
+        if(a==='th'){const {data:ex}=await sb.from('khg_fd_exams').select('id').eq('driver_id',id).eq('passed',true).limit(1);up=ex&&ex.length?{status:'da_duyet',approved_at:now,approved_by:ME?.id,reject_reason:null}:{status:'cho_tap_huan',reject_reason:null};if(ex&&ex.length)toast('Tài xế đã đạt bài thi – chuyển thẳng sang Sẵn sàng nhận việc')}
         if(a==='ok')up={status:'da_duyet',approved_at:now,approved_by:ME?.id,training_done_at:now,reject_reason:null};
         if(a==='no'||a==='lock'){const why=prompt('Lý do (tài xế xem được trên app):');if(why===null)return;up={status:a==='no'?'tu_choi':'tam_khoa',reject_reason:why||null}}
         if(a==='open')up={status:'cho_xet_duyet',reject_reason:null};
         if(up){const {error}=await sb.from('khg_fd_drivers').update(up).eq('id',id);toast(error?error.message:'Đã cập nhật tài xế')}}}),
     nc:()=>renderList('driver_jobs',h,{newDefaults:{source:'crm',hirer_kind:'khg',owner_id:ME?.id},
-      rowActions:r=>(RO?'':(['moi','da_chot'].includes(r.status)||!r.public?`<button class="btn s" data-act="post" data-id="${r.id}" title="Hiện trên app tài xế">📣 Đăng tuyển</button>`:'')+(r.status==='dang_tuyen'?`<button class="btn s" data-act="stop" data-id="${r.id}">⏹ Dừng tuyển</button>`:''))+`<button class="btn s" data-act="cand" data-id="${r.id}">👥 Ứng viên</button>`,
+      rowActions:r=>(RO?'':(['moi','da_chot'].includes(r.status)||!r.public?`<button class="btn s" data-act="post" data-id="${r.id}" title="Hiện trên app tài xế">📣 Đăng tuyển</button>`:'')+(r.status==='dang_tuyen'?`<button class="btn s" data-act="stop" data-id="${r.id}">⏹ Dừng tuyển</button>`:''))+`<button class="btn s" data-act="cand" data-id="${r.id}">👥 Ứng viên</button><button class="btn s" data-act="link" data-id="${r.id}" title="Sao chép link việc gửi tài xế">🔗 Link việc</button>`,
       onActs:async(a,id,r)=>{if(a==='cand')return openCands(r);
+        if(a==='link')return copyText(`Tuyển tài xế ${O.vtype[r.vehicle_type]||r.vehicle_desc||''} – ${O.job_mode[r.mode]||''}${r.route_text?' – '+r.route_text:''}${r.pay_amount?' – '+fmtN(r.pay_amount)+'đ/'+(O.pay_unit[r.pay_unit]||''):''}. Ứng tuyển: ${appUrl('fast-driver.html','#viec/'+r.code)}`,'Đã sao chép link việc – dán vào Zalo/Facebook');
         if(a==='post'){if(!r.pay_amount&&!confirm('Chưa nhập mức trả tài xế. Vẫn đăng tuyển?'))return;const {error}=await sb.from('khg_driver_jobs').update({status:'dang_tuyen',public:true}).eq('id',id);toast(error?error.message:'Đã đăng tuyển – tài xế phù hợp thấy trên app')}
         if(a==='stop'){const {error}=await sb.from('khg_driver_jobs').update({public:false,status:'da_chot'}).eq('id',id);toast(error?error.message:'Đã dừng tuyển')}}}),
     ut:()=>renderList('job_apps',h),
     th:()=>renderList('fd_trainings',h,{newDefaults:{status:'mo',kind:'truc_tiep',location:'VP KHG – DX082, P. Chánh Hiệp, TP.HCM'},rowActions:r=>`<button class="btn s" data-act="regs" data-id="${r.id}">👥 Học viên</button>`,onActs:async(a,id,r)=>{if(a==='regs')return openRegs(r)}}),
     dk:()=>renderList('fd_regs',h),
+    ch:()=>renderList('fd_questions',h,{rowActions:r=>`<button class="btn s" data-act="see" data-id="${r.id}">👁 Xem</button>`,onActs:async(a,id,r)=>{if(a==='see')modal(`<h3>${esc(r.code)} · ${esc(O.qtopic[r.topic]||'')}${r.critical?' · <span class="pill red">Điểm liệt</span>':''}</h3>${r.image_svg?`<div style="max-width:420px">${r.image_svg}</div>`:''}<p><b>${esc(r.question)}</b></p><ol type="A">${(r.options||[]).map((o,k)=>`<li style="${k===r.correct?'color:var(--green);font-weight:700':''}">${esc(o)}${k===r.correct?' ✓':''}</li>`).join('')}</ol><p class="sub">${esc(r.explanation||'')}</p><div class="acts"><span class="sp"></span><button class="btn" onclick="closeModal()">Đóng</button></div>`)}}),
+    kq:()=>renderList('fd_exams',h),
   };
   const sw=n=>{m.querySelectorAll('.subtabs button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));subs[n]()};
   m.querySelectorAll('.subtabs button').forEach(b=>b.onclick=()=>sw(b.dataset.s));sw('tx');
