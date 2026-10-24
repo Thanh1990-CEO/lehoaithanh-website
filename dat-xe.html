@@ -107,6 +107,8 @@ textarea.i{min-height:70px;resize:vertical}
 .install{display:none;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:14px;align-items:center;gap:10px;font-size:13.5px}
 .install.show{display:flex}
 .hp{position:absolute;left:-5000px;width:1px;height:1px;opacity:0}
+
+/* Logo "Powered by Netlify" (Netlify tự chèn) – nâng lên trên thanh nút */#nl-badge-frame{bottom:calc(70px + env(safe-area-inset-bottom))!important}
 </style></head><body>
 <header><div class="hd">
   <svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" rx="20" fill="#C8102E"/><path d="M34 46 L38 22 L50 35 L60 16 L70 35 L82 22 L86 46 Z" fill="#fff"/><text x="60" y="92" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="34" fill="#fff">KHG</text></svg>
@@ -496,7 +498,7 @@ const t0=new URLSearchParams(location.search).get('t'),ds0=new URLSearchParams(l
   if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/khg-sw.js',{scope:'/'}).catch(()=>{}));
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;show()});
   window.addEventListener('appinstalled',()=>{try{localStorage.setItem('khg_installed','1')}catch(e){}hide()});
-  const css=`#kins{position:fixed;left:10px;right:10px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:120;background:#111827;color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto}
+  const css=`#kins{position:fixed;left:10px;right:10px;bottom:calc(132px + env(safe-area-inset-bottom));z-index:120;background:#111827;color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto}
 #kins img{width:40px;height:40px;border-radius:10px}#kins b{display:block;font-size:15px}#kins .x{background:none;border:0;color:#9CA3AF;font-size:20px;padding:4px}
 #kins .go{background:#C8102E;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;white-space:nowrap}
 #kinsg{position:fixed;inset:0;z-index:130;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center}

@@ -68,7 +68,7 @@ nav.bn button em{position:absolute;top:4px;right:calc(50% - 22px);background:var
 .thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
 #sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:flex;align-items:flex-end}
 #sheet .bx{background:#fff;width:100%;max-width:640px;margin:0 auto;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;z-index:40;font-size:14px;max-width:92vw;text-align:center}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(132px + env(safe-area-inset-bottom));background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;z-index:40;font-size:14px;max-width:92vw;text-align:center}
 #ring{position:fixed;inset:0;z-index:80;background:rgba(200,16,46,.96);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;animation:flash 1s infinite}
 @keyframes flash{50%{background:rgba(140,8,30,.97)}}
 #ring .ic{font-size:64px;animation:shake .5s infinite}@keyframes shake{25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
@@ -91,6 +91,8 @@ nav.bn button em{position:absolute;top:4px;right:calc(50% - 22px);background:var
 .seg2{display:flex;gap:6px;margin:8px 0}.seg2 button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px;font-weight:700}.seg2 button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .warn{background:#FFF3E6;border:1px solid #F5C99B;color:#8A4B12;border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:10px}
 #banner{background:var(--red);color:#fff;padding:12px 14px;border-radius:14px;margin-bottom:12px;font-weight:700}
+
+/* Logo "Powered by Netlify" (Netlify tự chèn) – nâng lên trên thanh nút */#nl-badge-frame{bottom:calc(70px + env(safe-area-inset-bottom))!important}
 </style></head><body>
 
 <section id="login" class="hidden">
@@ -676,7 +678,7 @@ V.toi=async m=>{
   if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/khg-sw.js',{scope:'/'}).catch(()=>{}));
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;show()});
   window.addEventListener('appinstalled',()=>{try{localStorage.setItem('khg_installed','1')}catch(e){}hide()});
-  const css=`#kins{position:fixed;left:10px;right:10px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:120;background:#111827;color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto}
+  const css=`#kins{position:fixed;left:10px;right:10px;bottom:calc(132px + env(safe-area-inset-bottom));z-index:120;background:#111827;color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:520px;margin:0 auto}
 #kins img{width:40px;height:40px;border-radius:10px}#kins b{display:block;font-size:15px}#kins .x{background:none;border:0;color:#9CA3AF;font-size:20px;padding:4px}
 #kins .go{background:#C8102E;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;white-space:nowrap}
 #kinsg{position:fixed;inset:0;z-index:130;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center}
