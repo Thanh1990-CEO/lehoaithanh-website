@@ -1,3 +1,9 @@
+# Bỏ qua việc xuất bản khi commit chỉ thay đổi trong thư mục k/ (gói mã bot,
+# dữ liệu nội bộ) hoặc _tmp_uploads/ — tiết kiệm credit Netlify.
+# Lệnh trả về 0 (không có thay đổi ngoài các thư mục này) => Netlify bỏ qua build.
+[build]
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':(exclude)k/' ':(exclude)_tmp_uploads/'"
+
 # netlify.toml — lehoaithanh.org
 #
 # IMPORTANT — read before relying on the edge function below:
