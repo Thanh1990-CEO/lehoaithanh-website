@@ -54,7 +54,7 @@ tr.rw{cursor:pointer}
 tr.rw:hover td{background:#FFF8F8}
 tr.tot td{font-weight:800;background:var(--alt)}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-td.neg{color:var(--red)}
+td.neg{color:var(--red)}tr.lowr td{background:#fff3f3}
 .pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;background:var(--alt);white-space:nowrap}
 .pill.red{background:var(--red-soft);color:var(--red)}.pill.green{background:#E3F1E8;color:var(--green)}
 .pill.amber{background:#F7EADC;color:var(--amber)}.pill.blue{background:#E1EDF6;color:var(--blue)}
@@ -393,7 +393,7 @@ const E={
   f:[{h:'Thông tin xe'},{k:'plate',l:'Biển số',t:'text',list:true,req:true},{k:'brand',l:'Hãng',t:'text',list:true},{k:'load_t',l:'Tải (tấn)',t:'num',list:true},{k:'box_size',l:'Kích thước thùng',t:'text'},
    {k:'volume_m3',l:'Số khối (m³)',t:'num'},{k:'body_type',l:'Loại thùng',t:'text',list:true},{k:'ownership',l:'Sở hữu',t:'sel',o:'ownership',list:true,def:'chua_ro'},
    {k:'partner_name',l:'Chủ xe / đối tác',t:'text'},{k:'status',l:'Trạng thái',t:'sel',o:'veh_status',list:true,def:'san_sang'},{k:'odometer_km',l:'Số km hiện tại',t:'num'},{k:'loan_monthly',l:'Trả góp/tháng',t:'money'},
-   {h:'Giấy tờ & bảo dưỡng'},{k:'insurance_until',l:'Bảo hiểm đến',t:'date',list:true},{k:'inspection_until',l:'Đăng kiểm đến',t:'date',list:true},{k:'road_fee_until',l:'Phí đường bộ đến',t:'date',list:true},
+   {h:'Giấy tờ & bảo dưỡng'},{k:'insurance_until',l:'Bảo hiểm đến',t:'date',list:true},{k:'inspection_until',l:'Đăng kiểm đến',t:'date',list:true},{k:'road_fee_until',l:'Phí đường bộ đến',t:'date',list:true},{k:'badge_until',l:'Phù hiệu đến',t:'date'},{k:'gps_until',l:'Hộp đen/GPS đến',t:'date'},
    {k:'last_maintenance_on',l:'Bảo dưỡng gần nhất',t:'date'},{k:'next_maintenance_on',l:'Bảo dưỡng tiếp theo',t:'date',list:true},{k:'note',l:'Ghi chú',t:'area'}]},
  equipment:{table:'khg_equipment',title:'Thiết bị nâng hạ',order:['kind',true],search:['name','note'],filters:[['kind','eq_kind'],['status','eq_status']],
   f:[{k:'kind',l:'Loại',t:'sel',o:'eq_kind',list:true},{k:'name',l:'Tên',t:'text',list:true,req:true},{k:'capacity_t',l:'Tải (tấn)',t:'num',list:true},
@@ -495,7 +495,7 @@ const fields=cfg=>cfg.f.filter(x=>x.k);
 // ===================== Quyền theo vai trò =====================
 const ALL=['admin','dieu_phoi','ke_toan','kinh_doanh'];
 const TABS=[
- ['overview','Tổng quan',ALL],['dispatch','Điều phối',['admin','dieu_phoi','kinh_doanh']],['orders','Đơn hàng',ALL],['analytics','Phân tích doanh thu',ALL],
+ ['overview','Tổng quan',ALL],['dispatch','Điều phối',['admin','dieu_phoi','kinh_doanh']],['orders','Đơn hàng',ALL],['analytics','Phân tích doanh thu',ALL],['pnl','Lãi/lỗ chuyến & xe',['admin','ke_toan','dieu_phoi']],['pricing','Bảng giá & giá dầu',ALL],
  ['accounting','Kế toán & công nợ',['admin','ke_toan']],['wallet','Ví tài xế & COD',['admin','ke_toan','dieu_phoi']],['expenses','Chi phí & tạm ứng',['admin','ke_toan','dieu_phoi']],
  ['hr','Nhân sự',['admin','ke_toan']],['payroll','Chấm công & lương',['admin','ke_toan','dieu_phoi']],
  ['fleet','Đội xe & thiết bị',['admin','dieu_phoi','ke_toan']],['wh','Kho bãi',['admin','ke_toan','kinh_doanh','dieu_phoi']],
@@ -504,7 +504,7 @@ const TABS=[
  ['filesv','Kho chứng từ',['admin','ke_toan','dieu_phoi']],['policies','Chính sách',ALL],['documents','Hồ sơ',ALL],['botlog','Nhật ký bot',['admin','dieu_phoi','ke_toan']],['bot','Bot, app & phân quyền',['admin','dieu_phoi']],
 ];
 const INTENT_LABEL={tao_don:'Tạo đơn',nhu_cau:'Nhu cầu',chi_phi:'Chi phí',tam_ung:'Tạm ứng',cham_cong:'Chấm công',nhan_su:'Lương – nhân sự',thu_tien:'Thu tiền',cap_nhat_don:'Cập nhật đơn',bao_cao:'Báo cáo',tro_chuyen:'Trò chuyện',khac:'Khác',nut_bam:'Bấm nút'};
-const NAV_GROUPS=[['Cá nhân',['me']],['Điều hành',['overview','analytics']],['Vận hành',['dispatch','orders','requests','fleet','wh']],['Đối tác & tài xế',['partners','fastdriver']],['Tài chính',['accounting','wallet','expenses','purchases']],
+const NAV_GROUPS=[['Cá nhân',['me']],['Điều hành',['overview','analytics','pnl']],['Vận hành',['dispatch','orders','pricing','requests','fleet','wh']],['Đối tác & tài xế',['partners','fastdriver']],['Tài chính',['accounting','wallet','expenses','purchases']],
  ['Nhân sự',['hr','payroll']],['Khách hàng & hồ sơ',['customers','contracts','filesv','documents','policies']],['Hệ thống',['botlog','bot','trash']]];
 const IC=p=>`<svg viewBox="0 0 24 24">${p}</svg>`;
 const ICONS={overview:IC('<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'),
@@ -998,9 +998,9 @@ async function viewOverview(m){
     const pays=(py.data||[]).filter(a=>Number(a.amount)>Number(a.paid_amount));const payOpen=sum(pays,a=>a.amount-a.paid_amount);const payDue=sum(pays.filter(a=>a.due_on&&a.due_on<=addDays(d0,7)),a=>a.amount-a.paid_amount);
     const bal=acc=>sum((cs.data||[]).filter(c=>c.account===acc),c=>c.direction==='thu'?c.amount:-c.amount);
     const khoTot=sum(D.whs,w=>w.kho_m2),khoUsed=sum((lv.data||[]).filter(a=>a.kind!=='bai'),a=>a.area_m2);const occ=khoTot?Math.round(khoUsed*100/khoTot):0;
-    const dues=[];const lim=addDays(d0,30);
-    (veh.data||[]).forEach(v=>[['insurance_until','Bảo hiểm'],['inspection_until','Đăng kiểm'],['road_fee_until','Phí đường bộ'],['next_maintenance_on','Bảo dưỡng']].forEach(([k,l])=>{if(v[k]&&v[k]<=lim)dues.push({d:v[k],t:`${v.plate} · ${l}`})}));
-    (ppl.data||[]).forEach(x=>[['license_until','Bằng lái'],['probation_end','Hết thử việc'],['contract_end','Hết hợp đồng']].forEach(([k,l])=>{if(x[k]&&x[k]<=lim)dues.push({d:x[k],t:`${x.full_name} · ${l}`})}));
+    const dues=[];const lim=addDays(d0,30);const XP=await sb.rpc('khg_expiring',{p_days:30});if(!XP.error)(XP.data||[]).forEach(x=>dues.push({d:x.until,t:`${x.subject} · ${x.item}`}));
+    if(XP.error)(veh.data||[]).forEach(v=>[['insurance_until','Bảo hiểm'],['inspection_until','Đăng kiểm'],['road_fee_until','Phí đường bộ'],['next_maintenance_on','Bảo dưỡng']].forEach(([k,l])=>{if(v[k]&&v[k]<=lim)dues.push({d:v[k],t:`${v.plate} · ${l}`})}));
+    if(XP.error)(ppl.data||[]).forEach(x=>[['license_until','Bằng lái'],['probation_end','Hết thử việc'],['contract_end','Hết hợp đồng']].forEach(([k,l])=>{if(x[k]&&x[k]<=lim)dues.push({d:x[k],t:`${x.full_name} · ${l}`})}));
     dues.sort((a,b)=>a.d<b.d?-1:1);
     const live=(tdy.data||[]);const running=live.filter(o=>['da_lay_hang','dang_giao','dang_tra_hang'].includes(o.trip_status)).length;const waiting=live.filter(o=>!o.driver_id||o.trip_status==='cho_nhan'||o.trip_status==='huy_chuyen').length;
     const gX=groupOrders(pl.orders,DIMS.xe.k,DIMS.xe.lab),gD=groupOrders(pl.orders,DIMS.tai_xe.k,DIMS.tai_xe.lab),gC=groupOrders(pl.orders,DIMS.khach.k,DIMS.khach.lab),gT=groupOrders(pl.orders,DIMS.tai.k,DIMS.tai.lab),gP=groupOrders(pl.orders,DIMS.tinh.k,DIMS.tinh.lab);
@@ -2054,6 +2054,101 @@ VIEWS.fastdriver=async m=>{
   };
   const sw=n=>{m.querySelectorAll('.subtabs button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));subs[n]()};
   m.querySelectorAll('.subtabs button').forEach(b=>b.onclick=()=>sw(b.dataset.s));sw('tx');
+};
+
+ICONS.pnl=IC('<path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/><path d="M15 8h3v3"/>');ICONS.pricing=IC('<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/>');
+// ===================== BẢNG GIÁ & GIÁ DẦU =====================
+VIEWS.pricing=async m=>{
+  const canEdit=has(['admin','ke_toan','dieu_phoi'])&&!RO;
+  m.innerHTML=`<h2>Bảng giá & giá dầu</h2><p class="sub">Bảng giá nguyên chuyến KHG (chưa VAT, chưa cầu đường). Giá mở cửa gồm số km đầu, sau đó tính theo bậc km. Khi giá dầu lệch quá ngưỡng so với giá gốc, cước tự điều chỉnh: <b>hệ số = 1 + tỷ trọng nhiên liệu × % thay đổi giá dầu</b>. App Đặt xe, bot <code>/baogia</code> và máy tính cước bên dưới dùng chung bảng này.</p>
+   <div class="subtabs" id="st"><button data-s="calc" class="on">Tính cước nhanh</button><button data-s="card">Bảng giá</button><button data-s="fuel">Giá dầu</button></div><div id="h"><div class="empty">Đang tải…</div></div>`;
+  let RC=null;
+  const loadRC=async()=>{const {data,error}=await sb.rpc('khg_rate_card');if(error){toast(error.message);return null}RC=data;return data};
+  const fuelBox=()=>RC?`<div class="kpis"><div class="kpi hot"><div class="l">Giá dầu DO áp dụng</div><div class="v">${fmtN(RC.diesel)} đ</div><div class="h">Từ ${fmtDT(RC.eff_from)}</div></div>
+     <div class="kpi"><div class="l">Giá gốc bảng giá</div><div class="v">${fmtN(RC.base_diesel)} đ</div><div class="h">Ngưỡng điều chỉnh ±${Math.round((RC.band||0)*100)}%</div></div>
+     <div class="kpi ${Math.abs(RC.diesel/RC.base_diesel-1)>=(RC.band||0)?'hot':''}"><div class="l">Lệch so với giá gốc</div><div class="v">${((RC.diesel/RC.base_diesel-1)*100).toFixed(1).replace('.',',')}%</div><div class="h">${Math.abs(RC.diesel/RC.base_diesel-1)>=(RC.band||0)?'Đang áp hệ số nhiên liệu':'Trong ngưỡng – giữ giá gốc'}</div></div></div>`:'';
+  const sw=async n=>{m.querySelectorAll('#st button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));const h=$('#h');h.innerHTML='<div class="empty">Đang tải…</div>';await loadRC();if(!RC)return;
+    if(n==='calc'){
+      h.innerHTML=fuelBox()+`<div class="grid2"><div class="card"><h3>Tính cước nguyên chuyến</h3><div class="form">
+        <label>Loại xe<select id="qC">${RC.cards.map(c=>`<option value="${esc(c.k)}" ${c.k==='2.5t'?'selected':''}>${esc(c.l)} – ${esc(c.d||'')}</option>`).join('')}</select></label>
+        <label>Quãng đường 1 chiều (km)<input type="number" id="qK" value="40" min="0"></label><label>Số chuyến<input type="number" id="qT" value="1" min="1"></label>
+        <label>Điểm giao thêm<input type="number" id="qS" value="0" min="0"></label><label>Giờ chờ thêm<input type="number" id="qW" value="0" min="0" step="0.5"></label>
+        </div>
+        <div class="bar" style="margin-top:10px"><label class="chk"><input type="checkbox" id="qL"> Bốc xếp đuôi xe</label><label class="chk"><input type="checkbox" id="qV"> Cộng VAT 8%</label></div><div class="bar" style="margin-top:6px"><button class="btn p" id="qGo">Tính cước</button><button class="btn" id="qCp">📋 Sao chép báo giá</button></div></div>
+        <div class="card"><h3>Kết quả</h3><div id="qR"><div class="empty">Nhập thông tin rồi bấm Tính cước.</div></div></div></div>`;
+      let last='';
+      const go=async()=>{const {data,error}=await sb.rpc('khg_quote',{p_code:$('#qC').value,p_km:+$('#qK').value||0,p_trips:+$('#qT').value||1,p_stops:+$('#qS').value||0,p_loading:$('#qL').checked,p_wait_h:+$('#qW').value||0});
+        if(error){$('#qR').innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}
+        const vat=$('#qV').checked,tot=vat?Math.round(data.total*1.08/1000)*1000:data.total;
+        $('#qR').innerHTML=`<div class="tw"><table style="min-width:0"><tbody>${data.lines.map(l=>`<tr><td>${esc(l[0])}</td><td class="n">${fmtN(l[1])}</td></tr>`).join('')}
+          <tr class="tot"><td>Mỗi chuyến</td><td class="n">${fmtN(data.per_trip)}</td></tr>${data.trips>1?`<tr><td>× ${data.trips} chuyến</td><td class="n">${fmtN(data.total)}</td></tr>`:''}${vat?`<tr><td>VAT 8%</td><td class="n">${fmtN(tot-data.total)}</td></tr>`:''}
+          <tr class="tot"><td><b>Tổng</b></td><td class="n"><b style="font-size:18px;color:var(--red)">${fmtM(tot)}</b></td></tr></tbody></table></div>
+          <p class="sub" style="margin-top:8px">Giá dầu ${fmtN(data.diesel)} đ/lít · hệ số nhiên liệu ×${String(data.factor).replace('.',',')} · chưa gồm cầu đường${vat?'':', chưa VAT'}.</p>`;
+        last=`BÁO GIÁ VẬN CHUYỂN – CÔNG TY TNHH KIM HOÀNG GIA\n${data.label} · ${data.km} km${data.trips>1?' · '+data.trips+' chuyến':''}\n`+data.lines.map(l=>`- ${l[0]}: ${fmtM(l[1])}`).join('\n')+`\nTổng: ${fmtM(tot)} (${vat?'đã gồm VAT 8%':'chưa VAT'}, chưa gồm cầu đường)\nGiá áp dụng theo giá dầu ${fmtN(data.diesel)} đ/lít. Hotline 0399 831 228.`};
+      $('#qGo').onclick=go;$('#qCp').onclick=async()=>{if(!last)await go();try{await navigator.clipboard.writeText(last);toast('Đã sao chép báo giá')}catch(e){toast('Không sao chép được')}};
+      ['qC','qK','qT','qS','qW','qL','qV'].forEach(id=>$('#'+id).onchange=go);go();
+    }
+    if(n==='card'){
+      const {data:raw,error}=await sb.from('khg_rate_cards').select('*').order('sort');if(error){h.innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}
+      const cols=[['label','Loại xe','t'],['descr','Mô tả','t'],['load_t','Tải (t)','n'],['base_price','Giá mở cửa','n'],['base_km','Gồm km đầu','n'],['r1','Đ/km bậc 1','n'],['t1','Hết bậc 1 (km)','n'],['r2','Đ/km bậc 2','n'],['t2','Hết bậc 2 (km)','n'],['r3','Đ/km bậc 3','n'],
+        ['fuel_share','Tỷ trọng dầu','n'],['l_per_100km','Lít/100km','n'],['stop_fee','Phí điểm giao','n'],['loading_fee','Bốc xếp đuôi xe','n'],['wait_fee_hour','Chờ/giờ','n'],['speed_factor','Hệ số thời gian','n'],['active','Đang dùng','b']];
+      h.innerHTML=fuelBox()+`<p class="sub">Giá trong bảng là <b>giá gốc</b> (tại giá dầu ${fmtN(RC.base_diesel)} đ). Cột “Giá đang áp” đã nhân hệ số nhiên liệu.${canEdit?' Sửa trực tiếp rồi bấm Lưu từng dòng.':''}</p>
+       <div class="tw"><table><thead><tr>${cols.map(c=>`<th class="${c[2]==='n'?'n':''}">${c[1]}</th>`).join('')}<th class="n">Giá đang áp</th>${canEdit?'<th></th>':''}</tr></thead><tbody>${(raw||[]).map(r=>{const cur=RC.cards.find(c=>c.k===r.code);
+        return `<tr data-code="${esc(r.code)}">${cols.map(([k,l,t])=>canEdit?`<td><input data-k="${k}" ${t==='b'?`type="checkbox" ${r[k]?'checked':''}`:t==='n'?`type="number" step="any" style="width:${['label','descr'].includes(k)?160:90}px;text-align:right" value="${r[k]??''}"`:`style="width:${k==='descr'?200:130}px" value="${esc(r[k]??'')}"`}></td>`:`<td class="${t==='n'?'n':''}">${t==='b'?(r[k]?'✓':''):t==='n'?fmtN(r[k]):esc(r[k]??'')}</td>`).join('')}
+          <td class="n">${cur?fmtN(cur.b)+'<br><small>×'+String(cur.factor).replace('.',',')+'</small>':'–'}</td>${canEdit?'<td><button class="btn s" data-sv>Lưu</button></td>':''}</tr>`}).join('')}</tbody></table></div>
+       ${canEdit?'<div class="bar" style="margin-top:10px"><button class="btn" id="rcAdd">＋ Thêm loại xe</button><button class="btn" id="rcX">⬇ Excel</button></div>':''}`;
+      h.querySelectorAll('[data-sv]').forEach(b=>b.onclick=async()=>{const tr=b.closest('tr'),o={};tr.querySelectorAll('[data-k]').forEach(i=>{const k=i.dataset.k;o[k]=i.type==='checkbox'?i.checked:i.type==='number'?(i.value===''?null:Number(i.value)):i.value});
+        o.updated_by=ME?.id||null;const {error}=await sb.from('khg_rate_cards').update(o).eq('code',tr.dataset.code);toast(error?error.message:'Đã lưu bảng giá '+o.label);if(!error)sw('card')});
+      const ra=$('#rcAdd');if(ra)ra.onclick=async()=>{const code=prompt('Mã loại xe (vd 10t):');if(!code)return;const label=prompt('Tên hiển thị:','Xe '+code)||code;
+        const {error}=await sb.from('khg_rate_cards').insert({code:code.trim(),label,base_price:0,r1:0,r2:0,r3:0,active:false,sort:(raw||[]).length*10+10});toast(error?error.message:'Đã thêm – nhập giá rồi bật “Đang dùng”');if(!error)sw('card')};
+      const rx=$('#rcX');if(rx)rx.onclick=()=>xlsx('Bang_gia_KHG',{'Bảng giá gốc':(raw||[]).map(r=>Object.fromEntries(cols.map(([k,l])=>[l,r[k]]))),'Giá đang áp':RC.cards.map(c=>({'Loại xe':c.l,'Giá mở cửa':c.b,'Gồm km đầu':c.base_km,'Đ/km bậc 1':c.r[0],'Đ/km bậc 2':c.r[1],'Đ/km bậc 3':c.r[2],'Hệ số dầu':c.factor}))});
+    }
+    if(n==='fuel'){
+      const {data:hist}=await sb.from('khg_fuel_prices').select('*').is('archived_at',null).order('eff_from',{ascending:false}).limit(60);
+      h.innerHTML=fuelBox()+`${canEdit?`<div class="card" style="margin-bottom:14px"><h3>Cập nhật giá dầu kỳ mới</h3><p class="sub">Liên Bộ Công Thương – Tài chính điều hành giá định kỳ (thường chiều thứ Năm). Nhập giá DO 0,05S vùng 1 (đ/lít). Cũng có thể gõ trên Telegram: <code>/giadau 29550</code>.</p>
+        <div class="form"><label>Dầu DO 0,05S (đ/lít)<input type="number" id="fD" step="10" value="${RC.diesel||''}"></label><label>Xăng E5 RON92 (đ/lít)<input type="number" id="fG" step="10"></label>
+        <label>Áp dụng từ<input type="datetime-local" id="fE" value="${new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16)}"></label><label>Nguồn<input id="fS" placeholder="vd Petrolimex kỳ 30/10"></label></div>
+        <div class="bar" style="margin-top:8px"><button class="btn p" id="fSave">Lưu giá dầu</button><span class="sp"></span>${isAdmin()?`<label>Giá gốc bảng giá<input type="number" id="fB" value="${RC.base_diesel}" style="width:110px"></label><label>Ngưỡng %<input type="number" id="fBd" value="${Math.round((RC.band||0)*100)}" style="width:70px"></label><button class="btn" id="fBs">Lưu cài đặt</button>`:''}</div></div>`:''}
+        <div class="tw"><table><thead><tr><th>Áp dụng từ</th><th class="n">Dầu DO</th><th class="n">Xăng</th><th>Nguồn</th><th class="n">Lệch giá gốc</th></tr></thead><tbody>${(hist||[]).map(x=>`<tr><td>${fmtDT(x.eff_from)}</td><td class="n">${fmtN(x.diesel)}</td><td class="n">${x.gasoline?fmtN(x.gasoline):''}</td><td>${esc(x.source||'')}</td><td class="n">${((x.diesel/RC.base_diesel-1)*100).toFixed(1).replace('.',',')}%</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Chưa có.</td></tr>'}</tbody></table></div>`;
+      const fs=$('#fSave');if(fs)fs.onclick=async()=>{const d=+$('#fD').value;if(!d)return toast('Nhập giá dầu');const {error}=await sb.rpc('khg_fuel_set',{p_diesel:d,p_gasoline:+$('#fG').value||null,p_eff_from:new Date($('#fE').value).toISOString(),p_source:$('#fS').value||null});toast(error?error.message:'Đã cập nhật giá dầu – bảng giá tự điều chỉnh');if(!error)sw('fuel')};
+      const fb=$('#fBs');if(fb)fb.onclick=async()=>{const {error}=await sb.rpc('khg_pricing_settings',{p_base:+$('#fB').value,p_band:(+$('#fBd').value||0)/100});toast(error?error.message:'Đã lưu cài đặt');if(!error)sw('fuel')};
+    }
+  };
+  m.querySelectorAll('#st button').forEach(b=>b.onclick=()=>sw(b.dataset.s));sw('calc');
+};
+
+// ===================== LÃI / LỖ CHUYẾN & XE =====================
+PST.pnl=PST.pnl||{kind:'thang'};
+VIEWS.pnl=async m=>{
+  m.innerHTML=`<h2>Lãi/lỗ từng chuyến, từng xe</h2><p class="sub">Doanh thu đơn đã giao trừ: tiền trả xe liên kết, tiền chuyến tài xế (hoặc lương chia theo chuyến), nhiên liệu (phiếu đổ dầu gắn đơn/xe; nếu chưa có thì <i>ước tính</i> theo km × định mức lít/100km × giá dầu), chi phí khác gắn đơn/xe, trả góp xe chia theo chuyến. Chuyến/xe dưới ngưỡng lãi được tô đỏ.</p>
+   <div class="bar" id="pp"></div><div class="subtabs" id="st"><button data-s="trip" class="on">Theo chuyến</button><button data-s="veh">Theo xe</button></div><div id="pw"><div class="empty">Đang tải…</div></div>`;
+  let P=periodRange(PST.pnl),tab='trip',T=null,V=null;
+  const pct=x=>x==null?'–':(x*100).toFixed(1).replace('.',',')+'%';
+  const draw=()=>{const w=$('#pw');
+    if(tab==='trip'){const rows=(T?.rows||[]),mm=T?.min_margin||0.03;const rev=sum(rows,r=>r.rev),cost=sum(rows,r=>r.cost),low=rows.filter(r=>r.low),miss=rows.filter(r=>!r.is_partner&&!r.driver&&!r.fuel);
+      w.innerHTML=`<div class="kpis"><div class="kpi hot"><div class="l">Doanh thu</div><div class="v">${fmtTr(rev)}</div><div class="h">${rows.length} đơn đã giao · ${P.label}</div></div><div class="kpi"><div class="l">Chi phí trực tiếp</div><div class="v">${fmtTr(cost)}</div><div class="h">Gồm ${fmtTr(sum(rows,r=>r.fuel_est))} dầu ước tính</div></div>
+       <div class="kpi"><div class="l">Lãi gộp</div><div class="v" style="color:${rev-cost<0?'var(--red)':'var(--green)'}">${fmtTr(rev-cost)}</div><div class="h">Biên ${rev?pct((rev-cost)/rev):'–'}</div></div>
+       <div class="kpi ${low.length?'hot':''}"><div class="l">Dưới ngưỡng ${pct(mm)}</div><div class="v">${low.length}</div><div class="h">chuyến cần xem lại giá</div></div><div class="kpi ${miss.length?'hot':''}"><div class="l">Thiếu chi phí</div><div class="v">${miss.length}</div><div class="h">chưa có tiền chuyến/dầu</div></div></div>
+       <div class="bar"><label class="chk"><input type="checkbox" id="onlyLow"> Chỉ chuyến dưới ngưỡng</label><span style="flex:1"></span><button class="btn" id="px">⬇ Excel</button></div>
+       <div class="tw"><table><thead><tr><th>Mã đơn</th><th>Ngày</th><th>Khách · tuyến</th><th>Xe · tài xế</th><th class="n">Doanh thu</th><th class="n">Lãi</th><th class="n">Biên</th><th class="n">Km</th><th class="n">Xe liên kết</th><th class="n">Tài xế</th><th class="n">Nhiên liệu</th><th class="n">Chi phí khác</th><th class="n">Trả góp xe</th></tr></thead><tbody id="ptb"></tbody></table></div>`;
+      const fill=()=>{const only=$('#onlyLow').checked;$('#ptb').innerHTML=rows.filter(r=>!only||r.low).map(r=>`<tr class="${r.low?'lowr':''}"><td><a href="#rec/orders/${r.id}">${esc(r.code)}</a></td><td>${fmtD(r.d)}</td><td>${esc(r.cust||'')}<div style="font-size:12px;color:var(--muted)">${esc(r.pickup||'?')} → ${esc(r.dropoff||'?')}</div></td><td>${esc(r.plate||'')}${r.is_partner?' <span class="pill blue">liên kết</span>':''}<div style="font-size:12px;color:var(--muted)">${esc(r.drv||'')}</div></td>
+        <td class="n">${fmtN(r.rev)}</td><td class="n ${r.profit<0?'neg':''}"><b>${fmtN(r.profit)}</b></td><td class="n">${r.low?'<span class="pill red">'+pct(r.margin)+'</span>':pct(r.margin)}${!r.is_partner&&!r.driver&&!r.fuel?' <span class="pill amber">thiếu CP</span>':''}</td><td class="n">${r.distance_km?fmtN(r.distance_km):''}</td><td class="n">${fmtN(r.partner)}</td><td class="n">${fmtN(r.driver)}</td><td class="n">${fmtN(r.fuel)}${r.fuel_est?' <span class="pill amber" title="Ước tính theo km × định mức × giá dầu">ƯT</span>':''}</td><td class="n">${fmtN(r.other)}</td><td class="n">${fmtN(r.fixed)}</td></tr>`).join('')||'<tr><td colspan="13" class="empty">Không có đơn đã giao trong kỳ.</td></tr>'};
+      $('#onlyLow').onchange=fill;fill();
+      $('#px').onclick=()=>xlsx('Lai_lo_chuyen_'+P.label,{'Theo chuyến':rows.map(r=>({'Mã đơn':r.code,'Ngày':fmtD(r.d),'Khách':r.cust,'Lấy':r.pickup,'Giao':r.dropoff,'Xe':r.plate,'Tài xế':r.drv,'Km':r.distance_km,'Doanh thu':+r.rev,'Xe liên kết':+r.partner,'Tài xế':+r.driver,'Nhiên liệu':+r.fuel,'Dầu ước tính':r.fuel_est?'Có':'','Chi phí khác':+r.other,'Trả góp xe':+r.fixed,'Lãi':+r.profit,'Biên %':r.margin==null?'':Math.round(r.margin*1000)/10,'Dưới ngưỡng':r.low?'Có':''}))});
+    }else{const rows=(V?.rows||[]),mm=V?.min_margin||0.03;const rev=sum(rows,r=>r.rev||0),cost=sum(rows,r=>r.cost);
+      w.innerHTML=`<div class="kpis"><div class="kpi hot"><div class="l">Doanh thu đội xe</div><div class="v">${fmtTr(rev)}</div><div class="h">${rows.length} xe có hoạt động · ${P.label}</div></div><div class="kpi"><div class="l">Chi phí</div><div class="v">${fmtTr(cost)}</div></div>
+       <div class="kpi"><div class="l">Lãi gộp</div><div class="v" style="color:${rev-cost<0?'var(--red)':'var(--green)'}">${fmtTr(rev-cost)}</div><div class="h">Biên ${rev?pct((rev-cost)/rev):'–'}</div></div><div class="kpi ${rows.filter(r=>r.margin==null||r.margin<mm).length?'hot':''}"><div class="l">Xe dưới ngưỡng ${pct(mm)}</div><div class="v">${rows.filter(r=>r.margin==null||r.margin<mm).length}</div></div></div>
+       <div class="bar"><span style="flex:1"></span><button class="btn" id="px">⬇ Excel</button></div>
+       <div class="tw"><table><thead><tr><th>Xe</th><th>Sở hữu</th><th class="n">Doanh thu</th><th class="n">Lãi</th><th class="n">Biên</th><th class="n">Đơn</th><th class="n">Chuyến</th><th class="n">Km</th><th class="n">Xe liên kết</th><th class="n">Tài xế</th><th class="n">Nhiên liệu</th><th class="n">L/100km</th><th class="n">Sửa chữa, phí khác</th><th class="n">Trả góp</th></tr></thead><tbody>${rows.map(r=>{const low=r.margin==null||r.margin<mm;return `<tr class="${low?'lowr':''}"><td><a href="#rec/vehicles/${r.id}">${esc(r.plate)}</a></td><td>${esc(O.ownership?.[r.ownership]||r.ownership||'')}</td>
+        <td class="n">${fmtN(r.rev)}</td><td class="n ${r.profit<0?'neg':''}"><b>${fmtN(r.profit)}</b></td><td class="n">${low?'<span class="pill red">'+pct(r.margin)+'</span>':pct(r.margin)}</td><td class="n">${r.n_orders||0}</td><td class="n">${r.trips||0}</td><td class="n">${fmtN(r.km)}</td><td class="n">${fmtN(r.partner)}</td><td class="n">${fmtN(r.driver)}</td><td class="n">${fmtN(r.fuel)}${r.fuel_is_est?' <span class="pill amber">ƯT</span>':''}</td><td class="n">${r.l_per_100??''}</td><td class="n">${fmtN(r.other)}</td><td class="n">${fmtN(r.fixed)}</td></tr>`}).join('')||'<tr><td colspan="14" class="empty">Không có xe hoạt động trong kỳ.</td></tr>'}</tbody></table></div>
+       <p class="sub" style="margin-top:8px">Trả góp xe tính theo số ngày trong kỳ (${V?.days||0} ngày ÷ 30 × trả góp/tháng). Nhập “Trả góp/tháng” ở hồ sơ xe để lãi/lỗ phản ánh đúng.</p>`;
+      $('#px').onclick=()=>xlsx('Lai_lo_xe_'+P.label,{'Theo xe':rows.map(r=>({'Xe':r.plate,'Sở hữu':O.ownership?.[r.ownership]||r.ownership,'Đơn':r.n_orders,'Chuyến':r.trips,'Km':+r.km||0,'Doanh thu':+r.rev||0,'Xe liên kết':+r.partner||0,'Tài xế':+r.driver||0,'Nhiên liệu':+r.fuel||0,'Dầu ước tính':r.fuel_is_est?'Có':'','Số lít':+r.liters||0,'L/100km':r.l_per_100,'Chi phí khác':+r.other||0,'Trả góp':+r.fixed||0,'Lãi':+r.profit||0,'Biên %':r.margin==null?'':Math.round(r.margin*1000)/10}))});
+    }};
+  const load=async p=>{P=p;$('#pw').innerHTML='<div class="empty">Đang tải…</div>';
+    const [a,b]=await Promise.all([sb.rpc('khg_pnl_trips',{p_from:p.from,p_to:p.to}),sb.rpc('khg_pnl_vehicles',{p_from:p.from,p_to:p.to})]);
+    if(a.error||b.error){$('#pw').innerHTML='<div class="empty">'+esc((a.error||b.error).message)+'</div>';return}T=a.data;V=b.data;draw()};
+  m.querySelectorAll('#st button').forEach(b=>b.onclick=()=>{tab=b.dataset.s;m.querySelectorAll('#st button').forEach(x=>x.classList.toggle('on',x===b));draw()});
+  periodPicker($('#pp'),PST.pnl,load);await load(P);
 };
 
 VIEWS.trash=async m=>{

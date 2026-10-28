@@ -153,7 +153,7 @@ textarea.i{min-height:70px;resize:vertical}
           <div class="row3"><div><label class="f">Khối lượng (tấn)</label><input class="i" id="weight" type="number" step="0.1" min="0" inputmode="decimal"></div>
             <div><label class="f">Thể tích (m³)</label><input class="i" id="vol" type="number" step="0.1" min="0" inputmode="decimal"></div>
             <div><label class="f">Số kiện</label><input class="i" id="pcs" type="number" min="0" inputmode="numeric"></div></div>
-          <label class="chk"><input type="checkbox" id="loading"><span>Cần KHG bố trí bốc xếp<br><small style="color:var(--muted)">Phí bốc xếp tính theo Bảng giá KHG, điều phối báo khi xác nhận.</small></span></label>
+          <label class="chk"><input type="checkbox" id="loading"><span>Cần KHG bố trí bốc xếp<br><small style="color:var(--muted)">Phí bốc xếp đuôi xe cộng vào tạm tính; bốc xếp đặc biệt điều phối báo khi xác nhận.</small></span></label>
           <label class="f">Ghi chú cho tài xế</label><textarea class="i" id="note" placeholder="Giờ nhận hàng của kho, đường cấm tải, hàng dễ vỡ…"></textarea>
         </div>
 
@@ -225,13 +225,20 @@ const VC=[
  {k:'15t',l:'Xe 15 tấn',d:'Tải lớn, đường dài',b:4460000,r:[40000,35000,19000],f:1.45},
  {k:'18t',l:'Xe 18 tấn',d:'Tải lớn, đường dài',b:5130000,r:[44000,38500,21000],f:1.45},
 ];
-function fareOf(v,km){
-  km=Math.max(0,Math.ceil(km||0));
-  const parts=[['Giá mở cửa (gồm 35 km đầu)',v.b]];
+let FUEL=null;
+function fareOf(v,km,stops=0,loading=false){
+  km=Math.max(0,Math.ceil(km||0));const B=v.base_km||35,T1=v.t1||100,T2=v.t2||250;
+  const parts=[[`Giá mở cửa (gồm ${B} km đầu)`,v.b]];
   const seg=(a,b,rate,label)=>{const n=Math.max(0,Math.min(km,b)-a);if(n>0)parts.push([`${label}: ${n} km × ${rate.toLocaleString('vi-VN')} đ`,n*rate])};
-  seg(35,100,v.r[0],'Km 36–100');seg(100,250,v.r[1],'Km 101–250');seg(250,1e6,v.r[2],'Km trên 250');
+  seg(B,T1,v.r[0],`Km ${B+1}–${T1}`);seg(T1,T2,v.r[1],`Km ${T1+1}–${T2}`);seg(T2,1e6,v.r[2],`Km trên ${T2}`);
+  if(stops>0&&v.stop)parts.push([`${stops} điểm giao thêm × ${v.stop.toLocaleString('vi-VN')} đ`,stops*v.stop]);
+  if(loading&&v.loading)parts.push(['Bốc xếp đuôi xe',v.loading]);
   return {parts,total:parts.reduce((a,p)=>a+p[1],0)};
 }
+// Bảng giá trực tuyến (đã điều chỉnh theo giá dầu hiện hành) – thay bảng dự phòng ở trên khi tải được
+sb.rpc('khg_rate_card').then(({data})=>{if(!data||!(data.cards||[]).length)return;FUEL=data;
+  VC.splice(0,VC.length,...data.cards.map(c=>({k:c.k,l:c.l,d:c.d||'',b:Number(c.b),r:c.r.map(Number),f:Number(c.f)||1.15,base_km:c.base_km,t1:c.t1,t2:c.t2,stop:Number(c.stop)||0,loading:Number(c.loading)||0})));
+  if(!VC.find(x=>x.k===S.vc))S.vc=VC[0].k;renderVC();calc()}).catch(()=>{});
 
 // ===== Trạng thái
 const S={pick:{addr:'',lat:null,lng:null},drops:[],vc:'2.5t',route:null,when:'now'};
@@ -311,11 +318,11 @@ function gmapLink(){const P=[S.pick,...S.drops].filter(p=>p.addr||p.lat!=null);c
 function calc(){
   const v=VC.find(x=>x.k===S.vc); const trips=Math.max(1,+$('#trips').value||1);
   if(!S.route){$('#sKm').textContent='–';$('#sTime').textContent='–';$('#fLines').innerHTML=`<div><span>${v.l} – giá mở cửa</span><span>${vnd(v.b)}</span></div>`;$('#fTotal').textContent='từ '+vnd(v.b);S.fare=null;return}
-  const km=S.route.km, min=S.route.min*v.f; const F=fareOf(v,km);
+  const km=S.route.km, min=S.route.min*v.f; const F=fareOf(v,km,Math.max(0,S.drops.length-1),$('#loading').checked);
   $('#sKm').textContent=(Math.round(km*10)/10).toLocaleString('vi-VN')+' km';
   $('#sTime').textContent=min>=60?`${Math.floor(min/60)}g ${Math.round(min%60)}p`:`${Math.round(min)} phút`;
   let total=F.total*trips; const vat=$('#vat').checked;
-  $('#fLines').innerHTML=F.parts.map(p=>`<div><span>${p[0]}</span><span>${vnd(p[1])}</span></div>`).join('')+(trips>1?`<div><span>× ${trips} chuyến</span><span></span></div>`:'')+(S.drops.length>1?`<div><span style="color:var(--muted)">${S.drops.length-1} điểm giao thêm</span><span style="color:var(--muted)">theo bảng giá</span></div>`:'')+(vat?`<div><span>VAT 8%</span><span>${vnd(total*0.08)}</span></div>`:'');
+  $('#fLines').innerHTML=F.parts.map(p=>`<div><span>${p[0]}</span><span>${vnd(p[1])}</span></div>`).join('')+(trips>1?`<div><span>× ${trips} chuyến</span><span></span></div>`:'')+(S.drops.length>1&&!VC.find(x=>x.k===S.vc)?.stop?`<div><span style="color:var(--muted)">${S.drops.length-1} điểm giao thêm</span><span style="color:var(--muted)">theo bảng giá</span></div>`:'')+(FUEL?`<div><span style="color:var(--muted);font-size:12px">Theo giá dầu ${Number(FUEL.diesel).toLocaleString('vi-VN')} đ/lít</span><span></span></div>`:'')+(vat?`<div><span>VAT 8%</span><span>${vnd(total*0.08)}</span></div>`:'');
   if(vat) total=total*1.08;
   $('#fTotal').textContent=vnd(Math.round(total/1000)*1000); $('#fVatNote').textContent=vat?'đã gồm VAT 8%':'chưa gồm VAT';
   S.fare=Math.round(F.total*trips/1000)*1000; S.km=Math.round(km*10)/10; S.min=Math.round(min);
@@ -471,7 +478,7 @@ $('#tabsTop').innerHTML=NAV.map(([k,l])=>`<button data-nav="${k}">${l}</button>`
 $$('[data-nav]').forEach(b=>b.onclick=()=>go(b.dataset.nav));
 
 // ===== Khởi động
-initMap(); renderVC(); addDrop();
+initMap(); renderVC(); addDrop(); $('#loading').addEventListener('change',calc);
 attachAC($('#pickAddr'),g=>{if(g){$('#pickAddr')._geo=!g.soft;Object.assign(S.pick,g);$('#pickOk').classList.remove('hidden');route()}else{$('#pickAddr')._geo=false;S.pick.lat=S.pick.lng=null;$('#pickOk').classList.add('hidden')}});
 $('#btnAdd').onclick=()=>addDrop();
 $('#btnLoc').onclick=()=>{if(!navigator.geolocation)return toast('Thiết bị không hỗ trợ định vị');toast('Đang lấy vị trí…');
