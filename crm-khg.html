@@ -238,6 +238,32 @@ tr.rw.sel td{background:#FDECEF!important}
 .mecard{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.mecard .btn{padding:14px;font-size:15px}
 @media (max-width:760px){#gs{display:none}.selbar{top:56px}.srch input{min-width:0;width:100%}.srch{flex:1}}
 
+/* chuông lớn CRM */
+.cring{position:fixed;inset:0;z-index:400;background:rgba(200,16,46,.55);display:grid;place-items:center;padding:16px;animation:crp 1s ease-in-out infinite alternate}
+@keyframes crp{from{background:rgba(200,16,46,.35)}to{background:rgba(200,16,46,.7)}}
+.cr-bx{background:#fff;border-radius:18px;padding:22px 20px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.cr-bx .cr-ic{font-size:54px;animation:crs .5s ease-in-out infinite alternate;display:inline-block}@keyframes crs{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+.cr-bx b{display:block;font-size:19px;margin:6px 0}.cr-bx p{color:#4B5563;margin:0 0 14px}.cr-bx .btn{padding:12px 18px;font-size:15px}
+/* tối ưu điện thoại */
+@media (max-width:760px){
+  input,select,textarea{font-size:16px!important}
+  .btn{min-height:40px}.btn.s{min-height:34px;padding:6px 10px}
+  #modal{padding:0;place-items:end stretch}
+  #modal .box{max-width:none!important;max-height:94vh;border-radius:18px 18px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
+  #modal .acts{position:sticky;bottom:0;background:#fff;padding:10px 0 4px;flex-wrap:wrap;z-index:2}
+  .subtabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}.subtabs::-webkit-scrollbar{display:none}
+  .subtabs button{white-space:nowrap;flex:none;padding:8px 14px}
+  .kpis{grid-template-columns:1fr 1fr!important;gap:8px}.kpi .v{font-size:20px}
+  .tw{max-height:none;-webkit-overflow-scrolling:touch}.tw table{font-size:13px}
+  .bar{flex-wrap:wrap;gap:8px}.bar label{flex:1 1 140px}
+  nav.tabs button{padding:12px 10px;font-size:15px}
+  h3{font-size:16px}
+}
+@media (max-width:760px){
+  header.top{gap:6px!important;padding:8px 10px!important;min-height:54px}
+  header.top .ttl{flex:1;min-width:0}header.top .ttl b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}header.top .ttl small{display:none}
+  #logout{font-size:0!important;padding:6px 8px!important}#logout:before{content:"⎋";font-size:18px}
+}
 /* Logo "Powered by Netlify" (Netlify tự chèn) – nâng lên trên thanh nút */#nl-badge-frame{bottom:calc(60px + env(safe-area-inset-bottom))!important}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -271,7 +297,7 @@ tr.rw.sel td{background:#FDECEF!important}
     <div class="sp"></div>
     <a href="crm.html" class="lnk">CRM chung</a>
     <button class="lnk" id="instb" style="border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;cursor:pointer" onclick="KInstall.open()">📲 Cài app</button>
-    <button id="bell" title="Thông báo">🔔<span id="bellc" class="hidden">0</span></button>
+    <button id="ringT" title="Bật/tắt chuông lớn" style="border:0;background:none;font-size:18px;cursor:pointer;padding:4px 6px">🔊</button><button id="bell" title="Thông báo">🔔<span id="bellc" class="hidden">0</span></button>
     <div class="user"><span class="av" id="av">K</span><div class="me" id="me"></div></div>
     <button id="logout">Đăng xuất</button>
   </header>
@@ -341,7 +367,7 @@ const O={
   pay_kind:{xe_lien_ket:'Xe liên kết',nha_cung_cap:'Nhà cung cấp',thue_kho:'Thuê kho',luong:'Lương',bao_hiem:'Bảo hiểm',thue:'Thuế',khac:'Khác'},
   pur_cat:{hang_phan_phoi:'Hàng phân phối',vat_tu:'Vật tư',thiet_bi:'Thiết bị',phu_tung:'Phụ tùng',khac:'Khác'},
   pur_status:{dat_hang:'Đặt hàng',da_nhan:'Đã nhận',da_tra_tien:'Đã trả tiền',huy:'Hủy'},
-  con_kind:{nguyen_tac:'HĐ nguyên tắc dịch vụ',phu_luc:'Phụ lục hợp đồng',khach_hang:'Với khách hàng',van_chuyen:'Vận chuyển (mẫu cũ)',doi_tac_xe:'Với đối tác xe',thue_xe:'Thuê xe',thue_kho:'Đi thuê kho',cho_thue_kho:'Cho thuê kho',dich_vu_kho:'Dịch vụ kho',boc_xep:'Bốc xếp, xe nâng, xe cẩu',mua_hang:'Mua bán hàng',lao_dong:'Lao động',thu_viec:'Thử việc',khoan_tai_xe:'Khoán tài xế',ban_giao_xe:'Bàn giao xe',bao_mat:'Cam kết bảo mật',vay:'Vay vốn',thanh_ly:'Thanh lý',khac:'Khác'},
+  con_kind:{nguyen_tac:'HĐ nguyên tắc dịch vụ',phu_luc:'Phụ lục hợp đồng',khach_hang:'Với khách hàng',van_chuyen:'Vận chuyển (mẫu cũ)',doi_tac_xe:'Với đối tác xe',thue_xe:'Thuê xe',thue_kho:'Đi thuê kho',cho_thue_kho:'Cho thuê kho',dich_vu_kho:'Dịch vụ kho',boc_xep:'Bốc xếp, xe nâng, xe cẩu',mua_hang:'Mua bán hàng',lao_dong:'Lao động',thu_viec:'Thử việc',khoan_tai_xe:'Khoán tài xế',ban_giao_xe:'Bàn giao xe',bao_mat:'Cam kết bảo mật',vay:'Vay vốn',thanh_ly:'Thanh lý',chung_tu:'Chứng từ (phiếu thu/chi, đề nghị)',bien_ban:'Biên bản',van_ban:'Văn bản (công văn, quyết định, cam kết…)',khac:'Khác'},
   con_status:{du_thao:'Dự thảo',hieu_luc:'Hiệu lực',het_han:'Hết hạn',thanh_ly:'Thanh lý'},
   pol_cat:{gia:'Giá',cong_no:'Công nợ',dau_tu:'Đầu tư',luong:'Lương',an_toan:'An toàn',khach_hang:'Khách hàng',van_hanh:'Vận hành',khac:'Khác'},
   req_kind:{nhu_cau:'Nhu cầu',bao_gia:'Báo giá',su_co:'Sự cố',viec:'Việc',khac:'Khác'},
@@ -353,7 +379,7 @@ const O={
   cs_status:{nhap:'Nháp',da_gui:'Đã gửi khách',khach_xac_nhan:'Khách đã xác nhận',khach_khieu_nai:'Khách khiếu nại',da_tra:'Đã trả khách'},
   pa_owner:{cong_ty:'Công ty',nhan_su:'Nhân sự',khach_hang:'Khách hàng'},pa_purpose:{chung:'Chung',cod:'Nhận COD',ky_quy:'Nhận ký quỹ',luong:'Nhận lương',thu_cuoc:'Thu cước'},
   bank:{'970436':'Vietcombank','970415':'VietinBank','970418':'BIDV','970405':'Agribank','970407':'Techcombank','970422':'MB Bank','970416':'ACB','970432':'VPBank','970403':'Sacombank','970423':'TPBank','970441':'VIB','970443':'SHB','970437':'HDBank','970448':'OCB','970426':'MSB','970440':'SeABank','970431':'Eximbank','970449':'LPBank','970428':'Nam A Bank','970409':'Bac A Bank','970412':'PVcomBank','970425':'ABBank','970452':'Kienlongbank','970427':'VietABank','970400':'Saigonbank','970419':'NCB','970438':'BaoViet Bank','970454':'Ban Viet','970429':'SCB','970408':'GPBank','970430':'PG Bank','970433':'Vietbank','970406':'DongA Bank','970444':'CB Bank','970414':'OceanBank','546034':'CAKE by VPBank','546035':'Ubank by VPBank'},
-  doc_type:{hinh_hang:'Hình hàng hóa',hinh_xe:'Hình xe',hoa_don:'Hóa đơn',bien_ban_giao_nhan:'Biên bản giao nhận',pod:'Chứng từ giao hàng (POD)',phieu_can:'Phiếu cân',ho_so_xin_viec:'Hồ sơ xin việc',cccd:'Căn cước công dân',bang_lai:'Bằng lái',anh_dai_dien:'Ảnh đại diện',hop_dong:'Hợp đồng',cam_ket:'Cam kết',bhxh:'Sổ / tờ khai BHXH',video:'Video',chung_tu_chi_phi:'Chứng từ chi phí',su_co:'Sự cố',hang_hu_hong:'Hàng hư hỏng',selfie:'Ảnh chân dung khi nhận hàng',chung_tu_cod:'Chứng từ thu COD',bien_lai_nop_tien:'Biên lai nộp tiền',qr:'Mã QR',giay_kham_suc_khoe:'Giấy khám sức khỏe',dang_ky_xe:'Đăng ký xe',dang_kiem:'Sổ đăng kiểm',bao_hiem:'Giấy bảo hiểm',khac:'Khác'},
+  doc_type:{chung_tu:'Chứng từ (phiếu, đề nghị)',bien_ban:'Biên bản',van_ban:'Văn bản',ban_ky:'Bản đã ký (scan)',hinh_hang:'Hình hàng hóa',hinh_xe:'Hình xe',hoa_don:'Hóa đơn',bien_ban_giao_nhan:'Biên bản giao nhận',pod:'Chứng từ giao hàng (POD)',phieu_can:'Phiếu cân',ho_so_xin_viec:'Hồ sơ xin việc',cccd:'Căn cước công dân',bang_lai:'Bằng lái',anh_dai_dien:'Ảnh đại diện',hop_dong:'Hợp đồng',cam_ket:'Cam kết',bhxh:'Sổ / tờ khai BHXH',video:'Video',chung_tu_chi_phi:'Chứng từ chi phí',su_co:'Sự cố',hang_hu_hong:'Hàng hư hỏng',selfie:'Ảnh chân dung khi nhận hàng',chung_tu_cod:'Chứng từ thu COD',bien_lai_nop_tien:'Biên lai nộp tiền',qr:'Mã QR',giay_kham_suc_khoe:'Giấy khám sức khỏe',dang_ky_xe:'Đăng ký xe',dang_kiem:'Sổ đăng kiểm',bao_hiem:'Giấy bảo hiểm',khac:'Khác'},
 };
 const DOC_BY={order:['hinh_hang','hinh_xe','hoa_don','bien_ban_giao_nhan','pod','phieu_can','khac'],person:['anh_dai_dien','ho_so_xin_viec','cccd','bang_lai','hop_dong','cam_ket','bhxh','giay_kham_suc_khoe','khac'],vehicle:['dang_ky_xe','dang_kiem','bao_hiem','hinh_xe','hoa_don','khac'],contract:['hop_dong','cam_ket','hoa_don','khac'],expense:['hoa_don','khac'],customer:['hop_dong','khac'],other:['khac']};
 const PILL={tu_dong:'green',cho_duyet:'amber',da_duyet:'green',cho_xac_nhan:'amber',da_xac_nhan:'green',tu_choi:'red',nhap:'',da_gui:'blue',khach_xac_nhan:'green',khach_khieu_nai:'red',da_tra:'green',moi:'red',xac_nhan:'blue',dang_chay:'amber',da_giao:'green',doi_soat:'blue',xuat_hd:'blue',da_thu:'green',huy:'',cho_nhan:'red',da_nhan:'blue',da_xac_nhan:'blue',da_lay_hang:'amber',dang_giao:'amber',dang_tra_hang:'amber',huy_chuyen:'red',
@@ -464,7 +490,7 @@ const E={
   f:[{k:'bought_on',l:'Ngày',t:'date',list:true,req:true,def:()=>today()},{k:'supplier',l:'Nhà cung cấp',t:'text',list:true},{k:'item',l:'Mặt hàng',t:'text',list:true,req:true},
    {k:'category',l:'Loại',t:'sel',o:'pur_cat',list:true,def:'hang_phan_phoi'},{k:'qty',l:'Số lượng',t:'num',list:true},{k:'unit',l:'Đơn vị',t:'text',list:true},
    {k:'amount',l:'Thành tiền',t:'money',list:true,req:true},{k:'status',l:'Trạng thái',t:'sel',o:'pur_status',list:true,def:'dat_hang'},{k:'note',l:'Ghi chú',t:'text'}]},
- contracts:{table:'khg_contracts',title:'Hợp đồng & cam kết',order:['end_date',true],files:'contract',search:['party','contract_no','commitments','note'],filters:[['kind','con_kind'],['status','con_status']],
+ contracts:{table:'khg_contracts',title:'Hợp đồng, văn bản & chứng từ',order:['created_at',false],files:'contract',search:['party','contract_no','commitments','note'],filters:[['kind','con_kind'],['status','con_status']],
   f:[{k:'kind',l:'Loại',t:'sel',o:'con_kind',list:true,req:true},{k:'party',l:'Bên ký',t:'text',list:true,req:true},{k:'customer_id',l:'Khách (nếu có)',t:'fk',ref:'customers'},
    {k:'contract_no',l:'Số hợp đồng',t:'text',list:true},{k:'start_date',l:'Bắt đầu',t:'date',list:true},{k:'end_date',l:'Kết thúc',t:'date',list:true},{k:'value',l:'Giá trị',t:'money',list:true},
    {k:'payment_terms',l:'Điều khoản thanh toán',t:'text'},{k:'commitments',l:'Cam kết (sản lượng, thời gian, phạt…)',t:'area',list:true},{k:'file_url',l:'Link file',t:'text'},
@@ -726,7 +752,7 @@ function readForm(cfg,frm,row){
   return data;
 }
 function modal(html,wide){const b=$('#modal-box');b.style.maxWidth=wide?'1240px':'';b.innerHTML=html;$('#modal').classList.remove('hidden')}
-const closeModal=()=>$('#modal').classList.add('hidden');
+const closeModal=()=>$('#modal').classList.add('hidden');window.closeModal=closeModal;
 async function openForm(name,row,after,defaults={},extraHTML=''){
   const base=E[name];await ensureRefs(base);
   // quản trị sửa được mọi trường (trừ mã và số liệu tự tính)
@@ -2024,8 +2050,8 @@ async function openRegs(t){
 VIEWS.fastdriver=async m=>{
   const ref=ME?'?ref='+ME.id:'';
   m.innerHTML=`<h2>Fast Driver – Tìm tài xế ở đây</h2><p class="sub">Tài xế đăng ký trên app, nộp đủ pháp lý, tham gia tập huấn KHG rồi nhận việc lái thuê: theo chuyến, ngày, ca, cố định tuyến, tuần, tháng – chỉ những việc có loại xe đúng hạng bằng lái (Luật TTATGT 2024). Khách, đối tác hoặc chính KHG đăng nhu cầu thuê tài xế.</p>
-   ${linkBox([['App tài xế Fast Driver',appUrl('fast-driver.html',ref),`Tuyển tài xế lái thuê mọi loại xe (tải, đầu kéo, xe khách, cẩu, nâng…) – việc theo chuyến, ngày, ca, tuyến cố định, tháng. Đăng ký, nộp hồ sơ và nhận tập huấn tại app Fast Driver – KIM HOÀNG GIA: ${appUrl('fast-driver.html',ref)}`],['Ôn thi lý thuyết (công khai)',appUrl('fast-driver.html','#onthi'),`Ôn thi lý thuyết tài xế miễn phí – 100+ câu có hình minh họa, Fast Driver – KIM HOÀNG GIA: ${appUrl('fast-driver.html','#onthi')}`],['Bài thi chính thức (tài xế đăng nhập)',appUrl('fast-driver.html','#thi'),`Mời bạn làm bài thi lý thuyết 35 câu để được nhận việc Fast Driver: ${appUrl('fast-driver.html','#thi')}`],['Trang khách thuê tài xế',appUrl('fast-driver.html','#thue'),`Cần thuê tài xế có bằng phù hợp, đã qua tập huấn? Gửi yêu cầu cho Fast Driver – KIM HOÀNG GIA: ${appUrl('fast-driver.html','#thue')} – Hotline 0399 831 228`]])}
-   <div id="sum" class="kpis"></div><div class="subtabs">${[['tx','Tài xế'],['nc','Nhu cầu thuê'],['ut','Ứng tuyển'],['th','Lịch tập huấn'],['dk','Đăng ký tập huấn'],['ch','Ngân hàng câu hỏi'],['kq','Kết quả thi']].map(([k,l],i)=>`<button data-s="${k}" class="${i?'':'on'}">${l}</button>`).join('')}</div><div id="h"></div>`;
+   ${linkBox([['App tài xế Fast Driver',appUrl('fast-driver.html',ref),`Tuyển tài xế lái thuê mọi loại xe (tải, đầu kéo, xe khách, cẩu, nâng…) – việc theo chuyến, ngày, ca, tuyến cố định, tháng. Đăng ký, nộp hồ sơ và nhận tập huấn tại app Fast Driver – KIM HOÀNG GIA: ${appUrl('fast-driver.html',ref)}`],['Ôn thi lý thuyết (công khai)',appUrl('fast-driver.html','#onthi'),`Ôn thi lý thuyết tài xế miễn phí – 100+ câu có hình minh họa, Fast Driver – KIM HOÀNG GIA: ${appUrl('fast-driver.html','#onthi')}`],['Bài thi chính thức (tài xế đăng nhập)',appUrl('fast-driver.html','#thi'),`Mời bạn làm bài thi lý thuyết 35 câu để được nhận việc Fast Driver: ${appUrl('fast-driver.html','#thi')}`],['Trang khách thuê tài xế',appUrl('thue-tai-xe.html',''),`Cần thuê tài xế có bằng phù hợp, đã qua tập huấn? Gửi yêu cầu cho Fast Driver – KIM HOÀNG GIA: ${appUrl('thue-tai-xe.html','')} – Hotline 0399 831 228`]])}
+   <div id="sum" class="kpis"></div><div class="subtabs">${[['tx','Tài xế'],['kn','🤝 Kết nối thuê tài xế'],['nc','Nhu cầu thuê'],['ut','Ứng tuyển'],['th','Lịch tập huấn'],['dk','Đăng ký tập huấn'],['ch','Ngân hàng câu hỏi'],['kq','Kết quả thi']].map(([k,l],i)=>`<button data-s="${k}" class="${i?'':'on'}">${l}</button>`).join('')}</div><div id="h"></div>`;
   bindLinks(m);
   const [{data:ds},{data:js},{data:as}]=await Promise.all([sb.from('khg_fd_drivers').select('status'),sb.from('khg_driver_jobs').select('status,quantity'),sb.from('khg_driver_job_apps').select('status')]);
   const c=(a,s)=>(a||[]).filter(x=>x.status===s).length;
@@ -2046,6 +2072,7 @@ VIEWS.fastdriver=async m=>{
         if(a==='link')return copyText(`Tuyển tài xế ${O.vtype[r.vehicle_type]||r.vehicle_desc||''} – ${O.job_mode[r.mode]||''}${r.route_text?' – '+r.route_text:''}${r.pay_amount?' – '+fmtN(r.pay_amount)+'đ/'+(O.pay_unit[r.pay_unit]||''):''}. Ứng tuyển: ${appUrl('fast-driver.html','#viec/'+r.code)}`,'Đã sao chép link việc – dán vào Zalo/Facebook');
         if(a==='post'){if(!r.pay_amount&&!confirm('Chưa nhập mức trả tài xế. Vẫn đăng tuyển?'))return;const {error}=await sb.from('khg_driver_jobs').update({status:'dang_tuyen',public:true}).eq('id',id);toast(error?error.message:'Đã đăng tuyển – tài xế phù hợp thấy trên app')}
         if(a==='stop'){const {error}=await sb.from('khg_driver_jobs').update({public:false,status:'da_chot'}).eq('id',id);toast(error?error.message:'Đã dừng tuyển')}}}),
+    kn:()=>fdConnect(h),
     ut:()=>renderList('job_apps',h),
     th:()=>renderList('fd_trainings',h,{newDefaults:{status:'mo',kind:'truc_tiep',location:'VP KHG – DX082, P. Chánh Hiệp, TP.HCM'},rowActions:r=>`<button class="btn s" data-act="regs" data-id="${r.id}">👥 Học viên</button>`,onActs:async(a,id,r)=>{if(a==='regs')return openRegs(r)}}),
     dk:()=>renderList('fd_regs',h),
@@ -2053,7 +2080,7 @@ VIEWS.fastdriver=async m=>{
     kq:()=>renderList('fd_exams',h),
   };
   const sw=n=>{m.querySelectorAll('.subtabs button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));subs[n]()};
-  m.querySelectorAll('.subtabs button').forEach(b=>b.onclick=()=>sw(b.dataset.s));sw('tx');
+  m.querySelectorAll('.subtabs button').forEach(b=>b.onclick=()=>sw(b.dataset.s));sw(FD_SUB&&subs[FD_SUB]?FD_SUB:'tx');FD_SUB=null;
 };
 
 ICONS.pnl=IC('<path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/><path d="M15 8h3v3"/>');ICONS.pricing=IC('<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/>');
@@ -2280,6 +2307,69 @@ VIEWS.accounts=async m=>{
   m.querySelectorAll('#st button').forEach(b=>b.onclick=()=>sw(b.dataset.s));sw('q');
 };
 
+let FD_SUB=null;
+// ===================== CHUÔNG LỚN CRM =====================
+const CRing=(()=>{let ac=null,timer=null,el=null,n=0;
+  const on=()=>{try{return localStorage.getItem('khg_ring')!=='0'}catch(e){return true}};
+  const unlock=()=>{try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}};
+  ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,unlock,{passive:true}));
+  const beep=()=>{if(!ac)return;try{const t=ac.currentTime;[[988,0],[740,.2],[988,.4],[740,.6],[1175,.8]].forEach(([f,d])=>{const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.7,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.18);o.connect(g);g.connect(ac.destination);o.start(t+d);o.stop(t+d+.19)})}catch(e){}};
+  const stop=()=>{clearInterval(timer);timer=null;if(el){el.remove();el=null}try{navigator.vibrate&&navigator.vibrate(0)}catch(e){}};
+  const start=(title,body,onOpen)=>{if(!on())return;stop();unlock();el=document.createElement('div');el.className='cring';
+    el.innerHTML=`<div class="cr-bx"><div class="cr-ic">🔔</div><b>${esc(title)}</b><p>${esc(body||'')}</p><div class="acts" style="justify-content:center"><button class="btn" data-x>Tắt chuông</button><button class="btn p" data-o>Xem ngay</button></div></div>`;
+    document.body.appendChild(el);el.querySelector('[data-x]').onclick=stop;el.querySelector('[data-o]').onclick=()=>{stop();onOpen&&onOpen()};
+    n=0;beep();try{navigator.vibrate&&navigator.vibrate([500,200,500])}catch(e){}timer=setInterval(()=>{beep();if(++n>60)stop()},1500);
+    try{if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState!=='visible')new Notification(title,{body:body||'',requireInteraction:true,tag:'khg-crm'})}catch(e){}};
+  return {start,stop,on,set:v=>{try{localStorage.setItem('khg_ring',v?'1':'0')}catch(e){}}}})();
+
+// ===================== KẾT NỐI THUÊ TÀI XẾ (Fast Driver) =====================
+Object.assign(O,{pl_status:{cho_tai_xe_xac_nhan:'Chờ tài xế xác nhận',dang_lam:'Đang làm',hoan_tat:'Hoàn tất',huy:'Đã hủy',tranh_chap:'Cần đối chiếu'},
+  pl_source:{khach_bao:'Khách khai báo',tai_xe_bao:'Tài xế báo',crm:'KHG nhập'},
+  jm_status:{de_xuat:'Đề xuất',da_xem_so:'Đã xem số',da_lien_he:'Đã liên hệ',da_chon:'Đã chọn',khach_bo_qua:'Khách bỏ qua',tai_xe_tu_choi:'Tài xế từ chối'},
+  ct_action:{xem_so:'Xem số',goi:'Gọi',sms:'SMS',zalo:'Zalo'}});
+Object.assign(PILL,{cho_tai_xe_xac_nhan:'amber',dang_lam:'green',hoan_tat:'green',tranh_chap:'red',da_chon:'green',da_lien_he:'blue',da_xem_so:'blue'});
+async function fdConnect(h){
+  h.innerHTML='<div class="empty">Đang tải…</div>';
+  const [{data:J},{data:P},{data:C},{data:S},{data:D}]=await Promise.all([
+    sb.from('khg_driver_jobs').select('*').not('customer_user','is',null).is('archived_at',null).order('created_at',{ascending:false}).limit(300),
+    sb.from('khg_placements').select('*').is('archived_at',null).order('created_at',{ascending:false}).limit(500),
+    sb.from('khg_driver_contacts').select('*').order('at',{ascending:false}).limit(300),
+    sb.rpc('khg_fee_cfg'),sb.from('khg_fd_drivers').select('id,code,full_name,phone,status,license_class').is('archived_at',null)]);
+  const dn={};(D||[]).forEach(d=>dn[d.id]=d);const jn={};(J||[]).forEach(j=>jn[j.id]=j);
+  const fee=S||{rate:.2,min:500000,months:12};const sumFee=(P||[]).filter(p=>p.status!=='huy').reduce((a,p)=>a+Number(p.fee_amount||0),0);
+  h.innerHTML=`<div class="kpis"><div class="kpi hot"><div class="l">Yêu cầu từ app Thuê tài xế</div><div class="v">${(J||[]).length}</div><div class="h">Chưa có tài xế ghép: ${(J||[]).filter(j=>!j.match_count).length}</div></div>
+     <div class="kpi"><div class="l">Lượt khách liên hệ tài xế</div><div class="v">${(C||[]).length}</div><div class="h">${new Set((C||[]).map(c=>c.customer_user)).size} khách</div></div>
+     <div class="kpi ${(P||[]).filter(p=>['cho_tai_xe_xac_nhan','tranh_chap'].includes(p.status)).length?'hot':''}"><div class="l">Hợp đồng thuê</div><div class="v">${(P||[]).length}</div><div class="h">Cần đối chiếu: ${(P||[]).filter(p=>p.status==='tranh_chap').length}</div></div>
+     <div class="kpi"><div class="l">Phí giới thiệu (chưa VAT)</div><div class="v">${fmtTr(sumFee)}</div><div class="h">Đã xuất công nợ: ${fmtTr((P||[]).filter(p=>p.receivable_id).reduce((a,p)=>a+Number(p.fee_amount||0),0))}</div></div></div>
+   <div class="card" style="margin-bottom:14px"><h3>Biểu phí giới thiệu</h3><div class="bar"><label>Tỷ lệ (%) <input type="number" id="fR" value="${Math.round(fee.rate*1000)/10}" style="width:80px" ${isAdmin()?'':'disabled'}></label><label>Tối thiểu (đ) <input type="number" id="fM" value="${fee.min}" style="width:120px" ${isAdmin()?'':'disabled'}></label><label>Tính tối đa (tháng) <input type="number" id="fT" value="${fee.months}" style="width:70px" ${isAdmin()?'':'disabled'}></label>${isAdmin()?'<button class="btn" id="fS">Lưu biểu phí</button>':''}<span class="sub">Áp dụng cho xác nhận mới; khách đã đồng ý giữ mức trong văn bản đã ký.</span></div></div>
+   <h3>Yêu cầu thuê tài xế</h3><div class="tw"><table><thead><tr><th>Mã</th><th>Lúc</th><th>Khách</th><th>Xe · hình thức</th><th>Khu vực</th><th>Bắt đầu</th><th class="n">Ghép</th><th class="n">Liên hệ</th><th>Trạng thái</th><th></th></tr></thead><tbody>${(J||[]).map(j=>`<tr><td><b>${esc(j.code)}</b></td><td>${fmtDT(j.created_at)}</td><td>${esc(j.hirer_company||j.hirer_name||'')}<div class="sub"><a href="tel:${esc(j.hirer_phone)}">${esc(j.hirer_phone||'')}</a></div></td>
+      <td>${esc(O.vtype?.[j.vehicle_type]||j.vehicle_type||j.vehicle_desc||'')}<div class="sub">${esc(O.job_mode?.[j.mode]||j.mode||'')}${j.hirer_price?' · '+fmtN(j.hirer_price)+'/'+esc(O.pay_unit?.[j.pay_unit]||j.pay_unit):''}</div></td><td>${esc(j.province||'')}</td><td>${fmtD(j.start_date)}</td><td class="n">${j.match_count||0}</td><td class="n">${(C||[]).filter(c=>c.job_id===j.id).length}</td><td>${esc(O.job_status?.[j.status]||j.status)}</td>
+      <td style="white-space:nowrap"><button class="btn s" data-mt="${j.id}">👥 Tài xế ghép</button>${RO?'':`<button class="btn s" data-rm="${j.id}" title="Chạy lại ghép tự động">🔄</button>`}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Chưa có yêu cầu từ app Thuê tài xế.</td></tr>'}</tbody></table></div>
+   <h3 style="margin-top:16px">Hợp đồng thuê & phí giới thiệu</h3><div class="tw"><table><thead><tr><th>Mã</th><th>Khách</th><th>Tài xế</th><th>Bắt đầu</th><th class="n">Thù lao</th><th class="n">SL</th><th class="n">Phí</th><th>Nguồn</th><th>Trạng thái</th><th>Ghi chú</th><th></th></tr></thead><tbody>${(P||[]).map((p,i)=>{const j=jn[p.job_id]||{};return `<tr><td><b>${esc(p.code)}</b><div class="sub">${fmtD(p.created_at)}</div></td><td>${esc(j.hirer_company||j.hirer_name||'')}</td><td>${esc(dn[p.driver_id]?.full_name||'')}<div class="sub">${esc(dn[p.driver_id]?.phone||'')}</div></td><td>${fmtD(p.start_date)}</td>
+      <td class="n">${fmtN(p.pay_amount)}<div class="sub">/${esc(O.pay_unit?.[p.pay_unit]||p.pay_unit||'')}</div></td><td class="n">${fmtN(p.quantity_est)}</td><td class="n"><b>${fmtN(p.fee_amount)}</b><div class="sub">+VAT ${Math.round((p.vat_rate||0)*100)}%</div></td><td>${esc(O.pl_source[p.source]||p.source)}</td><td>${pill('pl_status',p.status)}${p.receivable_id?'<div class="sub">đã xuất công nợ</div>':''}</td>
+      <td style="max-width:220px;font-size:12px">${esc([p.customer_note&&'Khách: '+p.customer_note,p.driver_note&&'TX: '+p.driver_note,p.staff_note&&'KHG: '+p.staff_note].filter(Boolean).join(' · '))}</td>
+      <td style="white-space:nowrap">${RO?'':`<button class="btn s" data-pe="${i}">✏️</button>${!p.receivable_id&&p.status!=='huy'&&has(['admin','ke_toan'])?`<button class="btn s p" data-pi="${i}">🧾 Xuất công nợ</button>`:''}`}</td></tr>`}).join('')||'<tr><td colspan="11" class="empty">Chưa có hợp đồng thuê.</td></tr>'}</tbody></table></div>
+   <h3 style="margin-top:16px">Nhật ký khách liên hệ tài xế</h3><p class="sub">Bằng chứng cho phí giới thiệu: mỗi lần khách xem số, gọi, nhắn được ghi kèm thời điểm, IP và văn bản điều khoản đã đồng ý.</p>
+   <div class="tw"><table><thead><tr><th>Lúc</th><th>Yêu cầu</th><th>Khách</th><th>Tài xế</th><th>Hành động</th><th>IP</th></tr></thead><tbody>${(C||[]).map(c=>`<tr><td>${fmtDT(c.at)}</td><td>${esc(jn[c.job_id]?.code||'')}</td><td>${esc(jn[c.job_id]?.hirer_company||jn[c.job_id]?.hirer_name||'')}</td><td>${esc(dn[c.driver_id]?.full_name||'')}</td><td>${esc(O.ct_action[c.action]||c.action)}</td><td style="font-size:12px">${esc(c.ip||'')}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Chưa có.</td></tr>'}</tbody></table></div>`;
+  const fs=$('#fS');if(fs)fs.onclick=async()=>{const {error}=await sb.rpc('khg_fee_settings',{p_rate:(+$('#fR').value||0)/100,p_min:+$('#fM').value||0,p_months:+$('#fT').value||12});toast(error?error.message:'Đã lưu biểu phí');if(!error)fdConnect(h)};
+  h.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{const {data,error}=await sb.rpc('khg_match_job',{p_job:b.dataset.rm});toast(error?error.message:'Đã ghép '+data+' tài xế');fdConnect(h)});
+  h.querySelectorAll('[data-mt]').forEach(b=>b.onclick=async()=>{const j=jn[b.dataset.mt];const {data:mm}=await sb.from('khg_job_matches').select('*').eq('job_id',j.id).order('score',{ascending:false});
+    const ok=(D||[]).filter(d=>d.status==='da_duyet'&&!(mm||[]).some(x=>x.driver_id===d.id));
+    modal(`<h3>👥 Tài xế ghép cho ${esc(j.code)} · ${esc(j.hirer_company||j.hirer_name||'')}</h3><div class="tw"><table><thead><tr><th>Tài xế</th><th>SĐT</th><th>GPLX</th><th class="n">Điểm</th><th class="n">Km</th><th>Lý do</th><th>Trạng thái</th></tr></thead><tbody>${(mm||[]).map(x=>`<tr><td>${esc(dn[x.driver_id]?.full_name||'')}</td><td>${esc(dn[x.driver_id]?.phone||'')}</td><td>${esc((dn[x.driver_id]?.license_class||[]).join('/'))}</td><td class="n">${x.score??''}</td><td class="n">${x.distance_km??''}</td><td style="font-size:12px">${esc((x.reasons||[]).join(', '))}</td><td>${pill('jm_status',x.status)}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">Chưa có tài xế phù hợp.</td></tr>'}</tbody></table></div>
+      ${RO?'':`<div class="bar" style="margin-top:10px"><select id="mAdd"><option value="">＋ Thêm tài xế đã duyệt vào danh sách khách thấy…</option>${ok.map(d=>`<option value="${d.id}">${esc(d.code+' · '+d.full_name+' · '+(d.license_class||[]).join('/'))}</option>`).join('')}</select><button class="btn p" id="mGo">Thêm</button></div>`}
+      <div class="acts"><span class="sp"></span><button class="btn" onclick="closeModal()">Đóng</button></div>`,true);
+    const mg=$('#mGo');if(mg)mg.onclick=async()=>{const id=$('#mAdd').value;if(!id)return;const {error}=await sb.rpc('khg_hire_add_match',{p_job:j.id,p_driver:id});
+      toast(error?error.message:'Đã thêm – khách thấy tài xế này trên app');closeModal();fdConnect(h)}});
+  h.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>{const p=P[+b.dataset.pe];
+    modal(`<h3>✏️ ${esc(p.code)}</h3><div class="form"><label>Trạng thái<select id="eS">${Object.entries(O.pl_status).map(([k,l])=>`<option value="${k}" ${k===p.status?'selected':''}>${l}</option>`).join('')}</select></label>
+      <label>Thù lao (đ)<input id="eP" type="number" value="${p.pay_amount||0}"></label><label>Số lượng<input id="eQ" type="number" value="${p.quantity_est||1}"></label><label>Phí giới thiệu (đ)<input id="eF" type="number" value="${p.fee_amount||0}"></label><label>VAT (%)<input id="eV" type="number" value="${Math.round((p.vat_rate||0)*100)}"></label>
+      <label style="grid-column:1/-1">Ghi chú KHG<textarea id="eN" rows="2">${esc(p.staff_note||'')}</textarea></label></div>
+      <div class="acts"><button class="btn" onclick="closeModal()">Đóng</button><span class="sp"></span><button class="btn p" id="eGo">Lưu</button></div>`);
+    $('#eGo').onclick=async()=>{const {error}=await sb.from('khg_placements').update({status:$('#eS').value,pay_amount:+$('#eP').value||0,quantity_est:+$('#eQ').value||1,fee_amount:+$('#eF').value||0,vat_rate:(+$('#eV').value||0)/100,staff_note:$('#eN').value||null}).eq('id',p.id);toast(error?error.message:'Đã lưu');if(!error){closeModal();fdConnect(h)}}});
+  h.querySelectorAll('[data-pi]').forEach(b=>b.onclick=async()=>{const p=P[+b.dataset.pi];if(!confirm(`Xuất công nợ phí giới thiệu ${fmtM(p.fee_amount)} + VAT cho ${p.code}?`))return;const {error}=await sb.rpc('khg_placement_invoice',{p_id:p.id});toast(error?error.message:'Đã tạo khoản phải thu – xem Kế toán & công nợ');fdConnect(h)});
+}
+
+window.CRing=CRing;window.__kn=()=>{FD_SUB='kn';go('fastdriver')};
 VIEWS.trash=async m=>{
   const T=Object.entries(E).filter(([k,c])=>c.table).map(([k,c])=>[k,c.title]);
   const st=STATE.trash=STATE.trash||{t:'orders'};
@@ -2363,6 +2453,7 @@ async function loadNotif(){
     if(d.dataset.o){const {data:o}=await sb.from('khg_orders').select('*').eq('id',d.dataset.o).maybeSingle();if(o)openOrder(o,()=>{if(cur==='dispatch'&&DISPATCH_RELOAD)DISPATCH_RELOAD()})}loadNotif()});
 }
 $('#bell').onclick=()=>{$('#notif').classList.toggle('hidden');loadNotif()};
+{const rt=$('#ringT');const upd=()=>{rt.textContent=CRing.on()?'🔊':'🔇';rt.title=CRing.on()?'Chuông lớn đang BẬT – bấm để tắt':'Chuông lớn đang TẮT – bấm để bật'};upd();rt.onclick=()=>{CRing.set(!CRing.on());upd();toast(CRing.on()?'Đã bật chuông lớn':'Đã tắt chuông lớn')}}
 
 // ===================== Khung & đăng nhập =====================
 let cur='overview';
@@ -2400,7 +2491,7 @@ async function start(session){
   try{sb.channel('khg-crm').on('postgres_changes',{event:'*',schema:'public',table:'khg_orders'},p=>{
       if(p.eventType==='INSERT'){if(p.new.source==='khach_hang'&&has(['admin','dieu_phoi']))ringAlarm(p.new);else toast('🆕 Đơn mới '+(p.new.code||''))}
       if(cur==='dispatch'&&DISPATCH_RELOAD){clearTimeout(window._dr);window._dr=setTimeout(DISPATCH_RELOAD,800)}})
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'khg_notifications'},p=>{if(ME&&p.new.person_id===ME.id){toast('🔔 '+p.new.title);loadNotif()}}).subscribe()}catch(e){}
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'khg_notifications'},p=>{if(ME&&p.new.person_id===ME.id){toast('🔔 '+p.new.title);loadNotif();if(!/^(Đã|Nhắc)/.test(p.new.title||''))CRing.start(p.new.title,p.new.body,()=>{const t=(p.new.title||'')+' '+(p.new.body||'');if(/thuê tài xế|chọn tài xế|kết nối/i.test(t)){FD_SUB='kn';go('fastdriver')}else if(/xác thực|hồ sơ|vi phạm|ký/i.test(t)&&VIEWS.accounts)go('accounts');else{$('#notif').classList.remove('hidden');loadNotif()}})}}).subscribe()}catch(e){}
 }
 $('#login-form').addEventListener('submit',async e=>{e.preventDefault();$('#login-error').textContent='';$('#login-submit').disabled=true;
   const lg=$('#login-email').value.trim();const email=lg.includes('@')?lg:lg.replace(/\D/g,'').replace(/^84/,'0')+'@taixe.kimhoanggia.vn';

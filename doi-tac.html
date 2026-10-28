@@ -102,6 +102,16 @@ table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td
 .hp{position:absolute;left:-5000px;width:1px;height:1px;opacity:0}
 .foot{max-width:1100px;margin:6px auto 0;padding:0 16px 22px;color:var(--muted);font-size:12px;text-align:center}
 #nl-badge-frame{bottom:calc(70px + env(safe-area-inset-bottom))!important}
+/* chuông */
+.kring{position:fixed;inset:0;z-index:400;background:rgba(200,16,46,.92);display:grid;place-items:center;padding:20px;animation:krp 1s infinite}
+@keyframes krp{0%,100%{background:rgba(200,16,46,.92)}50%{background:rgba(120,0,20,.95)}}
+.kr-bx{background:#fff;border-radius:20px;padding:22px 18px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.kr-bx b{display:block;font-size:19px;margin:6px 0}.kr-bx p{margin:0 0 14px;color:var(--ink2)}
+.kr-ic{font-size:54px;animation:krs .5s infinite alternate}@keyframes krs{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+/* điện thoại: chống iOS phóng to khi nhập, nút to dễ bấm */
+@media(max-width:900px){.i,select.i,textarea.i,input,select,textarea{font-size:16px!important}.btn{min-height:46px}.btn.s{min-height:40px}}
+.next{background:linear-gradient(120deg,var(--acc),#0b3b6b);color:#fff;border-radius:16px;padding:16px;margin-bottom:14px}
+.next small{opacity:.85;display:block}.next b{display:block;font-size:18px;margin:4px 0 10px}.next .btn{background:#fff;color:var(--acc)}
 
 /* ===== Hồ sơ xác thực (KYC) ===== */
 .kst{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:12px;margin-bottom:12px;font-size:13.5px}
@@ -212,6 +222,30 @@ const DOCT={cccd:'CCCD',bang_lai:'Bằng lái',anh_dai_dien:'Ảnh chân dung',g
 function pickFiles(accept,multiple,cb,capture){const i=document.createElement('input');i.type='file';i.accept=accept||'image/*,application/pdf';i.multiple=!!multiple;if(capture)i.capture='environment';i.onchange=()=>cb([...i.files]);i.click()}
 const IC=p=>`<svg viewBox="0 0 24 24">${p}</svg>`;
 
+// ================= Chuông báo lớn, kêu lặp + rung + thông báo hệ thống =================
+const KRing=(()=>{let ac=null,timer=null,el=null,cnt=0;
+  const unlock=()=>{try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}};
+  ['touchstart','pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,unlock,{passive:true}));
+  const beep=()=>{if(!ac)return;try{const t=ac.currentTime;[[988,0],[740,.2],[988,.4],[740,.6],[1175,.8]].forEach(([f,d])=>{const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=f;
+    g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.7,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.18);o.connect(g);g.connect(ac.destination);o.start(t+d);o.stop(t+d+.19)})}catch(e){}};
+  function stop(){clearInterval(timer);timer=null;if(el){el.remove();el=null}try{navigator.vibrate&&navigator.vibrate(0)}catch(e){}}
+  function start(title,body,onOpen){stop();unlock();el=document.createElement('div');el.className='kring';
+    el.innerHTML=`<div class="kr-bx"><div class="kr-ic">🔔</div><b>${esc(title||'Có thông báo mới')}</b><p>${esc(body||'')}</p><button class="btn p w" data-o>Xem ngay</button><button class="btn g w" data-x style="margin-top:8px">Tắt chuông</button></div>`;
+    document.body.appendChild(el);el.querySelector('[data-o]').onclick=()=>{stop();onOpen&&onOpen()};el.querySelector('[data-x]').onclick=stop;
+    cnt=0;beep();try{navigator.vibrate&&navigator.vibrate([500,200,500,200,900])}catch(e){}
+    timer=setInterval(()=>{beep();cnt++;if(cnt%2===0)try{navigator.vibrate&&navigator.vibrate([500,200,500])}catch(e){}if(cnt>80)stop()},1500);
+    try{if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState!=='visible'){const o={body:body||'',vibrate:[500,200,500],requireInteraction:true,tag:'khg-ring',renotify:true};
+      (navigator.serviceWorker&&navigator.serviceWorker.getRegistration?navigator.serviceWorker.getRegistration():Promise.resolve(null)).then(r=>r?r.showNotification(title,o):new Notification(title,o)).catch(()=>{})}}catch(e){}}
+  function askNotif(){try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}}
+  // theo dõi tín hiệu mới (khg_ping) và rung chuông khi có thay đổi
+  function watch(onOpen,onCount,ms=20000){let last=null;const key='kring_k_'+location.pathname;try{const v=localStorage.getItem(key);last=v?Number(v):null}catch(e){}
+    const tick=async()=>{try{const {data:p}=await sb.rpc('khg_ping');if(!p)return;onCount&&onCount(p.n||0);
+      if(last!==null&&Number(p.k)>last)start(p.msg||'Có thông báo mới',p.n?('Bạn có '+p.n+' mục cần xem'):'',onOpen);
+      last=Number(p.k);try{localStorage.setItem(key,String(last))}catch(e){}}catch(e){}};
+    tick();setInterval(tick,ms);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')tick()});
+    document.addEventListener('pointerdown',function f(){askNotif();document.removeEventListener('pointerdown',f)},{once:true})}
+  return {start,stop,watch,askNotif,unlock}})();
+
 // ================= HỒ SƠ XÁC THỰC (KYC) · KÝ ĐIỆN TỬ · HỘP THƯ – dùng chung app Đối tác & Fast Driver =================
 Object.assign(DOCT,{cccd_truoc:'CCCD mặt trước',cccd_sau:'CCCD mặt sau',bang_lai_truoc:'GPLX mặt trước',bang_lai_sau:'GPLX mặt sau',gp_van_tai:'Giấy phép KD vận tải',
   anh_van_phong:'Ảnh văn phòng',anh_bai_xe:'Ảnh bãi xe',anh_doi_xe:'Ảnh đội xe',selfie_xac_thuc:'Xác thực khuôn mặt',chu_ky:'Chữ ký điện tử',anh_ky_cam_ket:'Chân dung khi ký'});
@@ -310,7 +344,9 @@ KYC.render=async(host,ctx)=>{
     if(x.doc)return `<button class="btn ${x.ok?'g':'p'} s" data-cam="${x.k}">📷 Chụp</button><button class="btn g s" data-up="${x.k}">🖼 Tải lên</button>`;
     return ctx.actions[x.k]?`<button class="btn ${x.ok?'g':'p'} s" data-go="${x.k}">${x.ok?'Sửa':'Nhập'}</button>`:''};
   const alias={cccd_truoc:['cccd'],bang_lai_truoc:['bang_lai']};
-  host.innerHTML=`<div class="card"><h2>🛡️ Hồ sơ pháp lý & xác thực</h2>
+  const nx=K.items.find(x=>!x.ok);const stepN=K.items.indexOf(nx)+1;
+  host.innerHTML=(nx&&['chua_nop','bo_sung',null,undefined].includes(K.kyc_status)?`<div class="next"><small>Bước ${K.items.length-K.missing+1}/${K.items.length} · còn ${K.missing} bước</small><b>${esc(nx.l)}</b><div class="a" style="display:flex;gap:8px;flex-wrap:wrap">${actBtn(nx).replace(/btn g s|btn p s/g,'btn')}</div></div>`:
+    K.complete&&['chua_nop','bo_sung',null,undefined].includes(K.kyc_status)?`<div class="next"><small>Đã đủ ${K.items.length}/${K.items.length} bước</small><b>Bấm nộp hồ sơ để KHG duyệt</b><button class="btn" id="kSub2">📨 Nộp hồ sơ ngay</button></div>`:'')+`<div class="card"><h2>🛡️ Hồ sơ pháp lý & xác thực</h2>
     <div class="kst ${st[1]}"><div><b>${st[0]}</b>${K.kyc_note?esc(K.kyc_note):K.kyc_status==='chua_nop'?'Hoàn thiện đủ các mục dưới đây rồi bấm “Nộp hồ sơ”. KHG chỉ duyệt khi hồ sơ đầy đủ.':K.kyc_status==='cho_duyet'?'KHG sẽ kiểm tra ảnh, giấy tờ và gọi xác nhận trong 1–2 ngày làm việc.':''}</div></div>
     <div style="display:flex;justify-content:space-between;font-size:13px"><span>Đã hoàn thành ${ok}/${n} mục</span><b>${Math.round(ok*100/n)}%</b></div><div class="kbar"><i style="width:${ok*100/n}%"></i></div>
     ${Object.entries(groups).map(([g,a])=>`<div class="kg">${esc(g)}</div>`+a.map(x=>{const fs=[...(by[x.k]||[]),...((alias[x.k]||[]).flatMap(k=>by[k]||[]))].filter(f=>urls[f.file_path]).slice(0,6);
@@ -326,6 +362,7 @@ KYC.render=async(host,ctx)=>{
       return pickFiles('image/*',false,files=>busy(b,async()=>{const pos=await getPos(5000);for(const f of files)await KYC.upload(ctx,k,f,f.name,pos);toast('Đã lưu '+(DOCT[k]||k));await ctx.onChange()}),true)}
     if(!bl)return;const pos=await getPos(5000);await KYC.upload(ctx,k,bl,k+'.jpg',pos);toast('Đã lưu '+(DOCT[k]||k));await ctx.onChange()}));
   host.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>pickFiles('image/*,application/pdf',true,files=>busy(b,async()=>{const k=b.dataset.up;for(const f of files)await KYC.upload(ctx,k,f,f.name,null);toast('Đã tải lên '+(DOCT[k]||k));await ctx.onChange()})));
+  const sb3=host.querySelector('#kSub2');if(sb3)sb3.onclick=()=>busy(sb3,async()=>{await rpc('khg_kyc_submit');toast('Đã nộp hồ sơ – KHG sẽ xét duyệt và báo trên app',4000);await ctx.onChange()});
   const sb2=host.querySelector('#kSub');if(sb2)sb2.onclick=()=>busy(sb2,async()=>{await rpc('khg_kyc_submit');toast('Đã nộp hồ sơ – KHG sẽ xét duyệt và báo trên app',4000);await ctx.onChange()});
   return K;
 };
@@ -414,7 +451,7 @@ function navDraw(badge){$('#nav').innerHTML=TABS.map(([k,l,ic])=>`<button data-t
 async function boot(fresh){
   let me;try{me=await rpc('khg_partner_me')}catch(e){await sb.auth.signOut();authView('in');toast('Tài khoản này không phải tài khoản đối tác. '+e.message,5000);return}
   P=me;$('#hName').textContent=`${P.code} · ${P.short_name||P.name}`;$('#nav').classList.remove('hidden');$('#hMe').classList.remove('hidden');$('#hMe').onclick=()=>go('me');
-  navDraw(P.offers_new);refreshInb();
+  navDraw(P.offers_new);refreshInb();KRing.watch(()=>go(P&&P.offers_new?'offers':'inbox'),(()=>{let ln=-1;return n=>{if(n!==ln){ln=n;refreshMe();refreshInb()}}})());
   const h=location.hash.slice(1);go(fresh||P.kyc_status!=='da_duyet'&&!h?'me':(TABS.some(t=>t[0]===h)||h==='me'?h:'offers'));
 }
 async function refreshMe(){try{P=await rpc('khg_partner_me');navDraw(P.offers_new)}catch(e){}}
