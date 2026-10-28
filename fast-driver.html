@@ -103,6 +103,44 @@ table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td
 .foot{max-width:1100px;margin:6px auto 0;padding:0 16px 22px;color:var(--muted);font-size:12px;text-align:center}
 #nl-badge-frame{bottom:calc(70px + env(safe-area-inset-bottom))!important}
 
+/* ===== Hồ sơ xác thực (KYC) ===== */
+.kst{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:12px;margin-bottom:12px;font-size:13.5px}
+.kst b{display:block;font-size:15px}.kst.amber{background:#FFF7E8;border:1px solid #F3D9A8}.kst.green{background:#E5F4EC;border:1px solid #BFE3CF}.kst.red{background:#FDECEC;border:1px solid #F5C2C2}.kst.blue{background:var(--soft);border:1px solid transparent}
+.kbar{height:8px;background:#EEE;border-radius:99px;overflow:hidden;margin:8px 0 2px}.kbar i{display:block;height:100%;background:var(--acc);border-radius:99px}
+.kg{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin:14px 0 6px}
+.ki{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0EEEC}
+.ki .c{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;flex:none;font-size:14px}
+.ki .c.ok{background:#E5F4EC;color:var(--green)}.ki .c.no{background:#FDECEC;color:var(--red)}
+.ki .t{flex:1;min-width:0}.ki .t b{display:block;font-size:14px}.ki .t small{color:var(--muted);font-size:12px}
+.ki .a{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.kthumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.kthumbs img{width:54px;height:54px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+/* camera */
+.kcam{position:fixed;inset:0;background:#000;z-index:300;display:flex;flex-direction:column;color:#fff}
+.kcam-top{display:flex;align-items:center;gap:10px;padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top))}.kcam-top b{flex:1;font-size:15px}
+.kcam-top button{background:#333;color:#fff;border:0;border-radius:999px;width:36px;height:36px;font-size:16px}
+.kcam-v{flex:1;position:relative;overflow:hidden;display:grid;place-items:center}
+.kcam-v video{width:100%;height:100%;object-fit:cover}.kcam-v video.mir{transform:scaleX(-1)}
+.kcam-oval{position:absolute;width:64vmin;height:82vmin;max-width:340px;max-height:430px;border:3px dashed rgba(255,255,255,.85);border-radius:50%;box-shadow:0 0 0 2000px rgba(0,0,0,.35)}
+.kcam-oval.doc{border-radius:14px;width:86vmin;height:56vmin;max-width:520px;max-height:340px}
+.kcam-msg{position:absolute;top:16px;left:12px;right:12px;text-align:center;font-size:19px;font-weight:800;text-shadow:0 2px 8px #000}
+.kcam-cd{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:52px;font-weight:800;text-shadow:0 2px 10px #000}
+.kcam-bot{padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center;background:#111}
+.kcam-bot .btn{min-width:150px}
+.kcam-shots{display:flex;gap:6px;position:absolute;bottom:90px;left:10px}.kcam-shots img{width:48px;height:60px;object-fit:cover;border-radius:6px;border:2px solid #fff}
+/* chữ ký */
+.ksig{position:fixed;inset:0;background:#fff;z-index:300;display:flex;flex-direction:column}
+.ksig .hd2{padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top));border-bottom:1px solid var(--line);font-weight:700}
+.ksig .pad{flex:1;position:relative;margin:12px;border:2px dashed #C9C4BF;border-radius:14px;touch-action:none;background:#FFFEFB}
+.ksig canvas{position:absolute;inset:0;width:100%;height:100%}
+.ksig .ln{position:absolute;left:8%;right:8%;bottom:28%;border-bottom:1.5px solid #D5D0CA;pointer-events:none}
+.ksig .ln span{position:absolute;left:0;top:6px;font-size:12px;color:#A39E98}
+.ksig .ft{display:flex;gap:10px;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.kdoc{white-space:pre-wrap;font-size:13.5px;line-height:1.6;background:#FBFAF9;border:1px solid var(--line);border-radius:12px;padding:12px;max-height:46vh;overflow:auto}
+.kchk{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:13.5px}.kchk input{width:20px;height:20px;margin-top:2px;flex:none}
+.khash{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;word-break:break-all;color:var(--muted)}
+.nt{border-left:4px solid var(--acc)}.nt.unread{background:#F5F9FF}.nt.vp{border-left-color:var(--red)}
+.locbar{background:#FFF7E8;border:1px solid #F3D9A8;border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:12px;display:flex;gap:10px;align-items:center}
+
 :root{--acc:#0E7C66;--soft:#E3F3EE}
 .hero{background:linear-gradient(130deg,#06352B,#0E7C66 70%,#14A085);color:#fff;border-radius:18px;padding:22px 18px;margin-bottom:14px;position:relative;overflow:hidden}
 .hero h1{margin:0;font-size:26px;line-height:1.15;letter-spacing:-.3px}.hero h1 span{display:block;font-size:15px;font-weight:600;color:#BDEBDD;letter-spacing:0;margin-top:6px}
@@ -181,6 +219,145 @@ const DOCT={cccd:'CCCD',bang_lai:'Bằng lái',anh_dai_dien:'Ảnh chân dung',g
 function pickFiles(accept,multiple,cb,capture){const i=document.createElement('input');i.type='file';i.accept=accept||'image/*,application/pdf';i.multiple=!!multiple;if(capture)i.capture='environment';i.onchange=()=>cb([...i.files]);i.click()}
 const IC=p=>`<svg viewBox="0 0 24 24">${p}</svg>`;
 
+// ================= HỒ SƠ XÁC THỰC (KYC) · KÝ ĐIỆN TỬ · HỘP THƯ – dùng chung app Đối tác & Fast Driver =================
+Object.assign(DOCT,{cccd_truoc:'CCCD mặt trước',cccd_sau:'CCCD mặt sau',bang_lai_truoc:'GPLX mặt trước',bang_lai_sau:'GPLX mặt sau',gp_van_tai:'Giấy phép KD vận tải',
+  anh_van_phong:'Ảnh văn phòng',anh_bai_xe:'Ảnh bãi xe',anh_doi_xe:'Ảnh đội xe',selfie_xac_thuc:'Xác thực khuôn mặt',chu_ky:'Chữ ký điện tử',anh_ky_cam_ket:'Chân dung khi ký'});
+const KYC_ST={chua_nop:['Chưa nộp hồ sơ xác thực','amber'],cho_duyet:['Đã nộp – KHG đang xét duyệt','blue'],bo_sung:['KHG yêu cầu bổ sung','red'],da_duyet:['Hồ sơ đã được duyệt','green'],tu_choi:['Hồ sơ chưa được duyệt','red']};
+const VIO_KIND={tre_gio:'Trễ giờ',huy_chuyen:'Hủy chuyến',khong_cap_nhat:'Không cập nhật chuyến',hu_hong_hang:'Hư hỏng / thiếu hàng',thai_do:'Thái độ phục vụ',an_toan:'Vi phạm an toàn giao thông',ruou_bia:'Rượu bia / chất kích thích',giay_to:'Giấy tờ hết hạn / sai',bao_mat:'Vi phạm bảo mật',thu_tien:'Thu tiền sai quy định',khac:'Khác'};
+const VIO_SEV={nhac_nho:['Nhắc nhở',''],canh_bao:['Cảnh báo','amber'],phat_tien:['Phạt tiền','red'],tam_dung:['Tạm dừng nhận đơn','red'],cham_dut:['Chấm dứt hợp tác','red']};
+const VIO_ST={moi:['Chờ bạn phản hồi','red'],da_phan_hoi:['Đã phản hồi – chờ KHG','amber'],da_xu_ly:['Đã xử lý','green'],huy:['Đã hủy','']};
+
+const getPos=(ms=8000)=>new Promise(r=>{if(!navigator.geolocation)return r(null);let done=false;const t=setTimeout(()=>{if(!done){done=true;r(null)}},ms);
+  navigator.geolocation.getCurrentPosition(p=>{if(done)return;done=true;clearTimeout(t);r(p.coords)},()=>{if(done)return;done=true;clearTimeout(t);r(null)},{enableHighAccuracy:true,timeout:ms,maximumAge:60000})});
+const camErr='Không mở được camera. Hãy mở bằng Chrome (Android) hoặc Safari (iPhone), cho phép quyền Camera rồi thử lại. Không mở trong Zalo/Facebook.';
+
+function camSession({facing='user',title='',oval='face'}){
+  return new Promise(async(res,rej)=>{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return rej(new Error(camErr));
+    let stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1280},height:{ideal:960}},audio:false})}catch(e){return rej(new Error(camErr))}
+    const d=document.createElement('div');d.className='kcam';
+    d.innerHTML=`<div class="kcam-top"><b>${esc(title)}</b><button class="kx" aria-label="Đóng">✕</button></div><div class="kcam-v"><video playsinline autoplay muted class="${facing==='user'?'mir':''}"></video><div class="kcam-oval ${oval==='doc'?'doc':''}"></div><div class="kcam-msg"></div><div class="kcam-cd"></div><div class="kcam-shots"></div></div><div class="kcam-bot"></div>`;
+    document.body.appendChild(d);const video=d.querySelector('video');video.srcObject=stream;
+    const close=()=>{stream.getTracks().forEach(t=>t.stop());d.remove()};
+    d.querySelector('.kx').onclick=()=>{close();d._cancel&&d._cancel()};
+    await new Promise(r=>{video.onloadedmetadata=()=>r();setTimeout(r,2500)});try{await video.play()}catch(e){}
+    res({d,video,close,mirror:facing==='user',msg:t=>d.querySelector('.kcam-msg').textContent=t,cd:t=>d.querySelector('.kcam-cd').textContent=t,bot:h=>{d.querySelector('.kcam-bot').innerHTML=h;return d.querySelector('.kcam-bot')}});
+  });
+}
+function grab(S,label){const v=S.video,w=v.videoWidth||640,h=v.videoHeight||480,k=Math.min(1,1280/Math.max(w,h));const c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);
+  const g=c.getContext('2d');if(S.mirror){g.translate(c.width,0);g.scale(-1,1)}g.drawImage(v,0,0,c.width,c.height);g.setTransform(1,0,0,1,0,0);
+  g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,c.height-30,c.width,30);g.fillStyle='#fff';g.font='15px sans-serif';g.fillText('KHG · '+(label||'')+' · '+new Date().toLocaleString('vi-VN'),10,c.height-10);
+  return new Promise(r=>c.toBlob(b=>r(b),'image/jpeg',.86))}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function countdown(S,n=3){for(let i=n;i>0;i--){S.cd(String(i));await sleep(900)}S.cd('📸');await sleep(250);S.cd('')}
+
+// Xác thực khuôn mặt: chụp trực tiếp theo 4 thao tác ngẫu nhiên (không cho tải ảnh có sẵn)
+async function liveness(){
+  const P=['Quay mặt sang TRÁI','Quay mặt sang PHẢI','Ngước mặt LÊN','Mỉm cười','Nháy mắt'].sort(()=>Math.random()-.5);
+  const steps=['Nhìn thẳng vào camera',P[0],P[1],'Nhìn thẳng – giữ yên'];
+  const S=await camSession({facing:'user',title:'Xác thực khuôn mặt'});
+  return new Promise(res=>{S.d._cancel=()=>res(null);S.msg('Đưa khuôn mặt vào khung, đủ sáng, không đeo kính râm/khẩu trang');
+    const b=S.bot('<button class="btn p">Bắt đầu</button>');b.querySelector('button').onclick=async()=>{b.innerHTML='<span class="note" style="color:#ccc">Làm theo hướng dẫn trên màn hình…</span>';const out=[];
+      for(const s of steps){S.msg(s);await countdown(S,3);const bl=await grab(S,'Xác thực: '+s);out.push({blob:bl,label:s});const im=document.createElement('img');im.src=URL.createObjectURL(bl);S.d.querySelector('.kcam-shots').appendChild(im)}
+      S.msg('Hoàn tất ✓');await sleep(500);S.close();res(out)}});
+}
+// Chân dung chụp ngay sau khi ký
+async function portrait(){const S=await camSession({facing:'user',title:'Chụp chân dung xác nhận chữ ký'});
+  return new Promise(async res=>{S.d._cancel=()=>res(null);S.msg('Giữ khuôn mặt trong khung – tự chụp sau 3 giây');await sleep(1200);await countdown(S,3);const b=await grab(S,'Chân dung khi ký');S.close();res(b)})}
+// Chụp giấy tờ bằng camera sau
+async function docShot(title){const S=await camSession({facing:'environment',title,oval:'doc'});
+  return new Promise(res=>{S.d._cancel=()=>res(null);S.msg('Đặt giấy tờ vừa khung, rõ chữ, không lóa');const b=S.bot('<button class="btn p">📸 Chụp</button>');
+    b.querySelector('button').onclick=async()=>{const bl=await grab(S,title);S.close();res(bl)}})}
+// Bảng ký tay
+function signPad(name){return new Promise(res=>{const d=document.createElement('div');d.className='ksig';
+  d.innerHTML=`<div class="hd2">✍️ Ký tên – ${esc(name||'')}<div class="note">Ký bằng ngón tay hoặc bút cảm ứng trong khung bên dưới</div></div><div class="pad"><canvas></canvas><div class="ln"><span>Chữ ký</span></div></div>
+   <div class="ft"><button class="btn g" data-c>Xóa ký lại</button><button class="btn g" data-x>Hủy</button><button class="btn p" data-ok style="flex:1">Xác nhận chữ ký</button></div>`;
+  document.body.appendChild(d);const pad=d.querySelector('.pad'),c=d.querySelector('canvas');const dpr=window.devicePixelRatio||1;
+  const fit=()=>{c.width=pad.clientWidth*dpr;c.height=pad.clientHeight*dpr;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height)};fit();
+  const g=c.getContext('2d');let drawing=false,last=null,len=0,minX=1e9,minY=1e9,maxX=0,maxY=0;
+  const pt=e=>{const r=c.getBoundingClientRect();return [(e.clientX-r.left)*dpr,(e.clientY-r.top)*dpr]};
+  c.onpointerdown=e=>{drawing=true;last=pt(e);c.setPointerCapture(e.pointerId)};
+  c.onpointermove=e=>{if(!drawing)return;const p=pt(e);g.strokeStyle='#0B2A6B';g.lineWidth=2.6*dpr;g.lineCap='round';g.lineJoin='round';g.beginPath();g.moveTo(...last);g.lineTo(...p);g.stroke();
+    len+=Math.hypot(p[0]-last[0],p[1]-last[1]);minX=Math.min(minX,p[0]);minY=Math.min(minY,p[1]);maxX=Math.max(maxX,p[0]);maxY=Math.max(maxY,p[1]);last=p};
+  c.onpointerup=c.onpointercancel=()=>{drawing=false};
+  d.querySelector('[data-c]').onclick=()=>{fit();len=0;minX=minY=1e9;maxX=maxY=0};
+  d.querySelector('[data-x]').onclick=()=>{d.remove();res(null)};
+  d.querySelector('[data-ok]').onclick=()=>{if(len<120*dpr)return toast('Chữ ký quá ngắn – ký rõ họ tên hoặc chữ ký thường dùng');
+    const pd=16*dpr,x=Math.max(0,minX-pd),y=Math.max(0,minY-pd),w=Math.min(c.width,maxX+pd)-x,h=Math.min(c.height,maxY+pd)-y;const o=document.createElement('canvas');o.width=w;o.height=h+26*dpr;
+    const og=o.getContext('2d');og.fillStyle='#fff';og.fillRect(0,0,o.width,o.height);og.drawImage(c,x,y,w,h,0,0,w,h);og.fillStyle='#555';og.font=(11*dpr)+'px sans-serif';og.fillText((name||'')+' · '+new Date().toLocaleString('vi-VN'),6*dpr,h+18*dpr);
+    o.toBlob(b=>{d.remove();res(b)},'image/png')};
+})}
+
+const KYC={};
+KYC.load=()=>rpc('khg_kyc_me');
+KYC.upload=async(ctx,doc,blobOrFile,name,pos)=>{const f=blobOrFile instanceof File?blobOrFile:new File([blobOrFile],name||(doc+'.jpg'),{type:blobOrFile.type||'image/jpeg'});
+  const u=await putFile(`${ctx.prefix}/${doc}`,f);await ctx.addFile(doc,u,pos);return u};
+KYC.signFlow=async(ctx,K)=>{const ag=K.agreement;
+  sheet(`<h3>${esc(ag.title)}</h3><p class="note">Phiên bản ${esc(ag.version)} · Đọc kỹ trước khi ký. Văn bản được lưu cùng mã băm SHA-256, chữ ký, ảnh chân dung, thời điểm và vị trí ký.</p><div class="kdoc">${esc(ag.body)}</div>
+   <label class="kchk"><input type="checkbox" id="kA1"><span>Tôi đã đọc, hiểu và đồng ý toàn bộ nội dung văn bản trên; thông tin tôi cung cấp là đúng sự thật.</span></label>
+   <label class="kchk"><input type="checkbox" id="kA2"><span>Tôi đồng ý cho KHG xử lý dữ liệu cá nhân, gồm hình ảnh khuôn mặt (dữ liệu sinh trắc học), theo Điều 7.</span></label>
+   <div class="btns"><button class="btn p" id="kSign" style="flex:1">✍️ Ký và chụp chân dung</button><button class="btn g" onclick="closeSheet()">Để sau</button></div>`);
+  $('#kSign').onclick=async()=>{if(!$('#kA1').checked||!$('#kA2').checked)return toast('Đánh dấu cả 2 ô đồng ý trước khi ký');closeSheet();
+    const posP=getPos(9000);const sig=await signPad(ctx.signerName());if(!sig)return;toast('Tiếp theo: chụp chân dung xác nhận người ký',2500);
+    let shot;try{shot=await portrait()}catch(e){return toast(e.message,6000)}if(!shot)return;
+    const ov=sheet('<div class="empty">Đang lưu chữ ký điện tử…</div>');try{const pos=await posP;
+      const a=await putFile(`${ctx.prefix}/ky`,new File([sig],'chu-ky.png',{type:'image/png'}));const b=await putFile(`${ctx.prefix}/ky`,new File([shot],'chan-dung-khi-ky.jpg',{type:'image/jpeg'}));
+      const r=await rpc('khg_sign_agreement',{p_signature_path:a.path,p_portrait_path:b.path,p_lat:pos?.latitude??null,p_lng:pos?.longitude??null,p_acc:pos?.accuracy??null,p_ua:navigator.userAgent});
+      closeSheet();sheet(`<h3>✅ Đã ký điện tử</h3><p>Văn bản “${esc(ag.title)}” đã được ký lúc <b>${fmtDT(r.signed_at)}</b>.</p><p class="note">Mã xác thực văn bản (SHA-256):</p><div class="khash">${esc(r.doc_hash)}</div><div class="btns"><button class="btn p w" onclick="closeSheet()">Đóng</button></div>`);await ctx.onChange()}
+    catch(e){closeSheet();toast(e.message||String(e),6000)}};
+};
+// Danh mục hồ sơ: host = phần tử, ctx = {type,prefix,addFile,actions,docs,onChange,signerName}
+KYC.render=async(host,ctx)=>{
+  const K=await KYC.load();ctx.K=K;const docs=ctx.docs()||[];const by={};docs.forEach(x=>(by[x.doc_type]=by[x.doc_type]||[]).push(x));
+  const thumbs=Object.values(by).flat().filter(x=>/\.(jpe?g|png|webp)$/i.test(x.file_path));const urls=await signedMap(thumbs.map(x=>x.file_path));
+  const st=KYC_ST[K.kyc_status]||KYC_ST.chua_nop;const n=K.items.length,ok=n-K.missing;
+  const groups={};K.items.forEach(x=>(groups[x.g]=groups[x.g]||[]).push(x));
+  const actBtn=x=>{if(x.k==='ky')return x.ok?`<button class="btn g s" data-sign>Ký lại</button>`:`<button class="btn p s" data-sign>✍️ Ký</button>`;
+    if(x.k==='selfie_xac_thuc')return `<button class="btn ${x.ok?'g':'p'} s" data-live>🙂 ${x.ok?'Làm lại':'Xác thực'}</button>`;
+    if(x.doc)return `<button class="btn ${x.ok?'g':'p'} s" data-cam="${x.k}">📷 Chụp</button><button class="btn g s" data-up="${x.k}">🖼 Tải lên</button>`;
+    return ctx.actions[x.k]?`<button class="btn ${x.ok?'g':'p'} s" data-go="${x.k}">${x.ok?'Sửa':'Nhập'}</button>`:''};
+  const alias={cccd_truoc:['cccd'],bang_lai_truoc:['bang_lai']};
+  host.innerHTML=`<div class="card"><h2>🛡️ Hồ sơ pháp lý & xác thực</h2>
+    <div class="kst ${st[1]}"><div><b>${st[0]}</b>${K.kyc_note?esc(K.kyc_note):K.kyc_status==='chua_nop'?'Hoàn thiện đủ các mục dưới đây rồi bấm “Nộp hồ sơ”. KHG chỉ duyệt khi hồ sơ đầy đủ.':K.kyc_status==='cho_duyet'?'KHG sẽ kiểm tra ảnh, giấy tờ và gọi xác nhận trong 1–2 ngày làm việc.':''}</div></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px"><span>Đã hoàn thành ${ok}/${n} mục</span><b>${Math.round(ok*100/n)}%</b></div><div class="kbar"><i style="width:${ok*100/n}%"></i></div>
+    ${Object.entries(groups).map(([g,a])=>`<div class="kg">${esc(g)}</div>`+a.map(x=>{const fs=[...(by[x.k]||[]),...((alias[x.k]||[]).flatMap(k=>by[k]||[]))].filter(f=>urls[f.file_path]).slice(0,6);
+      return `<div class="ki"><div class="c ${x.ok?'ok':'no'}">${x.ok?'✓':'!'}</div><div class="t"><b>${esc(x.l)}</b>${fs.length?`<div class="kthumbs">${fs.map(f=>`<a href="${urls[f.file_path]}" target="_blank"><img src="${urls[f.file_path]}" alt=""></a>`).join('')}</div>`:''}</div><div class="a">${actBtn(x)}</div></div>`}).join('')).join('')}
+    ${K.signed.length?`<div class="kg">Văn bản đã ký</div>${K.signed.map(s=>`<div class="note">• ${esc(s.title)} (v${esc(s.version)}) – ${fmtDT(s.signed_at)} ${pill({hieu_luc:'Hiệu lực',thay_the:'Đã thay thế',thu_hoi:'Thu hồi'},s.status,{hieu_luc:'green'})}<div class="khash">${esc(s.doc_hash)}</div></div>`).join('')}`:''}
+    <div class="btns">${['chua_nop','bo_sung'].includes(K.kyc_status)||!K.kyc_status?`<button class="btn ${K.complete?'p':'g'} w" id="kSub" ${K.complete?'':'disabled'}>${K.complete?'📨 Nộp hồ sơ cho KHG duyệt':'Còn '+K.missing+' mục chưa hoàn thành'}</button>`:''}</div>
+    <p class="note">Ảnh xác thực khuôn mặt, chữ ký và chân dung khi ký được chụp trực tiếp, đóng dấu thời gian và không thể xóa/sửa. Thông tin chỉ dùng cho xét duyệt, thanh toán và nghĩa vụ pháp lý (Nghị định 13/2023/NĐ-CP).</p></div>`;
+  host.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>ctx.actions[b.dataset.go]());
+  host.querySelectorAll('[data-sign]').forEach(b=>b.onclick=()=>KYC.signFlow(ctx,K));
+  host.querySelectorAll('[data-live]').forEach(b=>b.onclick=()=>busy(b,async()=>{let fr;try{fr=await liveness()}catch(e){return toast(e.message,6000)}if(!fr)return;
+    const pos=await getPos(6000);for(const [i,f] of fr.entries())await KYC.upload(ctx,'selfie_xac_thuc',f.blob,`xac-thuc-${i+1}-${safeName(f.label)}.jpg`,pos);toast('Đã lưu ảnh xác thực khuôn mặt');await ctx.onChange()}));
+  host.querySelectorAll('[data-cam]').forEach(b=>b.onclick=()=>busy(b,async()=>{const k=b.dataset.cam;let bl;try{bl=await docShot(DOCT[k]||k)}catch(e){
+      return pickFiles('image/*',false,files=>busy(b,async()=>{const pos=await getPos(5000);for(const f of files)await KYC.upload(ctx,k,f,f.name,pos);toast('Đã lưu '+(DOCT[k]||k));await ctx.onChange()}),true)}
+    if(!bl)return;const pos=await getPos(5000);await KYC.upload(ctx,k,bl,k+'.jpg',pos);toast('Đã lưu '+(DOCT[k]||k));await ctx.onChange()}));
+  host.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>pickFiles('image/*,application/pdf',true,files=>busy(b,async()=>{const k=b.dataset.up;for(const f of files)await KYC.upload(ctx,k,f,f.name,null);toast('Đã tải lên '+(DOCT[k]||k));await ctx.onChange()})));
+  const sb2=host.querySelector('#kSub');if(sb2)sb2.onclick=()=>busy(sb2,async()=>{await rpc('khg_kyc_submit');toast('Đã nộp hồ sơ – KHG sẽ xét duyệt và báo trên app',4000);await ctx.onChange()});
+  return K;
+};
+
+// Hộp thư: thông báo, vi phạm, văn bản đã ký, hợp đồng, quy trình
+KYC.badge=async()=>{try{const I=await rpc('khg_ext_inbox');return I.notices.filter(n=>!n.read).length+I.violations.filter(v=>v.status==='moi').length}catch(e){return 0}};
+KYC.inbox=async(host,ctx)=>{const I=await rpc('khg_ext_inbox');let tab=ctx.tab||'tb';
+  const draw=async()=>{const unread=I.notices.filter(n=>!n.read).length,vopen=I.violations.filter(v=>v.status==='moi').length;
+    host.innerHTML=`<h1 class="pg">Thông báo & tuân thủ</h1><div class="seg"><button data-t="tb" class="${tab==='tb'?'on':''}">Thông báo${unread?' ('+unread+')':''}</button><button data-t="vp" class="${tab==='vp'?'on':''}">Vi phạm${vopen?' ('+vopen+')':''}</button><button data-t="hd" class="${tab==='hd'?'on':''}">Hợp đồng</button><button data-t="qt" class="${tab==='qt'?'on':''}">Quy trình</button></div><div id="kib"></div>`;
+    host.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});const w=host.querySelector('#kib');
+    if(tab==='tb'){w.innerHTML=`<div class="list">${I.notices.map(n=>`<div class="it nt ${n.read?'':'unread'} ${n.kind==='vi_pham'?'vp':''}"><div class="t"><b>${esc(n.title)}</b><span class="note">${fmtDT(n.at)}</span></div>${n.body?`<div class="m">${esc(n.body)}</div>`:''}${n.link?`<div class="m"><a href="${esc(n.link)}">Mở</a></div>`:''}</div>`).join('')||'<div class="empty">Chưa có thông báo.</div>'}</div>`;
+      const ids=I.notices.filter(n=>!n.read).map(n=>n.id);if(ids.length){rpc('khg_ext_notice_read',{p_ids:ids}).then(()=>{I.notices.forEach(n=>n.read=true);ctx.onRead&&ctx.onRead()}).catch(()=>{})}}
+    if(tab==='vp'){const ev=I.violations.flatMap(v=>v.evidence||[]);const u=await signedMap(ev);
+      w.innerHTML=`<p class="note">KHG ghi nhận vi phạm kèm bằng chứng. Bạn có 48 giờ để phản hồi. Khoản phạt đã xử lý được khấu trừ vào kỳ đối soát/thanh toán.</p><div class="list">${I.violations.map(v=>`<div class="it nt vp"><div class="t"><b>${esc(v.code)} · ${esc(VIO_KIND[v.kind]||v.kind)}</b>${pill(Object.fromEntries(Object.entries(VIO_ST).map(([k,a])=>[k,a[0]])),v.status,Object.fromEntries(Object.entries(VIO_ST).map(([k,a])=>[k,a[1]])))}</div>
+        <div class="m">${pill(Object.fromEntries(Object.entries(VIO_SEV).map(([k,a])=>[k,a[0]])),v.severity,Object.fromEntries(Object.entries(VIO_SEV).map(([k,a])=>[k,a[1]])))} ${fmtDT(v.at)}${v.plate?' · Xe '+esc(v.plate):''}${v.order_code?' · Đơn '+esc(v.order_code):''}</div><div class="m">${esc(v.description)}</div>
+        ${Number(v.amount)>0?`<div class="m"><b style="color:var(--red)">Mức phạt: ${fmtM(v.amount)}</b>${v.deduct?' – khấu trừ khi đối soát':''}</div>`:''}${(v.evidence||[]).length?`<div class="kthumbs">${v.evidence.map(p=>u[p]?`<a href="${u[p]}" target="_blank"><img src="${u[p]}"></a>`:'').join('')}</div>`:''}
+        ${v.reply?`<div class="m"><i>Bạn phản hồi:</i> ${esc(v.reply)}</div>`:''}${v.resolution?`<div class="m"><i>KHG kết luận:</i> ${esc(v.resolution)}</div>`:''}
+        ${['moi','da_phan_hoi'].includes(v.status)?`<div class="btns"><button class="btn g s" data-rp="${v.id}">💬 ${v.reply?'Bổ sung phản hồi':'Phản hồi / giải trình'}</button></div>`:''}</div>`).join('')||'<div class="empty">Không có vi phạm. Cảm ơn bạn đã tuân thủ quy trình! 👍</div>'}</div>`;
+      w.querySelectorAll('[data-rp]').forEach(b=>b.onclick=()=>{const t=prompt('Nội dung phản hồi / giải trình:');if(!t)return;busy(b,async()=>{await rpc('khg_violation_reply',{p_id:b.dataset.rp,p_text:t});toast('Đã gửi phản hồi cho KHG');const J=await rpc('khg_ext_inbox');Object.assign(I,J);draw()})})}
+    if(tab==='hd'){const c=I.contract;w.innerHTML=(c?`<div class="card"><h3>Hợp đồng nguyên tắc</h3><div class="m">Số: <b>${esc(c.contract_no||'–')}</b> · ${esc(c.status||'')}<br>Hiệu lực: ${fmtD(c.start_date)}${c.end_date?' – '+fmtD(c.end_date):''}${c.payment_terms?'<br>Thanh toán: '+esc(c.payment_terms):''}</div>${c.file_url?`<div class="btns"><a class="btn g s" href="${esc(c.file_url)}" target="_blank">📄 Xem hợp đồng</a></div>`:''}</div>`:'<div class="card"><h3>Hợp đồng nguyên tắc</h3><p class="note">KHG sẽ gửi hợp đồng sau khi hồ sơ được duyệt.</p></div>')+
+      `<div class="card"><h3>Văn bản đã ký điện tử</h3>${I.agreements.map(a=>`<details style="margin-top:8px"><summary><b>${esc(a.title)}</b> · v${esc(a.version)} · ${fmtDT(a.signed_at)} ${pill({hieu_luc:'Hiệu lực',thay_the:'Đã thay thế',thu_hoi:'Thu hồi'},a.status,{hieu_luc:'green'})}</summary><div class="kdoc" style="margin-top:8px">${esc(a.body)}</div><p class="note">Người ký: ${esc(a.signer_name)} · Mã SHA-256:</p><div class="khash">${esc(a.doc_hash)}</div></details>`).join('')||'<p class="note">Chưa ký văn bản nào.</p>'}</div>`}
+    if(tab==='qt'){w.innerHTML=`<div class="list">${I.policies.map(p=>`<details class="it"><summary><b>${esc(p.title)}</b> <span class="note">${esc(p.category||'')}</span></summary><div class="m" style="white-space:pre-wrap">${esc(p.content||'')}</div></details>`).join('')||'<div class="empty">KHG chưa công bố quy trình cho mục này.</div>'}</div>`}
+  };await draw();
+};
+
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{storageKey:'khg-fastdriver-auth',persistSession:true,autoRefreshToken:true}});
 const DOMAIN='@fastdriver.kimhoanggia.vn';
 const MODE={chuyen:'Theo chuyến',ngay:'Theo ngày',ca:'Theo ca',tuyen:'Cố định tuyến',tuan:'Theo tuần',thang:'Theo tháng'};
@@ -206,7 +383,7 @@ async function landing(focus){
     <div class="cta"><button class="a" id="cDrv">🧑‍✈️ Tôi là tài xế<small>Đăng ký nhận việc</small></button><button class="b" id="cHire">🚚 Tôi cần thuê tài xế<small>Gửi yêu cầu trong 1 phút</small></button></div></div>
    <div class="card"><h2>Thuê theo mọi hình thức</h2><div class="modes">${Object.entries(MODE).map(([k,l])=>`<div><b>${l}</b>${MODE_D[k]}</div>`).join('')}</div>
     <p class="note" style="margin-top:10px">Xe tải nhỏ đến xe tải nặng, đầu kéo container, xe ben, xe bồn, xe cẩu, xe nâng, xe đông lạnh, ô tô con, limousine, xe khách 16–45 chỗ…</p></div>
-   <div class="wrap2"><div class="card"><h2>Tài xế: 4 bước để nhận việc</h2><div class="how"><div><b>Đăng ký</b> bằng số điện thoại, chọn hạng bằng lái.</div><div><b>Nộp hồ sơ</b>: CCCD, bằng lái, ảnh chân dung, giấy khám sức khỏe.</div><div><b>Tập huấn</b> an toàn & quy trình giao nhận của KHG.</div><div><b>Nhận việc</b> phù hợp hạng bằng – theo chuyến, ngày, ca, tuyến, tuần, tháng.</div></div>
+   <div class="wrap2"><div class="card"><h2>Tài xế: 4 bước để nhận việc</h2><div class="how"><div><b>Đăng ký</b> bằng số điện thoại, chọn hạng bằng lái.</div><div><b>Hồ sơ & xác thực</b>: CCCD và GPLX 2 mặt, khám sức khỏe, MST, tài khoản ngân hàng, xác thực khuôn mặt.</div><div><b>Thi lý thuyết</b> (đạt 32/35) và <b>ký thỏa thuận</b> online kèm chụp chân dung.</div><div><b>KHG duyệt</b> rồi nhận việc phù hợp hạng bằng – theo chuyến, ngày, ca, tuyến, tuần, tháng.</div></div>
      <button class="btn p w" style="margin-top:14px" id="cDrv2">Đăng ký làm tài xế Fast Driver</button><button class="btn g w" style="margin-top:8px" id="cQuiz">📖 Ôn thi lý thuyết miễn phí (có hình minh họa)</button></div>
     <div class="card"><h2>Việc đang tuyển</h2><div id="pubJobs"><div class="empty">Đang tải…</div></div></div></div>
    <div class="card" id="thue"><h2>Thuê tài xế</h2><p class="note">Doanh nghiệp, chủ xe, nhà xe cần tài xế: điền yêu cầu, KHG gọi lại xác nhận và đề xuất tài xế phù hợp.</p><div id="hireBox"></div></div>
@@ -258,25 +435,36 @@ async function hireForm(){await loadVT();
 
 // ================= App tài xế =================
 const TABS=[['jobs','Việc làm',IC('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M3 13h18"/>')],['mine','Việc của tôi',IC('<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2h11"/>')],
-  ['train','Tập huấn',IC('<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>')],['profile','Hồ sơ',IC('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>')]];
-function navDraw(){$('#nav').innerHTML=TABS.map(([k,l,ic])=>`<button data-t="${k}" class="${k===CUR?'on':''}">${ic}<span>${l}</span>${k==='profile'&&D&&D.status==='cho_ho_so'?'<i class="dot">!</i>':''}</button>`).join('');$$('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.t))}
+  ['train','Tập huấn',IC('<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>')],['profile','Hồ sơ',IC('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>')],
+  ['inbox','Thông báo',IC('<path d="M6 8a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 004 0"/>')]];
+let INB=0;const refreshInb=async()=>{INB=await KYC.badge();navDraw()};
+// Vị trí: hỏi khi mở app, cập nhật 5 phút/lần khi app đang mở
+let LOC={ok:null,at:0};
+async function locPing(force){if(!D)return;if(!force&&Date.now()-LOC.at<240000)return;LOC.at=Date.now();
+  if(!navigator.geolocation){LOC.ok=false;return}
+  navigator.geolocation.getCurrentPosition(p=>{LOC.ok=true;rpc('khg_fd_ping',{p_lat:p.coords.latitude,p_lng:p.coords.longitude,p_acc:p.coords.accuracy,p_denied:false}).catch(()=>{})},
+    e=>{LOC.ok=false;if(e.code===1)rpc('khg_fd_ping',{p_lat:0,p_lng:0,p_acc:null,p_denied:true}).catch(()=>{});const b=$('#locB');if(b)b.classList.remove('hidden')},{enableHighAccuracy:true,timeout:12000,maximumAge:120000})}
+setInterval(()=>{if(document.visibilityState==='visible')locPing()},300000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')locPing()});
+const locBar=()=>`<div class="locbar ${LOC.ok===false?'':'hidden'}" id="locB">📍<div style="flex:1"><b>Bật vị trí để nhận việc gần bạn</b><br>Điều phối dùng vị trí để giao việc phù hợp, hỗ trợ khi có sự cố. Vào cài đặt trình duyệt → cho phép Vị trí cho trang này.</div><button class="btn g s" onclick="locPing(true)">Thử lại</button></div>`;
+function navDraw(){$('#nav').innerHTML=TABS.map(([k,l,ic])=>`<button data-t="${k}" class="${k===CUR?'on':''}">${ic}<span>${l}</span>${k==='profile'&&D&&D.kyc_status!=='da_duyet'&&D.kyc_status!=='cho_duyet'?'<i class="dot">!</i>':''}${k==='inbox'&&INB?`<i class="dot">${INB}</i>`:''}</button>`).join('');$$('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.t))}
 async function boot(fresh){
   try{D=await rpc('khg_fd_me')}catch(e){await sb.auth.signOut();landing('in');toast('Tài khoản này không phải tài khoản tài xế Fast Driver.',5000);return}
   $('#hName').textContent=`${D.code} · ${D.full_name}`;$('#nav').classList.remove('hidden');$('#hOut').classList.remove('hidden');
   $('#hOut').onclick=async()=>{await sb.auth.signOut();D=null;location.hash='';landing()};
-  await loadVT();const h=location.hash.slice(1);if(!fresh&&route())return;go(fresh||D.status==='cho_ho_so'?'profile':(TABS.some(t=>t[0]===h)?h:'jobs'));
+  locPing(true);refreshInb();
+  await loadVT();const h=location.hash.slice(1);if(!fresh&&route())return;go(fresh||!['da_duyet','cho_duyet'].includes(D.kyc_status)&&!h?'profile':(TABS.some(t=>t[0]===h)?h:'jobs'));
 }
-async function go(t){CUR=t;location.hash=t;navDraw();$('#main').innerHTML='<div class="empty">Đang tải…</div>';window.scrollTo(0,0);try{await ({jobs,mine,train,profile})[t]()}catch(e){$('#main').innerHTML=`<div class="err">${esc(e.message)}</div>`}}
-const STEPS=['cho_ho_so','cho_xet_duyet','cho_tap_huan','da_duyet'];
+async function go(t){CUR=t;location.hash=t;navDraw();$('#main').innerHTML='<div class="empty">Đang tải…</div>';window.scrollTo(0,0);try{await ({jobs,mine,train,profile,inbox:()=>KYC.inbox($('#main'),{onRead:refreshInb})})[t]()}catch(e){$('#main').innerHTML=`<div class="err">${esc(e.message)}</div>`}}
+const STEPS=['cho_ho_so','cho_xet_duyet','da_duyet'];
 function progress(){const i=STEPS.indexOf(D.status);
   return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>${esc(D.full_name)}</b>${pill(FST,D.status,FSC)}</div>
-   ${i>=0?`<div class="steps">${STEPS.map((s,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div><div class="stl"><span>Nộp hồ sơ</span><span>Xét duyệt</span><span>Tập huấn</span><span>Nhận việc</span></div>`:''}
+   ${i>=0?`<div class="steps">${STEPS.map((s,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div><div class="stl"><span>Hồ sơ · thi · ký</span><span>KHG duyệt</span><span>Nhận việc</span></div>`:''}
    ${D.reject_reason&&['tu_choi','tam_khoa'].includes(D.status)?`<div class="err">${esc(D.reject_reason)}</div>`:''}
-   <div class="note" style="margin-top:6px">${{cho_ho_so:'Tải đủ 4 giấy tờ bắt buộc ở mục Hồ sơ để KHG xét duyệt.',cho_xet_duyet:'KHG đang kiểm tra hồ sơ – sẽ gọi bạn trong 1–2 ngày làm việc.',cho_tap_huan:'Hồ sơ đạt! Vào mục Tập huấn: làm bài thi lý thuyết 35 câu (đạt 32/35) hoặc đăng ký buổi tập huấn.',da_duyet:'Bạn đã sẵn sàng – ứng tuyển việc phù hợp ngay.'}[D.status]||'Liên hệ 0399 831 228 để được hỗ trợ.'}</div></div>`}
+   <div class="note" style="margin-top:6px">${{cho_ho_so:'Hoàn thiện hồ sơ ở mục Hồ sơ: CCCD & GPLX 2 mặt, khám sức khỏe, MST, tài khoản ngân hàng, xác thực khuôn mặt, <b>thi đạt bài lý thuyết</b> và ký thỏa thuận – rồi bấm Nộp hồ sơ.',cho_xet_duyet:'KHG đang kiểm tra hồ sơ – sẽ gọi bạn trong 1–2 ngày làm việc.',cho_tap_huan:'Vào mục Tập huấn làm bài thi lý thuyết 35 câu (đạt 32/35).',da_duyet:'Bạn đã sẵn sàng – ứng tuyển việc phù hợp ngay.'}[D.status]||'Liên hệ 0399 831 228 để được hỗ trợ.'}</div></div>`}
 
 async function jobs(){
   const list=await rpc('khg_fd_jobs');const ok=list.filter(j=>j.eligible);
-  $('#main').innerHTML=progress()+`<h1 class="pg">Việc đang tuyển</h1><div class="note" style="margin:-6px 0 10px">Bằng của bạn (${esc((D.license_class||[]).join(', ')||'chưa khai')}) lái được hạng: <b>${esc((D.covers||[]).join(', ')||'–')}</b>. ${ok.length} / ${list.length} việc phù hợp.</div>
+  $('#main').innerHTML=locBar()+progress()+`<h1 class="pg">Việc đang tuyển</h1><div class="note" style="margin:-6px 0 10px">Bằng của bạn (${esc((D.license_class||[]).join(', ')||'chưa khai')}) lái được hạng: <b>${esc((D.covers||[]).join(', ')||'–')}</b>. ${ok.length} / ${list.length} việc phù hợp.</div>
    <div class="list two">${list.map(j=>`<div class="it jb ${j.eligible?'':'no'}" id="job-${esc(j.code)}"><div class="t"><div><b>${esc(j.vehicle_name||j.vehicle_desc||'Tài xế')}</b><div class="m">${esc(j.code)} · ${esc(MODE[j.mode]||'')}${j.quantity>1?' · cần '+j.quantity+' người':''}</div></div><div class="pr">${j.pay_amount?fmtN(j.pay_amount)+'<small style="font-size:12px">/'+UNIT[j.pay_unit]+'</small>':'Thỏa thuận'}</div></div>
      <div class="m">${j.start_date?`<div>📅 Từ ${fmtD(j.start_date)}${j.end_date?' đến '+fmtD(j.end_date):''}</div>`:''}${j.shift_text?`<div>🕒 ${esc(j.shift_text)}</div>`:''}${j.route_text||j.area||j.province?`<div>📍 ${esc([j.route_text,j.area,j.province].filter(Boolean).join(' · '))}</div>`:''}
       <div>🪪 GPLX tối thiểu <b>${esc(j.license_req||'—')}</b>${j.cert_req?' + '+esc(CERT[j.cert_req]||j.cert_req):''}${j.eligible?' · <b style="color:var(--green)">Bạn đủ điều kiện</b>':' · <b style="color:#B42318">Chưa phù hợp bằng lái</b>'}</div>${j.requirements?`<div>📝 ${esc(j.requirements)}</div>`:''}${j.benefits?`<div>🎁 ${esc(j.benefits)}</div>`:''}</div>
@@ -297,7 +485,7 @@ async function train(){
   const {data:ts}=await sb.from('khg_fd_trainings').select('*').in('status',['mo']).order('starts_at');
   const mine=Object.fromEntries((D.trainings||[]).map(r=>[r.title+r.starts_at,r]));
   const {data:regs}=await sb.from('khg_fd_training_regs').select('*');const byT=Object.fromEntries((regs||[]).map(r=>[r.training_id,r]));
-  $('#main').innerHTML=progress()+examCard()+`<h1 class="pg">Buổi tập huấn trực tiếp / online</h1><p class="note" style="margin-top:-6px">Nội dung: an toàn giao thông, quy trình nhận – giao hàng, chứng từ, xử lý sự cố, ứng xử với khách và quy định của KHG. Hoàn thành tập huấn là điều kiện nhận việc.</p>
+  $('#main').innerHTML=progress()+examCard()+`<h1 class="pg">Buổi tập huấn trực tiếp / online</h1><p class="note" style="margin-top:-6px">Nội dung: an toàn giao thông, quy trình nhận – giao hàng, chứng từ, xử lý sự cố, ứng xử với khách và quy định của KHG. Buổi tập huấn giúp bạn được ưu tiên giao việc; bài thi lý thuyết ở trên là bắt buộc.</p>
    <div class="list two">${(ts||[]).map(t=>{const r=byT[t.id];return `<div class="it jb"><div class="t"><div><b>${esc(t.title)}</b><div class="m">🗓 ${fmtDT(t.starts_at)} · ${t.kind==='online'?'Online':'Trực tiếp'}<div>📍 ${esc(t.location||'')}</div></div></div>${r?pill(RST,r.status,{dang_ky:'blue',dat:'green',khong_dat:'red'}):''}</div>${t.content?`<div class="m">${esc(t.content)}</div>`:''}
      <div class="btns">${r&&r.status==='dang_ky'?`<button class="btn g s" data-c="${r.id}">Hủy đăng ký</button>`:r&&r.status==='huy'?`<button class="btn p s" data-r2="${r.id}">Đăng ký lại</button>`:r?'':`<button class="btn p s" data-r="${t.id}" ${['cho_ho_so','tu_choi','tam_khoa'].includes(D.status)?'disabled title="Nộp đủ hồ sơ trước"':''}>Đăng ký buổi này</button>`}</div></div>`}).join('')||'<div class="card empty">Chưa có lịch tập huấn mới. KHG sẽ thông báo khi mở lớp.</div>'}</div>
    ${(D.trainings||[]).length?`<h3 style="margin:16px 0 8px">Lịch sử tập huấn</h3><div class="list">${D.trainings.map(r=>`<div class="it"><div class="t"><b>${esc(r.title)}</b>${pill(RST,r.status,{dat:'green',khong_dat:'red',dang_ky:'blue'})}</div><div class="m">${fmtDT(r.starts_at)}${r.score!=null?' · điểm '+r.score:''}</div></div>`).join('')}</div>`:''}`;
@@ -309,7 +497,7 @@ async function train(){
 async function profile(){
   const have=new Set((D.docs||[]).map(d=>d.doc_type));const d=D;
   const docRow=([k,l,h],req)=>`<div class="doc"><div class="ic ${have.has(k)?'ok':'no'}">${have.has(k)?'✓':req?'!':'+'}</div><div><b>${esc(l)}</b>${req?' <span class="pill red">bắt buộc</span>':''}<small>${esc(h)}${have.has(k)?' · đã nộp '+(D.docs.filter(x=>x.doc_type===k).length)+' ảnh':''}</small></div><button class="btn ${have.has(k)?'g':'p'} s" data-up="${k}">📷 ${have.has(k)?'Thêm':'Tải lên'}</button></div>`;
-  $('#main').innerHTML=progress()+`<div class="card"><h2>Giấy tờ</h2>${REQ_DOCS.map(x=>docRow(x,true)).join('')}${OPT_DOCS.map(x=>docRow(x,false)).join('')}
+  $('#main').innerHTML=locBar()+progress()+`<div id="kycH"><div class="empty">Đang tải hồ sơ…</div></div><div class="card"><h2>Giấy tờ khác (không bắt buộc)</h2>${OPT_DOCS.map(x=>docRow(x,false)).join('')}
     ${(D.docs||[]).length?`<details style="margin-top:8px"><summary class="note">Xem ảnh đã nộp (${D.docs.length})</summary><div id="docG"></div></details>`:''}<p class="note">Thông tin giấy tờ chỉ dùng để KHG xét duyệt và bàn giao xe; không chia sẻ cho bên khác khi chưa có sự đồng ý của bạn.</p></div>
    <div class="card"><h2>Bằng lái & năng lực</h2><form id="pf">
     <label class="f">Hạng bằng lái</label>${chips('lic',LIC,d.license_class||[])}<details ${(d.license_class||[]).some(x=>LIC_OLD[x])?'open':''} style="margin-top:6px"><summary class="note">Bằng cấp trước 2025</summary>${chips('lic',LIC_OLD,d.license_class||[])}</details>
@@ -323,8 +511,14 @@ async function profile(){
     <div class="row"><div><label class="f">Thu nhập mong muốn (đ)</label><input class="i" name="expected_pay" inputmode="numeric" value="${d.expected_pay??''}"></div><div><label class="f">Tính theo</label><select class="i" name="pay_unit">${opt(UNIT,d.pay_unit)}</select></div></div>
     <label class="f">Có thể bắt đầu từ</label><input class="i" type="date" name="available_from" value="${d.available_from||''}">
     <h3 style="margin-top:16px">Thông tin cá nhân</h3><div class="row"><div><label class="f">Họ tên</label><input class="i" name="full_name" value="${esc(d.full_name||'')}"></div><div><label class="f">Giới tính</label><select class="i" name="gender">${opt({Nam:'Nam',Nữ:'Nữ'},d.gender,'—')}</select></div></div>
-    <div class="row"><div><label class="f">Số CCCD</label><input class="i" name="id_number" value="${esc(d.id_number||'')}"></div><div><label class="f">Tỉnh/TP</label><input class="i" name="province" value="${esc(d.province||'')}"></div></div>
+    <div class="row"><div><label class="f">Ngày sinh</label><input class="i" type="date" name="dob" value="${d.dob||''}"></div><div><label class="f">Số CCCD</label><input class="i" name="id_number" inputmode="numeric" value="${esc(d.id_number||'')}"></div></div>
+    <div class="row"><div><label class="f">Ngày cấp CCCD</label><input class="i" type="date" name="id_issued_on" value="${d.id_issued_on||''}"></div><div><label class="f">Nơi cấp</label><input class="i" name="id_issued_place" value="${esc(d.id_issued_place||'')}" placeholder="Cục CS QLHC về TTXH"></div></div>
+    <label class="f">Tỉnh/TP</label><input class="i" name="province" value="${esc(d.province||'')}">
     <label class="f">Địa chỉ</label><input class="i" name="address" value="${esc(d.address||'')}"><label class="f">Giới thiệu ngắn</label><textarea class="i" name="intro" placeholder="Kinh nghiệm chạy tuyến, loại hàng, xe đã lái…">${esc(d.intro||'')}</textarea>
+    <h3 style="margin-top:16px">Thanh toán & thuế</h3><label class="f">Mã số thuế cá nhân</label><input class="i" name="tax_code" inputmode="numeric" value="${esc(d.tax_code||'')}" placeholder="Từ 07/2025 dùng số CCCD làm MST cá nhân">
+    <div class="row"><div><label class="f">Ngân hàng</label><input class="i" name="bank_name" value="${esc(d.bank_name||'')}" placeholder="VD: Vietcombank"></div><div><label class="f">Số tài khoản</label><input class="i" name="bank_no" inputmode="numeric" value="${esc(d.bank_no||'')}"></div></div>
+    <label class="f">Chủ tài khoản (đúng tên tài xế)</label><input class="i" name="bank_holder" value="${esc(d.bank_holder||d.full_name||'')}" style="text-transform:uppercase">
+    <p class="note">Thù lao chuyển vào tài khoản đứng tên bạn; KHG khấu trừ thuế TNCN theo quy định khi chi trả.</p>
     <button class="btn p w" style="margin-top:14px" id="pGo">Lưu hồ sơ</button></form>
     <div class="btns"><button class="btn g s" id="pIns">📲 Cài app Fast Driver</button><button class="btn g s" id="pRef">👥 Mời bạn tài xế</button></div></div>`;
   $('#pRef').onclick=()=>shareLink(LINK('','?ref='+encodeURIComponent(D.code)),'Tham gia Fast Driver – KIM HOÀNG GIA: nhận việc lái thuê đúng hạng bằng, đăng ký tại');
@@ -334,8 +528,14 @@ async function profile(){
   $$('[data-up]').forEach(b=>b.onclick=()=>pickFiles('image/*,application/pdf',true,files=>busy(b,async()=>{let miss=[];for(const f of files){const u=await putFile(`fd/${D.id}/${b.dataset.up}`,f);const r=await rpc('khg_fd_add_file',{p_doc:b.dataset.up,p_path:u.path,p_name:u.name,p_mime:u.mime,p_size:u.size});miss=r.missing||[]}
     D=await rpc('khg_fd_me');toast(miss.length?'Đã tải lên – còn thiếu '+miss.length+' giấy tờ bắt buộc':'Đã đủ giấy tờ bắt buộc – KHG sẽ xét duyệt');profile()})));
   $('#pIns').onclick=()=>window.KInstall?KInstall.open():toast('Mở bằng Chrome/Safari để cài app');
-  $('#pf').onsubmit=e=>{e.preventDefault();busy($('#pGo'),async()=>{const f=$('#pf');const row={};['license_no','full_name','gender','id_number','province','address','intro'].forEach(k=>row[k]=f.elements[k].value.trim()||null);
-    ['license_until','available_from'].forEach(k=>row[k]=f.elements[k].value||null);['years_exp','birth_year'].forEach(k=>row[k]=f.elements[k].value?Number(f.elements[k].value):null);
+  const fo=n=>{const el=$('#pf [name="'+n+'"]');if(el){el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>el.focus(),400)}};
+  KYC.render($('#kycH'),{type:'fd_driver',prefix:`fd/${D.id}/kyc`,docs:()=>D.docs,signerName:()=>D.full_name,
+    addFile:(doc,u)=>rpc('khg_fd_add_file',{p_doc:doc,p_path:u.path,p_name:u.name,p_mime:u.mime,p_size:u.size}),
+    onChange:async()=>{D=await rpc('khg_fd_me');navDraw();profile()},
+    actions:{info:()=>fo(!D.dob&&!D.birth_year?'dob':!D.id_number?'id_number':'address'),gplx_info:()=>fo('license_no'),tax:()=>fo('tax_code'),bank:()=>fo('bank_no'),thi:()=>go('train')}}).catch(e=>$('#kycH').innerHTML=`<div class="err">${esc(e.message)}</div>`);
+  $('#pf').onsubmit=e=>{e.preventDefault();busy($('#pGo'),async()=>{const f=$('#pf');const row={};['license_no','full_name','gender','id_number','province','address','intro','id_issued_place','tax_code','bank_name','bank_no','bank_holder'].forEach(k=>row[k]=f.elements[k].value.trim()||null);
+    if(row.bank_holder)row.bank_holder=row.bank_holder.toUpperCase();
+    ['license_until','available_from','dob','id_issued_on'].forEach(k=>row[k]=f.elements[k].value||null);['years_exp','birth_year'].forEach(k=>row[k]=f.elements[k].value?Number(f.elements[k].value):null);
     row.expected_pay=Number(String(f.elements.expected_pay.value).replace(/\D/g,''))||null;row.pay_unit=f.elements.pay_unit.value;row.full_name=row.full_name||D.full_name;
     row.license_class=picked(f,'lic');row.certs=picked(f,'certs');row.vehicle_types=picked(f,'vts');row.modes=picked(f,'modes');row.shifts=picked(f,'shifts');row.areas=picked(f,'areas');
     const {error}=await sb.from('khg_fd_drivers').update(row).eq('id',D.id);if(error)throw new Error(error.message);D=await rpc('khg_fd_me');toast('Đã lưu hồ sơ');profile()})};
@@ -389,9 +589,9 @@ async function submitQ(auto){const Z=QZ;Z.done=true;clearInterval(window._qt);le
 function afterQuiz(){location.hash='';if(D){$('#nav').classList.remove('hidden');go('train')}else landing()}
 function examCard(){const ex=(D&&D.exams)||[];const best=ex.find(e=>e.passed);
   return `<div class="card"><h2>📝 Bài thi lý thuyết tài xế</h2><p class="note">35 câu trắc nghiệm có hình minh họa, 30 phút – giống thi sát hạch. Nội dung: trách nhiệm nghề, giao nhận & chứng từ, xếp dỡ & tải trọng, an toàn & biển báo, xử lý sự cố, vận tải hành khách. <b>Đạt: đúng từ 32/35 câu và không sai câu điểm liệt.</b> Tối đa 3 lượt/24 giờ.</p>
-   ${best?`<div class="warn">✅ Bạn đã đạt ${best.score}/${best.total} (${fmtDT(best.at)})</div>`:''}
+   ${best?`<div class="warn">✅ Bạn đã đạt ${best.score}/${best.total} (${fmtDT(best.at)})${D&&D.kyc_status!=='da_duyet'&&D.kyc_status!=='cho_duyet'?' – quay lại mục <a href="#profile">Hồ sơ</a> để ký thỏa thuận và nộp hồ sơ.':''}</div>`:`<div class="warn">Thi đạt là điều kiện bắt buộc để KHG xét duyệt hồ sơ và giao việc.</div>`}
    <label class="f">Loại bài thi</label>${radios('qK',{hang:'Tài xế xe hàng (tải, đầu kéo, cẩu…)',khach:'Tài xế xe khách / đưa đón'},'hang')}
-   <div class="btns"><button class="btn g" id="qPr">📖 Ôn tập 20 câu</button><button class="btn p" id="qEx" ${D&&['cho_ho_so','tu_choi','tam_khoa'].includes(D.status)?'disabled title="Nộp đủ hồ sơ trước khi thi"':''}>🎯 Thi chính thức</button><button class="btn g" id="qSh">🔗 Chia sẻ link ôn thi</button></div>
+   <div class="btns"><button class="btn g" id="qPr">📖 Ôn tập 20 câu</button><button class="btn p" id="qEx" ${D&&['tu_choi','tam_khoa'].includes(D.status)?'disabled title="Tài khoản đang bị khóa"':''}>🎯 Thi chính thức</button><button class="btn g" id="qSh">🔗 Chia sẻ link ôn thi</button></div>
    ${ex.length?`<div class="note" style="margin-top:8px">Lịch sử: ${ex.slice(0,5).map(e=>`${e.score}/${e.total} ${e.passed?'✅':'❌'}`).join(' · ')}</div>`:''}</div>`}
 function bindExam(){const k=()=>picked(document,'qK')[0]||'hang';
   $('#qPr').onclick=()=>busy($('#qPr'),()=>quiz('practice',k()));
