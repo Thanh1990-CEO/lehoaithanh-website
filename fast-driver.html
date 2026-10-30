@@ -171,7 +171,7 @@ table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td
 .svcat{margin:10px 0}.svcat>b{display:block;margin-bottom:6px;font-size:13px;color:#555}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.g2{grid-template-columns:1fr}}
 </style></head><body>
 <header><div class="hd"><img src="/icons/fastdriver-192.png" alt=""><div class="nm"><b>Fast Driver</b><span id="hName">Tìm tài xế ở đây · KIM HOÀNG GIA</span></div><div class="sp"></div>
- <a class="hb a" href="tel:0399831228">☎ 0399 831 228</a><button class="hb hidden" id="hOut">Thoát</button></div></header>
+ <a class="hb a" href="#" data-lh="">📝 Để lại liên hệ</a><button class="hb hidden" id="hOut">Thoát</button></div></header>
 <nav class="bot hidden" id="nav"></nav>
 <main id="main"><div class="empty">Đang tải…</div></main>
 <div class="foot">Fast Driver là dịch vụ cung ứng tài xế của CÔNG TY TNHH KIM HOÀNG GIA · MST 3700416538 · 376 Nguyễn Văn Trỗi, P. Phú Lợi, TP.HCM</div>
@@ -256,6 +256,27 @@ const KRing=(()=>{let ac=null,timer=null,el=null,cnt=0;
     tick();setInterval(tick,ms);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')tick()});
     document.addEventListener('pointerdown',function f(){askNotif();document.removeEventListener('pointerdown',f)},{once:true})}
   return {start,stop,watch,askNotif,unlock}})();
+
+// ===== Để lại liên hệ (thay cho số hotline – KHG gọi lại, tránh gọi làm phiền) =====
+const LH_APP=(location.pathname.split('/').pop()||'').replace('.html','')||'app';
+function contactSheet(need){
+  sheet(`<h3 style="margin:0 0 4px">📝 Để lại thông tin – KHG gọi lại cho bạn</h3><p class="note" style="margin:0 0 10px">Nhân viên Kim Hoàng Gia liên hệ lại trong giờ làm việc (7h30 – 18h). Thông tin chỉ dùng để hỗ trợ bạn.</p>
+   <label class="f">Họ và tên *</label><input class="i" id="lhN" autocomplete="name">
+   <label class="f">Số điện thoại / Zalo *</label><input class="i" id="lhP" inputmode="tel" autocomplete="tel">
+   <label class="f">Địa chỉ (phường/xã, tỉnh/thành) *</label><input class="i" id="lhA" autocomplete="street-address">
+   <label class="f">Bạn cần hỗ trợ gì?</label><input class="i" id="lhD" value="${esc(need||'')}" placeholder="VD: quên mật khẩu, hỏi về hồ sơ, hợp tác xe…">
+   <label class="f">Thời gian tiện nghe máy</label><select class="i" id="lhW"><option value="">Bất kỳ lúc nào</option><option>Buổi sáng</option><option>Buổi trưa</option><option>Buổi chiều</option><option>Sau 17h</option></select>
+   <input id="lhH" style="display:none" tabindex="-1" autocomplete="off"><div class="err hidden" id="lhE" style="margin-top:8px"></div>
+   <button class="btn p w" id="lhG" style="margin-top:12px">Gửi thông tin</button><button class="btn g w" id="lhC" style="margin-top:8px">Đóng</button>`);
+  try{const s=JSON.parse(localStorage.getItem('khg_lh')||'{}');if(s.n)$('#lhN').value=s.n;if(s.p)$('#lhP').value=s.p;if(s.a)$('#lhA').value=s.a}catch(e){}
+  $('#lhC').onclick=closeSheet;
+  $('#lhG').onclick=()=>busy($('#lhG'),async()=>{const n=$('#lhN').value.trim(),p=$('#lhP').value.trim(),a=$('#lhA').value.trim();
+    const {error}=await sb.rpc('khg_contact_request',{p:{name:n,phone:p,address:a,need:$('#lhD').value.trim(),when:$('#lhW').value,app:LH_APP,hp:$('#lhH').value}});
+    if(error){$('#lhE').textContent=error.message;$('#lhE').classList.remove('hidden');return}
+    try{localStorage.setItem('khg_lh',JSON.stringify({n,p,a}))}catch(e){}
+    sheet(`<div style="text-align:center;padding:10px 4px"><div style="font-size:42px">✅</div><h3>Đã nhận thông tin của bạn</h3><p class="note">KHG sẽ gọi lại số <b>${esc(p)}</b> sớm nhất trong giờ làm việc. Bạn không cần gọi lại.</p><button class="btn p w" onclick="closeSheet()">Đóng</button></div>`)});
+}
+document.addEventListener('click',e=>{const a=e.target.closest('[data-lh]');if(a){e.preventDefault();contactSheet(a.dataset.lh||'')}});
 
 // ================= HỒ SƠ XÁC THỰC (KYC) · KÝ ĐIỆN TỬ · HỘP THƯ – dùng chung app Đối tác & Fast Driver =================
 Object.assign(DOCT,{cccd_truoc:'CCCD mặt trước',cccd_sau:'CCCD mặt sau',bang_lai_truoc:'GPLX mặt trước',bang_lai_sau:'GPLX mặt sau',gp_van_tai:'Giấy phép KD vận tải',
@@ -449,7 +470,7 @@ function authBox(mode){const reg=mode==='up';
     ${reg?`<label class="f">Hạng bằng lái đang có *</label>${chips('aLic',LIC)}<details style="margin-top:6px"><summary class="note">Bằng cấp trước 2025 (B2, C, E, FC…)</summary>${chips('aLic',LIC_OLD)}</details>
      <details style="margin-top:10px"><summary class="note">Khu vực & hình thức muốn nhận (có thể chọn sau)</summary><label class="f">Khu vực</label>${chips('aProv',PROV)}<label class="f">Hình thức</label>${chips('aMode',MODE)}</details>
      <p class="note" style="margin-top:8px">Sau khi đăng ký, app hướng dẫn từng bước: chụp CCCD, bằng lái, xác thực khuôn mặt, thi lý thuyết, ký thỏa thuận.</p>`:''}
-    <button class="btn p w" style="margin-top:14px" id="aGo">${reg?'Đăng ký tài xế':'Đăng nhập'}</button><div id="aErr"></div><p class="note" style="margin-top:8px">Quên mật khẩu? Gọi 0399 831 228.</p></form>`;
+    <button class="btn p w" style="margin-top:14px" id="aGo">${reg?'Đăng ký tài xế':'Đăng nhập'}</button><div id="aErr"></div><p class="note" style="margin-top:8px">Quên mật khẩu? <a href="#" data-lh="Quên mật khẩu – cấp lại" style="font-weight:700">Để lại liên hệ</a> – KHG gọi lại cấp mật khẩu mới.</p></form>`;
   $$('#authBox .seg button').forEach(b=>b.onclick=()=>authBox(b.dataset.m));
   $('#af').onsubmit=async e=>{e.preventDefault();$('#aErr').innerHTML='';const phone=normPhone($('#aPhone').value),pw=$('#aPw').value;
     if(phone.length<9)return $('#aErr').innerHTML='<div class="err">Số điện thoại không hợp lệ</div>';
@@ -488,7 +509,7 @@ function progress(){const i=STEPS.indexOf(D.status);
   return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>${esc(D.full_name)}</b>${pill(FST,D.status,FSC)}</div>
    ${i>=0?`<div class="steps">${STEPS.map((s,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div><div class="stl"><span>Hồ sơ · thi · ký</span><span>KHG duyệt</span><span>Nhận việc</span></div>`:''}
    ${D.reject_reason&&['tu_choi','tam_khoa'].includes(D.status)?`<div class="err">${esc(D.reject_reason)}</div>`:''}
-   <div class="note" style="margin-top:6px">${{cho_ho_so:'Hoàn thiện hồ sơ ở mục Hồ sơ: CCCD & GPLX 2 mặt, khám sức khỏe, MST, tài khoản ngân hàng, xác thực khuôn mặt, <b>thi đạt bài lý thuyết</b> và ký thỏa thuận – rồi bấm Nộp hồ sơ.',cho_xet_duyet:'KHG đang kiểm tra hồ sơ – sẽ gọi bạn trong 1–2 ngày làm việc.',cho_tap_huan:'Vào mục Tập huấn làm bài thi lý thuyết 35 câu (đạt 32/35).',da_duyet:'Bạn đã sẵn sàng – ứng tuyển việc phù hợp ngay.'}[D.status]||'Liên hệ 0399 831 228 để được hỗ trợ.'}</div></div>`}
+   <div class="note" style="margin-top:6px">${{cho_ho_so:'Hoàn thiện hồ sơ ở mục Hồ sơ: CCCD & GPLX 2 mặt, khám sức khỏe, MST, tài khoản ngân hàng, xác thực khuôn mặt, <b>thi đạt bài lý thuyết</b> và ký thỏa thuận – rồi bấm Nộp hồ sơ.',cho_xet_duyet:'KHG đang kiểm tra hồ sơ – sẽ gọi bạn trong 1–2 ngày làm việc.',cho_tap_huan:'Vào mục Tập huấn làm bài thi lý thuyết 35 câu (đạt 32/35).',da_duyet:'Bạn đã sẵn sàng – ứng tuyển việc phù hợp ngay.'}[D.status]||'Cần hỗ trợ? '+'<a href="#" data-lh="Hỗ trợ hồ sơ tài xế" style="font-weight:700">Để lại liên hệ</a>'+', KHG sẽ gọi lại.'}</div></div>`}
 
 async function jobs(){
   const list=await rpc('khg_fd_jobs');const ok=list.filter(j=>j.eligible);

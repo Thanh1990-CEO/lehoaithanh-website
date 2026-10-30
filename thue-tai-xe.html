@@ -168,7 +168,7 @@ table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td
 .sel{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px}.sel button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;font-size:13px}.sel button.on{border-color:var(--acc);background:var(--soft);color:var(--acc)}
 </style></head><body>
 <header><div class="hd"><img src="/icons/thue-192.png" alt=""><div class="nm"><b>Thuê tài xế</b><span id="hName">Fast Driver · KIM HOÀNG GIA</span></div><div class="sp"></div>
- <a class="hb a" href="tel:0399831228">☎ 0399 831 228</a><button class="hb hidden" id="hMe">👤</button></div></header>
+ <a class="hb a" href="#" data-lh="">📝 Để lại liên hệ</a><button class="hb hidden" id="hMe">👤</button></div></header>
 <nav class="bot hidden" id="nav"></nav>
 <main id="main"><div class="empty">Đang tải…</div></main>
 <div class="foot">Fast Driver – dịch vụ kết nối tài xế của CÔNG TY TNHH KIM HOÀNG GIA · MST 3700416538 · 376 Nguyễn Văn Trỗi, P. Phú Lợi, TP.HCM</div>
@@ -253,6 +253,27 @@ const KRing=(()=>{let ac=null,timer=null,el=null,cnt=0;
     tick();setInterval(tick,ms);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')tick()});
     document.addEventListener('pointerdown',function f(){askNotif();document.removeEventListener('pointerdown',f)},{once:true})}
   return {start,stop,watch,askNotif,unlock}})();
+
+// ===== Để lại liên hệ (thay cho số hotline – KHG gọi lại, tránh gọi làm phiền) =====
+const LH_APP=(location.pathname.split('/').pop()||'').replace('.html','')||'app';
+function contactSheet(need){
+  sheet(`<h3 style="margin:0 0 4px">📝 Để lại thông tin – KHG gọi lại cho bạn</h3><p class="note" style="margin:0 0 10px">Nhân viên Kim Hoàng Gia liên hệ lại trong giờ làm việc (7h30 – 18h). Thông tin chỉ dùng để hỗ trợ bạn.</p>
+   <label class="f">Họ và tên *</label><input class="i" id="lhN" autocomplete="name">
+   <label class="f">Số điện thoại / Zalo *</label><input class="i" id="lhP" inputmode="tel" autocomplete="tel">
+   <label class="f">Địa chỉ (phường/xã, tỉnh/thành) *</label><input class="i" id="lhA" autocomplete="street-address">
+   <label class="f">Bạn cần hỗ trợ gì?</label><input class="i" id="lhD" value="${esc(need||'')}" placeholder="VD: quên mật khẩu, hỏi về hồ sơ, hợp tác xe…">
+   <label class="f">Thời gian tiện nghe máy</label><select class="i" id="lhW"><option value="">Bất kỳ lúc nào</option><option>Buổi sáng</option><option>Buổi trưa</option><option>Buổi chiều</option><option>Sau 17h</option></select>
+   <input id="lhH" style="display:none" tabindex="-1" autocomplete="off"><div class="err hidden" id="lhE" style="margin-top:8px"></div>
+   <button class="btn p w" id="lhG" style="margin-top:12px">Gửi thông tin</button><button class="btn g w" id="lhC" style="margin-top:8px">Đóng</button>`);
+  try{const s=JSON.parse(localStorage.getItem('khg_lh')||'{}');if(s.n)$('#lhN').value=s.n;if(s.p)$('#lhP').value=s.p;if(s.a)$('#lhA').value=s.a}catch(e){}
+  $('#lhC').onclick=closeSheet;
+  $('#lhG').onclick=()=>busy($('#lhG'),async()=>{const n=$('#lhN').value.trim(),p=$('#lhP').value.trim(),a=$('#lhA').value.trim();
+    const {error}=await sb.rpc('khg_contact_request',{p:{name:n,phone:p,address:a,need:$('#lhD').value.trim(),when:$('#lhW').value,app:LH_APP,hp:$('#lhH').value}});
+    if(error){$('#lhE').textContent=error.message;$('#lhE').classList.remove('hidden');return}
+    try{localStorage.setItem('khg_lh',JSON.stringify({n,p,a}))}catch(e){}
+    sheet(`<div style="text-align:center;padding:10px 4px"><div style="font-size:42px">✅</div><h3>Đã nhận thông tin của bạn</h3><p class="note">KHG sẽ gọi lại số <b>${esc(p)}</b> sớm nhất trong giờ làm việc. Bạn không cần gọi lại.</p><button class="btn p w" onclick="closeSheet()">Đóng</button></div>`)});
+}
+document.addEventListener('click',e=>{const a=e.target.closest('[data-lh]');if(a){e.preventDefault();contactSheet(a.dataset.lh||'')}});
 
 // ================= HỒ SƠ XÁC THỰC (KYC) · KÝ ĐIỆN TỬ · HỘP THƯ – dùng chung app Đối tác & Fast Driver =================
 Object.assign(DOCT,{cccd_truoc:'CCCD mặt trước',cccd_sau:'CCCD mặt sau',bang_lai_truoc:'GPLX mặt trước',bang_lai_sau:'GPLX mặt sau',gp_van_tai:'Giấy phép KD vận tải',
@@ -448,7 +469,7 @@ async function landing(mode){
       if(isUp){const r=await fetch(SUPABASE_URL+'/functions/v1/khg-public',{method:'POST',headers:{'content-type':'application/json',apikey:SUPABASE_ANON_KEY},body:JSON.stringify({action:'register',hp:$('#cHp').value,phone,password:pw,name:$('#cN').value.trim(),company:$('#cC').value.trim()})});
         const j=await r.json();if(!r.ok||j.error){if(r.status===409){$$('#hf .seg button')[1].click();$('#hErr').innerHTML='<div class="err">Số này đã có tài khoản – nhập mật khẩu rồi bấm lại “Tìm tài xế ngay”.</div>';return}$('#hErr').innerHTML=`<div class="err">${esc(j.error||'Không tạo được tài khoản')}</div>`;return}}
       const {error}=await sb.auth.signInWithPassword({email:phone+DOMAIN,password:pw});
-      if(error){$('#hErr').innerHTML=`<div class="err">${/Invalid/i.test(error.message)?'Sai số điện thoại hoặc mật khẩu (quên mật khẩu: gọi 0399 831 228)':esc(error.message)}</div>`;return}
+      if(error){$('#hErr').innerHTML=`<div class="err">${/Invalid/i.test(error.message)?'Sai số điện thoại hoặc mật khẩu (quên mật khẩu: bấm “Để lại liên hệ” ở góc trên)':esc(error.message)}</div>`;return}
       const r2=await rpc('khg_hire_create',{p:need});JOB=r2.id;await boot(true,r2.matches)})};
 }
 
@@ -484,7 +505,7 @@ async function drv(){await load();
       ${rev?`<div class="calls"><button class="btn p" data-call="${d.id}">📞 Gọi</button><button class="btn g" data-sms="${d.id}">💬 SMS</button><button class="btn g" data-zalo="${d.id}">Zalo</button></div>
         ${d.placement?`<div class="note" style="margin-top:8px">${pill(PLS,d.placement.status,PLC)} ${esc(d.placement.code)} · phí ${fmtM(d.placement.fee)}</div>`:`<div class="btns"><button class="btn k" data-pick="${d.id}" style="flex:1">✅ Chọn tài xế này</button><button class="btn g s" data-skip="${d.id}">Bỏ qua</button></div>`}`
         :`<button class="btn p w big" data-reveal="${d.id}">📞 Xem số & gọi tài xế</button>`}</div>`}).join('')
-   :`<div class="card empty">🔎 KHG đang tìm tài xế phù hợp cho yêu cầu này.<br>App sẽ <b>đổ chuông</b> khi có tài xế – hoặc gọi 0399 831 228 để được hỗ trợ ngay.</div>`}
+   :`<div class="card empty">🔎 KHG đang tìm tài xế phù hợp cho yêu cầu này.<br>App sẽ <b>đổ chuông</b> khi có tài xế – hoặc <a href="#" data-lh="Cần tài xế gấp" style="font-weight:700">để lại liên hệ</a> để KHG gọi hỗ trợ.</div>`}
    <div class="btns"><button class="btn g w" id="reM">🔄 Tìm thêm tài xế</button></div>`;
   $$('[data-j]').forEach(b=>b.onclick=()=>{JOB=b.dataset.j;drv()});
   const tO=$('#tOpen');if(tO)tO.onclick=e=>{e.preventDefault();terms()};
@@ -534,7 +555,7 @@ async function hired(){await load();
   $('#main').innerHTML=`<h1 class="pg">Tài xế đã thuê</h1><div class="list">${M.placements.map(p=>`<div class="it"><div class="t"><b>${esc(p.driver)}</b>${pill(PLS,p.status,PLC)}</div>
     <div class="m">${esc(p.code)} · từ ${fmtD(p.start)} · ${fmtM(p.pay)}/${esc(UNIT[p.unit]||p.unit)} × ${p.qty}</div><div class="m">Phí giới thiệu: <b>${fmtM(p.fee)}</b> + VAT ${Math.round((p.vat||0)*100)}%</div>
     <div class="btns"><a class="btn g s" href="tel:${esc(p.phone)}">📞 ${esc(p.phone)}</a></div></div>`).join('')||'<div class="card empty">Chưa thuê tài xế nào. Chọn tài xế ở mục Tài xế sau khi đã liên hệ.</div>'}</div>
-   <p class="note">KHG xuất hóa đơn điện tử phí giới thiệu; thanh toán trong 7 ngày. Thắc mắc gọi 0399 831 228.</p>`}
+   <p class="note">KHG xuất hóa đơn điện tử phí giới thiệu; thanh toán trong 7 ngày. Thắc mắc? <a href="#" data-lh="Hỏi về phí, hóa đơn" style="font-weight:700">Để lại liên hệ</a>.</p>`}
 async function acc(){T=await rpc('khg_hire_terms');const me=T.me;
   $('#main').innerHTML=`<div class="card"><h2>${esc(me.company||me.name||'')}</h2><div class="note">${esc(me.name||'')} · ${esc(me.phone||'')}${me.tax_code?' · MST '+esc(me.tax_code):''}</div>
     <div class="btns"><button class="btn g s" id="aIns">📲 Cài app</button><a class="btn g s" href="/dat-xe.html">🚚 Đặt xe tải</a><button class="btn r s" id="aOut">Đăng xuất</button></div></div>
