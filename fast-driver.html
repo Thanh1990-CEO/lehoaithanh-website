@@ -165,6 +165,10 @@ table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td
 .how{counter-reset:s;display:grid;gap:8px}.how div{position:relative;padding-left:40px;font-size:14px}.how div:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:800}
 @media(min-width:900px){.wrap2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}}
 .jb{border-left:4px solid var(--acc)}.jb.no{border-left-color:#C9C4C0;opacity:.85}
+.svp{margin:18px 4px 8px;font-size:16px;color:#0B5D4B}.svq{padding:14px}.svt{font-weight:700;font-size:15px;display:flex;gap:8px;margin-bottom:8px}.svt span{flex:none;width:26px;height:26px;border-radius:50%;background:#0B5D4B;color:#fff;display:grid;place-items:center;font-size:12px}.svt i{font-weight:400;color:#888}
+.svo{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:8px}.svo.sc{grid-template-columns:repeat(5,1fr)}.svo button{border:1.5px solid #D5DED9;background:#fff;border-radius:12px;padding:11px 12px;text-align:left;font-size:14px;cursor:pointer;line-height:1.35;color:#1a1a1a}
+.svo.sc button{text-align:center;font-weight:700;font-size:16px}.svo button.on{border-color:#0B5D4B;background:#E6F4EF;color:#0B5D4B;font-weight:600}.svbar{height:8px;background:#E3E9E6;border-radius:99px;overflow:hidden;margin:10px 0 4px}.svbar div{height:100%;background:#0B5D4B;transition:width .3s}
+.svcat{margin:10px 0}.svcat>b{display:block;margin-bottom:6px;font-size:13px;color:#555}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.g2{grid-template-columns:1fr}}
 </style></head><body>
 <header><div class="hd"><img src="/icons/fastdriver-192.png" alt=""><div class="nm"><b>Fast Driver</b><span id="hName">Tìm tài xế ở đây · KIM HOÀNG GIA</span></div><div class="sp"></div>
  <a class="hb a" href="tel:0399831228">☎ 0399 831 228</a><button class="hb hidden" id="hOut">Thoát</button></div></header>
@@ -423,12 +427,13 @@ async function landing(focus){
    <div class="card"><h2>Nhận việc theo mọi hình thức</h2><div class="modes">${Object.entries(MODE).map(([k,l])=>`<div><b>${l}</b>${MODE_D[k]}</div>`).join('')}</div>
     <p class="note" style="margin-top:10px">Xe tải nhỏ đến xe tải nặng, đầu kéo container, xe ben, xe bồn, xe cẩu, xe nâng, xe đông lạnh, ô tô con, limousine, xe khách 16–45 chỗ…</p></div>
    <div class="wrap2"><div class="card"><h2>Tài xế: 4 bước để nhận việc</h2><div class="how"><div><b>Đăng ký</b> bằng số điện thoại, chọn hạng bằng lái.</div><div><b>Hồ sơ & xác thực</b>: CCCD và GPLX 2 mặt, khám sức khỏe, MST, tài khoản ngân hàng, xác thực khuôn mặt.</div><div><b>Thi lý thuyết</b> (đạt 32/35) và <b>ký thỏa thuận</b> online kèm chụp chân dung.</div><div><b>KHG duyệt</b> rồi nhận việc phù hợp hạng bằng – theo chuyến, ngày, ca, tuyến, tuần, tháng.</div></div>
-     <button class="btn p w" style="margin-top:14px" id="cDrv2">Đăng ký làm tài xế Fast Driver</button><button class="btn g w" style="margin-top:8px" id="cQuiz">📖 Ôn thi lý thuyết miễn phí (có hình minh họa)</button></div>
+     <button class="btn p w" style="margin-top:14px" id="cDrv2">Đăng ký làm tài xế Fast Driver</button><button class="btn g w" style="margin-top:8px" id="cQuiz">📖 Ôn thi lý thuyết miễn phí (có hình minh họa)</button><button class="btn g w" style="margin-top:8px" id="cSvy">📋 Khảo sát nguyện vọng nghề tài xế 2026 (5 phút)</button></div>
     <div class="card"><h2>Việc đang tuyển</h2><div id="pubJobs"><div class="empty">Đang tải…</div></div></div></div>
 `;
   $('#cDrv').onclick=$('#cDrv2').onclick=()=>{authBox('up');$('#authBox').scrollIntoView({behavior:'smooth'})};
   $('#cIn').onclick=()=>{authBox('in');$('#authBox').scrollIntoView({behavior:'smooth'})};
   $('#cQuiz').onclick=()=>busy($('#cQuiz'),()=>quiz('practice','hang'));
+  $('#cSvy').onclick=()=>{location.hash='khao-sat';survey().catch(e=>toast(e.message))};
   if(focus==='thue'){location.href='/thue-tai-xe.html';return}
   authBox(focus==='up'?'up':'in');
   fetch(SUPABASE_URL+'/functions/v1/khg-public',{method:'POST',headers:{'content-type':'application/json',apikey:SUPABASE_ANON_KEY},body:JSON.stringify({action:'fd_jobs'})}).then(r=>r.json()).then(j=>{
@@ -634,7 +639,62 @@ function bindExam(){const k=()=>picked(document,'qK')[0]||'hang';
   $('#qEx').onclick=()=>{if(confirm('Bắt đầu thi 35 câu trong 30 phút? Thoát giữa chừng vẫn tính 1 lượt.'))busy($('#qEx'),()=>quiz('exam',k()))};
   $('#qSh').onclick=()=>shareLink(LINK('onthi'),'Ôn thi tài xế miễn phí – Fast Driver KIM HOÀNG GIA:')}
 
+// ================= Khảo sát nguyện vọng tài xế toàn quốc =================
+const SV_PROV=['TP. Hồ Chí Minh','Hà Nội','Hải Phòng','Đà Nẵng','Cần Thơ','Huế','Đồng Nai','Tây Ninh','Vĩnh Long','Đồng Tháp','An Giang','Cà Mau','Lâm Đồng','Khánh Hòa','Đắk Lắk','Gia Lai','Quảng Ngãi','Quảng Trị','Hà Tĩnh','Nghệ An','Thanh Hóa','Ninh Bình','Hưng Yên','Bắc Ninh','Quảng Ninh','Thái Nguyên','Phú Thọ','Tuyên Quang','Lào Cai','Lạng Sơn','Cao Bằng','Sơn La','Điện Biên','Lai Châu'];
+let SVA=null;
+async function survey(){
+  $('#nav').classList.add('hidden');window.scrollTo(0,0);$('#main').innerHTML='<div class="empty">Đang tải khảo sát…</div>';
+  const [{data:QS,error},{data:CO}]=await Promise.all([sb.from('khg_svy_questions').select('*').eq('survey','tx2026').eq('active',true).order('qno'),sb.from('khg_svy_companies').select('name,category').eq('active',true).order('sort')]);
+  if(error||!QS?.length){$('#main').innerHTML='<div class="err">Không tải được khảo sát. Vui lòng thử lại sau.</div>';return}
+  try{SVA=JSON.parse(localStorage.getItem('khg_svy_draft')||'null')}catch(e){SVA=null}SVA=SVA||{};
+  const QM=Object.fromEntries(QS.map(q=>[q.code,q]));const save=()=>{try{localStorage.setItem('khg_svy_draft',JSON.stringify(SVA))}catch(e){}};
+  const opts=q=>typeof q.options==='string'&&q.options.startsWith('@')?(()=>{const src=QM[q.options.slice(1)];const all=src?.options||[];const ch=SVA[src?.code]||[];return ch.length?all.filter(o=>ch.includes(o.v)):all})():(Array.isArray(q.options)?q.options:[]);
+  const answered=()=>QS.filter(q=>{const v=SVA[q.code];return v!=null&&v!==''&&!(Array.isArray(v)&&!v.length)&&!(q.kind==='contact')}).length;
+  const body=q=>{const v=SVA[q.code];
+    if(q.kind==='single'||q.kind==='scale')return `<div class="svo ${q.kind==='scale'?'sc':''}">${opts(q).map(o=>`<button type="button" class="${v===o.v?'on':''}" data-q="${q.code}" data-v="${esc(o.v)}">${esc(o.l)}</button>`).join('')}</div>`;
+    if(q.kind==='multi')return `<div class="svo">${opts(q).map(o=>`<button type="button" class="${(v||[]).includes(o.v)?'on':''}" data-q="${q.code}" data-v="${esc(o.v)}" data-m="1">${esc(o.l)}</button>`).join('')}</div>${q.max_pick?`<div class="note">Chọn tối đa ${q.max_pick} · đã chọn ${(v||[]).length}</div>`:''}`;
+    if(q.kind==='province')return `<select class="i" data-q="${q.code}" data-s="1"><option value="">— Chọn tỉnh, thành —</option>${SV_PROV.map(p=>`<option ${v===p?'selected':''}>${p}</option>`).join('')}</select>`;
+    if(q.kind==='text')return `<input class="i" data-q="${q.code}" data-s="1" value="${esc(v||'')}" placeholder="Nhập tên doanh nghiệp (nếu có)">`;
+    if(q.kind==='contact'){const c=v||{};return `<div class="g2"><div><label class="f">Họ tên</label><input class="i" data-c="name" value="${esc(c.name||'')}"></div><div><label class="f">Số điện thoại / Zalo</label><input class="i" data-c="phone" inputmode="tel" value="${esc(c.phone||'')}"></div></div>
+      <label class="note" style="display:flex;gap:8px;align-items:flex-start;margin-top:8px"><input type="checkbox" data-c="consent" ${c.consent?'checked':''}> Tôi đồng ý để Kim Hoàng Gia liên hệ gửi kết quả khảo sát và việc làm phù hợp.</label>`}
+    if(q.kind==='companies'){const sel=v||[];const cats=[...new Set((CO||[]).map(c=>c.category))];
+      return `<div class="note">Đã chọn ${sel.length}/${q.max_pick||5} (thứ tự chọn = mức ưu tiên): ${sel.map((s,i)=>`<b>${i+1}. ${esc(s)}</b>`).join(' · ')||'chưa chọn'}</div><input class="i" id="svCq" placeholder="🔎 Tìm nhanh tên doanh nghiệp" style="margin:8px 0">
+        <div id="svCl">${cats.map(cat=>`<div class="svcat"><b>${esc(cat)}</b><div class="svo">${(CO||[]).filter(c=>c.category===cat).map(c=>`<button type="button" class="${sel.includes(c.name)?'on':''}" data-co="${esc(c.name)}">${sel.includes(c.name)?(sel.indexOf(c.name)+1)+'. ':''}${esc(c.name)}</button>`).join('')}</div></div>`).join('')}</div>`}
+    return ''};
+  let part='';
+  const draw=()=>{part='';$('#main').innerHTML=`<div class="hero" style="padding:18px"><h1 style="font-size:22px">Khảo sát nguyện vọng nghề tài xế 2026<span>30 câu · khoảng 5 phút · ẩn danh nếu bạn muốn</span></h1>
+      <p>Câu trả lời của bạn giúp các doanh nghiệp vận tải hiểu tài xế cần gì: thu nhập, chế độ, cách đối xử. Kết quả tổng hợp được chia sẻ công khai cho cộng đồng tài xế.</p></div>
+    <div class="svbar"><div style="width:${Math.round(answered()*100/QS.filter(q=>q.kind!=='contact').length)}%"></div></div><div class="note" style="text-align:center">Đã trả lời ${answered()}/${QS.length-1} câu</div>
+    ${QS.map(q=>{const head=q.part!==part?(part=q.part,`<h2 class="svp">${esc(q.part)}</h2>`):'';return head+`<div class="card svq" id="sv-${q.code}"><div class="svt"><span>${q.qno}</span>${esc(q.text)}${q.required?'':' <i>(không bắt buộc)</i>'}</div>${q.help?`<div class="note">${esc(q.help)}</div>`:''}${body(q)}</div>`}).join('')}
+    <input id="svHp" style="display:none" tabindex="-1" autocomplete="off"><div class="err hidden" id="svErr"></div>
+    <button class="btn p w" id="svGo" style="margin:14px 0 30px">Gửi khảo sát</button>`;
+    bind()};
+  const redraw=code=>{const q=QM[code];const el=$('#sv-'+code);if(!el)return draw();
+    el.innerHTML=`<div class="svt"><span>${q.qno}</span>${esc(q.text)}${q.required?'':' <i>(không bắt buộc)</i>'}</div>${q.help?`<div class="note">${esc(q.help)}</div>`:''}${body(q)}`;bind();
+    const t=QS.filter(x=>x.kind!=='contact').length;$('.svbar div').style.width=Math.round(answered()*100/t)+'%';$('.svbar').nextElementSibling.textContent=`Đã trả lời ${answered()}/${QS.length-1} câu`};
+  const bind=()=>{
+    $$('[data-q][data-v]').forEach(b=>b.onclick=()=>{const q=QM[b.dataset.q],v=b.dataset.v;
+      if(b.dataset.m){const a=SVA[q.code]||[];if(a.includes(v))SVA[q.code]=a.filter(x=>x!==v);else{if(q.max_pick&&a.length>=q.max_pick)return toast('Chỉ chọn tối đa '+q.max_pick);SVA[q.code]=[...a,v]}
+        const dep=QS.find(x=>x.options===('@'+q.code));if(dep&&SVA[dep.code]&&!(SVA[q.code]||[]).includes(SVA[dep.code]))delete SVA[dep.code];save();redraw(q.code);if(dep)redraw(dep.code);return}
+      SVA[q.code]=v;save();redraw(q.code)});
+    $$('[data-s]').forEach(i=>i.onchange=()=>{SVA[i.dataset.q]=i.value;save();redraw(i.dataset.q)});
+    $$('[data-c]').forEach(i=>i.onchange=()=>{const c=SVA.contact||{};c[i.dataset.c]=i.type==='checkbox'?i.checked:i.value.trim();SVA.contact=c;save()});
+    $$('[data-co]').forEach(b=>b.onclick=()=>{const q=QM.companies,n=b.dataset.co,a=SVA.companies||[];if(a.includes(n))SVA.companies=a.filter(x=>x!==n);else{if(a.length>=(q.max_pick||5))return toast('Chỉ chọn tối đa '+(q.max_pick||5)+' doanh nghiệp');SVA.companies=[...a,n]}save();const qv=$('#svCq')?.value||'';redraw('companies');if(qv){$('#svCq').value=qv;$('#svCq').oninput()}});
+    const cq=$('#svCq');if(cq)cq.oninput=()=>{const t=cq.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');$$('#svCl [data-co]').forEach(b=>{b.style.display=!t||b.dataset.co.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(t)?'':'none'})};
+    const g=$('#svGo');if(g)g.onclick=()=>busy(g,async()=>{const miss=QS.filter(q=>q.required&&q.kind!=='contact'&&(SVA[q.code]==null||SVA[q.code]===''||(Array.isArray(SVA[q.code])&&!SVA[q.code].length)));
+      if(miss.length){$('#svErr').textContent=`Còn ${miss.length} câu bắt buộc chưa trả lời (câu ${miss.slice(0,6).map(q=>q.qno).join(', ')}${miss.length>6?'…':''}).`;$('#svErr').classList.remove('hidden');$('#sv-'+miss[0].code).scrollIntoView({behavior:'smooth',block:'center'});return}
+      const {error:e}=await sb.rpc('khg_svy_submit',{p:{survey:'tx2026',answers:SVA,source:D?'fast-driver-app':'fast-driver-web',ua:navigator.userAgent,hp:$('#svHp').value}});
+      if(e){$('#svErr').textContent=e.message;$('#svErr').classList.remove('hidden');return}
+      try{localStorage.removeItem('khg_svy_draft')}catch(x){}SVA=null;thanks()})};
+  const thanks=()=>{$('#main').innerHTML=`<div class="card" style="text-align:center;padding:28px 18px"><div style="font-size:46px">🙏</div><h2>Cảm ơn bạn đã tham gia khảo sát!</h2><p>Ý kiến của bạn giúp nghề tài xế được tôn trọng và đãi ngộ tốt hơn. Hãy chia sẻ khảo sát cho anh em tài xế khác.</p>
+    <button class="btn p w" id="svSh">🔗 Chia sẻ khảo sát</button><button class="btn g w" id="svBk" style="margin-top:8px">${D?'Về ứng dụng':'Đăng ký tài xế Fast Driver – nhận việc phù hợp'}</button></div>`;
+    $('#svSh').onclick=()=>shareLink(LINK('khao-sat'),'Khảo sát nguyện vọng nghề tài xế 2026 – 5 phút, giúp tài xế được đối xử tốt hơn:');
+    $('#svBk').onclick=()=>{location.hash='';if(D){$('#nav').classList.remove('hidden');go('jobs')}else landing('up')}};
+  draw();
+}
+
 function route(){const h=location.hash.slice(1);if(QZ)return false;
+  if(h==="khao-sat"){survey().catch(e=>toast(e.message));return true}
   if(h==='onthi'){quiz('practice','hang').catch(e=>toast(e.message));return true}
   if(h==='thi'&&D){go('train');return true}
   if(h.startsWith('viec/')&&D){window._focusJob=decodeURIComponent(h.slice(5));go('jobs');return true}
@@ -705,5 +765,5 @@ window.addEventListener('hashchange',route);
   try{sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_IN'||ev==='INITIAL_SESSION')setTimeout(chk,400)})}catch(e){}setTimeout(chk,1200)})();
 
 (async()=>{const {data:{session}}=await sb.auth.getSession();
-  if(session&&String(session.user.email||'').endsWith(DOMAIN))boot();else{if(session)await sb.auth.signOut();if(location.hash==='#onthi'){landing('in');route()}else landing(location.hash==='#thue'?'thue':qs('ref')||location.hash==='#thi'?'up':'in')}})();
+  if(session&&String(session.user.email||'').endsWith(DOMAIN))boot();else{if(session)await sb.auth.signOut();if(location.hash==='#khao-sat'){survey().catch(e=>toast(e.message))}else if(location.hash==='#onthi'){landing('in');route()}else landing(location.hash==='#thue'?'thue':qs('ref')||location.hash==='#thi'?'up':'in')}})();
 </script></body></html>

@@ -172,7 +172,7 @@ textarea.i{min-height:70px;resize:vertical}
           <div class="sum"><div><small>Quãng đường</small><b id="sKm">–</b></div><div><small>Thời gian chạy</small><b id="sTime">–</b></div><div><small>Điểm giao</small><b id="sStops">1</b></div></div>
           <div class="lines" id="fLines"></div>
           <div class="fare"><span>Tạm tính<br><small style="color:var(--muted)" id="fVatNote">chưa gồm VAT</small></span><span class="big" id="fTotal">–</span></div>
-          <div class="note">Giá tính theo Bảng giá nguyên chuyến KHG theo km; giá chính thức do điều phối xác nhận. Phụ phí thêm điểm giao, bốc xếp, chờ quá 60 phút, quay đầu trả hàng, cầu đường áp dụng theo Bảng giá KHG.</div>
+          <div class="note">Giá theo Biểu giá chuẩn KHG 2026: đã gồm dầu, phí cầu đường BOT và tài xế. Giá chính thức do điều phối xác nhận. Phụ phí giao thêm điểm, bốc xếp, chờ quá 2 giờ, chạy đêm/lễ/Tết, hàng trả về áp dụng theo biểu giá.</div>
           <div class="err hidden" id="bErr"></div>
           <button class="btn p w" style="margin-top:12px" id="btnBook" type="submit">Đặt xe ngay</button>
           <a class="btn g w" style="margin-top:8px;text-decoration:none" id="gmap" target="_blank" rel="noopener">Xem lộ trình trên Google Maps</a>
@@ -214,34 +214,33 @@ const vnd=n=>Math.round(Number(n)||0).toLocaleString('vi-VN')+' đ';
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
 
-// ===== Bảng giá nguyên chuyến KHG (đ, chưa VAT): giá mở cửa gồm 35 km đầu; đơn giá/km theo bậc 36–100, 101–250, trên 250 km
+// ===== Biểu giá chuẩn KHG 2026 (đ, chưa VAT, đã gồm dầu + BOT + tài xế): phí mở chuyến gồm 20 km đầu; bậc 21–100, 101–300, 301–600, trên 600 km
 const VC=[
- {k:'1-2t',l:'Xe 1 – 2 tấn',d:'Thùng 4,3×1,75×1,7m · nội thành',b:1180000,r:[23500,16500,9000],f:1.15},
- {k:'2.5t',l:'Xe 2,5 tấn',d:'Thùng 4,3×1,75×1,7m · KCN',b:1360000,r:[24000,17500,9500],f:1.15},
- {k:'3.5t',l:'Xe 3,5 tấn',d:'Thùng như xe 5 tấn',b:1700000,r:[24500,19500,11000],f:1.15},
- {k:'5t',l:'Xe 5 tấn',d:'Pallet, hàng khối',b:2230000,r:[25000,22000,12000],f:1.3},
- {k:'7t',l:'Xe 6,5 – 7 tấn',d:'Hàng khối, liên tỉnh',b:2680000,r:[28500,25500,14000],f:1.3},
- {k:'8t',l:'Xe 8 tấn',d:'Hàng nặng, liên tỉnh',b:3120000,r:[31000,27500,15000],f:1.3},
- {k:'15t',l:'Xe 15 tấn',d:'Tải lớn, đường dài',b:4460000,r:[40000,35000,19000],f:1.45},
- {k:'18t',l:'Xe 18 tấn',d:'Tải lớn, đường dài',b:5130000,r:[44000,38500,21000],f:1.45},
+ {k:'1.25t',l:'Xe 1,25 tấn',d:'Thùng 3,2×1,6×1,6m · 8 m³',b:530000,r:[17500,13500,9500,4500],f:1.15,stop:80000,loading:150000},
+ {k:'2t',l:'Xe 2 tấn',d:'Thùng 4,2×1,75×1,7m · 12 m³',b:740000,r:[18500,15000,11500,6000],f:1.15,stop:110000,loading:150000},
+ {k:'3.5t',l:'Xe 3,5 tấn',d:'Thùng 5,0×2,0×1,5m · 15 m³',b:900000,r:[21000,18500,11500,6500],f:1.15,stop:130000,loading:245000},
+ {k:'5t',l:'Xe 5 tấn',d:'Thùng 6,2×2,1×1,6m · 21 m³',b:1050000,r:[23500,21000,12500,7500],f:1.3,stop:170000,loading:350000},
+ {k:'8t',l:'Xe 8 tấn',d:'Thùng 8,0×2,35×1,9m · 36 m³',b:1320000,r:[25000,22500,15000,9500],f:1.3,stop:220000,loading:560000},
+ {k:'10t',l:'Xe 10 tấn',d:'Thùng 8,5×2,35×2,05m · 41 m³',b:1470000,r:[26500,24000,17000,11000],f:1.45,stop:280000,loading:700000},
+ {k:'15t',l:'Xe 15 tấn',d:'Thùng 9,5×2,35×2,05m · 46 m³',b:1680000,r:[28500,26000,20000,12500],f:1.45,stop:330000,loading:1050000},
 ];
 let FUEL=null;
 function fareOf(v,km,stops=0,loading=false){
-  km=Math.max(0,Math.ceil(km||0));const B=v.base_km||35,T1=v.t1||100,T2=v.t2||250;
-  const parts=[[`Giá mở cửa (gồm ${B} km đầu)`,v.b]];
+  km=Math.max(0,Math.ceil(km||0));const B=v.base_km||20,T1=v.t1||100,T2=v.t2||300,T3=v.t3||600;
+  const parts=[[`Phí mở chuyến (gồm ${B} km đầu)`,v.b]];
   const seg=(a,b,rate,label)=>{const n=Math.max(0,Math.min(km,b)-a);if(n>0)parts.push([`${label}: ${n} km × ${rate.toLocaleString('vi-VN')} đ`,n*rate])};
-  seg(B,T1,v.r[0],`Km ${B+1}–${T1}`);seg(T1,T2,v.r[1],`Km ${T1+1}–${T2}`);seg(T2,1e6,v.r[2],`Km trên ${T2}`);
+  seg(B,T1,v.r[0],`Km ${B+1}–${T1}`);seg(T1,T2,v.r[1],`Km ${T1+1}–${T2}`);if(v.r.length>3){seg(T2,T3,v.r[2],`Km ${T2+1}–${T3}`);seg(T3,1e6,v.r[3],`Km trên ${T3}`)}else seg(T2,1e6,v.r[2],`Km trên ${T2}`);
   if(stops>0&&v.stop)parts.push([`${stops} điểm giao thêm × ${v.stop.toLocaleString('vi-VN')} đ`,stops*v.stop]);
-  if(loading&&v.loading)parts.push(['Bốc xếp đuôi xe',v.loading]);
+  if(loading&&v.loading)parts.push(['Bốc xếp (1 đầu)',v.loading]);
   return {parts,total:parts.reduce((a,p)=>a+p[1],0)};
 }
 // Bảng giá trực tuyến (đã điều chỉnh theo giá dầu hiện hành) – thay bảng dự phòng ở trên khi tải được
 sb.rpc('khg_rate_card').then(({data})=>{if(!data||!(data.cards||[]).length)return;FUEL=data;
-  VC.splice(0,VC.length,...data.cards.map(c=>({k:c.k,l:c.l,d:c.d||'',b:Number(c.b),r:c.r.map(Number),f:Number(c.f)||1.15,base_km:c.base_km,t1:c.t1,t2:c.t2,stop:Number(c.stop)||0,loading:Number(c.loading)||0})));
+  VC.splice(0,VC.length,...data.cards.map(c=>({k:c.k,l:c.l,d:c.d||'',b:Number(c.b),r:c.r.map(Number),f:Number(c.f)||1.15,base_km:c.base_km,t1:c.t1,t2:c.t2,t3:c.t3,stop:Number(c.stop)||0,loading:Number(c.loading)||0})));
   if(!VC.find(x=>x.k===S.vc))S.vc=VC[0].k;renderVC();calc()}).catch(()=>{});
 
 // ===== Trạng thái
-const S={pick:{addr:'',lat:null,lng:null},drops:[],vc:'2.5t',route:null,when:'now'};
+const S={pick:{addr:'',lat:null,lng:null},drops:[],vc:'2t',route:null,when:'now'};
 const DCOL=['#C8102E','#1C5FA8','#B5651D','#6A3FA0','#1E7A4C','#A23B72','#2B6F77','#8A6D1D'];
 
 // ===== Gợi ý địa chỉ (Photon/OSM) + định vị (Nominatim)
