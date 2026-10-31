@@ -3561,6 +3561,128 @@ E.truck_bans={table:'khg_truck_bans',title:'Giờ cấm tải',order:['sort',tru
   f:[{k:'area',l:'Khu vực',t:'text',list:true,req:true},{k:'min_t',l:'Áp dụng xe từ (tấn)',t:'num',list:true,def:0},{k:'max_t',l:'Đến dưới (tấn, trống = không giới hạn)',t:'num',list:true},
     {k:'windows',l:'Khung giờ cấm (VD: 06:00-09:00)',t:'arr',list:true,req:true},{k:'lat',l:'Vĩ độ tâm khu vực',t:'num',req:true},{k:'lng',l:'Kinh độ tâm khu vực',t:'num',req:true},{k:'radius_km',l:'Bán kính (km)',t:'num',def:8,list:true},
     {k:'legal',l:'Căn cứ',t:'text',list:true},{k:'active',l:'Đang áp dụng',t:'bool',def:true,list:true},{k:'sort',l:'Thứ tự',t:'num',def:50},{k:'note',l:'Ghi chú',t:'area'}]};
+// ===================== v14 · SĂN KHÁCH HÀNG: THU NHU CẦU TỪ HỘI NHÓM, KÊNH =====================
+Object.assign(O,{hunt_kind:{cau:'Khách cần dịch vụ',cung:'Nhà xe chào xe → đối tác',khac:'Khác'},
+  hunt_status:{moi:'Mới',da_lien_he:'Đã liên hệ',thanh_lead:'Đã thành lead',chot:'Đã chốt đơn',bo_qua:'Bỏ qua'},
+  hunt_channel:{facebook_nhom:'Nhóm Facebook',facebook_trang:'Trang Facebook',zalo:'Nhóm Zalo',tiktok:'TikTok',web:'Website, diễn đàn',khac:'Khác'},
+  hunt_src_kind:{nhom_fb:'Nhóm Facebook',trang_fb:'Trang Facebook',zalo:'Nhóm Zalo',web:'Website, diễn đàn',khac:'Khác'}});
+Object.assign(PILL,{cau:'green',cung:'blue',da_lien_he:'blue',thanh_lead:'green',chot:'green',bo_qua:''});
+E.hunt_posts={table:'khg_hunt_posts',title:'Bài đăng nhu cầu',order:['created_at',false],search:['content','group_name','poster'],label:'poster',
+  filters:[['status','hunt_status'],['kind','hunt_kind'],['business_line','biz_line'],['channel','hunt_channel']],
+  f:[{k:'created_at',l:'Thu lúc',t:'dt',ro:true,list:true},{k:'kind',l:'Loại',t:'sel',o:'hunt_kind',list:true},{k:'business_line',l:'Mảng',t:'sel',o:'biz_line',list:true},{k:'score',l:'Điểm',t:'num',list:true},
+    {k:'poster',l:'Người đăng',t:'text',list:true},{k:'phones',l:'Điện thoại',t:'arr',list:true},{k:'provinces',l:'Khu vực',t:'arr',list:true},{k:'group_name',l:'Nhóm / kênh',t:'text',list:true},
+    {k:'content',l:'Nội dung bài',t:'area',list:true},{k:'url',l:'Link bài',t:'text'},{k:'channel',l:'Kênh',t:'sel',o:'hunt_channel'},{k:'tonnage',l:'Tải trọng (tấn)',t:'num'},
+    {k:'status',l:'Trạng thái',t:'sel',o:'hunt_status',list:true,def:'moi'},{k:'owner_id',l:'Phụ trách',t:'fk',ref:'people',list:true},{k:'note',l:'Ghi chú',t:'area'}]};
+E.hunt_sources={table:'khg_hunt_sources',title:'Nhóm & nguồn khách',order:['posts_found',false],search:['name','url','region','note'],label:'name',filters:[['kind','hunt_src_kind'],['business_line','biz_line']],
+  f:[{k:'name',l:'Tên nhóm / kênh',t:'text',list:true,req:true},{k:'kind',l:'Loại',t:'sel',o:'hunt_src_kind',def:'nhom_fb',list:true},{k:'url',l:'Link',t:'text',list:true},
+    {k:'business_line',l:'Mảng chính',t:'sel',o:'biz_line',list:true},{k:'region',l:'Khu vực',t:'text',list:true},{k:'members',l:'Thành viên',t:'num',list:true},
+    {k:'joined',l:'Đã tham gia',t:'bool',list:true},{k:'can_post',l:'Được đăng bài',t:'bool',list:true},{k:'posts_found',l:'Bài đã thu',t:'num',ro:true,list:true},{k:'leads_won',l:'Đơn chốt',t:'num',list:true},
+    {k:'last_checked_at',l:'Quét gần nhất',t:'dt',list:true},{k:'active',l:'Đang theo dõi',t:'bool',def:true},{k:'note',l:'Ghi chú',t:'area'}]};
+E.hunt_keywords={table:'khg_hunt_keywords',title:'Từ khóa',order:['sort',true],search:['keyword'],label:'keyword',filters:[['business_line','biz_line']],
+  f:[{k:'keyword',l:'Từ khóa',t:'text',list:true,req:true},{k:'business_line',l:'Mảng',t:'sel',o:'biz_line',list:true,req:true},{k:'kind',l:'Loại',t:'sel',o:'hunt_kind',def:'cau',list:true},{k:'sort',l:'Thứ tự',t:'num',def:100},{k:'active',l:'Đang dùng',t:'bool',def:true,list:true}]};
+
+// ---- Bộ phân tích bài đăng (chạy ngay trên máy, không gửi nội dung ra ngoài)
+const HUNT=(()=>{const N=s=>(window.KADDR?KADDR.N(s):String(s||'').toLowerCase());
+  const LINES=[['nang_ha',/(xe cau|cau hang|cau may|cau container|xe nang|bot xep|boc xep|boc vac|rut (hang )?cont|dong cont|ha cont|nang ha)/],
+    ['kho_bai',/(thue kho|kho chua|luu kho|gui hang|kho pallet|kho lanh|kho mat|bai xe|bai do|cho thue kho|can kho|tim kho)/],
+    ['bds',/(nha xuong|kho xuong|thue xuong|dat kcn|dat khu cong nghiep|chuyen nhuong dat|mua dat|ban xuong|dat thuong mai)/],
+    ['xe_nang',/(mua xe nang|ban xe nang|xe nang cu|xe nang dien|xe nang dau)/],
+    ['tai_xe',/(thue tai xe|tuyen tai xe|can tai xe|can lai xe|tuyen lai xe|tai xe bang [bcdef])/],
+    ['phan_phoi',/(nha phan phoi|tim dai ly|lam dai ly|phan phoi hang|si hang|nguon hang)/],
+    ['van_tai',/(xe tai|cho hang|van chuyen|chuyen hang|ghep hang|xe ghep|chuyen nha|chuyen kho|giao hang|xe [0-9]+ ?(t|tan)|xe container|dau keo|mooc|xe thung|xe ba gac)/]];
+  const DEM=/(can (thue|tim|xe|nguoi|gap|1|mot|kho|xuong)|tim (xe|nha xe|kho|xuong|tai xe|don vi|ben)|thue (xe|kho|xuong|tai xe)|ai (co|nhan|cho|lam)|can (van chuyen|chuyen|cho|cau|nang)|bao gia|bao gia giup|xin gia|nhan bao gia|co ai)/;
+  const SUP=/(nhan (cho|cho hang|van chuyen|ghep|chay|cau|boc xep)|xe trong|xe rong|xe (chieu )?ve|tim hang (chieu )?ve|co xe|cho thue xe|dich vu (van chuyen|xe tai|cau|boc xep)|lien he .{0,10}(dat xe|thue xe)|gia re nhat|nha xe .{0,20}nhan|chanh xe)/;
+  const URG=/(\bgap\b|can ngay|di ngay|chay ngay|lam ngay|ngay bay gio|hom nay|sang nay|chieu nay|toi nay|khan cap|\bkhan\b|asap|trong ngay|bay gio|luc nay)/;
+  const SOON=/(ngay mai|mai |sang mai|chieu mai|tuan nay|cuoi tuan)/;
+  function phones(t){const out=new Set();(String(t).match(/(?:\+?84|0)(?:[\s.\-]?\d){8,10}/g)||[]).forEach(x=>{let d=x.replace(/\D/g,'');if(d.startsWith('84'))d='0'+d.slice(2);if(/^0[35789]\d{8}$/.test(d)||/^02\d{9}$/.test(d))out.add(d)});return [...out]}
+  function provinces(t){const n=' '+N(t)+' ',out=[];if(!window.KADDR)return out;
+    KADDR.NEW.forEach(p=>{const k=' '+N(p[0]).replace(/^tp /,'')+' ';if(n.includes(k)&&!out.includes(p[0]))out.push(p[0]);p[4].forEach(o=>{if(n.includes(' '+N(o)+' ')&&!out.includes(p[0]))out.push(p[0])})});
+    [[/ (sai gon|hcm|tphcm|tp hcm|ho chi minh|thu duc|binh duong|thu dau mot|di an|thuan an|tan uyen|ben cat|vung tau)/,'TP. Hồ Chí Minh'],[/ (bien hoa|long thanh|nhon trach|trang bom)/,'Đồng Nai'],[/ (ha noi|hn) /,'Hà Nội'],[/ (ben luc|duc hoa|tan an)/,'Tây Ninh']].forEach(([r,v])=>{if(r.test(n)&&!out.includes(v))out.push(v)});
+    return out}
+  function tonnage(t){const n=N(t);let m=n.match(/(\d{1,2})\s?t\s?(\d{1,2})\b/);if(m)return +(m[1]+'.'+m[2]);m=n.match(/(\d{1,2}(?:[.,]\d{1,2})?)\s?(tan|t)\b/);return m?+m[1].replace(',','.'):null}
+  function analyze(t){const n=N(t);let bl=null;for(const [k,r] of LINES)if(r.test(n)){bl=k;break}
+    const dem=DEM.test(n),sup=SUP.test(n);const kind=sup&&!dem?'cung':(dem||bl?'cau':'khac');
+    const ph=phones(t),pv=provinces(t),tn=tonnage(t);const urg=URG.test(n)?2:SOON.test(n)?1:0;
+    let sc=0;if(kind==='cau')sc+=25;if(ph.length)sc+=30;if(bl)sc+=15;if(pv.length)sc+=10;if(tn)sc+=5;sc+=urg*8;if(t.length>40)sc+=4;
+    return {kind,business_line:kind==='cung'?'doi_tac_xe':bl,phones:ph,provinces:pv,tonnage:tn,urgency:urg,score:Math.min(100,sc)}}
+  const REF=bl=>({van_tai:'/dat-xe',nang_ha:'/dat-xe?cau=1',kho_bai:'/dich-vu#kho',bds:'/dich-vu#bds',xe_nang:'/dich-vu#xe_nang_ban',tai_xe:'/thue-tai-xe',doi_tac_xe:'/doi-tac',phan_phoi:'/dich-vu'}[bl]||'/dat-xe');
+  function reply(a,promo){const site='https://lehoaithanh.org',u=site+REF(a.business_line)+(a.business_line==='van_tai'||a.business_line==='nang_ha'?(REF(a.business_line).includes('?')?'&':'?')+'ma='+(promo||'KHG3'):'');
+    const area=a.provinces[0]?' khu vực '+a.provinces[0]:'',ton=a.tonnage?' xe '+String(a.tonnage).replace('.',',')+' tấn':'';
+    const T={van_tai:`Chào anh/chị, Kim Hoàng Gia nhận chở${ton}${area} ạ. Xe thùng kín/bạt 1,25–15 tấn, có hóa đơn VAT, theo dõi đơn trực tuyến. Anh/chị xem giá và giờ xe đến ngay tại: ${u} – hoặc để lại số, KHG gọi báo giá trong 5 phút.`,
+      nang_ha:`Chào anh/chị, KHG có xe tải gắn cẩu 2–8 tấn, cẩu 25 tấn trở lên, xe nâng, đội bốc xếp${area}. Báo giá nhanh: ${u} – hoặc để lại số, KHG gọi lại ngay.`,
+      kho_bai:`Chào anh/chị, KHG cho thuê kho linh hoạt theo pallet, m² hoặc nguyên kho${area}, có bốc xếp, xe nâng, báo cáo tồn trên app. Tính giá nhanh: ${u}`,
+      bds:`Chào anh/chị, KHG đang có nhà xưởng, kho xưởng, đất KCN cho thuê/chuyển nhượng${area} theo nhiều diện tích. Anh/chị để lại nhu cầu tại ${u}, KHG gửi danh sách phù hợp trong ngày.`,
+      xe_nang:`Chào anh/chị, KHG mua bán, cho thuê xe nâng các loại (điện, dầu, 2,5–10 tấn). Để lại nhu cầu tại ${u}, KHG báo giá ngay.`,
+      tai_xe:`Chào anh/chị, KHG cung ứng tài xế đã xác thực bằng lái, kinh nghiệm theo chuyến/ngày/tháng. Đăng nhu cầu tại ${u}`,
+      doi_tac_xe:`Chào anh, KHG đang cần thêm xe đối tác${area} – có đơn đều, thanh toán rõ ràng qua app. Đăng ký xe tại ${site}/doi-tac để nhận đơn chiều đi, chiều về.`,
+      phan_phoi:`Chào anh/chị, KHG phân phối hàng tiêu dùng và có đội xe, kho riêng hỗ trợ giao hàng. Liên hệ hợp tác tại ${u}`};
+    return T[a.business_line]||T.van_tai}
+  return {analyze,reply,phones,provinces}})();
+
+const fbRecent=q=>'https://www.facebook.com/search/posts/?q='+encodeURIComponent(q)+'&filters='+encodeURIComponent(btoa(JSON.stringify({'recent_posts:0':JSON.stringify({name:'recent_posts',args:''})})));
+const fbGroupSearch=(u,q)=>{const m=String(u||'').match(/facebook\.com\/groups\/([^/?#]+)/);return m?`https://www.facebook.com/groups/${m[1]}/search/?q=${encodeURIComponent(q)}`:null};
+const ggRecent=q=>'https://www.google.com/search?tbs=qdr:d&q='+encodeURIComponent(`site:facebook.com "${q}"`);
+const HUNT_BM=()=>`javascript:(function(){var t=String(window.getSelection()||'').trim();if(!t){t=prompt('Bôi đen nội dung bài đăng rồi bấm lại, hoặc dán nội dung vào đây:')||''}if(!t)return;var g=(document.title||'').replace(/\\s*\\|\\s*Facebook.*$/,'');window.open('${location.origin}${location.pathname}?ht='+encodeURIComponent(t.slice(0,1800))+'&hu='+encodeURIComponent(location.href.slice(0,400))+'&hg='+encodeURIComponent(g.slice(0,120))+'#hunt','khghunt')})();`;
+
+VIEWS.hunt=async m=>{
+  const qs=new URLSearchParams(location.search);const pre={t:qs.get('ht'),u:qs.get('hu'),g:qs.get('hg')};if(pre.t){try{history.replaceState(null,'',location.pathname+'#hunt')}catch(e){}}
+  m.innerHTML=`<h2>Săn khách hàng</h2><p class="sub">Thu nhu cầu thật từ hội nhóm, kênh mạng xã hội về CRM, chấm điểm, tạo lead, trả lời trong 5 phút. Thu thủ công từng bài anh/chị đang xem (không tự động cào dữ liệu – tránh khóa tài khoản và vi phạm quy định bảo vệ dữ liệu cá nhân).</p>
+   <div class="subtabs" id="hst"><button data-s="cap" class="on">Thu bài đăng</button><button data-s="posts">Bài đã thu</button><button data-s="find">Tìm bài mới</button><button data-s="src">Nhóm & nguồn</button><button data-s="kw">Từ khóa</button><button data-s="rep">Hiệu quả</button></div><div id="hh"></div>`;
+  const sw=async n=>{m.querySelectorAll('#hst button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));const h=$('#hh');
+    if(n==='cap'){const {data:SR}=await sb.from('khg_hunt_sources').select('id,name,url').is('archived_at',null).eq('active',true).order('name');
+      h.innerHTML=`<div class="grid2"><div class="card"><h3>Dán bài đăng</h3>
+        <div class="form"><label class="w">Nội dung bài (dán nguyên văn, kể cả số điện thoại người đăng để lại)<textarea id="hT" rows="8" placeholder="VD: Cần thuê xe 5 tấn chở hàng từ Tân Uyên đi Long An sáng mai, ai nhận ib hoặc gọi 09xx…"></textarea></label>
+        <label>Người đăng<input id="hP" placeholder="Tên hiển thị"></label><label>Nhóm / kênh<input id="hG" list="hGl" placeholder="Tên nhóm"><datalist id="hGl">${(SR||[]).map(s=>`<option value="${esc(s.name)}">`).join('')}</datalist></label>
+        <label class="w">Link bài<input id="hU" placeholder="https://facebook.com/groups/…/posts/…"></label>
+        <label>Kênh<select id="hC">${Object.entries(O.hunt_channel).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select></label><label>Mã giảm giá gửi kèm<input id="hM" value="KHG3" style="text-transform:uppercase"></label></div>
+        <p class="sub" style="margin:6px 0 0">Nhiều bài một lúc: ngăn cách mỗi bài bằng một dòng <code>---</code>.</p></div>
+        <div class="card"><h3>Phân tích</h3><div id="hA"><div class="empty">Dán nội dung để phân tích.</div></div></div></div>
+        <div class="card" style="margin-top:14px"><h3>📌 Nút “Gửi về CRM KHG” cho trình duyệt máy tính</h3><p class="sub">Kéo nút bên dưới lên thanh dấu trang của Chrome. Khi lướt nhóm Facebook thấy bài cần xe, cần kho…: bôi đen nội dung bài → bấm nút trên thanh dấu trang → CRM mở sẵn bài đó để phân tích và tạo lead.</p>
+        <a class="btn p" id="hBm" href="#" onclick="return false" draggable="true">⭐ Gửi về CRM KHG</a> <button class="btn s" id="hBmC">Sao chép mã nút</button>
+        <p class="sub" style="margin-top:8px">Trên điện thoại: bấm “…” ở bài → Sao chép liên kết, giữ ngón tay chọn nội dung → Sao chép, rồi dán vào ô bên trên.</p></div>`;
+      $('#hBm').setAttribute('href',HUNT_BM());$('#hBmC').onclick=()=>copyText(HUNT_BM(),'Đã sao chép – tạo dấu trang mới và dán vào ô URL');
+      if(pre.t){$('#hT').value=pre.t;$('#hU').value=pre.u||'';$('#hG').value=pre.g||'';pre.t=null}
+      const parts=()=>$('#hT').value.split(/\n\s*-{3,}\s*\n/).map(x=>x.trim()).filter(x=>x.length>=10);
+      const draw=()=>{const P=parts();if(!P.length){$('#hA').innerHTML='<div class="empty">Dán nội dung để phân tích.</div>';return}
+        $('#hA').innerHTML=P.map((t,i)=>{const a=HUNT.analyze(t);return `<div class="card" style="margin:0 0 10px;padding:10px 12px;background:${a.kind==='cau'?'#F2FAF5':a.kind==='cung'?'#F2F6FC':'#fafafa'}">
+          <div class="bar" style="margin:0 0 6px"><span class="pill ${a.kind==='cau'?'green':a.kind==='cung'?'blue':''}">${O.hunt_kind[a.kind]}</span>${a.business_line?`<span class="pill">${esc(O.biz_line[a.business_line]||'')}</span>`:''}<span class="pill ${a.score>=60?'green':a.score>=35?'amber':''}">Điểm ${a.score}</span>${a.urgency===2?'<span class="pill red">Gấp</span>':a.urgency===1?'<span class="pill amber">Sắp tới</span>':''}</div>
+          <div class="sub" style="margin:0">${P.length>1?`<b>Bài ${i+1}:</b> `:''}${esc(t.slice(0,160))}${t.length>160?'…':''}</div>
+          <div style="font-size:13px;margin-top:4px">📞 ${a.phones.length?a.phones.map(p=>`<a href="tel:${p}">${p}</a> · <a href="https://zalo.me/${p}" target="_blank" rel="noopener">Zalo</a>`).join(' | '):'<span class="sub">không có số – nhắn tin/bình luận</span>'} · 📍 ${esc(a.provinces.join(', ')||'chưa rõ')}${a.tonnage?' · 🚚 '+String(a.tonnage).replace('.',',')+' tấn':''}</div>
+          <details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Mẫu trả lời gợi ý</summary><textarea rows="4" style="width:100%;margin-top:4px" data-rp="${i}">${esc(HUNT.reply(a,$('#hM').value.trim().toUpperCase()))}</textarea><button class="btn s" data-cp="${i}">📋 Sao chép trả lời</button></details>
+          <div class="bar" style="margin:8px 0 0">${a.kind==='cau'?`<button class="btn p s" data-sv="${i}" data-lead="1">＋ Lưu & tạo lead</button>`:''}<button class="btn s" data-sv="${i}">Lưu bài</button></div></div>`}).join('');
+        $('#hA').querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>copyText($('#hA').querySelector(`[data-rp="${b.dataset.cp}"]`).value,'Đã sao chép – dán vào bình luận hoặc tin nhắn'));
+        $('#hA').querySelectorAll('[data-sv]').forEach(b=>b.onclick=async()=>{const t=P[+b.dataset.sv],a=HUNT.analyze(t);b.disabled=true;const src=(SR||[]).find(s=>s.name===$('#hG').value.trim());
+          const {data,error}=await sb.rpc('khg_hunt_save',{p:{content:t,url:P.length>1?null:$('#hU').value.trim(),group_name:$('#hG').value.trim(),poster:P.length>1?'':$('#hP').value.trim(),channel:$('#hC').value,
+            kind:a.kind,business_line:a.business_line,services:[],phones:a.phones,provinces:a.provinces,tonnage:a.tonnage,urgency:a.urgency,score:a.score,make_lead:!!b.dataset.lead,source_id:src?src.id:null}});
+          if(error){b.disabled=false;return toast(error.message)}toast(data.dup?'Bài này đã thu trước đó':data.lead_id?'Đã lưu và tạo lead – nhớ liên hệ trong 5 phút':'Đã lưu bài');b.textContent=data.dup?'Đã có':'✓ Đã lưu'})};
+      ['hT','hM'].forEach(id=>$('#'+id).addEventListener('input',()=>{clearTimeout(window._hT);window._hT=setTimeout(draw,250)}));draw();return}
+    if(n==='posts'){h.innerHTML='<div id="hpl"></div>';await renderList('hunt_posts',$('#hpl'),{rowActions:r=>`${r.url?`<a class="btn s" href="${esc(r.url)}" target="_blank" rel="noopener">Mở bài</a>`:''}${r.phones&&r.phones[0]?`<a class="btn s" href="tel:${esc(r.phones[0])}">Gọi</a>`:''}${!r.lead_id&&r.kind==='cau'?`<button class="btn s p" data-act="lead" data-id="${r.id}">Tạo lead</button>`:''}${r.status==='moi'?`<button class="btn s" data-act="lh" data-id="${r.id}">Đã liên hệ</button>`:''}`,
+      onActs:async(a,id,r)=>{if(a==='lh'){await sb.from('khg_hunt_posts').update({status:'da_lien_he',updated_at:new Date().toISOString()}).eq('id',id);return}
+        if(a==='lead'){const {data,error}=await sb.from('khg_leads').insert({source:'facebook',business_line:r.business_line||'van_tai',name:r.poster||('Khách '+(r.group_name||'mạng xã hội')),phone:(r.phones||[])[0]||null,province:(r.provinces||[])[0]||null,need:r.content.slice(0,1500),note:'Từ bài đăng '+(r.group_name||'')+(r.url?' · '+r.url:''),ref_table:'khg_hunt_posts',ref_id:r.id,status:'moi'}).select('id').single();
+          if(error)return toast(error.message);await sb.from('khg_hunt_posts').update({lead_id:data.id,status:'thanh_lead'}).eq('id',id);toast('Đã tạo lead')}}});return}
+    if(n==='find'){const [{data:K},{data:SR}]=await Promise.all([sb.from('khg_hunt_keywords').select('*').is('archived_at',null).eq('active',true).order('sort'),sb.from('khg_hunt_sources').select('id,name,url,business_line').is('archived_at',null).eq('active',true).eq('kind','nhom_fb').order('posts_found',{ascending:false})]);
+      const day=new Date().toISOString().slice(0,10);let done={};try{done=JSON.parse(localStorage.getItem('khg_hunt_done_'+day)||'{}')}catch(e){}
+      const by={};(K||[]).forEach(k=>(by[k.business_line]=by[k.business_line]||[]).push(k));
+      h.innerHTML=`<p class="sub">Mỗi ngày quét 2 lần (8h và 15h): bấm từ khóa để mở kết quả <b>bài mới nhất</b> trên Facebook (phải đăng nhập Facebook trên trình duyệt), đọc bài, bài nào đúng nhu cầu thì bôi đen → bấm nút “Gửi về CRM KHG”. Từ khóa đã mở hôm nay được đánh dấu ✓.</p>
+        ${Object.entries(by).map(([bl,L])=>`<div class="card" style="margin-bottom:10px"><h3>${esc(O.biz_line[bl]||bl)}</h3><div class="bar" style="flex-wrap:wrap">${L.map(k=>`<a class="btn s ${done[k.id]?'':'p'}" href="${fbRecent(k.keyword)}" target="_blank" rel="noopener" data-kw="${k.id}">${done[k.id]?'✓ ':''}${esc(k.keyword)}</a><a class="btn s" href="${ggRecent(k.keyword)}" target="_blank" rel="noopener" title="Tìm qua Google – bài 24 giờ qua">G</a>`).join('')}</div></div>`).join('')}
+        <div class="card"><h3>Tìm trong từng nhóm đã tham gia</h3>${(SR||[]).length?`<div class="form"><label>Từ khóa<input id="hgK" value="cần xe"></label></div><div class="list">${SR.map(s=>`<div class="it">${esc(s.name)} <button class="btn s" data-gs="${s.id}">Tìm trong nhóm</button></div>`).join('')}</div>`:'<div class="empty">Thêm nhóm ở tab “Nhóm & nguồn” (kèm link nhóm) để tìm thẳng trong nhóm.</div>'}</div>`;
+      h.querySelectorAll('[data-kw]').forEach(a=>a.addEventListener('click',()=>{done[a.dataset.kw]=1;try{localStorage.setItem('khg_hunt_done_'+day,JSON.stringify(done))}catch(e){}setTimeout(()=>{a.classList.remove('p');if(!a.textContent.startsWith('✓'))a.textContent='✓ '+a.textContent},50)}));
+      h.querySelectorAll('[data-gs]').forEach(b=>b.onclick=async()=>{const s=SR.find(x=>x.id===b.dataset.gs);const u=fbGroupSearch(s.url,$('#hgK').value.trim()||'cần xe');if(!u)return toast('Link nhóm chưa đúng dạng facebook.com/groups/…');window.open(u,'_blank','noopener');await sb.from('khg_hunt_sources').update({last_checked_at:new Date().toISOString()}).eq('id',s.id)});return}
+    if(n==='src'){h.innerHTML='<p class="sub">Danh sách nhóm, kênh có khách của KHG: ghi số thành viên, đã tham gia chưa, được đăng bài không. Cột “Bài đã thu” tự tăng khi thu bài từ nhóm đó; ghi “Đơn chốt” để biết nhóm nào ra tiền.</p><div id="hsl"></div>';await renderList('hunt_sources',$('#hsl'),{rowActions:r=>r.url?`<a class="btn s" href="${esc(r.url)}" target="_blank" rel="noopener">Mở</a>`:''});return}
+    if(n==='kw'){h.innerHTML='<p class="sub">Từ khóa dùng ở tab “Tìm bài mới”. Loại “Nhà xe chào xe” để tìm đối tác xe (xe trống chiều về…).</p><div id="hkl"></div>';await renderList('hunt_keywords',$('#hkl'),{});return}
+    if(n==='rep'){const since=new Date(Date.now()-30*864e5).toISOString();const [{data:P},{data:L}]=await Promise.all([sb.from('khg_hunt_posts').select('created_at,kind,business_line,status,group_name,lead_id,score').is('archived_at',null).gte('created_at',since).limit(5000),
+        sb.from('khg_leads').select('id,status,source,business_line,first_contact_at,created_at').eq('ref_table','khg_hunt_posts').gte('created_at',since).limit(5000)]);
+      const cnt=(a,f)=>{const o={};(a||[]).forEach(x=>{const k=f(x)||'Chưa rõ';o[k]=(o[k]||0)+1});return Object.entries(o).map(([name,v])=>({name,v})).sort((a,b)=>b.v-a.v)};
+      const cau=(P||[]).filter(x=>x.kind==='cau').length,leads=(L||[]).length,conv=(L||[]).filter(x=>x.status==='chuyen_co_hoi').length,fast=(L||[]).filter(x=>x.first_contact_at&&(new Date(x.first_contact_at)-new Date(x.created_at))<=15*6e4).length;
+      h.innerHTML=`<div class="kpis"><div class="kpi"><div class="l">Bài thu 30 ngày</div><div class="v">${fmtN((P||[]).length)}</div><div class="h">${cau} bài khách cần dịch vụ</div></div><div class="kpi"><div class="l">Lead tạo từ bài</div><div class="v">${fmtN(leads)}</div><div class="h">${cau?Math.round(leads*100/cau):0}% bài thành lead</div></div>
+        <div class="kpi"><div class="l">Thành cơ hội</div><div class="v">${fmtN(conv)}</div><div class="h">${leads?Math.round(conv*100/leads):0}% lead</div></div><div class="kpi ${leads&&fast/leads<0.7?'hot':''}"><div class="l">Liên hệ trong 15 phút</div><div class="v">${leads?Math.round(fast*100/leads):0}%</div><div class="h">Mục tiêu ≥ 70%</div></div></div>
+        <div class="grid3"><div class="card"><h3>Theo mảng</h3>${CH.hbar(cnt(P,x=>O.biz_line[x.business_line]),fmtN)}</div><div class="card"><h3>Nhóm ra nhiều bài nhất</h3>${CH.hbar(cnt(P,x=>x.group_name).slice(0,10),fmtN)}</div><div class="card"><h3>Theo trạng thái</h3>${CH.hbar(cnt(P,x=>O.hunt_status[x.status]),fmtN)}</div></div>`;return}
+  };
+  m.querySelectorAll('#hst button').forEach(b=>b.onclick=()=>sw(b.dataset.s));await sw('cap');
+};
+TABS.push(['hunt','Săn khách hàng',['admin','kinh_doanh','quan_ly','dieu_phoi']]);
+{const g=NAV_GROUPS.find(x=>x[0]==='Điều hành');if(g){const i=g[1].indexOf('crm');g[1].splice(i>=0?i+1:1,0,'hunt')}}
+ICONS.hunt=IC('<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/><path d="M11 8v6M8 11h6"/>');
 // ===================== Khung & đăng nhập =====================
 let cur='overview';
 let RPERMS={};
