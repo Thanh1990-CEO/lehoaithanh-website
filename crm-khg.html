@@ -314,6 +314,96 @@ label.chk{display:flex;align-items:center;gap:6px;flex-direction:row}.form label
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/*KADDR-START*/
+/* KHG · Gợi ý địa chỉ nhanh dùng chung (CRM + các app)
+   - 34 tỉnh, thành sau sắp xếp 01/07/2025 (Nghị quyết 202/2025/QH15) + tên tỉnh cũ → hiện ngay, không cần mạng
+   - Bản đồ OpenStreetMap (Photon) tìm đường, phường xã, KCN, toà nhà; dự phòng Nominatim
+   - Gõ không dấu vẫn ra ("ha noi" → Hà Nội), bộ nhớ đệm, huỷ yêu cầu cũ, lịch sử địa chỉ đã chọn */
+(function(){
+if(window.KADDR)return;
+const NEW=[ // [tên, loại, vĩ độ, kinh độ, các tên cũ đã sáp nhập]
+ ['Hà Nội','Thủ đô',21.0285,105.8542,[]],['TP. Hồ Chí Minh','Thành phố',10.7769,106.7009,['Bình Dương','Bà Rịa - Vũng Tàu']],
+ ['Hải Phòng','Thành phố',20.8449,106.6881,['Hải Dương']],['Đà Nẵng','Thành phố',16.0544,108.2022,['Quảng Nam']],
+ ['Cần Thơ','Thành phố',10.0452,105.7469,['Sóc Trăng','Hậu Giang']],['Huế','Thành phố',16.4637,107.5909,['Thừa Thiên Huế']],
+ ['Lai Châu','Tỉnh',22.3964,103.4582,[]],['Điện Biên','Tỉnh',21.3860,103.0230,[]],['Sơn La','Tỉnh',21.3256,103.9188,[]],['Lạng Sơn','Tỉnh',21.8537,106.7610,[]],
+ ['Quảng Ninh','Tỉnh',20.9590,107.0448,[]],['Thanh Hóa','Tỉnh',19.8067,105.7852,[]],['Nghệ An','Tỉnh',18.6796,105.6813,[]],['Hà Tĩnh','Tỉnh',18.3428,105.9057,[]],['Cao Bằng','Tỉnh',22.6657,106.2577,[]],
+ ['Tuyên Quang','Tỉnh',21.8236,105.2141,['Hà Giang']],['Lào Cai','Tỉnh',21.7229,104.9113,['Yên Bái']],['Thái Nguyên','Tỉnh',21.5942,105.8482,['Bắc Kạn']],
+ ['Phú Thọ','Tỉnh',21.3227,105.4020,['Vĩnh Phúc','Hòa Bình']],['Bắc Ninh','Tỉnh',21.2731,106.1946,['Bắc Giang']],['Hưng Yên','Tỉnh',20.6464,106.0511,['Thái Bình']],
+ ['Ninh Bình','Tỉnh',20.2506,105.9745,['Hà Nam','Nam Định']],['Quảng Trị','Tỉnh',17.4689,106.6222,['Quảng Bình']],['Quảng Ngãi','Tỉnh',15.1205,108.7923,['Kon Tum']],
+ ['Gia Lai','Tỉnh',13.7765,109.2237,['Bình Định']],['Khánh Hòa','Tỉnh',12.2388,109.1967,['Ninh Thuận']],['Lâm Đồng','Tỉnh',11.9404,108.4583,['Đắk Nông','Bình Thuận']],
+ ['Đắk Lắk','Tỉnh',12.6667,108.0500,['Phú Yên']],['Đồng Nai','Tỉnh',10.9574,106.8427,['Bình Phước']],['Tây Ninh','Tỉnh',10.5359,106.4137,['Long An']],
+ ['Vĩnh Long','Tỉnh',10.2537,105.9722,['Bến Tre','Trà Vinh']],['Đồng Tháp','Tỉnh',10.3600,106.3600,['Tiền Giang']],['Cà Mau','Tỉnh',9.1769,105.1524,['Bạc Liêu']],
+ ['An Giang','Tỉnh',10.0125,105.0809,['Kiên Giang']]];
+const OLDC={'Bình Dương':[10.9804,106.6519],'Bà Rịa - Vũng Tàu':[10.4963,107.1684],'Hải Dương':[20.9373,106.3146],'Quảng Nam':[15.5736,108.4740],'Sóc Trăng':[9.6037,105.9800],'Hậu Giang':[9.7845,105.4701],
+ 'Thừa Thiên Huế':[16.4637,107.5909],'Hà Giang':[22.8233,104.9836],'Yên Bái':[21.7229,104.9113],'Bắc Kạn':[22.1470,105.8348],'Vĩnh Phúc':[21.3089,105.6049],'Hòa Bình':[20.8133,105.3383],
+ 'Bắc Giang':[21.2731,106.1946],'Thái Bình':[20.4463,106.3366],'Hà Nam':[20.5411,105.9139],'Nam Định':[20.4200,106.1683],'Quảng Bình':[17.4689,106.6222],'Kon Tum':[14.3497,108.0005],
+ 'Bình Định':[13.7765,109.2237],'Ninh Thuận':[11.5643,108.9886],'Đắk Nông':[12.0045,107.6907],'Bình Thuận':[10.9289,108.1021],'Phú Yên':[13.0955,109.3209],'Bình Phước':[11.5349,106.8832],
+ 'Long An':[10.5359,106.4137],'Bến Tre':[10.2434,106.3756],'Trà Vinh':[9.9347,106.3453],'Tiền Giang':[10.3600,106.3600],'Bạc Liêu':[9.2940,105.7216],'Kiên Giang':[10.0125,105.0809]};
+const N=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[đĐ]/g,'d').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const PRE=/^(tp|thanh pho|tinh|thu do|t p)\s+/;
+const OLD2NEW={};NEW.forEach(p=>p[4].forEach(o=>OLD2NEW[N(o)]=p[0]));OLD2NEW['ba ria vung tau']='TP. Hồ Chí Minh';OLD2NEW['vung tau']='TP. Hồ Chí Minh';OLD2NEW['thua thien hue']='Huế';
+const ALIAS={'hcm':'TP. Hồ Chí Minh','tphcm':'TP. Hồ Chí Minh','sai gon':'TP. Hồ Chí Minh','saigon':'TP. Hồ Chí Minh','sg':'TP. Hồ Chí Minh','ho chi minh':'TP. Hồ Chí Minh','hn':'Hà Nội','hanoi':'Hà Nội','dn':'Đà Nẵng','hp':'Hải Phòng','ct':'Cần Thơ','brvt':'TP. Hồ Chí Minh','bd':'TP. Hồ Chí Minh'};
+const KEYS=[];NEW.forEach(p=>{KEYS.push({k:N(p[0]),p,old:null});p[4].forEach(o=>KEYS.push({k:N(o),p,old:o}))});
+function local(q){const n=N(q).replace(PRE,'');if(n.length<2)return [];const out=[],seen=new Set();
+  const al=ALIAS[n.replace(/ /g,'')]||ALIAS[n];if(al){const p=NEW.find(x=>x[0]===al);out.push({s:0,x:mk(p,null)});seen.add(p[0]+'|')}
+  KEYS.forEach(e=>{let sc=-1;if(e.k===n)sc=1;else if(e.k.startsWith(n))sc=2;else if(n.length>=3&&e.k.split(' ').some((w,i,a)=>a.slice(i).join(' ').startsWith(n)))sc=3;
+    if(sc<0)return;if(e.old)sc+=3;const id=e.p[0]+'|'+(e.old||'');if(!seen.has(id)){seen.add(id);out.push({s:sc,x:mk(e.p,e.old)})}});
+  return out.sort((a,b)=>a.s-b.s).map(o=>o.x).slice(0,4)}
+function mk(p,old){if(old){const c=OLDC[old]||[p[2],p[3]];return {main:old+' (cũ)',sub:'Nay thuộc '+p[0]+' · chọn để định vị khu vực, nên nhập thêm phường/xã, đường',lat:c[0],lng:c[1],kind:'Tỉnh cũ',prov:true}}
+  return {main:p[0],sub:(p[1]==='Thủ đô'?'Thủ đô Hà Nội':p[1]==='Thành phố'?'Thành phố trực thuộc Trung ương':'Tỉnh')+(p[4].length?' · gồm '+p[4].join(', ')+' cũ':'')+' · nên nhập thêm phường/xã, đường',lat:p[2],lng:p[3],kind:p[1]==='Tỉnh'?'Tỉnh':p[1],prov:true}}
+const KIND={city:'Thành phố',state:'Tỉnh',district:'Quận/huyện',locality:'Khu vực',street:'Đường',house:'Địa điểm',county:'Huyện',other:'Địa điểm'};
+const OSMV={industrial:'KCN',warehouse:'Kho',port:'Cảng',harbour:'Cảng',marketplace:'Chợ',supermarket:'Siêu thị',hospital:'Bệnh viện',school:'Trường',university:'Trường',fuel:'Cây xăng',station:'Ga',train_station:'Ga',aerodrome:'Sân bay',suburb:'Phường',quarter:'Khu phố',village:'Xã/ấp',town:'Thị trấn',residential:'Khu dân cư'};
+const newOf=s=>{const v=OLD2NEW[N(s)];return v?' (nay thuộc '+v+')':''};
+function fromPhoton(f){const p=f.properties||{};const c=f.geometry.coordinates;const main=[p.name,p.housenumber&&p.street?p.housenumber+' '+p.street:(p.name?'':p.street)].filter(Boolean).join(', ')||p.street||'';
+  const parts=[p.name&&p.street&&p.street!==p.name?p.street:'',p.district,p.locality,p.city,p.county,p.state].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i&&x!==p.name);
+  const last=p.state||p.city||'';return {main,sub:parts.join(', ')+newOf(last),lat:c[1],lng:c[0],kind:OSMV[p.osm_value]||KIND[p.type]||'Địa điểm',prov:p.type==='state'||(p.type==='city'&&!p.street)}}
+const cache=new Map();let ctl=null;
+const BB='102.1,8.2,109.7,23.4';
+async function photon(q,signal){const u=`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=8&bbox=${BB}&lat=${BIAS.lat}&lon=${BIAS.lng}&zoom=6&location_bias_scale=0.15`;
+  const r=await fetch(u,{signal});const j=await r.json();return (j.features||[]).filter(f=>(f.properties||{}).countrycode==='VN'||!(f.properties||{}).countrycode).map(fromPhoton).filter(x=>x.main)}
+async function nomi(q,signal){const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&countrycodes=vn&accept-language=vi&addressdetails=1&q=${encodeURIComponent(q)}`,{signal});const j=await r.json();
+  return (j||[]).map(x=>{const a=x.address||{};const nm=x.name||(x.display_name||'').split(',')[0];const st=a.state||a.city||'';return {main:nm,sub:(x.display_name||'').split(',').slice(1,4).join(',').trim()+newOf(st),lat:+x.lat,lng:+x.lon,kind:OSMV[x.type]||'Địa điểm'}})}
+const BIAS={lat:10.85,lng:106.70};
+function hist(){try{return JSON.parse(localStorage.getItem('khg_addr_hist')||'[]')}catch(e){return []}}
+function remember(x){try{const h=hist().filter(y=>y.main!==x.main||y.sub!==x.sub);h.unshift({main:x.main,sub:x.sub,lat:x.lat,lng:x.lng,kind:x.kind,prov:x.prov});localStorage.setItem('khg_addr_hist',JSON.stringify(h.slice(0,8)))}catch(e){}}
+async function search(q){const key=N(q);if(cache.has(key))return cache.get(key);if(ctl)ctl.abort();ctl=new AbortController();const sig=ctl.signal;
+  const L=local(q);let R=[];try{R=await photon(q,sig)}catch(e){if(e.name==='AbortError')throw e}
+  if(!R.length&&key.length>=4){try{R=await nomi(q,sig)}catch(e){if(e.name==='AbortError')throw e}}
+  const seen=new Set(L.map(x=>N(x.main)));const all=[...L,...R.filter(x=>{const k=N(x.main+' '+x.sub);if(seen.has(k)||(x.prov&&L.some(l=>N(l.main)===N(x.main))))return false;seen.add(k);return true})].slice(0,8);
+  cache.set(key,all);return all}
+async function geocode(q){const L=local(q);try{const R=await search(q);const pick=R.find(x=>!x.prov)||R[0]||L[0];return pick?{lat:pick.lat,lng:pick.lng}:null}catch(e){return L[0]?{lat:L[0].lat,lng:L[0].lng}:null}}
+const css=`.kad{position:absolute;left:0;right:0;top:100%;z-index:9999;background:#fff;border:1px solid #E3D9D7;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.16);margin-top:4px;max-height:360px;overflow:auto;font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#1d1d1f;text-align:left}
+.kad div[data-i]{padding:9px 12px;cursor:pointer;border-top:1px solid #f3eeed;display:flex;gap:8px;align-items:flex-start}.kad div[data-i]:first-child{border-top:0}.kad div[data-i]:hover,.kad div.on{background:#FBEFEF}
+.kad b{font-weight:600}.kad small{display:block;color:#7a7a7a;font-size:12px;margin-top:1px}.kad i{font-style:normal;font-size:10.5px;font-weight:700;color:#C8102E;background:#FBEFEF;border-radius:6px;padding:1px 6px;white-space:nowrap;margin-top:2px}
+.kad .h{padding:6px 12px;font-size:11px;color:#999;background:#fafafa}.kad .ld{padding:10px 12px;color:#999;font-size:13px}`;
+function injectCss(){if(document.getElementById('kadcss'))return;const s=document.createElement('style');s.id='kadcss';s.textContent=css;document.head.appendChild(s)}
+function attach(inp,onPick){if(!inp||inp._kad)return;inp._kad=1;injectCss();inp.setAttribute('autocomplete','off');const wrap=inp.parentElement;if(getComputedStyle(wrap).position==='static')wrap.style.position='relative';
+  let box=null,items=[],idx=-1,t=null,seq=0;const close=()=>{box&&box.remove();box=null;idx=-1};
+  const show=(list,head)=>{close();items=list;if(!list.length)return;box=document.createElement('div');box.className='kad';
+    box.innerHTML=(head?`<div class="h">${head}</div>`:'')+list.map((x,i)=>`<div data-i="${i}"><div style="flex:1"><b>${esc(x.main)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}</div>${x.kind?`<i>${esc(x.kind)}</i>`:''}</div>`).join('')+'<div class="h">Bản đồ © OpenStreetMap · 34 tỉnh, thành theo địa giới mới</div>';
+    box.onmousedown=e=>{const d=e.target.closest('[data-i]');if(!d)return;e.preventDefault();pick(+d.dataset.i)};wrap.appendChild(box)};
+  const pick=i=>{const x=items[i];if(!x)return;const old=/ \(cũ\)$/.test(x.main);
+    inp.value=old?x.main.replace(' (cũ)','')+', '+x.sub.split(' · ')[0].replace('Nay thuộc ',''):x.prov?x.main:x.main+(x.sub?', '+x.sub.replace(/ \(nay thuộc ([^)]*)\)/,', $1'):'');
+    inp._geo={lat:x.lat,lng:x.lng,prov:!!x.prov};remember(x);close();onPick&&onPick({addr:inp.value,lat:x.lat,lng:x.lng,prov:!!x.prov,kind:x.kind});inp.dispatchEvent(new Event('picked'));
+    if(x.prov)setTimeout(()=>{inp.focus();inp.setSelectionRange(0,0)},30)};
+  inp.addEventListener('focus',()=>{if(!inp.value.trim()){const h=hist();if(h.length)show(h,'Địa chỉ đã dùng gần đây')}});
+  inp.addEventListener('input',()=>{inp._geo=null;onPick&&onPick(null);clearTimeout(t);const q=inp.value.trim();if(q.length<2){close();return}
+    const L=local(q);if(L.length)show(L);const my=++seq;
+    t=setTimeout(async()=>{if(!box&&!L.length){show([]);box=document.createElement('div');box.className='kad';box.innerHTML='<div class="ld">Đang tìm…</div>';wrap.appendChild(box)}
+      try{const R=await search(q);if(my!==seq)return;if(R.length)show(R);else{close();box=document.createElement('div');box.className='kad';box.innerHTML='<div class="ld">Chưa thấy – nhập thêm tên đường, phường/xã, tỉnh/thành</div>';wrap.appendChild(box)}}catch(e){}},180)});
+  inp.addEventListener('keydown',e=>{if(!box)return;const ds=[...box.querySelectorAll('[data-i]')];
+    if(e.key==='ArrowDown'){idx=Math.min(ds.length-1,idx+1);e.preventDefault()}else if(e.key==='ArrowUp'){idx=Math.max(0,idx-1);e.preventDefault()}else if(e.key==='Enter'&&idx>=0){e.preventDefault();pick(idx);return}else if(e.key==='Escape'){close();return}else return;
+    ds.forEach((d,j)=>d.classList.toggle('on',j===idx));ds[idx]&&ds[idx].scrollIntoView({block:'nearest'})});
+  inp.addEventListener('blur',()=>setTimeout(close,180))}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const SEL='input[data-addr],input[name="address"],input[name="pickup"],input[name="dropoff"],input[name="address_current"],input[name="address_permanent"],#lhA,#nA,#rSite';
+document.addEventListener('focusin',e=>{const el=e.target;if(el&&el.matches&&el.matches(SEL)&&!el._kad){attach(el);}},true);
+try{if(navigator.geolocation&&navigator.permissions)navigator.permissions.query({name:'geolocation'}).then(s=>{if(s.state==='granted')navigator.geolocation.getCurrentPosition(p=>{BIAS.lat=p.coords.latitude;BIAS.lng=p.coords.longitude},()=>{},{maximumAge:6e5,timeout:5000})}).catch(()=>{})}catch(e){}
+window.KADDR={attach,search,geocode,local,N,NEW,OLD2NEW};
+})();
+/*KADDR-END*/
+</script>
+<script>
 (function(){
 const SUPABASE_URL='https://kbpcmifwplbtggfcnfrx.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_buS_4Iky59zQlMME9dn2NQ_1FqIwlVt';
@@ -2461,17 +2551,8 @@ async function listExport(kind,cfg,rows,extra){const data=rowsForExport(cfg,rows
 
 // ===================== v12 · BÁO GIÁ CHUẨN KHG 2026 (địa chỉ → km → giá) =====================
 const QADDR={
-  attach(inp){let box=null,items=[],seq=0,t=null;const wrap=inp.parentElement;wrap.style.position='relative';
-    const close=()=>{box&&box.remove();box=null};
-    inp.addEventListener('input',()=>{inp._geo=null;clearTimeout(t);const q=inp.value.trim();if(q.length<3){close();return}const my=++seq;
-      t=setTimeout(async()=>{try{const r=await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lat=10.85&lon=106.70&limit=6&bbox=102,8.3,110,23.5`);const j=await r.json();if(my!==seq)return;
-        items=(j.features||[]).map(f=>{const p=f.properties||{};const main=[p.name,p.housenumber&&p.street?p.housenumber+' '+p.street:p.street].filter(Boolean).join(', ');const sub=[p.district,p.city||p.county,p.state].filter(Boolean).join(', ');return {main:main||sub,sub,lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0]}}).filter(x=>x.main);
-        close();if(!items.length)return;box=document.createElement('div');box.className='qsug';
-        box.innerHTML=items.map((x,i)=>`<div data-i="${i}"><b>${esc(x.main)}</b><small>${esc(x.sub)}</small></div>`).join('')+'<div class="qsrc">Bản đồ © OpenStreetMap</div>';
-        box.onmousedown=e=>{const d=e.target.closest('[data-i]');if(!d)return;e.preventDefault();const x=items[+d.dataset.i];inp.value=x.main+(x.sub?', '+x.sub:'');inp._geo={lat:x.lat,lng:x.lng};close();inp.dispatchEvent(new Event('picked'))};wrap.appendChild(box)}catch(e){}},350)});
-    inp.addEventListener('blur',()=>setTimeout(close,200));
-  },
-  async geocode(q){try{const r=await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lat=10.85&lon=106.70&limit=1&bbox=102,8.3,110,23.5`);const j=await r.json();const f=(j.features||[])[0];return f?{lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0]}:null}catch(e){return null}},
+  attach(inp){KADDR.attach(inp)},
+  async geocode(q){return KADDR.geocode(q)},
   async route(inputs){ // inputs: các ô địa chỉ theo thứ tự
     const pts=[];for(const i of inputs){if(!i.value.trim())return null;if(!i._geo)i._geo=await QADDR.geocode(i.value.trim());if(!i._geo)return {error:'Không định vị được: '+i.value}; pts.push(i._geo)}
     try{const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${pts.map(p=>p.lng+','+p.lat).join(';')}?overview=false`);const j=await r.json();const rt=j.routes&&j.routes[0];if(rt)return {km:Math.ceil(rt.distance/1000),min:Math.round(rt.duration/60),src:'OSRM'}}catch(e){}
