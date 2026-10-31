@@ -511,7 +511,7 @@ KYC.inbox=async(host,ctx)=>{const I=await rpc('khg_ext_inbox');let tab=ctx.tab||
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false}});
 const PROV=['TP. Hồ Chí Minh','Hà Nội','Hải Phòng','Đà Nẵng','Cần Thơ','Huế','Đồng Nai','Tây Ninh','Vĩnh Long','Đồng Tháp','An Giang','Cà Mau','Lâm Đồng','Khánh Hòa','Đắk Lắk','Gia Lai','Quảng Ngãi','Quảng Trị','Hà Tĩnh','Nghệ An','Thanh Hóa','Ninh Bình','Hưng Yên','Bắc Ninh','Quảng Ninh','Thái Nguyên','Phú Thọ','Tuyên Quang','Lào Cai','Lạng Sơn','Cao Bằng','Sơn La','Điện Biên','Lai Châu'];
 const G=[
- ['kho','🏬','Kho linh hoạt & lưu kho','Thuê theo pallet, theo m² hoặc nguyên kho; kho mát, kho lạnh qua đối tác. KHG có kho tại TP.HCM – Bình Dương cũ và mở rộng toàn quốc: bạn chỉ cần ghi địa điểm cần kho.'],
+ ['kho','🏬','Kho linh hoạt & lưu kho','Thuê theo pallet, theo m² hoặc nguyên kho; kho mát, kho lạnh qua đối tác. KHG cung ứng kho, bãi ở bất kỳ tỉnh, thành nào bạn cần: chỉ cần ghi địa điểm cần kho.'],
  ['gtgt','📦','Phân chia hàng hóa','Soạn hàng, chia đơn cho cửa hàng, dán nhãn, đóng gói lại, kiểm đếm theo lô và hạn dùng – báo cáo tồn kho trực tuyến.'],
  ['boc_xep','💪','Bốc xếp & rút container','Bốc xếp theo tấn, trọn xe; rút – đóng container 20 và 40 feet thủ công hoặc bằng xe nâng.'],
  ['xe_nang_thue','🚜','Thuê xe nâng','Xe nâng 2,5 – 10 tấn theo ca, ngày, tháng; có hoặc không người lái.'],
@@ -569,7 +569,7 @@ function draw(){
   const g1=$('#go1');if(g1)g1.onclick=()=>$('#rq').scrollIntoView({behavior:'smooth'});
   try{const s=JSON.parse(localStorage.getItem('khg_lh')||'{}');if(s.n)$('#rName').value=s.n;if(s.p)$('#rPhone').value=s.p}catch(e){}
   $('#rGo').onclick=()=>busy($('#rGo'),submit);calc()}
-function sitesHtml(){if(!SITES.length)return '';return `<div style="margin-top:12px"><b>Kho, bãi KHG đang vận hành</b><div class="note" style="margin:2px 0 8px">KHG mở rộng kho theo nhu cầu trên toàn quốc – ghi địa điểm bạn cần ở form bên dưới.</div>${SITES.map(s=>`<div class="site"><b>${esc(s.name)}</b><span class="note">${esc(s.province||'')}${s.kho_m2?' · kho '+fmtN(s.kho_m2)+' m²':''}${s.bai_m2?' · bãi '+fmtN(s.bai_m2)+' m²':''}${s.available_m2?' · còn trống ~'+fmtN(s.available_m2)+' m²':''}</span></div>`).join('')}</div>`}
+function sitesHtml(){return `<div class="note" style="margin-top:10px">📍 KHG tìm và cung ứng mặt bằng ở bất kỳ đâu bạn cần trên toàn quốc – ghi địa điểm, diện tích mong muốn ở form bên dưới.</div>`}
 function items(){return CAT.filter(x=>x.grp===cur&&qtyable(x)&&PICK[x.code]).map(c=>({code:c.code,qty:String(QTY[c.code]||'').replace(',','.')})).filter(x=>parseFloat(x.qty)>0)}
 let cSeq=0;
 async function calc(){const tv=$('#tv');if(!tv)return;const it=items();$$('[data-am]').forEach(e=>e.textContent='');
