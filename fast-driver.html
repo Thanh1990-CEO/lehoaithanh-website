@@ -367,6 +367,44 @@ window.KADDR={attach,search,geocode,local,N,NEW,OLD2NEW};
 })();
 /*KADDR-END*/
 
+/*KHUNT*/
+if(!window.HUNT){window.HUNT=(()=>{const N=s=>(window.KADDR?KADDR.N(s):String(s||'').toLowerCase());
+  const LINES=[['nang_ha',/(xe cau|cau hang|cau may|cau container|xe nang|bot xep|boc xep|boc vac|rut (hang )?cont|dong cont|ha cont|nang ha)/],
+    ['kho_bai',/(thue kho|kho chua|luu kho|gui hang|kho pallet|kho lanh|kho mat|bai xe|bai do|cho thue kho|can kho|tim kho)/],
+    ['bds',/(nha xuong|kho xuong|thue xuong|dat kcn|dat khu cong nghiep|chuyen nhuong dat|mua dat|ban xuong|dat thuong mai)/],
+    ['xe_nang',/(mua xe nang|ban xe nang|xe nang cu|xe nang dien|xe nang dau)/],
+    ['tai_xe',/(thue tai xe|tuyen tai xe|can tai xe|can lai xe|tuyen lai xe|tai xe bang [bcdef])/],
+    ['phan_phoi',/(nha phan phoi|tim dai ly|lam dai ly|phan phoi hang|si hang|nguon hang)/],
+    ['van_tai',/(xe tai|cho hang|van chuyen|chuyen hang|ghep hang|xe ghep|chuyen nha|chuyen kho|giao hang|xe [0-9]+ ?(t|tan)|xe container|dau keo|mooc|xe thung|xe ba gac)/]];
+  const DEM=/(can (thue|tim|xe|nguoi|gap|1|mot|kho|xuong)|tim (xe|nha xe|kho|xuong|tai xe|don vi|ben)|thue (xe|kho|xuong|tai xe)|ai (co|nhan|cho|lam)|can (van chuyen|chuyen|cho|cau|nang)|bao gia|bao gia giup|xin gia|nhan bao gia|co ai)/;
+  const SUP=/(nhan (cho|cho hang|van chuyen|ghep|chay|cau|boc xep)|xe trong|xe rong|xe (chieu )?ve|tim hang (chieu )?ve|co xe|cho thue xe|dich vu (van chuyen|xe tai|cau|boc xep)|lien he .{0,10}(dat xe|thue xe)|gia re nhat|nha xe .{0,20}nhan|chanh xe)/;
+  const URG=/(\bgap\b|can ngay|di ngay|chay ngay|lam ngay|ngay bay gio|hom nay|sang nay|chieu nay|toi nay|khan cap|\bkhan\b|asap|trong ngay|bay gio|luc nay)/;
+  const SOON=/(ngay mai|mai |sang mai|chieu mai|tuan nay|cuoi tuan)/;
+  function phones(t){const out=new Set();(String(t).match(/(?:\+?84|0)(?:[\s.\-]?\d){8,10}/g)||[]).forEach(x=>{let d=x.replace(/\D/g,'');if(d.startsWith('84'))d='0'+d.slice(2);if(/^0[35789]\d{8}$/.test(d)||/^02\d{9}$/.test(d))out.add(d)});return [...out]}
+  function provinces(t){const n=' '+N(t)+' ',out=[];if(!window.KADDR)return out;
+    KADDR.NEW.forEach(p=>{const k=' '+N(p[0]).replace(/^tp /,'')+' ';if(n.includes(k)&&!out.includes(p[0]))out.push(p[0]);p[4].forEach(o=>{if(n.includes(' '+N(o)+' ')&&!out.includes(p[0]))out.push(p[0])})});
+    [[/ (sai gon|hcm|tphcm|tp hcm|ho chi minh|thu duc|binh duong|thu dau mot|di an|thuan an|tan uyen|ben cat|vung tau)/,'TP. Hồ Chí Minh'],[/ (bien hoa|long thanh|nhon trach|trang bom)/,'Đồng Nai'],[/ (ha noi|hn) /,'Hà Nội'],[/ (ben luc|duc hoa|tan an)/,'Tây Ninh']].forEach(([r,v])=>{if(r.test(n)&&!out.includes(v))out.push(v)});
+    return out}
+  function tonnage(t){const n=N(t);let m=n.match(/(\d{1,2})\s?t\s?(\d{1,2})\b/);if(m)return +(m[1]+'.'+m[2]);m=n.match(/(\d{1,2}(?:[.,]\d{1,2})?)\s?(tan|t)\b/);return m?+m[1].replace(',','.'):null}
+  function analyze(t){const n=N(t);let bl=null;for(const [k,r] of LINES)if(r.test(n)){bl=k;break}
+    const dem=DEM.test(n),sup=SUP.test(n);const kind=sup&&!dem?'cung':(dem||bl?'cau':'khac');
+    const ph=phones(t),pv=provinces(t),tn=tonnage(t);const urg=URG.test(n)?2:SOON.test(n)?1:0;
+    let sc=0;if(kind==='cau')sc+=25;if(ph.length)sc+=30;if(bl)sc+=15;if(pv.length)sc+=10;if(tn)sc+=5;sc+=urg*8;if(t.length>40)sc+=4;
+    return {kind,business_line:kind==='cung'?'doi_tac_xe':bl,phones:ph,provinces:pv,tonnage:tn,urgency:urg,score:Math.min(100,sc)}}
+  const REF=bl=>({van_tai:'/dat-xe',nang_ha:'/dat-xe?cau=1',kho_bai:'/dich-vu#kho',bds:'/dich-vu#bds',xe_nang:'/dich-vu#xe_nang_ban',tai_xe:'/thue-tai-xe',doi_tac_xe:'/doi-tac',phan_phoi:'/dich-vu'}[bl]||'/dat-xe');
+  function reply(a,promo){const site='https://lehoaithanh.org',u=site+REF(a.business_line)+(a.business_line==='van_tai'||a.business_line==='nang_ha'?(REF(a.business_line).includes('?')?'&':'?')+'ma='+(promo||'KHG3'):'');
+    const area=a.provinces[0]?' khu vực '+a.provinces[0]:'',ton=a.tonnage?' xe '+String(a.tonnage).replace('.',',')+' tấn':'';
+    const T={van_tai:`Chào anh/chị, Kim Hoàng Gia nhận chở${ton}${area} ạ. Xe thùng kín/bạt 1,25–15 tấn, có hóa đơn VAT, theo dõi đơn trực tuyến. Anh/chị xem giá và giờ xe đến ngay tại: ${u} – hoặc để lại số, KHG gọi báo giá trong 5 phút.`,
+      nang_ha:`Chào anh/chị, KHG có xe tải gắn cẩu 2–8 tấn, cẩu 25 tấn trở lên, xe nâng, đội bốc xếp${area}. Báo giá nhanh: ${u} – hoặc để lại số, KHG gọi lại ngay.`,
+      kho_bai:`Chào anh/chị, KHG cho thuê kho linh hoạt theo pallet, m² hoặc nguyên kho${area}, có bốc xếp, xe nâng, báo cáo tồn trên app. Tính giá nhanh: ${u}`,
+      bds:`Chào anh/chị, KHG đang có nhà xưởng, kho xưởng, đất KCN cho thuê/chuyển nhượng${area} theo nhiều diện tích. Anh/chị để lại nhu cầu tại ${u}, KHG gửi danh sách phù hợp trong ngày.`,
+      xe_nang:`Chào anh/chị, KHG mua bán, cho thuê xe nâng các loại (điện, dầu, 2,5–10 tấn). Để lại nhu cầu tại ${u}, KHG báo giá ngay.`,
+      tai_xe:`Chào anh/chị, KHG cung ứng tài xế đã xác thực bằng lái, kinh nghiệm theo chuyến/ngày/tháng. Đăng nhu cầu tại ${u}`,
+      doi_tac_xe:`Chào anh, KHG đang cần thêm xe đối tác${area} – có đơn đều, thanh toán rõ ràng qua app. Đăng ký xe tại ${site}/doi-tac để nhận đơn chiều đi, chiều về.`,
+      phan_phoi:`Chào anh/chị, KHG phân phối hàng tiêu dùng và có đội xe, kho riêng hỗ trợ giao hàng. Liên hệ hợp tác tại ${u}`};
+    return T[a.business_line]||T.van_tai}
+  return {analyze,reply,phones,provinces}})();}
+
 // ================= HỒ SƠ XÁC THỰC (KYC) · KÝ ĐIỆN TỬ · HỘP THƯ – dùng chung app Đối tác & Fast Driver =================
 Object.assign(DOCT,{cccd_truoc:'CCCD mặt trước',cccd_sau:'CCCD mặt sau',bang_lai_truoc:'GPLX mặt trước',bang_lai_sau:'GPLX mặt sau',gp_van_tai:'Giấy phép KD vận tải',
   anh_van_phong:'Ảnh văn phòng',anh_bai_xe:'Ảnh bãi xe',anh_doi_xe:'Ảnh đội xe',selfie_xac_thuc:'Xác thực khuôn mặt',chu_ky:'Chữ ký điện tử',anh_ky_cam_ket:'Chân dung khi ký'});
