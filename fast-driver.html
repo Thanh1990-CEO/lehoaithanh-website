@@ -462,12 +462,23 @@ async function landing(focus){
     if(fj)setTimeout(()=>$('#pubJobs').scrollIntoView({behavior:'smooth'}),400);
     $('#pubJobs').innerHTML=js.length?`<div class="list">${js.slice(0,8).map(x=>`<div class="it jb" style="${x.code===fj?'outline:3px solid var(--acc)':''}"><div class="t"><b>${esc(x.vehicle_name||'Tài xế')}</b><span class="pr" style="font-size:15px">${x.pay_amount?fmtN(x.pay_amount)+'/'+UNIT[x.pay_unit]:'Thỏa thuận'}</span></div><div class="m">${esc(MODE[x.mode]||'')} · ${esc([x.area,x.province].filter(Boolean).join(', '))}${x.license_req?' · GPLX '+esc(x.license_req):''}${x.quantity>1?' · cần '+x.quantity+' người':''}${x.start_date?' · từ '+fmtD(x.start_date):''}</div></div>`).join('')}</div><p class="note">Đăng nhập để ứng tuyển việc phù hợp hạng bằng của bạn.</p>`:'<div class="empty">Đang cập nhật việc mới – đăng ký để nhận thông báo sớm.</div>'}).catch(()=>{$('#pubJobs').innerHTML='<div class="empty">Không tải được.</div>'});
 }
+const EXPB={duoi_1:'Dưới 1 năm','1_2':'1 – 2 năm','3_5':'3 – 5 năm','6_10':'6 – 10 năm',tren_10:'Trên 10 năm'},EXPN={duoi_1:0,'1_2':2,'3_5':4,'6_10':8,tren_10:12};
+const RVEH={tai_nhe:'Tải nhẹ, van dưới 2,5 tấn',tai_35:'Tải 2,5 – 3,5 tấn',tai_58:'Tải 5 – 8 tấn',tai_1015:'Tải 10 – 15 tấn',tai_nang:'Tải trên 15 tấn (3 – 5 chân)',dau_keo:'Đầu kéo container, sơ mi rơ moóc',ben:'Xe ben, xe tự đổ',bon:'Xe bồn (xăng dầu, hóa chất, nước)',lanh:'Xe đông lạnh',cau:'Xe tải gắn cẩu',xe_nang:'Xe nâng hàng',khach_16:'Xe khách 16 – 29 chỗ',khach_30:'Xe khách trên 29 chỗ',xe_con:'Xe con 4 – 7 chỗ (gia đình, dịch vụ)',chuyen_dung:'Xe chuyên dùng (cứu thương, rác, môi trường)'};
+const RCAR={fmcg:'Hàng tiêu dùng, tạp hóa',thuc_pham:'Thực phẩm, nông sản',lanh:'Hàng lạnh, đông lạnh',vlxd:'Vật liệu xây dựng',container:'Container cảng, ICD',may_moc:'Máy móc, thiết bị',nguy_hiem:'Hàng nguy hiểm, xăng dầu',noi_thanh:'Giao nội thành nhiều điểm',duong_dai:'Đường dài liên tỉnh, Bắc – Nam',cho_nguoi:'Chở người, đưa đón',tmdt:'Hàng thương mại điện tử'};
+const REMP={cong_ty:'Lái cho công ty vận tải',chu_xe:'Lái cho chủ xe tư nhân',tu_chu:'Tự chủ xe, tự chạy',gia_dinh:'Lái xe gia đình, cá nhân',chua:'Chưa đi làm lái xe'};
+const RROUTE={hcm:'Nội thành TP.HCM',dnb:'Bình Dương – Đồng Nai – Tây Ninh',vt:'Vũng Tàu, cảng Cái Mép',mien_tay:'Miền Tây',tay_nguyen:'Tây Nguyên',mien_trung:'Miền Trung',bac_nam:'Bắc – Nam',mien_bac:'Miền Bắc',bien_gioi:'Campuchia, Lào'};
 function authBox(mode){const reg=mode==='up';
   $('#authBox').innerHTML=`<div class="seg"><button data-m="in" class="${reg?'':'on'}">Tài xế đăng nhập</button><button data-m="up" class="${reg?'on':''}">Tài xế đăng ký</button></div>
    <form id="af"><input class="hp" id="aHp" tabindex="-1" autocomplete="off">${reg?'<label class="f">Họ và tên *</label><input class="i" id="aName" required autocomplete="name">':''}
     <label class="f">Số điện thoại *</label><input class="i" id="aPhone" inputmode="tel" autocomplete="tel" required>
     <label class="f">Mật khẩu *</label><input class="i" type="password" id="aPw" minlength="6" required autocomplete="${reg?'new-password':'current-password'}" placeholder="Tối thiểu 6 ký tự">
     ${reg?`<label class="f">Hạng bằng lái đang có *</label>${chips('aLic',LIC)}<details style="margin-top:6px"><summary class="note">Bằng cấp trước 2025 (B2, C, E, FC…)</summary>${chips('aLic',LIC_OLD)}</details>
+     <div class="card" style="background:#F7FAF8;margin:12px 0 0;padding:12px"><b>Kinh nghiệm lái xe *</b><div class="note" style="margin:2px 0 6px">Chọn đúng với bạn – giúp KHG ghép việc phù hợp ngay từ đầu.</div>
+      <label class="f">Số năm kinh nghiệm lái xe *</label>${radios('aExp',EXPB)}
+      <label class="f">Loại xe bạn đã lái trong 2 năm gần nhất * <span class="note">(chọn được nhiều)</span></label>${chips('aRv',RVEH)}
+      <label class="f">2 năm gần nhất bạn làm theo hình thức *</label>${radios('aEmp',REMP)}
+      <label class="f">Loại hàng, công việc đã chạy</label>${chips('aCar',RCAR)}
+      <label class="f">Tuyến đường quen thuộc</label>${chips('aRt',RROUTE)}</div>
      <details style="margin-top:10px"><summary class="note">Khu vực & hình thức muốn nhận (có thể chọn sau)</summary><label class="f">Khu vực</label>${chips('aProv',PROV)}<label class="f">Hình thức</label>${chips('aMode',MODE)}</details>
      <p class="note" style="margin-top:8px">Sau khi đăng ký, app hướng dẫn từng bước: chụp CCCD, bằng lái, xác thực khuôn mặt, thi lý thuyết, ký thỏa thuận.</p>`:''}
     <button class="btn p w" style="margin-top:14px" id="aGo">${reg?'Đăng ký tài xế':'Đăng nhập'}</button><div id="aErr"></div><p class="note" style="margin-top:8px">Quên mật khẩu? <a href="#" data-lh="Quên mật khẩu – cấp lại" style="font-weight:700">Để lại liên hệ</a> – KHG gọi lại cấp mật khẩu mới.</p></form>`;
@@ -475,11 +486,15 @@ function authBox(mode){const reg=mode==='up';
   $('#af').onsubmit=async e=>{e.preventDefault();$('#aErr').innerHTML='';const phone=normPhone($('#aPhone').value),pw=$('#aPw').value;
     if(phone.length<9)return $('#aErr').innerHTML='<div class="err">Số điện thoại không hợp lệ</div>';
     await busy($('#aGo'),async()=>{
-      if(reg){const lic=picked($('#af'),'aLic');if(!lic.length){$('#aErr').innerHTML='<div class="err">Chọn hạng bằng lái</div>';return}
+      let EXT=null;if(reg){const lic=picked($('#af'),'aLic');if(!lic.length){$('#aErr').innerHTML='<div class="err">Chọn hạng bằng lái</div>';return}
+        const ex=picked($('#af'),'aExp')[0],rv=picked($('#af'),'aRv'),em=picked($('#af'),'aEmp')[0];
+        if(!ex||!rv.length||!em){$('#aErr').innerHTML='<div class="err">Vui lòng chọn số năm kinh nghiệm, loại xe đã lái 2 năm gần nhất và hình thức làm việc</div>';return}
+        EXT={exp_band:ex,years_exp:EXPN[ex],recent_vehicles:rv,recent_employer:em,recent_cargo:picked($('#af'),'aCar'),routes_known:picked($('#af'),'aRt')};
         const r=await fetch(SUPABASE_URL+'/functions/v1/khg-public',{method:'POST',headers:{'content-type':'application/json',apikey:SUPABASE_ANON_KEY},body:JSON.stringify({action:'fd_register',hp:$('#aHp').value,phone,password:pw,name:$('#aName').value,license_class:lic,province:picked($('#af'),'aProv')[0]||'',modes:picked($('#af'),'aMode'),ref:qs('ref')})});
         const j=await r.json();if(!r.ok||j.error){$('#aErr').innerHTML=`<div class="err">${esc(j.error||'Không đăng ký được')}</div>`;return}}
       const {error}=await sb.auth.signInWithPassword({email:phone+DOMAIN,password:pw});
       if(error){$('#aErr').innerHTML=`<div class="err">${/Invalid/i.test(error.message)?'Sai số điện thoại hoặc mật khẩu':esc(error.message)}</div>`;return}
+      if(EXT){try{const me=await rpc('khg_fd_me');if(me?.id)await sb.from('khg_fd_drivers').update(EXT).eq('id',me.id)}catch(e){}}
       await boot(reg)})};
 }
 // ================= App tài xế =================
@@ -565,7 +580,12 @@ async function profile(){
     <label class="f">Hạng bằng lái</label>${chips('lic',LIC,d.license_class||[])}<details ${(d.license_class||[]).some(x=>LIC_OLD[x])?'open':''} style="margin-top:6px"><summary class="note">Bằng cấp trước 2025</summary>${chips('lic',LIC_OLD,d.license_class||[])}</details>
     <div class="note" id="covN" style="margin-top:6px"></div>
     <div class="row"><div><label class="f">Số GPLX</label><input class="i" name="license_no" value="${esc(d.license_no||'')}"></div><div><label class="f">GPLX có giá trị đến</label><input class="i" type="date" name="license_until" value="${d.license_until||''}"></div></div>
-    <div class="row"><div><label class="f">Số năm kinh nghiệm</label><input class="i" type="number" name="years_exp" value="${d.years_exp??''}"></div><div><label class="f">Năm sinh</label><input class="i" type="number" name="birth_year" value="${d.birth_year??''}"></div></div>
+    <div class="row"><div><label class="f">Số năm kinh nghiệm (chính xác)</label><input class="i" type="number" name="years_exp" value="${d.years_exp??''}"></div><div><label class="f">Năm sinh</label><input class="i" type="number" name="birth_year" value="${d.birth_year??''}"></div></div>
+    <label class="f">Nhóm kinh nghiệm *</label>${radios('pExp',EXPB,d.exp_band)}
+    <label class="f">Loại xe đã lái trong 2 năm gần nhất *</label>${chips('pRv',RVEH,d.recent_vehicles||[])}
+    <label class="f">2 năm gần nhất làm theo hình thức *</label>${radios('pEmp',REMP,d.recent_employer)}
+    <label class="f">Loại hàng, công việc đã chạy</label>${chips('pCar',RCAR,d.recent_cargo||[])}
+    <label class="f">Tuyến đường quen thuộc</label>${chips('pRt',RROUTE,d.routes_known||[])}
     <label class="f">Chứng chỉ</label>${chips('certs',CERT,d.certs||[])}
     <label class="f">Loại xe bạn muốn lái</label><div id="vtBox">${vtChips('vts',d.vehicle_types||[])}</div>
     <h3 style="margin-top:16px">Nhu cầu nhận việc</h3><label class="f">Hình thức</label>${chips('modes',MODE,d.modes||[])}<label class="f">Ca làm</label>${chips('shifts',SHIFT,d.shifts||[])}
@@ -599,6 +619,9 @@ async function profile(){
     if(row.bank_holder)row.bank_holder=row.bank_holder.toUpperCase();
     ['license_until','available_from','dob','id_issued_on'].forEach(k=>row[k]=f.elements[k].value||null);['years_exp','birth_year'].forEach(k=>row[k]=f.elements[k].value?Number(f.elements[k].value):null);
     row.expected_pay=Number(String(f.elements.expected_pay.value).replace(/\D/g,''))||null;row.pay_unit=f.elements.pay_unit.value;row.full_name=row.full_name||D.full_name;
+    row.exp_band=picked(f,'pExp')[0]||null;row.recent_vehicles=picked(f,'pRv');row.recent_employer=picked(f,'pEmp')[0]||null;row.recent_cargo=picked(f,'pCar');row.routes_known=picked(f,'pRt');
+    if(!row.exp_band||!row.recent_vehicles.length||!row.recent_employer)throw new Error('Vui lòng chọn nhóm kinh nghiệm, loại xe đã lái 2 năm gần nhất và hình thức làm việc');
+    if(row.years_exp==null)row.years_exp=EXPN[row.exp_band];
     row.license_class=picked(f,'lic');row.certs=picked(f,'certs');row.vehicle_types=picked(f,'vts');row.modes=picked(f,'modes');row.shifts=picked(f,'shifts');row.areas=picked(f,'areas');
     const {error}=await sb.from('khg_fd_drivers').update(row).eq('id',D.id);if(error)throw new Error(error.message);D=await rpc('khg_fd_me');toast('Đã lưu hồ sơ');profile()})};
 }

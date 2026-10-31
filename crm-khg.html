@@ -676,7 +676,7 @@ async function renderList(name,host,opts={}){
     if(error){tw.innerHTML=`<div class="empty">Lỗi: ${esc(error.message)}</div>`;return}
     rows=data||[];
     const cols=fields(cfg).filter(x=>x.list);
-    host.querySelector('[data-cnt]').textContent=rows.length+' dòng'+(opts.sumKey?` · Tổng ${fields(cfg).find(f=>f.k===opts.sumKey).l.toLowerCase()}: ${fmtM(sum(rows,r=>r[opts.sumKey]))}`:'')+(rows.length>=1000?' (hiện 1.000 dòng đầu, Excel xuất đến 10.000)':'');
+    if(!host.querySelector('[data-cnt]'))return;host.querySelector('[data-cnt]').textContent=rows.length+' dòng'+(opts.sumKey?` · Tổng ${fields(cfg).find(f=>f.k===opts.sumKey).l.toLowerCase()}: ${fmtM(sum(rows,r=>r[opts.sumKey]))}`:'')+(rows.length>=1000?' (hiện 1.000 dòng đầu, Excel xuất đến 10.000)':'');
     if(!rows.length){tw.innerHTML='<div class="empty">Chưa có dữ liệu.</div>';return}
     tw.innerHTML=`<table><thead><tr>${canSel?'<th class="ck"><input type="checkbox" data-all title="Chọn tất cả"></th>':''}${cols.map(c=>`<th class="${['money','num'].includes(c.t)?'n':''}">${esc(c.l)}</th>`).join('')}<th></th></tr></thead><tbody>${
       rows.map(r=>`<tr class="rw" data-id="${r.id}">${canSel?`<td class="ck"><input type="checkbox" data-sel="${r.id}"></td>`:''}${cols.map(c=>`<td class="${['money','num'].includes(c.t)?'n':''}">${cell(c,r[c.k])}</td>`).join('')}<td class="ra">${opts.rowActions?opts.rowActions(r):''}${RO?'':`<button class="ib" data-ed="${r.id}" title="Sửa">✎</button>`}<button class="ib" data-ln="${r.id}" title="Sao chép link gửi người khác">🔗</button>${cfg.files?`<button class="ib" data-files="${r.id}" title="Chứng từ">📎</button>`:''}${RO||opts.noArchive?'':`<button class="ib" data-ar="${r.id}" title="Chuyển vào lưu trữ">🗂</button>`}</td></tr>`).join('')}</tbody></table>`;
@@ -697,14 +697,26 @@ async function renderList(name,host,opts={}){
     if(opts.onActs) tw.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',async e=>{e.stopPropagation();b.disabled=true;await opts.onActs(b.dataset.act,b.dataset.id,rows.find(r=>r.id===b.dataset.id));load()}));
     tw.querySelectorAll('[data-files]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const r=rows.find(x=>x.id===b.dataset.files);openFiles(cfg.files,r.id,(r.code||r.full_name||r.plate||r.name||r.party||fmtD(r.spent_on)||''))}));
   };
+  const stF=fields(cfg).find(f=>f.t==='sel'&&['status','stage','kyc_status','trip_status'].includes(f.k)&&!f.ro);const stO=stF?(O[stF.o]||{}):{};
+  const OKK=['da_duyet','duyet','xac_nhan','hieu_luc','da_xac_thuc','chot','thang','du_chuan','done','dang_ban','da_nhap','approved','hoat_dong','dang_chay'],CXK=['huy','tu_choi','that_bai','thua','khong_phu_hop','cancel','ngung','het_hieu_luc'];
+  const okV=Object.keys(stO).find(k=>OKK.includes(k)),cxV=Object.keys(stO).find(k=>CXK.includes(k));const rsF=fields(cfg).find(f=>['cancel_reason','lost_reason','reject_reason','kyc_note'].includes(f.k));
+  const bulkStatus=async(v,b)=>{let reason='';if(v===cxV||v==='thua'){reason=prompt(`Lý do ${(stO[v]||'hủy').toLowerCase()} cho ${sel.size} dòng:`)||'';if(!reason&&(v==='thua'||rsF))return toast('Cần ghi lý do')}
+    if(!confirm(`Chuyển ${sel.size} dòng sang “${stO[v]}”?`))return;b.disabled=true;let ok=0,err='';
+    for(const r of rows.filter(x=>sel.has(x.id))){let error;
+      if(name==='dms_orders'&&v===okV)({error}=await sb.rpc('khg_dms_order_approve',{p_id:r.id,p_force:false}));
+      else if(name==='dms_orders'&&v==='huy')({error}=await sb.rpc('khg_dms_order_cancel',{p_id:r.id,p_reason:reason}));
+      else{const up={[stF.k]:v};if(reason&&rsF)up[rsF.k]=reason;({error}=await sb.from(cfg.table).update(up).eq('id',r.id))}
+      if(error)err=error.message;else ok++}
+    toast(`Đã cập nhật ${ok}/${sel.size}`+(err?' · Lỗi: '+err:''));sel.clear();load()};
   const selBar=()=>{const sb_=host.querySelector('[data-sb]');if(!sb_)return;if(!sel.size){sb_.classList.add('hidden');return}
     sb_.classList.remove('hidden');
     sb_.innerHTML=`<b>Đã chọn ${sel.size}/${rows.length}</b>${sel.size<rows.length?'<button class="btn s" data-x="all">Chọn tất cả '+rows.length+'</button>':''}
-      ${RO?'':'<button class="btn s" data-x="edit">✎ Sửa hàng loạt</button>'}${sel.size===1?'<button class="btn s" data-x="one">✎ Sửa dòng này</button>':''}
+      ${RO?'':'<button class="btn s" data-x="edit">✎ Sửa hàng loạt</button>'}${sel.size===1?'<button class="btn s" data-x="one">✎ Sửa dòng này</button>':''}${!RO&&stF?`${okV?`<button class="btn s" data-x="st:${okV}" style="background:#065F46">✓ ${esc(stO[okV])} hàng loạt</button>`:''}${cxV?`<button class="btn s" data-x="st:${cxV}" style="background:#7F1D1D">✕ ${esc(stO[cxV])} hàng loạt</button>`:''}<select data-stsel style="background:#1F2937;color:#fff;border:1px solid #374151;border-radius:8px;padding:5px"><option value="">Đổi ${esc(stF.l.toLowerCase())}…</option>${Object.entries(stO).map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('')}</select>`:''}
       <button class="btn s" data-x="xls">⬇ Excel đã chọn</button><button class="btn s" data-x="doc">⬇ Word</button><button class="btn s" data-x="pdf">⬇ PDF</button><button class="btn s" data-x="link">🔗 Sao chép link</button>${opts.bulkExtra?opts.bulkExtra():''}
       ${RO||opts.noArchive?'':'<button class="btn s dg" data-x="arch">🗂 Chuyển vào lưu trữ</button>'}<span style="flex:1"></span><button class="btn s" data-x="none">✕ Bỏ chọn</button>`;
     const picked=()=>rows.filter(r=>sel.has(r.id));
-    sb_.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{const x=b.dataset.x;
+    const ss=sb_.querySelector('[data-stsel]');if(ss)ss.onchange=()=>{if(ss.value)bulkStatus(ss.value,ss)};
+    sb_.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{const x=b.dataset.x;if(x.startsWith('st:'))return bulkStatus(x.slice(3),b);
       if(x==='all'){rows.forEach(r=>sel.add(r.id));load.sync&&load.sync();tw.querySelectorAll('[data-sel]').forEach(c=>{c.checked=true;c.closest('tr').classList.add('sel')});selBar();return}
       if(x==='none'){sel.clear();tw.querySelectorAll('[data-sel]').forEach(c=>{c.checked=false;c.closest('tr').classList.remove('sel')});const a=tw.querySelector('[data-all]');if(a){a.checked=false;a.indeterminate=false}selBar();return}
       if(x==='one')return openForm(name,picked()[0],load);
@@ -2501,7 +2513,7 @@ VIEWS.pricing=async m=>{
         <label>Giờ chờ / vượt giờ<input type="number" id="qWh" min="0" step="0.5" value="0"></label><label>Số đêm lưu xe<input type="number" id="qN" min="0" value="0"></label>
         <label>Bốc xếp<select id="qLd"><option value="0">Không</option><option value="1">1 đầu</option><option value="2">2 đầu</option></select></label>
         <label>Thời điểm<select id="qT">${Object.entries(QTIME).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select></label>
-        <label class="chk w"><input type="checkbox" id="qRT"> Đặt khứ hồi (chiều về có hàng – tính 70%)</label>
+        <label class="chk w"><input type="checkbox" id="qCr"> Xe tải gắn cẩu (cước +30% theo hệ số crane_factor)</label><label class="chk w"><input type="checkbox" id="qRT"> Đặt khứ hồi (chiều về có hàng – tính 70%)</label>
         </div></div>
         <div class="card"><h3>Báo giá</h3><div id="qR"><div class="empty">Nhập địa chỉ hoặc km để xem giá.</div></div>
           <div class="bar" style="margin-top:10px"><button class="btn" id="qCp">📋 Sao chép</button>${XP.bar('qXp')}<span class="sp"></span>${has(['admin','dieu_phoi','kinh_doanh'])&&!RO?'<button class="btn p" id="qOrd">＋ Tạo đơn hàng từ báo giá</button>':''}</div></div></div>
@@ -2513,6 +2525,7 @@ VIEWS.pricing=async m=>{
           wait_h:+$('#qWh').value||0,nights:+$('#qN').value||0,loading_ends:+$('#qLd').value||0,timing:$('#qT').value,round_trip:$('#qRT').checked};
         const {data,error}=await sb.rpc('khg_quote2',{p});if(error){$('#qR').innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}
         Q=data;if(!Q.ok){$('#qR').innerHTML='<div class="empty">'+esc(Q.error)+'</div>';return}
+        if($('#qCr')&&$('#qCr').checked){const cf=1.3,rd=x=>Math.round(x/1000)*1000;const add=rd(Q.total*(cf-1));Q.lines=[...(Q.lines||[]),['Xe tải gắn cẩu (+30%)',add]];Q.total+=add;Q.vat=Math.round(Q.total*0.08);Q.grand=Q.total+Q.vat;Q.label=(Q.label||'')+' · gắn cẩu';(Q.candidates||[]).forEach(c=>['trip','half','day'].forEach(k=>{if(c[k])c[k]=rd(c[k]*cf)}))}
         const pk=$('#qP').value?+$('#qP').value:0;
         $('#qR').innerHTML=`${Q.warn?`<div class="pill red" style="display:block;margin-bottom:8px;white-space:normal">⚠ ${esc(Q.warn)}</div>`:''}<div style="margin-bottom:6px"><b>${esc(Q.label)}</b> · ${esc(QMODE[Q.mode])} · ${Q.km} km${!$('#qC').value&&Q.mode!=='ghep'?' <span class="pill green">tự chọn theo hàng</span>':''}</div>
           <div class="tw"><table style="min-width:0"><tbody>${Q.lines.map(l=>`<tr><td>${esc(l[0])}</td><td class="n">${fmtN(l[1])}</td></tr>`).join('')}
@@ -2527,7 +2540,7 @@ VIEWS.pricing=async m=>{
       [$('#qA'),$('#qB')].forEach(i=>{QADDR.attach(i);i.addEventListener('picked',doRoute)});
       $('#qAddV').onclick=()=>{const w=document.createElement('label');w.className='w';w.innerHTML=`Điểm giao ${vias.length+1}<input placeholder="Địa chỉ điểm giao giữa đường" autocomplete="off">`;$('#qVias').appendChild(w);const i=w.querySelector('input');QADDR.attach(i);i.addEventListener('picked',doRoute);vias.push(i);i.focus()};
       $('#qRoute').onclick=doRoute;
-      ['qM','qK','qC','qW','qV','qL','qP','qWh','qN','qLd','qT','qRT'].forEach(id=>$('#'+id).addEventListener('change',go));
+      ['qM','qK','qC','qW','qV','qL','qP','qWh','qN','qLd','qT','qRT','qCr'].forEach(id=>$('#'+id).addEventListener('change',go));
       $('#qCp').onclick=async()=>{if(!last)await go();copyText(last,'Đã sao chép báo giá')};
       XP.bind('qXp','Bao gia van chuyen KHG',async()=>{if(!Q)await go();return Q&&Q.ok?quoteBlocks(Q,ctx()):[{p:'Chưa có báo giá'}]});
       const qo=$('#qOrd');if(qo)qo.onclick=async()=>{if(!Q||!Q.ok)return toast('Tính báo giá trước');const c=ctx();if(!c.from||!c.to)return toast('Cần điểm lấy và điểm giao để tạo đơn');
@@ -2913,6 +2926,214 @@ Object.assign(ICONS,{ceo:IC('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3
   backup:IC('<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/>'),
   pricing:ICONS.pricing||IC('<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/>')});
 
+// ===================== v13 · DỊCH VỤ KHO BÃI – NÂNG HẠ – XE NÂNG – KHO XƯỞNG =====================
+Object.assign(O,{
+  svc_grp:{kho:'Kho linh hoạt & lưu kho',gtgt:'Phân chia hàng hóa',boc_xep:'Bốc xếp & container',xe_nang_thue:'Thuê xe nâng',cau:'Thuê xe cẩu',xe_nang_ban:'Mua bán xe nâng',bai_xe:'Bãi xe',bds:'Kho xưởng – bãi – đất'},
+  svc_deal:{dich_vu:'Sử dụng dịch vụ',thue:'Cần thuê',cho_thue:'Cần cho thuê',mua:'Cần mua',ban:'Cần bán',chuyen_nhuong:'Chuyển nhượng',ky_gui:'Ký gửi'},
+  svc_status:{moi:'Mới',da_lien_he:'Đã liên hệ',khao_sat:'Khảo sát',bao_gia:'Đã báo giá',chot:'Chốt',that_bai:'Không thành'},
+  svc_basis:{thi_truong:'Giá thị trường',de_xuat:'Giá đề xuất KHG',khg:'Giá KHG'},
+  wh_kind:{kho:'Kho',kho_lanh:'Kho lạnh / mát',xuong:'Nhà xưởng',bai:'Bãi xe / bãi hàng',dat:'Đất',van_phong:'Văn phòng'},
+  wh_own:{khg:'KHG sở hữu / thuê dài hạn',thue_lai:'KHG thuê lại khai thác',doi_tac:'Kho đối tác liên kết',moi_gioi:'Nguồn môi giới (chủ khác)'},
+});
+Object.assign(PILL,{moi:'amber',da_lien_he:'blue',khao_sat:'blue',bao_gia:'blue',chot:'green',that_bai:'red',thi_truong:'blue',de_xuat:'amber',khg:'green'});
+if(E.warehouses){E.warehouses.title='Kho, bãi, điểm khai thác (toàn quốc)';E.warehouses.search=['name','address','province'];
+  E.warehouses.filters=[['kind','wh_kind'],['ownership','wh_own']];
+  E.warehouses.f=[{h:'Địa điểm'},{k:'name',l:'Tên kho / bãi / địa điểm (tự đặt)',t:'text',list:true,req:true},{k:'kind',l:'Loại',t:'sel',o:'wh_kind',def:'kho',list:true},{k:'ownership',l:'Hình thức khai thác',t:'sel',o:'wh_own',def:'khg',list:true},
+    {k:'province',l:'Tỉnh / thành',t:'text',list:true},{k:'address',l:'Địa chỉ',t:'text',list:true},{k:'lat',l:'Vĩ độ',t:'num'},{k:'lng',l:'Kinh độ',t:'num'},
+    {h:'Quy mô & giá'},{k:'kho_m2',l:'Kho (m²)',t:'num',list:true},{k:'bai_m2',l:'Bãi (m²)',t:'num',list:true},{k:'available_m2',l:'Còn trống (m²)',t:'num',list:true},{k:'pallet_slots',l:'Sức chứa (pallet)',t:'num'},
+    {k:'price_m2',l:'Giá cho thuê (đ/m²/tháng)',t:'money'},{k:'rent_cost_monthly',l:'Chi phí cố định/tháng (nội bộ)',t:'money'},{k:'features',l:'Tiện ích (cách nhau dấu phẩy: PCCC, camera, dock, xe nâng…)',t:'arr'},
+    {k:'is_public',l:'Hiện trên trang dịch vụ công khai',t:'bool',def:false,list:true},{k:'note',l:'Ghi chú',t:'area'}]}
+Object.assign(E,{
+  svc_requests:{table:'khg_service_requests',title:'Yêu cầu dịch vụ',order:['created_at',false],search:['code','contact_name','phone','company','site_name','province','detail'],label:'code',
+    filters:[['status','svc_status'],['grp','svc_grp'],['deal','svc_deal']],
+    f:[{h:'Yêu cầu'},{k:'code',l:'Mã',t:'text',ro:true,list:true},{k:'created_at',l:'Ngày gửi',t:'dt',ro:true,list:true},{k:'grp',l:'Dịch vụ',t:'sel',o:'svc_grp',list:true},{k:'deal',l:'Nhu cầu',t:'sel',o:'svc_deal',list:true},
+      {k:'status',l:'Trạng thái',t:'sel',o:'svc_status',def:'moi',list:true},{k:'assigned_to',l:'Người phụ trách',t:'fk',ref:'people',list:true},
+      {h:'Địa điểm & quy mô'},{k:'site_name',l:'Địa điểm / tên kho khách ghi',t:'text',list:true},{k:'province',l:'Tỉnh / thành',t:'text',list:true},{k:'address',l:'Địa chỉ',t:'text'},{k:'area_m2',l:'Diện tích (m²)',t:'num'},
+      {k:'qty',l:'Khối lượng / số lượng',t:'text'},{k:'duration',l:'Thời gian · thời hạn',t:'text'},{k:'budget',l:'Ngân sách',t:'text'},{k:'detail',l:'Mô tả',t:'area'},{k:'est_amount',l:'Tạm tính (chưa VAT)',t:'money',list:true},
+      {h:'Khách hàng'},{k:'contact_name',l:'Họ tên',t:'text',list:true,req:true},{k:'phone',l:'Điện thoại',t:'text',list:true,req:true},{k:'company',l:'Công ty',t:'text'},{k:'email',l:'Email',t:'text'},{k:'customer_id',l:'Khách hàng CRM',t:'fk',ref:'customers'},
+      {k:'source',l:'Nguồn',t:'text',def:'crm'},{k:'note',l:'Ghi chú xử lý',t:'area'}]},
+  svc_catalog:{table:'khg_service_catalog',title:'Bảng giá dịch vụ',order:['sort',true],search:['code','name','spec','source'],label:'name',filters:[['grp','svc_grp'],['basis','svc_basis']],
+    f:[{k:'code',l:'Mã',t:'text',list:true,req:true},{k:'grp',l:'Nhóm',t:'sel',o:'svc_grp',list:true},{k:'name',l:'Hạng mục',t:'text',list:true,req:true},{k:'spec',l:'Quy cách, điều kiện',t:'area'},
+      {k:'price',l:'Đơn giá (chưa VAT)',t:'num',list:true},{k:'price_max',l:'Đến (nếu là khoảng giá)',t:'num',list:true},{k:'unit',l:'Đơn vị tính',t:'text',list:true,req:true},{k:'min_charge',l:'Mức tối thiểu (đ)',t:'money'},
+      {k:'basis',l:'Căn cứ giá',t:'sel',o:'svc_basis',def:'khg',list:true},{k:'source',l:'Nguồn đối chiếu',t:'area'},{k:'note',l:'Ghi chú',t:'text'},{k:'sort',l:'Thứ tự',t:'num',def:500},{k:'active',l:'Đang áp dụng',t:'bool',def:true,list:true}]},
+});
+Object.assign(ENT_VIEW,{svc_requests:'services',svc_catalog:'services'});
+const svcPrice=c=>{if(c.price==null)return 'Báo giá riêng';const pct=/%|tháng tiền thuê|USD/.test(c.unit);const f=v=>pct?String(v).replace('.',','):fmtN(v);if(Number(c.price)===0&&!c.price_max)return 'Miễn phí';return c.price_max&&Number(c.price_max)!==Number(c.price)?f(c.price)+' – '+f(c.price_max):f(c.price)};
+const svcQtyable=c=>c.price!=null&&Number(c.price)>0&&!c.price_max&&!/%|tháng tiền thuê|USD/.test(c.unit);
+async function svcQuote(host,req){
+  const {data:C}=await sb.from('khg_service_catalog').select('*').eq('active',true).order('sort');const CAT=C||[];
+  const Q={};let grp=req?.grp||'kho';(req?.quote?.lines||[]).forEach(l=>Q[l.code]=l.qty);
+  const st={ot:0,disc:0,vat:8};
+  const draw=()=>{const rows=CAT.filter(c=>c.grp===grp);
+    host.innerHTML=`<div class="bar"><label>Nhóm dịch vụ <select id="sqG">${Object.entries(O.svc_grp).map(([k,l])=>`<option value="${k}" ${k===grp?'selected':''}>${l}</option>`).join('')}</select></label>
+      <label>Phụ phí ngoài giờ <select id="sqOt"><option value="0">Không</option><option value="50">17h–22h +50% (nhân công, thiết bị)</option><option value="100">Chủ nhật +100%</option><option value="200">Ngày lễ +200%</option></select></label>
+      <label>Giảm giá % <input id="sqD" type="number" min="0" max="30" value="${st.disc}" style="width:70px"></label><label>VAT % <input id="sqV" type="number" value="${st.vat}" style="width:60px"></label>
+      <span style="flex:1"></span>${XP.bar('sqXp')}</div>
+     ${req?`<p class="sub">Báo giá cho yêu cầu <b>${esc(req.code)}</b> – ${esc(req.contact_name||'')} · ${esc(req.phone||'')} · ${esc(req.site_name||'')}${req.detail?'<br>'+esc(req.detail):''}</p><div id="sqMed"></div>`:''}
+     <div class="tw"><table><thead><tr><th>Hạng mục</th><th class="n">Đơn giá</th><th>Đơn vị</th><th class="n">Số lượng</th><th class="n">Thành tiền</th></tr></thead><tbody>
+      ${rows.map(c=>`<tr><td>${esc(c.name)} <span class="pill ${PILL[c.basis]||''}">${O.svc_basis[c.basis]||''}</span>${c.spec?`<div class="sub" style="margin:2px 0 0">${esc(c.spec)}</div>`:''}</td><td class="n">${svcPrice(c)}</td><td>${esc(c.unit)}</td>
+        <td class="n">${svcQtyable(c)?`<input data-sq="${c.code}" value="${Q[c.code]||''}" style="width:80px;text-align:right">`:''}</td><td class="n" id="sa-${c.code}"></td></tr>`).join('')}
+     </tbody></table></div><div class="kpis" id="sqK"></div>
+     <div class="acts" style="justify-content:flex-start"><button class="btn" id="sqCp">📋 Sao chép nội dung báo giá</button>${req?'<button class="btn p" id="sqSv">💾 Lưu báo giá vào yêu cầu</button>':''}<a class="btn" href="dich-vu.html#${grp}" target="_blank" rel="noopener">🌐 Xem trang khách hàng</a></div>`;
+    $('#sqG').onchange=e=>{grp=e.target.value;draw()};$('#sqOt').value=String(st.ot);$('#sqOt').onchange=e=>{st.ot=+e.target.value;calc()};$('#sqD').oninput=e=>{st.disc=+e.target.value||0;calc()};$('#sqV').oninput=e=>{st.vat=+e.target.value||0;calc()};
+    host.querySelectorAll('[data-sq]').forEach(i=>i.oninput=()=>{Q[i.dataset.sq]=i.value;calc()});
+    XP.bind('sqXp','Bao gia dich vu KHG',()=>{const r=calc();return [{kv:[['Khách hàng',req?.contact_name||''],['Địa điểm',req?.site_name||''],['Nhóm dịch vụ',O.svc_grp[grp]],['Tạm tính',fmtM(r.sub)],['Phụ phí ngoài giờ',fmtM(r.ot)],['Giảm giá',fmtM(r.dc)],['Cộng trước thuế',fmtM(r.net)],['VAT',fmtM(r.vt)],['Tổng thanh toán',fmtM(r.tot)]]},{h:'Chi tiết'},{name:'Báo giá',rows:r.L.map(l=>({'Hạng mục':l.name,'Đơn vị':l.unit,'Đơn giá':l.price,'Số lượng':l.qty,'Thành tiền':l.amount}))}]});
+    $('#sqCp').onclick=()=>{const r=calc();const t=`BÁO GIÁ DỊCH VỤ – CÔNG TY TNHH KIM HOÀNG GIA\n${O.svc_grp[grp]}${req?'\nKhách hàng: '+(req.contact_name||'')+' · '+(req.site_name||''):''}\n`+r.L.map((l,i)=>`${i+1}. ${l.name}: ${fmtN(l.qty)} × ${fmtN(l.price)} đ (${l.unit}) = ${fmtM(l.amount)}`).join('\n')+
+      `\nCộng: ${fmtM(r.sub)}${r.ot?'\nPhụ phí ngoài giờ: '+fmtM(r.ot):''}${r.dc?'\nGiảm giá: −'+fmtM(r.dc):''}\nTrước thuế: ${fmtM(r.net)} · VAT ${st.vat}%: ${fmtM(r.vt)}\nTỔNG: ${fmtM(r.tot)}\nGiá có hiệu lực 30 ngày. Hotline 0399 831 228.`;navigator.clipboard?.writeText(t).then(()=>toast('Đã sao chép'),()=>toast('Không sao chép được'))};
+    const sv=$('#sqSv');if(sv)sv.onclick=async()=>{const r=calc();const {error}=await sb.from('khg_service_requests').update({quote:{lines:r.L,sub:r.sub,ot:r.ot,disc:r.dc,vat:r.vt,total:r.tot,grp},est_amount:Math.round(r.net),status:'bao_gia',updated_at:new Date().toISOString()}).eq('id',req.id);toast(error?error.message:'Đã lưu báo giá, chuyển trạng thái “Đã báo giá”')};
+    calc();if(req?.media?.length&&typeof svcMedia==='function')svcMedia(req.media).then(h=>{const e=$('#sqMed');if(e)e.innerHTML='<b>Ảnh, video khách gửi</b>'+h})};
+  const calc=()=>{const L=[];CAT.filter(c=>c.grp===grp&&svcQtyable(c)).forEach(c=>{const q=parseFloat(String(Q[c.code]||'').replace(',','.'))||0;const el=$('#sa-'+c.code);
+      if(q>0){const a=Math.round(Math.max(q*Number(c.price),Number(c.min_charge)||0));L.push({code:c.code,name:c.name,unit:c.unit,qty:q,price:Number(c.price),amount:a,ot:['boc_xep','gtgt','xe_nang_thue','cau'].includes(c.grp)||/lượt|tấn/.test(c.unit)});if(el)el.textContent=fmtN(a)}else if(el)el.textContent=''});
+    const sub=L.reduce((s,x)=>s+x.amount,0),ot=Math.round(L.filter(x=>x.ot).reduce((s,x)=>s+x.amount,0)*st.ot/100),dc=Math.round((sub+ot)*st.disc/100),net=sub+ot-dc,vt=Math.round(net*st.vat/100),tot=net+vt;
+    const k=$('#sqK');if(k)k.innerHTML=`<div class="kpi"><div class="l">Cộng hạng mục</div><div class="v">${fmtTr(sub)}</div><div class="h">${L.length} dòng</div></div><div class="kpi"><div class="l">Trước thuế</div><div class="v">${fmtTr(net)}</div><div class="h">Ngoài giờ ${fmtTr(ot)} · giảm ${fmtTr(dc)}</div></div><div class="kpi hot"><div class="l">Tổng thanh toán</div><div class="v">${fmtM(tot)}</div><div class="h">VAT ${st.vat}%: ${fmtM(vt)}</div></div>`;
+    return {L,sub,ot,dc,net,vt,tot}};
+  draw();
+}
+VIEWS.services=async m=>{
+  m.innerHTML=`<h2>Dịch vụ kho bãi, nâng hạ, xe nâng, kho xưởng</h2><p class="sub">Khách gửi yêu cầu từ trang <a href="dich-vu.html" target="_blank" rel="noopener">lehoaithanh.org/dich-vu</a> (hoặc nhập tại đây) → phụ trách liên hệ, khảo sát → <b>Báo giá nhanh</b> theo bảng giá chuẩn → chốt hợp đồng (mẫu tại Hợp đồng) → thực hiện: thuê kho ghi ở Kho bãi, xe nâng – cẩu ở Đội xe & thiết bị, giao nhận ở Điều phối.</p>
+   <div class="subtabs" id="svt">${[['yc','Yêu cầu khách hàng'],['bg','Báo giá nhanh'],['gia','Bảng giá dịch vụ'],['kho','Kho, bãi toàn quốc']].map(([k,l],i)=>`<button data-s="${k}" class="${i?'':'on'}">${l}</button>`).join('')}</div><div id="svh"></div>`;
+  const sw=async n=>{m.querySelectorAll('#svt button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));const h=$('#svh');h.innerHTML='<div class="empty">Đang tải…</div>';
+    if(n==='yc')await renderList('svc_requests',h,{rowActions:r=>`<button class="btn s" data-act="bg" data-id="${r.id}">Báo giá</button>`,
+      onActs:async(a,id)=>{if(a==='bg'){const {data:r}=await sb.from('khg_service_requests').select('*').eq('id',id).maybeSingle();m.querySelectorAll('#svt button').forEach(b=>b.classList.toggle('on',b.dataset.s==='bg'));h.innerHTML='';await svcQuote(h,r)}}});
+    if(n==='bg')await svcQuote(h,null);
+    if(n==='gia'){h.innerHTML=`<div class="bar"><span class="sub" style="margin:0">Giá chưa VAT. Căn cứ: <span class="pill blue">Giá thị trường</span> có nguồn đối chiếu · <span class="pill amber">Giá đề xuất KHG</span> chưa có nguồn công khai đủ tin cậy – cần kiểm chứng thực tế · <span class="pill green">Giá KHG</span>. Sửa giá tại đây, trang khách hàng cập nhật ngay.</span><span style="flex:1"></span>${XP.bar('scXp')}</div><div id="scl"></div>`;
+      await renderList('svc_catalog',$('#scl'),{});
+      XP.bind('scXp','Bang gia dich vu KHG 2026',async()=>{const {data}=await sb.from('khg_service_catalog').select('*').eq('active',true).order('sort');return Object.entries(O.svc_grp).flatMap(([g,l])=>[{h:l},{name:l.slice(0,28),rows:(data||[]).filter(c=>c.grp===g).map(c=>({'Hạng mục':c.name,'Quy cách':c.spec||'','Đơn giá (chưa VAT)':svcPrice(c),'Đơn vị':c.unit,'Tối thiểu':c.min_charge?Number(c.min_charge):'','Căn cứ':O.svc_basis[c.basis]||'','Nguồn':c.source||''}))}])})}
+    if(n==='kho')await renderList('warehouses',h,{});
+  };
+  m.querySelectorAll('#svt button').forEach(b=>b.onclick=()=>sw(b.dataset.s));await sw('yc');
+};
+TABS.push(['services','Dịch vụ kho bãi & nâng hạ',['admin','kinh_doanh','dieu_phoi','ke_toan']]);
+{const g=NAV_GROUPS.find(x=>x[0]==='Vận hành');if(g)g[1].push('services');else NAV_GROUPS.splice(1,0,['Vận hành',['services']]);}
+ICONS.services=IC('<path d="M3 21V9l9-6 9 6v12"/><path d="M7 21v-6h10v6"/><path d="M7 15h10"/><path d="M12 3v6"/>');
+
+// ===================== v13 · CRM LÕI THEO ĐỀ ÁN HỆ SINH THÁI: LEAD → CƠ HỘI → KHÁCH HÀNG 360 → CHĂM SÓC =====================
+Object.assign(O,{
+  ld_status:{moi:'Mới',dang_xu_ly:'Đang xử lý',du_chuan:'Đủ chuẩn',chuyen_co_hoi:'Đã thành cơ hội',khong_phu_hop:'Không phù hợp',trung:'Trùng'},
+  ld_source:{web:'Website',web_dich_vu:'Trang dịch vụ',dat_xe:'App đặt xe',lien_he_app:'Để lại liên hệ (app)',telegram:'Telegram',zalo:'Zalo',facebook:'Facebook',tiktok:'TikTok',hotline:'Hotline',nhan_vien:'Nhân viên tự tìm',doi_tac:'Đối tác giới thiệu',fast_driver:'Fast Driver',khac:'Khác'},
+  biz_line:{van_tai:'Vận tải',kho_bai:'Kho bãi & lưu kho',nang_ha:'Bốc xếp, cẩu, xe nâng',xe_nang:'Mua bán xe nâng',bds:'Kho xưởng – đất',phan_phoi:'Phân phối hàng hóa',tai_xe:'Tài xế, thuê tài xế',doi_tac_xe:'Đối tác xe',khac:'Khác'},
+  opp_stage:{khao_sat:'Khảo sát',tu_van:'Tư vấn',bao_gia:'Báo giá',dam_phan:'Đàm phán',thang:'Thắng',thua:'Thua'},
+  it_kind:{goi:'Gọi điện',zalo:'Zalo',gap:'Gặp trực tiếp',email:'Email',khao_sat:'Khảo sát hiện trường',bao_gia:'Gửi báo giá',cham_soc:'Chăm sóc sau bán',khieu_nai:'Khiếu nại',ghi_chu:'Ghi chú'},
+  cus_kind:{doanh_nghiep:'Doanh nghiệp',ca_nhan:'Cá nhân',ho_kinh_doanh:'Hộ kinh doanh'},
+});
+Object.assign(PILL,{dang_xu_ly:'blue',du_chuan:'green',chuyen_co_hoi:'green',khong_phu_hop:'red',trung:'',tu_van:'blue',dam_phan:'amber',thang:'green',thua:'red'});
+Object.assign(E,{
+  leads:{table:'khg_leads',title:'Lead – khách hàng tiềm năng',order:['created_at',false],search:['code','name','phone','company','need','province'],label:'code',
+    filters:[['status','ld_status'],['business_line','biz_line'],['source','ld_source'],['owner_id','@people']],
+    f:[{h:'Lead'},{k:'code',l:'Mã',t:'text',ro:true,list:true},{k:'created_at',l:'Nhận lúc',t:'dt',ro:true,list:true},{k:'source',l:'Nguồn',t:'sel',o:'ld_source',def:'nhan_vien',list:true},{k:'business_line',l:'Mảng',t:'sel',o:'biz_line',def:'van_tai',list:true},
+      {k:'name',l:'Họ tên',t:'text',list:true,req:true},{k:'phone',l:'Điện thoại',t:'text',list:true},{k:'company',l:'Công ty',t:'text',list:true},{k:'email',l:'Email',t:'text'},{k:'province',l:'Tỉnh / thành',t:'text'},
+      {k:'need',l:'Nhu cầu',t:'area',list:true},{k:'value_est',l:'Giá trị ước tính',t:'money',list:true},
+      {h:'Xử lý'},{k:'status',l:'Trạng thái',t:'sel',o:'ld_status',def:'moi',list:true},{k:'score',l:'Điểm (tự chấm)',t:'num',ro:true,list:true},{k:'owner_id',l:'Phụ trách',t:'fk',ref:'people',list:true},
+      {k:'sla_due_at',l:'Hạn phản hồi',t:'dt',ro:true,list:true},{k:'first_contact_at',l:'Liên hệ lần đầu',t:'dt',ro:true},{k:'customer_id',l:'Khách hàng',t:'fk',ref:'customers'},{k:'lost_reason',l:'Lý do không phù hợp',t:'text'},{k:'note',l:'Ghi chú',t:'area'}]},
+  opps:{table:'khg_opportunities',title:'Cơ hội bán hàng',order:['updated_at',false],search:['code','title','next_action'],label:'title',
+    filters:[['stage','opp_stage'],['business_line','biz_line'],['owner_id','@people']],
+    f:[{k:'code',l:'Mã',t:'text',ro:true,list:true},{k:'title',l:'Tên cơ hội',t:'text',list:true,req:true},{k:'customer_id',l:'Khách hàng',t:'fk',ref:'customers',list:true},{k:'business_line',l:'Mảng',t:'sel',o:'biz_line',def:'van_tai',list:true},
+      {k:'stage',l:'Giai đoạn',t:'sel',o:'opp_stage',def:'khao_sat',list:true},{k:'value',l:'Giá trị (chưa VAT)',t:'money',list:true},{k:'probability',l:'Xác suất % (theo giai đoạn)',t:'num',ro:true,list:true},
+      {k:'expected_close',l:'Dự kiến chốt',t:'date',list:true},{k:'owner_id',l:'Phụ trách',t:'fk',ref:'people',list:true},{k:'next_action',l:'Việc tiếp theo',t:'text'},{k:'next_action_at',l:'Hẹn lúc',t:'dt'},
+      {k:'lost_reason',l:'Lý do thất bại (bắt buộc khi Thua)',t:'text'},{k:'note',l:'Ghi chú',t:'area'}]},
+  interactions:{table:'khg_interactions',title:'Nhật ký tương tác',order:['at',false],search:['content','result'],label:'content',filters:[['kind','it_kind']],
+    f:[{k:'at',l:'Thời điểm',t:'dt',list:true},{k:'kind',l:'Hình thức',t:'sel',o:'it_kind',def:'goi',list:true},{k:'customer_id',l:'Khách hàng',t:'fk',ref:'customers',list:true},{k:'lead_id',l:'Lead',t:'fk',ref:'leads'},{k:'opportunity_id',l:'Cơ hội',t:'fk',ref:'opps'},
+      {k:'content',l:'Nội dung',t:'area',list:true,req:true},{k:'result',l:'Kết quả',t:'text',list:true},{k:'next_at',l:'Hẹn liên hệ lại',t:'dt',list:true},{k:'by_id',l:'Người ghi',t:'fk',ref:'people',ro:true,list:true}]},
+});
+if(E.customers){const F=E.customers.f;const add=[{h:'Hồ sơ hệ sinh thái'},{k:'code',l:'Mã khách hàng',t:'text',ro:true,list:true},{k:'kind',l:'Loại',t:'sel',o:'cus_kind',def:'doanh_nghiep'},{k:'industry',l:'Ngành nghề',t:'text'},{k:'scale',l:'Quy mô',t:'text'},
+  {k:'province',l:'Tỉnh / thành',t:'text',list:true},{k:'source',l:'Nguồn',t:'sel',o:'ld_source'},{k:'owner_id',l:'Phụ trách',t:'fk',ref:'people',list:true},{k:'tier',l:'Hạng',t:'text'},{k:'business_lines',l:'Mảng đang dùng',t:'multi',o:O.biz_line},{k:'tags',l:'Thẻ (cách nhau dấu phẩy)',t:'arr'},{k:'last_interaction_at',l:'Tương tác gần nhất',t:'dt',ro:true,list:true}];
+  add.forEach(f=>{if(!f.k||!F.some(x=>x.k===f.k))F.push(f)})}
+Object.assign(ENT_VIEW,{leads:'crm',opps:'crm',interactions:'crm'});
+const crmTime=t=>{if(!t)return '';const m=(new Date(t)-Date.now())/6e4;return m<0?`<span class="pill red">trễ ${Math.round(-m/60)>0?Math.round(-m/60)+' giờ':Math.round(-m)+' phút'}</span>`:`<span class="pill amber">còn ${m>=60?Math.round(m/60)+' giờ':Math.round(m)+' phút'}</span>`};
+async function cus360(id,host){
+  const {data:D,error}=await sb.rpc('khg_customer360',{p_id:id});if(error){host.innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}
+  const c=D.customer||{},st=D.order_stats||{},ar=D.ar||{};const opp=(D.opps||[]).filter(o=>!['thang','thua'].includes(o.stage));
+  host.innerHTML=`<div class="card"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:240px"><h3 style="margin:0">${esc(c.name||'')} <span class="pill">${esc(c.code||'')}</span></h3>
+     <div class="sub" style="margin:4px 0 0">${[c.contact_name,c.phone,c.email,c.province||c.address,c.tax_code?'MST '+c.tax_code:''].filter(Boolean).map(esc).join(' · ')}</div>
+     <div style="margin-top:6px">${(c.business_lines||[]).map(b=>`<span class="pill blue">${esc(O.biz_line[b]||b)}</span>`).join(' ')} ${(c.tags||[]).map(t=>`<span class="pill">${esc(t)}</span>`).join(' ')}</div></div>
+     <div class="acts"><button class="btn" id="c3e">✏️ Sửa hồ sơ</button><button class="btn p" id="c3i">＋ Ghi tương tác</button><button class="btn" id="c3o">＋ Cơ hội</button></div></div></div>
+   <div class="kpis"><div class="kpi"><div class="l">Đơn vận tải</div><div class="v">${fmtN(st.n||0)}</div><div class="h">Doanh thu ${fmtTr(st.rev||0)}</div></div>
+    <div class="kpi"><div class="l">Cơ hội đang mở</div><div class="v">${opp.length}</div><div class="h">Giá trị ${fmtTr(opp.reduce((s,o)=>s+Number(o.value||0),0))}</div></div>
+    <div class="kpi ${ar.overdue>0?'hot':''}"><div class="l">Công nợ</div><div class="v">${fmtTr(ar.open||0)}</div><div class="h">Quá hạn ${fmtTr(ar.overdue||0)}</div></div>
+    <div class="kpi"><div class="l">Tương tác</div><div class="v">${(D.interactions||[]).length}</div><div class="h">Gần nhất ${fmtD(c.last_interaction_at)||'—'}</div></div></div>
+   <div class="grid3">
+    <div class="card"><h3>Dòng thời gian tương tác</h3><div class="list">${(D.interactions||[]).map(i=>`<div class="it"><span class="pill">${esc(O.it_kind[i.kind]||i.kind)}</span> <b>${fmtD(i.at)}</b> · ${esc(i.by||'')}<br>${esc(i.content)}${i.result?' → '+esc(i.result):''}${i.next_at?`<br><small>Hẹn lại ${fmtD(i.next_at)}</small>`:''}</div>`).join('')||'<div class="empty">Chưa có tương tác.</div>'}</div></div>
+    <div class="card"><h3>Cơ hội & nhu cầu</h3><div class="list">${(D.opps||[]).map(o=>`<div class="it"><span class="pill ${PILL[o.stage]||''}">${esc(O.opp_stage[o.stage])}</span> ${esc(o.title)} · ${fmtTr(o.value)}</div>`).join('')}${(D.leads||[]).map(l=>`<div class="it"><span class="pill">${esc(l.code)}</span> ${esc(O.ld_source[l.source]||l.source)} · ${esc(O.biz_line[l.line]||l.line)} · ${esc(O.ld_status[l.status]||l.status)}<br><small>${esc(l.need||'')}</small></div>`).join('')}${(D.services||[]).map(s=>`<div class="it"><span class="pill">${esc(s.code)}</span> ${esc(O.svc_grp?.[s.grp]||s.grp)} · ${esc(s.site||'')} · ${esc(O.svc_status?.[s.status]||s.status)}</div>`).join('')||''}</div></div>
+    <div class="card"><h3>Giao dịch & hợp đồng</h3><div class="list">${(D.orders||[]).slice(0,15).map(o=>`<div class="it"><b>${esc(o.code||'')}</b> ${fmtD(o.d)} · ${esc(o.route)} · ${fmtTr(o.rev)}</div>`).join('')}${(D.contracts||[]).map(k=>`<div class="it">📄 ${esc(k.no||'')} · ${esc(k.kind||'')} · đến ${fmtD(k.end)||'—'}</div>`).join('')}${(D.leases||[]).map(k=>`<div class="it">🏬 Thuê ${esc(k.kind||'')} ${fmtN(k.area)} m² · đến ${fmtD(k.end)||'—'}</div>`).join('')||'<div class="empty">Chưa có giao dịch.</div>'}</div></div></div>`;
+  $('#c3e').onclick=()=>openForm('customers',c,()=>cus360(id,host));
+  $('#c3i').onclick=()=>openForm('interactions',null,()=>cus360(id,host),{customer_id:id,kind:'goi',at:new Date().toISOString()});
+  $('#c3o').onclick=()=>openForm('opps',null,()=>cus360(id,host),{customer_id:id,stage:'khao_sat'});
+}
+async function crmPipe(host){
+  const {data:O2}=await sb.from('khg_opportunities').select('*').order('updated_at',{ascending:false}).limit(1000);await ensureRef?.('customers');
+  const rows=O2||[];const st=['khao_sat','tu_van','bao_gia','dam_phan','thang','thua'];
+  const open=rows.filter(o=>!['thang','thua'].includes(o.stage));const won=rows.filter(o=>o.stage==='thang'),lost=rows.filter(o=>o.stage==='thua');
+  host.innerHTML=`<div class="bar"><button class="btn p" id="opN">＋ Cơ hội mới</button><span style="flex:1"></span>${XP.bar('opXp')}</div>
+   <div class="kpis"><div class="kpi hot"><div class="l">Pipeline đang mở</div><div class="v">${fmtTr(open.reduce((s,o)=>s+Number(o.value||0),0))}</div><div class="h">${open.length} cơ hội</div></div>
+    <div class="kpi"><div class="l">Pipeline có trọng số</div><div class="v">${fmtTr(open.reduce((s,o)=>s+Number(o.value||0)*(o.probability||0)/100,0))}</div><div class="h">Giá trị × xác suất</div></div>
+    <div class="kpi"><div class="l">Tỷ lệ thắng</div><div class="v">${won.length+lost.length?Math.round(won.length*100/(won.length+lost.length)):0}%</div><div class="h">${won.length} thắng · ${lost.length} thua</div></div>
+    <div class="kpi"><div class="l">Doanh thu ký mới</div><div class="v">${fmtTr(won.reduce((s,o)=>s+Number(o.value||0),0))}</div><div class="h">Tổng cơ hội thắng</div></div></div>
+   <div style="display:grid;grid-template-columns:repeat(6,minmax(170px,1fr));gap:10px;overflow-x:auto">${st.map(s=>{const L=rows.filter(o=>o.stage===s);return `<div class="card" style="padding:10px;margin:0;min-height:200px" data-col="${s}"><div style="display:flex;justify-content:space-between"><b>${O.opp_stage[s]}</b><span class="pill">${L.length}</span></div><div class="sub" style="margin:2px 0 8px">${fmtTr(L.reduce((a,o)=>a+Number(o.value||0),0))}</div>
+     ${L.slice(0,40).map(o=>`<div draggable="true" data-op="${o.id}" style="border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:6px;cursor:grab;background:#fff"><b style="font-size:13px">${esc(o.title)}</b><div class="sub" style="margin:2px 0 0;font-size:12px">${esc(REF.customers?.[o.customer_id]||'')} · ${fmtTr(o.value)}${o.next_action_at?'<br>⏰ '+fmtD(o.next_action_at)+' '+esc(o.next_action||''):''}</div></div>`).join('')}</div>`}).join('')}</div>
+   <p class="sub">Kéo thẻ sang cột khác để đổi giai đoạn. Chuyển sang “Thua” phải ghi lý do.</p>`;
+  host.querySelectorAll('[data-op]').forEach(c=>{c.ondragstart=e=>e.dataTransfer.setData('t',c.dataset.op);c.ondblclick=()=>openForm('opps',rows.find(o=>o.id===c.dataset.op),()=>crmPipe(host))});
+  host.querySelectorAll('[data-col]').forEach(col=>{col.ondragover=e=>e.preventDefault();col.ondrop=async e=>{e.preventDefault();const id=e.dataTransfer.getData('t');const s=col.dataset.col;let up={stage:s};
+    if(s==='thua'){const r=prompt('Lý do thất bại (giá, năng lực, thời gian, đối thủ…):');if(!r)return;up.lost_reason=r}
+    const {error}=await sb.from('khg_opportunities').update(up).eq('id',id);toast(error?error.message:'Đã chuyển sang '+O.opp_stage[s]);crmPipe(host)}});
+  $('#opN').onclick=()=>openForm('opps',null,()=>crmPipe(host),{stage:'khao_sat'});
+  XP.bind('opXp','Pipeline ban hang KHG',()=>[{name:'Cơ hội',rows:rows.map(o=>({'Mã':o.code,'Cơ hội':o.title,'Khách hàng':REF.customers?.[o.customer_id]||'','Mảng':O.biz_line[o.business_line]||'','Giai đoạn':O.opp_stage[o.stage],'Giá trị':Number(o.value||0),'Xác suất %':o.probability,'Dự kiến chốt':o.expected_close||'','Lý do thua':o.lost_reason||''}))}]);
+}
+async function crmReport(host){
+  const since=new Date(Date.now()-90*864e5).toISOString();
+  const [{data:L},{data:Op}]=await Promise.all([sb.from('khg_leads').select('source,business_line,status,created_at,first_contact_at,sla_due_at,value_est').gte('created_at',since).limit(5000),sb.from('khg_opportunities').select('business_line,stage,value,lost_reason,created_at,won_at').gte('created_at',since).limit(5000)]);
+  const l=L||[],o=Op||[];const grp=(a,k)=>a.reduce((m,x)=>(m[x[k]||'khac']=(m[x[k]||'khac']||0)+1,m),{});
+  const ok=l.filter(x=>x.first_contact_at);const ontime=ok.filter(x=>new Date(x.first_contact_at)<=new Date(x.sla_due_at)).length;
+  const conv=(s)=>{const a=l.filter(x=>x.source===s);return a.length?Math.round(a.filter(x=>x.status==='chuyen_co_hoi').length*100/a.length):0};
+  const rows=o2=>Object.entries(o2).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({name:k,v}));
+  host.innerHTML=`<p class="sub">90 ngày gần nhất.</p><div class="kpis"><div class="kpi"><div class="l">Lead mới</div><div class="v">${l.length}</div><div class="h">${l.filter(x=>x.status==='trung').length} trùng đã gộp</div></div>
+   <div class="kpi"><div class="l">Phản hồi đúng hạn</div><div class="v">${ok.length?Math.round(ontime*100/ok.length):0}%</div><div class="h">${ontime}/${ok.length} lead đã liên hệ</div></div>
+   <div class="kpi"><div class="l">Lead → cơ hội</div><div class="v">${l.length?Math.round(l.filter(x=>x.status==='chuyen_co_hoi').length*100/l.length):0}%</div><div class="h">Tỷ lệ chuyển đổi</div></div>
+   <div class="kpi"><div class="l">Cơ hội thắng</div><div class="v">${o.filter(x=>x.stage==='thang').length}</div><div class="h">${fmtTr(o.filter(x=>x.stage==='thang').reduce((s,x)=>s+Number(x.value||0),0))}</div></div></div>
+   <div class="grid3"><div class="card"><h3>Lead theo nguồn (tỷ lệ chuyển đổi)</h3>${bars(rows(grp(l,'source')).map(x=>({...x,label:(O.ld_source[x.name]||x.name)+' · '+conv(x.name)+'%'})),'v',x=>x.label,fmtN)}</div>
+    <div class="card"><h3>Lead theo mảng kinh doanh</h3>${bars(rows(grp(l,'business_line')),'v',x=>O.biz_line[x.name]||x.name,fmtN)}</div>
+    <div class="card"><h3>Lý do thất bại</h3>${bars(rows(grp(o.filter(x=>x.stage==='thua'),'lost_reason')),'v',x=>x.name,fmtN)}</div></div>`;
+}
+VIEWS.crm=async m=>{
+  m.innerHTML=`<h2>Khách hàng & bán hàng (CRM lõi)</h2><p class="sub">Một khách hàng – một hồ sơ. Mọi kênh (trang dịch vụ, app đặt xe, để lại liên hệ, nhân viên tự nhập) đổ về <b>Lead</b> → hệ thống tự kiểm tra trùng theo số điện thoại, chấm điểm, phân công người ít việc nhất, hạn phản hồi 2 giờ làm việc → chuyển thành <b>Cơ hội</b> và <b>Khách hàng</b> → theo dõi trong <b>Khách hàng 360</b>. Mỗi giờ hệ thống nhắc lead quá hạn, cơ hội đến hẹn, hợp đồng sắp hết hạn (30/15/7 ngày).</p>
+   <div class="subtabs" id="crt">${[['ld','Lead'],['op','Cơ hội (pipeline)'],['c3','Khách hàng 360'],['it','Nhật ký tương tác'],['bc','Báo cáo chuyển đổi']].map(([k,l],i)=>`<button data-s="${k}" class="${i?'':'on'}">${l}</button>`).join('')}</div><div id="crh"></div>`;
+  const sw=async n=>{m.querySelectorAll('#crt button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));const h=$('#crh');h.innerHTML='<div class="empty">Đang tải…</div>';
+    if(n==='ld')await renderList('leads',h,{rowActions:r=>`${['moi','dang_xu_ly','du_chuan'].includes(r.status)?`<button class="btn s" data-act="cv" data-id="${r.id}">→ Cơ hội</button>`:''}<button class="btn s" data-act="it" data-id="${r.id}">Ghi gọi</button>${r.status==='moi'?' '+crmTime(r.sla_due_at):''}`,
+      onActs:async(a,id)=>{if(a==='cv'){const v=prompt('Giá trị ước tính của cơ hội (đồng, có thể bỏ trống):');const {data,error}=await sb.rpc('khg_lead_convert',{p_lead:id,p_title:null,p_value:v?Number(String(v).replace(/\D/g,'')):null});toast(error?error.message:'Đã tạo khách hàng và cơ hội')}
+        if(a==='it'){openForm('interactions',null,null,{lead_id:id,kind:'goi',at:new Date().toISOString()})}}});
+    if(n==='op')await crmPipe(h);
+    if(n==='c3'){h.innerHTML=`<div class="bar"><input id="c3q" placeholder="🔎 Tìm khách theo tên, số điện thoại, mã KH, MST" style="flex:1;max-width:460px"><button class="btn p" id="c3n">＋ Khách hàng mới</button></div><div id="c3l"></div><div id="c3v"></div>`;
+      const find=async()=>{const q=$('#c3q').value.trim();let qq=sb.from('khg_customers').select('id,code,name,phone,province,last_interaction_at').order('last_interaction_at',{ascending:false,nullsFirst:false}).limit(30);
+        if(q)qq=qq.or(`name.ilike.%${q}%,phone.ilike.%${q}%,code.ilike.%${q}%,tax_code.ilike.%${q}%,contact_name.ilike.%${q}%`);const {data}=await qq;
+        $('#c3l').innerHTML=`<div class="list" style="max-height:220px;overflow:auto">${(data||[]).map(c=>`<div class="it" data-c="${c.id}" style="cursor:pointer"><b>${esc(c.name)}</b> <span class="pill">${esc(c.code||'')}</span> · ${esc(c.phone||'')} · ${esc(c.province||'')}</div>`).join('')||'<div class="empty">Không tìm thấy.</div>'}</div>`;
+        $$('#c3l [data-c]').forEach(e=>e.onclick=()=>cus360(e.dataset.c,$('#c3v')))};
+      let t;$('#c3q').oninput=()=>{clearTimeout(t);t=setTimeout(find,300)};$('#c3n').onclick=()=>openForm('customers',null,find);await find()}
+    if(n==='it')await renderList('interactions',h,{});
+    if(n==='bc')await crmReport(h);
+  };
+  m.querySelectorAll('#crt button').forEach(b=>b.onclick=()=>sw(b.dataset.s));await sw('ld');
+};
+TABS.push(['crm','Khách hàng & bán hàng',['admin','kinh_doanh','dieu_phoi','ke_toan']]);
+{const g=NAV_GROUPS.find(x=>x[0]==='Điều hành');if(g)g[1].splice(1,0,'crm');}
+ICONS.crm=IC('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.5c2 .6 3.2 2.4 3.5 5.5"/>');
+// Yêu cầu dịch vụ: xem ảnh/video khách gửi
+async function svcMedia(paths){if(!paths?.length)return '';const {data}=await sb.storage.from('svc-media').createSignedUrls(paths,3600);
+  return `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">${(data||[]).map(x=>/\.(mp4|mov|webm|3gp)$/i.test(x.path)?`<video src="${x.signedUrl}" controls style="width:220px;border-radius:10px"></video>`:`<a href="${x.signedUrl}" target="_blank" rel="noopener"><img src="${x.signedUrl}" style="width:120px;height:90px;object-fit:cover;border-radius:10px"></a>`).join('')}</div>`}
+if(E.svc_requests){E.svc_requests.f.push({h:'Khảo sát'},{k:'survey_at',l:'Lịch khảo sát',t:'dt'},{k:'survey_note',l:'Kết quả khảo sát',t:'area'},{k:'lead_id',l:'Lead',t:'fk',ref:'leads',ro:true},{k:'opportunity_id',l:'Cơ hội',t:'fk',ref:'opps',ro:true})}
+if(E.svc_catalog){E.svc_catalog.f.splice(9,0,{k:'survey_required',l:'Cần khảo sát thực tế (chỉ hiện giá tham khảo)',t:'bool',def:false,list:true},
+  {h:'Hàng hóa (xe nâng): KHG tự nhập'},{k:'buy_price',l:'Giá mua vào',t:'money',list:true},{k:'sell_price',l:'Giá bán lẻ',t:'money',list:true},{k:'wholesale_price',l:'Giá bán sỉ / đại lý',t:'money',list:true},{k:'rent_month_price',l:'Giá thuê theo tháng',t:'money'},{k:'stock_qty',l:'Tồn (chiếc)',t:'num'})}
+
+
+// ===== v13 · Kinh nghiệm tài xế (tick chọn sẵn) =====
+Object.assign(O,{exp_band:{duoi_1:'Dưới 1 năm','1_2':'1 – 2 năm','3_5':'3 – 5 năm','6_10':'6 – 10 năm',tren_10:'Trên 10 năm'},
+ rveh:{tai_nhe:'Tải nhẹ, van dưới 2,5 tấn',tai_35:'Tải 2,5 – 3,5 tấn',tai_58:'Tải 5 – 8 tấn',tai_1015:'Tải 10 – 15 tấn',tai_nang:'Tải trên 15 tấn',dau_keo:'Đầu kéo container',ben:'Xe ben',bon:'Xe bồn',lanh:'Xe đông lạnh',cau:'Xe tải gắn cẩu',xe_nang:'Xe nâng',khach_16:'Xe khách 16–29 chỗ',khach_30:'Xe khách trên 29 chỗ',xe_con:'Xe con 4–7 chỗ',chuyen_dung:'Xe chuyên dùng'},
+ rcar:{fmcg:'Hàng tiêu dùng',thuc_pham:'Thực phẩm, nông sản',lanh:'Hàng lạnh',vlxd:'Vật liệu xây dựng',container:'Container cảng',may_moc:'Máy móc thiết bị',nguy_hiem:'Hàng nguy hiểm',noi_thanh:'Nội thành nhiều điểm',duong_dai:'Đường dài',cho_nguoi:'Chở người',tmdt:'Thương mại điện tử'},
+ remp:{cong_ty:'Lái cho công ty vận tải',chu_xe:'Lái cho chủ xe tư nhân',tu_chu:'Tự chủ xe',gia_dinh:'Lái xe gia đình',chua:'Chưa đi làm lái xe'},
+ rroute:{hcm:'Nội thành TP.HCM',dnb:'Bình Dương – Đồng Nai – Tây Ninh',vt:'Vũng Tàu, Cái Mép',mien_tay:'Miền Tây',tay_nguyen:'Tây Nguyên',mien_trung:'Miền Trung',bac_nam:'Bắc – Nam',mien_bac:'Miền Bắc',bien_gioi:'Campuchia, Lào'}});
+{const ins=(name,after,flds)=>{const F=E[name]?.f;if(!F)return;let i=F.findIndex(f=>f.k===after);i=i<0?F.length:i+1;flds.filter(x=>!F.some(f=>f.k===x.k)).forEach((x,j)=>F.splice(i+j,0,x))};
+ ins('fd_drivers','years_exp',[{k:'exp_band',l:'Nhóm kinh nghiệm',t:'sel',o:'exp_band',list:true},{k:'recent_vehicles',l:'Loại xe đã lái 2 năm gần nhất',t:'multi',o:O.rveh,list:true},{k:'recent_employer',l:'Hình thức làm 2 năm gần nhất',t:'sel',o:'remp'},{k:'recent_cargo',l:'Loại hàng, công việc đã chạy',t:'multi',o:O.rcar},{k:'routes_known',l:'Tuyến quen thuộc',t:'multi',o:O.rroute}]);
+ if(E.fd_drivers&&!(E.fd_drivers.filters||[]).some(x=>x[0]==='exp_band'))E.fd_drivers.filters=[...(E.fd_drivers.filters||[]),['exp_band','exp_band']];
+ ins('partner_drivers','license_until',[{k:'years_exp',l:'Số năm kinh nghiệm',t:'num',list:true},{k:'exp_band',l:'Nhóm kinh nghiệm',t:'sel',o:'exp_band',list:true},{k:'recent_vehicles',l:'Loại xe đã lái 2 năm gần nhất',t:'multi',o:O.rveh}]);
+ ins('people','role',[{k:'exp_band',l:'Kinh nghiệm lái xe (tài xế)',t:'sel',o:'exp_band'},{k:'recent_vehicles',l:'Loại xe đã lái 2 năm gần nhất (tài xế)',t:'multi',o:O.rveh}]);}
 // ===================== Khung & đăng nhập =====================
 let cur='overview';
 const allowed=()=>{const office=has(STAFF);const base=office?TABS.filter(t=>(has(t[2])&&PERMS[t[0]]!=='none')||PERMS[t[0]]==='view'||PERMS[t[0]]==='edit'):[];
