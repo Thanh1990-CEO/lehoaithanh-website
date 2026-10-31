@@ -68,6 +68,11 @@ textarea.i{min-height:70px;resize:vertical}
 .vc button{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:10px;text-align:left;cursor:pointer;min-height:74px}
 .vc button b{display:block;font-size:14px}.vc button span{font-size:11.5px;color:var(--muted);line-height:1.3;display:block;margin-top:2px}
 .vc button.on{border-color:var(--red);background:var(--soft)}
+.svc{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}.svc button{flex:1;min-width:150px;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:10px;font-weight:700;cursor:pointer;text-align:left}.svc button small{display:block;font-weight:400;color:var(--muted);font-size:12px}.svc button.on{border-color:var(--red);background:var(--soft);color:var(--red)}
+.vc button .pr{color:var(--red);font-weight:700;margin-top:4px;display:block;font-size:13px}.vc button.dim{opacity:.55}
+.promo{display:flex;gap:6px;margin:10px 0 4px}.promo input{flex:1;text-transform:uppercase}.promo button{border:1.5px solid var(--red);background:#fff;color:var(--red);border-radius:10px;padding:0 14px;font-weight:700;cursor:pointer}
+.pm{font-size:12.5px;margin:2px 0 6px}.pm.ok{color:var(--green)}.pm.no{color:var(--red)}
+.eta{background:#F4F7FB;border:1px solid #DCE6F2;border-radius:12px;padding:10px 12px;margin-top:10px;font-size:13.5px}.eta b{color:var(--ink)}.eta .r{display:flex;justify-content:space-between;gap:8px;padding:3px 0}.eta .w{color:#B45309;font-size:12.5px;margin-top:6px;padding-left:16px;text-indent:-16px}.eta small{color:var(--muted)}
 .seg{display:flex;background:#F0ECEB;border-radius:10px;padding:3px;gap:3px}
 .seg button{flex:1;border:0;background:none;border-radius:8px;padding:9px;font-weight:600;cursor:pointer;color:var(--ink2)}
 .seg button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:var(--ink)}
@@ -139,8 +144,9 @@ textarea.i{min-height:70px;resize:vertical}
           <div id="map" style="margin-top:12px"></div>
         </div>
 
-        <div class="card"><h2><span class="n">2</span>Loại xe</h2>
-          <div class="vc" id="vc"></div>
+        <div class="card"><h2><span class="n">2</span>Dịch vụ & loại xe</h2>
+          <div class="svc" id="svc"><button type="button" data-s="xe_tai" class="on">🚚 Xe tải chở hàng<small>Thùng kín, thùng bạt, thùng lửng</small></button><button type="button" data-s="xe_cau">🏗️ Xe tải gắn cẩu<small>Tự cẩu hàng lên, xuống · 2 – 8 tấn</small></button></div>
+          <div class="vc" id="vc"></div><div class="note" id="vcNote" style="margin-top:6px">Chọn loại xe theo khối lượng, kích thước hàng. Giá từng loại xe hiện ngay khi có lộ trình.</div>
           <div class="row" style="margin-top:6px">
             <div><label class="f">Thùng xe</label><select class="i" id="body"><option>Thùng kín</option><option>Thùng bạt</option><option>Thùng lửng</option><option>Không yêu cầu</option></select></div>
             <div><label class="f">Số chuyến</label><input class="i" id="trips" type="number" min="1" value="1" inputmode="numeric"></div>
@@ -154,7 +160,8 @@ textarea.i{min-height:70px;resize:vertical}
           <div class="row3"><div><label class="f">Khối lượng (tấn)</label><input class="i" id="weight" type="number" step="0.1" min="0" inputmode="decimal"></div>
             <div><label class="f">Thể tích (m³)</label><input class="i" id="vol" type="number" step="0.1" min="0" inputmode="decimal"></div>
             <div><label class="f">Số kiện</label><input class="i" id="pcs" type="number" min="0" inputmode="numeric"></div></div>
-          <label class="chk"><input type="checkbox" id="crane"><span><b>Xe tải gắn cẩu</b> – tự cẩu hàng lên, xuống (cước +30%)<br><small style="color:var(--muted)">KHG có 5 xe cẩu 1,5 – 8 tấn. Chọn loại xe theo tải trọng hàng; cẩu trên 8 tấn vui lòng gửi yêu cầu tại trang Dịch vụ.</small></span></label>
+          <div class="row"><div><label class="f">Lối vào điểm lấy hàng</label><select class="i" id="accP"><option value="lon">Đường lớn, xe tải vào được</option><option value="kcn">Trong KCN, cảng, kho có cổng</option><option value="hem">Hẻm, đường nhỏ, khu dân cư</option></select></div>
+            <div><label class="f">Lối vào điểm giao hàng</label><select class="i" id="accD"><option value="lon">Đường lớn, xe tải vào được</option><option value="kcn">Trong KCN, cảng, kho có cổng</option><option value="hem">Hẻm, đường nhỏ, khu dân cư</option></select></div></div>
           <label class="chk"><input type="checkbox" id="loading"><span>Cần KHG bố trí bốc xếp<br><small style="color:var(--muted)">Phí bốc xếp đuôi xe cộng vào tạm tính; bốc xếp đặc biệt điều phối báo khi xác nhận.</small></span></label>
           <label class="f">Ghi chú cho tài xế</label><textarea class="i" id="note" placeholder="Giờ nhận hàng của kho, đường cấm tải, hàng dễ vỡ…"></textarea>
         </div>
@@ -173,8 +180,10 @@ textarea.i{min-height:70px;resize:vertical}
         <div class="card"><h2>Báo giá tạm tính</h2>
           <div class="sum"><div><small>Quãng đường</small><b id="sKm">–</b></div><div><small>Thời gian chạy</small><b id="sTime">–</b></div><div><small>Điểm giao</small><b id="sStops">1</b></div></div>
           <div class="lines" id="fLines"></div>
+          <div class="promo"><input class="i" id="promo" placeholder="Mã giảm giá (nếu có)" autocomplete="off"><button type="button" id="promoBtn">Áp dụng</button></div><div class="pm" id="promoMsg"></div>
           <div class="fare"><span>Tạm tính<br><small style="color:var(--muted)" id="fVatNote">chưa gồm VAT</small></span><span class="big" id="fTotal">–</span></div>
-          <div class="note">Giá theo Biểu giá chuẩn KHG 2026: đã gồm dầu, phí cầu đường BOT và tài xế. Giá chính thức do điều phối xác nhận. Phụ phí giao thêm điểm, bốc xếp, chờ quá 2 giờ, chạy đêm/lễ/Tết, hàng trả về áp dụng theo biểu giá.</div>
+          <div class="eta hidden" id="eta"></div>
+          <div class="note">Giá đã gồm nhiên liệu, phí cầu đường và tài xế. Giá và thời gian là tạm tính; điều phối KHG xác nhận khi nhận đơn.</div>
           <div class="err hidden" id="bErr"></div>
           <button class="btn p w" style="margin-top:12px" id="btnBook" type="submit">Đặt xe ngay</button>
           <a class="btn g w" style="margin-top:8px;text-decoration:none" id="gmap" target="_blank" rel="noopener">Xem lộ trình trên Google Maps</a>
@@ -216,33 +225,15 @@ const vnd=n=>Math.round(Number(n)||0).toLocaleString('vi-VN')+' đ';
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
 
-// ===== Biểu giá chuẩn KHG 2026 (đ, chưa VAT, đã gồm dầu + BOT + tài xế): phí mở chuyến gồm 20 km đầu; bậc 21–100, 101–300, 301–600, trên 600 km
-const VC=[
- {k:'1.25t',l:'Xe 1,25 tấn',d:'Thùng 3,2×1,6×1,6m · 8 m³',b:530000,r:[17500,13500,9500,4500],f:1.15,stop:80000,loading:150000},
- {k:'2t',l:'Xe 2 tấn',d:'Thùng 4,2×1,75×1,7m · 12 m³',b:740000,r:[18500,15000,11500,6000],f:1.15,stop:110000,loading:150000},
- {k:'3.5t',l:'Xe 3,5 tấn',d:'Thùng 5,0×2,0×1,5m · 15 m³',b:900000,r:[21000,18500,11500,6500],f:1.15,stop:130000,loading:245000},
- {k:'5t',l:'Xe 5 tấn',d:'Thùng 6,2×2,1×1,6m · 21 m³',b:1050000,r:[23500,21000,12500,7500],f:1.3,stop:170000,loading:350000},
- {k:'8t',l:'Xe 8 tấn',d:'Thùng 8,0×2,35×1,9m · 36 m³',b:1320000,r:[25000,22500,15000,9500],f:1.3,stop:220000,loading:560000},
- {k:'10t',l:'Xe 10 tấn',d:'Thùng 8,5×2,35×2,05m · 41 m³',b:1470000,r:[26500,24000,17000,11000],f:1.45,stop:280000,loading:700000},
- {k:'15t',l:'Xe 15 tấn',d:'Thùng 9,5×2,35×2,05m · 46 m³',b:1680000,r:[28500,26000,20000,12500],f:1.45,stop:330000,loading:1050000},
-];
-let FUEL=null;
-function fareOf(v,km,stops=0,loading=false){
-  km=Math.max(0,Math.ceil(km||0));const B=v.base_km||20,T1=v.t1||100,T2=v.t2||300,T3=v.t3||600;
-  const parts=[[`Phí mở chuyến (gồm ${B} km đầu)`,v.b]];
-  const seg=(a,b,rate,label)=>{const n=Math.max(0,Math.min(km,b)-a);if(n>0)parts.push([`${label}: ${n} km × ${rate.toLocaleString('vi-VN')} đ`,n*rate])};
-  seg(B,T1,v.r[0],`Km ${B+1}–${T1}`);seg(T1,T2,v.r[1],`Km ${T1+1}–${T2}`);if(v.r.length>3){seg(T2,T3,v.r[2],`Km ${T2+1}–${T3}`);seg(T3,1e6,v.r[3],`Km trên ${T3}`)}else seg(T2,1e6,v.r[2],`Km trên ${T2}`);
-  if(stops>0&&v.stop)parts.push([`${stops} điểm giao thêm × ${v.stop.toLocaleString('vi-VN')} đ`,stops*v.stop]);
-  if(loading&&v.loading)parts.push(['Bốc xếp (1 đầu)',v.loading]);
-  return {parts,total:parts.reduce((a,p)=>a+p[1],0)};
-}
-// Bảng giá trực tuyến (đã điều chỉnh theo giá dầu hiện hành) – thay bảng dự phòng ở trên khi tải được
-sb.rpc('khg_rate_card').then(({data})=>{if(!data||!(data.cards||[]).length)return;FUEL=data;
-  VC.splice(0,VC.length,...data.cards.map(c=>({k:c.k,l:c.l,d:c.d||'',b:Number(c.b),r:c.r.map(Number),f:Number(c.f)||1.15,base_km:c.base_km,t1:c.t1,t2:c.t2,t3:c.t3,stop:Number(c.stop)||0,loading:Number(c.loading)||0})));
+// ===== Danh mục loại xe (chỉ tên, mô tả – giá do máy chủ KHG tính)
+const VC=[{k:'1.25t',l:'Xe 1,25 tấn',d:'Thùng 3,2×1,6×1,6m · 8 m³',load_t:1.25},{k:'2t',l:'Xe 2 tấn',d:'Thùng 4,2×1,75×1,7m · 12 m³',load_t:2},{k:'3.5t',l:'Xe 3,5 tấn',d:'Thùng 5,0×2,0×1,5m · 15 m³',load_t:3.5},
+ {k:'5t',l:'Xe 5 tấn',d:'Thùng 6,2×2,1×1,6m · 21 m³',load_t:5},{k:'8t',l:'Xe 8 tấn',d:'Thùng 8,0×2,35×1,9m · 36 m³',load_t:8},{k:'10t',l:'Xe 10 tấn',d:'Thùng 8,5×2,35×2,05m · 41 m³',load_t:10},{k:'15t',l:'Xe 15 tấn',d:'Thùng 9,5×2,35×2,05m · 46 m³',load_t:15}];
+sb.rpc('khg_public_vehicles').then(({data})=>{if(!data||!(data.cards||[]).length)return;
+  VC.splice(0,VC.length,...data.cards.map(c=>({k:c.k,l:c.l,d:c.d||'',load_t:Number(c.load_t),crane:!!c.crane,from:Number(c.from)||0,fromC:Number(c.from_crane)||0})));
   if(!VC.find(x=>x.k===S.vc))S.vc=VC[0].k;renderVC();calc()}).catch(()=>{});
 
 // ===== Trạng thái
-const S={pick:{addr:'',lat:null,lng:null},drops:[],vc:'2t',route:null,when:'now'};
+const S={pick:{addr:'',lat:null,lng:null},drops:[],vc:'2t',route:null,when:'now',svc:/[?&]cau=1/.test(location.search)?'xe_cau':'xe_tai',promo:'',Q:null};
 const DCOL=['#C8102E','#1C5FA8','#B5651D','#6A3FA0','#1E7A4C','#A23B72','#2B6F77','#8A6D1D'];
 
 // ===== Gợi ý địa chỉ (Photon/OSM) + định vị (Nominatim)
@@ -289,8 +280,12 @@ function renderDrops(){
 }
 
 // ===== Loại xe
-function renderVC(){$('#vc').innerHTML=VC.map(v=>`<button type="button" data-k="${v.k}" class="${v.k===S.vc?'on':''}"><b>${v.l}</b><span>${v.d}</span><span style="color:var(--red);font-weight:700;margin-top:4px">từ ${(v.b/1000).toLocaleString('vi-VN')}k</span></button>`).join('');
-  $$('#vc button').forEach(b=>b.onclick=()=>{S.vc=b.dataset.k;renderVC();calc()})}
+const vlist=()=>VC.filter(v=>S.svc!=='xe_cau'||(v.crane??(v.load_t>=1.5&&v.load_t<=8)));
+function renderVC(){const L=vlist();if(!L.find(v=>v.k===S.vc))S.vc=(L[0]||{}).k;const opt=k=>(S.Q&&S.Q.ok?S.Q.options:[]).find(o=>o.k===k);
+  $('#vc').innerHTML=L.map(v=>{const o=opt(v.k);const nm=S.svc==='xe_cau'?(o?o.l:'Xe tải gắn cẩu '+String(v.load_t).replace('.',',')+' tấn'):v.l;const fr=S.svc==='xe_cau'?v.fromC:v.from;
+    return `<button type="button" data-k="${v.k}" class="${v.k===S.vc?'on':''}"><b>${esc(nm)}</b><span>${esc(v.d)}</span><span class="pr">${o?vnd(o.price):fr?'từ '+(fr/1000).toLocaleString('vi-VN')+'k':''}</span></button>`}).join('');
+  $$('#vc button').forEach(b=>b.onclick=()=>{S.vc=b.dataset.k;renderVC();calc()});
+  $$('#svc button').forEach(b=>b.classList.toggle('on',b.dataset.s===S.svc))}
 
 // ===== Bản đồ + tuyến đường (OSRM)
 let map,layer;
@@ -316,18 +311,33 @@ function gmapLink(){const P=[S.pick,...S.drops].filter(p=>p.addr||p.lat!=null);c
   const a=$('#gmap'); if(P.length<2){a.classList.add('hidden');return ''} a.classList.remove('hidden');
   const u=`https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=${f(P[0])}&destination=${f(P[P.length-1])}`+(P.length>2?`&waypoints=${P.slice(1,-1).map(f).join('%7C')}`:'');a.href=u;return u}
 
-function calc(){
-  const v=VC.find(x=>x.k===S.vc); const trips=Math.max(1,+$('#trips').value||1);
-  if(!S.route){$('#sKm').textContent='–';$('#sTime').textContent='–';$('#fLines').innerHTML=`<div><span>${v.l} – giá mở cửa</span><span>${vnd(v.b)}</span></div>`;$('#fTotal').textContent='từ '+vnd(v.b);S.fare=null;return}
-  const km=S.route.km, min=S.route.min*v.f; const F=fareOf(v,km,Math.max(0,S.drops.length-1),$('#loading').checked);
-  if($('#crane')&&$('#crane').checked){const cf=Number(FUEL?.params?.crane_factor)||1.3;const add=Math.round(F.total*(cf-1)/1000)*1000;F.parts.push([`Xe tải gắn cẩu (+${Math.round((cf-1)*100)}%)`,add]);F.total+=add}
-  $('#sKm').textContent=(Math.round(km*10)/10).toLocaleString('vi-VN')+' km';
-  $('#sTime').textContent=min>=60?`${Math.floor(min/60)}g ${Math.round(min%60)}p`:`${Math.round(min)} phút`;
-  let total=F.total*trips; const vat=$('#vat').checked;
-  $('#fLines').innerHTML=F.parts.map(p=>`<div><span>${p[0]}</span><span>${vnd(p[1])}</span></div>`).join('')+(trips>1?`<div><span>× ${trips} chuyến</span><span></span></div>`:'')+(S.drops.length>1&&!VC.find(x=>x.k===S.vc)?.stop?`<div><span style="color:var(--muted)">${S.drops.length-1} điểm giao thêm</span><span style="color:var(--muted)">theo bảng giá</span></div>`:'')+(FUEL?`<div><span style="color:var(--muted);font-size:12px">Theo giá dầu ${Number(FUEL.diesel).toLocaleString('vi-VN')} đ/lít</span><span></span></div>`:'')+(vat?`<div><span>VAT 8%</span><span>${vnd(total*0.08)}</span></div>`:'');
-  if(vat) total=total*1.08;
-  $('#fTotal').textContent=vnd(Math.round(total/1000)*1000); $('#fVatNote').textContent=vat?'đã gồm VAT 8%':'chưa gồm VAT';
-  S.fare=Math.round(F.total*trips/1000)*1000; S.km=Math.round(km*10)/10; S.min=Math.round(min);
+const hm=t=>new Date(t).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+const dm=t=>{const d=new Date(t),n=new Date();return d.toDateString()===n.toDateString()?'hôm nay':d.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit'})};
+const dur=m=>{m=Math.round(m);if(m<60)return m+' phút';const d=Math.floor(m/1440),h=Math.floor(m%1440/60),mi=m%60;return (d?d+' ngày ':'')+(h?h+' giờ ':'')+(mi&&!d?mi+' phút':'')};
+let qSeq=0,qT=null;
+function calc(){clearTimeout(qT);qT=setTimeout(calcNow,250)}
+async function calcNow(){
+  const trips=Math.max(1,+$('#trips').value||1);const v=VC.find(x=>x.k===S.vc)||VC[0];
+  if(!S.route){S.Q=null;renderVC();$('#sKm').textContent='–';$('#sTime').textContent='–';const fr=S.svc==='xe_cau'?v.fromC:v.from;
+    $('#fLines').innerHTML=`<div><span>${esc(S.svc==='xe_cau'?'Xe tải gắn cẩu':'Xe tải')} · ${esc(v.l.replace(/^Xe /,''))}</span><span>${fr?'từ '+vnd(fr):''}</span></div><div><span style="color:var(--muted);font-size:12.5px">Nhập điểm lấy và điểm giao để xem giá chính xác, thời gian xe đến.</span><span></span></div>`;
+    $('#fTotal').textContent=fr?'từ '+vnd(fr):'–';$('#eta').classList.add('hidden');S.fare=null;return}
+  const my=++qSeq;$('#fTotal').textContent='Đang tính…';
+  const p={km:S.route.km,route_min:S.route.min,svc:S.svc,code:S.vc,stops:S.drops.length,loading:$('#loading').checked,trips,promo:S.promo,
+    start_at:S.when==='later'&&$('#schedAt').value?new Date($('#schedAt').value).toISOString():null,access_pick:$('#accP').value,access_drop:$('#accD').value,
+    pick:{lat:S.pick.lat,lng:S.pick.lng},drops:S.drops.map(d=>({lat:d.lat,lng:d.lng}))};
+  const {data:Q,error}=await sb.rpc('khg_public_quote',{p});if(my!==qSeq)return;
+  if(error||!Q||!Q.ok){$('#fTotal').textContent='–';$('#fLines').innerHTML=`<div><span style="color:var(--red)">${esc(error?'Chưa tính được giá, vui lòng thử lại':Q?.msg||'')}</span><span></span></div>`;return}
+  S.Q=Q;S.vc=Q.sel.k;renderVC();const vat=$('#vat').checked,E=Q.eta||{};
+  $('#sKm').textContent=(Math.round(S.route.km*10)/10).toLocaleString('vi-VN')+' km';$('#sTime').textContent=E.drive_min?dur(E.drive_min):'–';
+  $('#fLines').innerHTML=`<div><span>${esc(Q.sel.l)}${trips>1?' × '+trips+' chuyến':''}</span><span>${vnd(Q.sel.sub)}</span></div>`+
+    (Q.sel.discount?`<div><span style="color:var(--green)">Mã ${esc(Q.promo.code)} (−${String(Q.promo.pct).replace('.',',')}%)</span><span style="color:var(--green)">−${vnd(Q.sel.discount)}</span></div>`:'')+
+    (vat?`<div><span>VAT 8%</span><span>${vnd(Q.sel.vat)}</span></div>`:'');
+  $('#fTotal').textContent=vnd(vat?Q.sel.grand:Q.sel.net);$('#fVatNote').textContent=vat?'đã gồm VAT 8%':'chưa gồm VAT';
+  const pm=$('#promoMsg');if(Q.promo){pm.textContent=Q.promo.msg||'';pm.className='pm '+(Q.promo.ok?'ok':'no')}else{pm.textContent='';pm.className='pm'}
+  if(E.ok){$('#eta').classList.remove('hidden');$('#eta').innerHTML=`<div class="r"><span>🚚 Xe đến lấy hàng</span><b>${hm(E.pickup_at)} – ${hm(E.pickup_to)} ${dm(E.pickup_at)}</b></div>
+    <div class="r"><span>⏱️ Chạy từ điểm lấy đến điểm giao</span><b>khoảng ${dur(E.drive_min+E.rest_min+E.overnight_min)}</b></div>${E.rest_min||E.overnight_min?`<div class="r"><small>Gồm nghỉ của tài xế theo luật</small><small>${dur(E.rest_min+E.overnight_min)}</small></div>`:''}
+    <div class="r"><span>📦 Giao xong dự kiến</span><b>${hm(E.done_at)} ${dm(E.done_at)}</b></div>${(E.warnings||[]).map(w=>`<div class="w">⚠ ${esc(w)}</div>`).join('')}`}
+  S.fare=Q.sel.net;S.km=Math.round(S.route.km*10)/10;S.min=E.drive_min||Math.round(S.route.min);
 }
 
 // ===== Gửi đơn
@@ -341,11 +351,11 @@ async function submit(e){
   if(!name||phone.replace(/\D/g,'').length<9) return fail('Vui lòng nhập họ tên và số điện thoại người đặt xe.');
   if(S.when==='later'&&!$('#schedAt').value) return fail('Vui lòng chọn thời gian lấy hàng.');
   const v=VC.find(x=>x.k===S.vc), trips=Math.max(1,+$('#trips').value||1);
-  const extra=[$('#body').value!=='Không yêu cầu'?$('#body').value:'',trips>1?trips+' chuyến':'',$('#pcs').value?$('#pcs').value+' kiện':'',$('#vat').checked?'Xuất HĐ VAT':'',$('#crane')?.checked?'Cần xe tải gắn cẩu':''].filter(Boolean).join(' · ');
+  const extra=[$('#body').value!=='Không yêu cầu'?$('#body').value:'',trips>1?trips+' chuyến':'',$('#pcs').value?$('#pcs').value+' kiện':'',$('#vat').checked?'Xuất HĐ VAT':'',S.svc==='xe_cau'?'Xe tải gắn cẩu':'',S.promo?'Mã giảm giá '+S.promo:'',$('#accP').value==='hem'?'Điểm lấy là hẻm/đường nhỏ':'',$('#accD').value==='hem'?'Điểm giao là hẻm/đường nhỏ':''].filter(Boolean).join(' · ');
   const p={hp:$('#hp').value,name,phone,company:$('#cCompany').value.trim(),email:$('#cEmail').value.trim(),
     pickup:S.pick.addr,pickup_lat:S.pick.lat,pickup_lng:S.pick.lng,pickup_contact:$('#pickContact').value.trim(),pickup_phone:$('#pickPhone').value.trim(),
     drops:S.drops.map(d=>({address:d.addr,lat:d.lat,lng:d.lng,contact:d.contact,phone:d.phone,cod:d.cod,note:d.note})),
-    vehicle_class:v.k,vehicle_label:v.l+' – '+$('#body').value+($('#crane')?.checked?' · gắn cẩu':''),distance_km:S.route?S.km:null,duration_min:S.route?S.min:null,est_fare:S.fare,
+    vehicle_class:v.k,vehicle_label:(S.Q&&S.Q.ok?S.Q.sel.l:v.l)+' – '+$('#body').value,distance_km:S.route?S.km:null,duration_min:S.route?S.min:null,est_fare:S.fare,svc:S.svc,trips,promo:S.promo,route_min:S.route?Math.round(S.route.min):null,access_pick:$('#accP').value,access_drop:$('#accD').value,
     scheduled_at:S.when==='later'?new Date($('#schedAt').value).toISOString():null,cargo:$('#cargo').value.trim(),weight_t:$('#weight').value||null,volume_m3:$('#vol').value||null,
     need_loading:$('#loading').checked,cod_total:S.drops.reduce((a,d)=>a+(+d.cod||0),0),route_url:gmapLink(),
     note:[extra,$('#note').value.trim()].filter(Boolean).join('\n')};
@@ -388,6 +398,7 @@ async function track(token){
       <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)">${STEPS.map(x=>`<span>${x}</span>`).join('')}</div>
       ${o.driver?`<div class="drv"><div class="av">${esc((o.driver.name||'?').trim().split(' ').pop()[0]||'?')}</div><div style="flex:1"><b>${esc(o.driver.name)}</b><div style="font-size:13px;color:var(--ink2)">${esc(o.plate||'')} ${o.vehicle?'· '+esc(o.vehicle):''}</div></div>${o.driver.phone?`<a class="btn p" style="min-height:40px;padding:8px 14px;text-decoration:none" href="tel:${esc(o.driver.phone)}">Gọi tài xế</a>`:''}</div>`:`<div class="drv"><div class="av">…</div><div>Điều phối KHG đang sắp xếp tài xế cho đơn của bạn.</div></div>`}
       <div class="sum" style="margin-top:12px"><div><small>Lấy hàng</small><b style="font-size:13.5px">${o.scheduled_at?fmt(o.scheduled_at):'Sớm nhất'}</b></div><div><small>Quãng đường</small><b style="font-size:13.5px">${o.distance_km?o.distance_km+' km':'–'}</b></div><div><small>${o.price?'Cước xác nhận':'Tạm tính'}</small><b style="font-size:13.5px">${o.price||o.est_fare?vnd(o.price||o.est_fare):'–'}</b></div></div>
+      ${!cancel&&st<4&&(o.eta_pickup_at||o.eta_delivery_at)?`<div class="eta" style="margin-top:10px">${o.eta_pickup_at&&st<2?`<div class="r"><span>🚚 Xe đến lấy dự kiến</span><b>${fmt(o.eta_pickup_at)}</b></div>`:''}${o.eta_delivery_at?`<div class="r"><span>📦 Giao xong dự kiến</span><b>${fmt(o.eta_delivery_at)}</b></div>`:''}${(o.eta_warn||[]).map(w=>`<div class="w">⚠ ${esc(w)}</div>`).join('')}<div class="r"><small>Thời gian dự kiến, điều phối cập nhật khi xe chạy.</small><small>${o.promo?'Mã '+esc(o.promo)+(o.discount?' −'+vnd(o.discount):''):''}</small></div></div>`:''}
       <h2 style="margin-top:6px">Các điểm</h2>
       ${(o.stops||[]).map(s=>{const L=STOP_L[s.status]||[s.status,'m'];return `<div class="pt"><div class="ph"><span class="dot" style="background:${s.kind==='lay'?'#1E7A4C':DCOL[(s.seq-1)%DCOL.length]}"></span>${s.kind==='lay'?'Điểm lấy':s.kind==='thu_hoi'?'Thu hồi':s.kind==='tra_hang'?'Trả hàng':'Điểm giao '+s.seq}<span class="badge ${L[1]}" style="margin-left:auto">${esc(L[0])}</span></div>
         <div style="font-size:13.5px;margin-top:4px">${esc(s.address)}${s.contact?' · '+esc(s.contact):''}</div>${s.cod?`<div style="font-size:12.5px">Thu hộ: <b>${vnd(s.cod)}</b>${s.collected!=null?` · đã thu <b style="color:var(--green)">${vnd(s.collected)}</b>`:''}</div>`:''}${s.reason?`<div style="font-size:12.5px;color:var(--amber)">${esc(s.reason)}</div>`:''}${s.done_at?`<div style="font-size:12px;color:var(--muted)">${fmt(s.done_at)}</div>`:''}</div>`}).join('')}
@@ -489,7 +500,11 @@ $('#btnLoc').onclick=()=>{if(!navigator.geolocation)return toast('Thiết bị k
     $('#pickAddr').value=addr;$('#pickAddr')._geo=true;Object.assign(S.pick,{addr,lat,lng});$('#pickOk').classList.remove('hidden');route()},()=>toast('Không lấy được vị trí – vui lòng nhập địa chỉ'),{enableHighAccuracy:true,timeout:12000})};
 $$('#when button').forEach(b=>b.onclick=()=>{S.when=b.dataset.v;$$('#when button').forEach(x=>x.classList.toggle('on',x===b));$('#whenAt').classList.toggle('hidden',S.when!=='later');
   if(S.when==='later'&&!$('#schedAt').value){const d=new Date(Date.now()+3*3600e3);d.setMinutes(0,0,0);$('#schedAt').value=new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,16)}});
-$('#trips').oninput=calc; $('#vat').onchange=calc; if($('#crane')){$('#crane').onchange=calc;if(/[?&]cau=1/.test(location.search))$('#crane').checked=true}
+$('#trips').oninput=calc; $('#vat').onchange=calc; ['accP','accD','schedAt'].forEach(id=>$('#'+id).addEventListener('change',calc));
+$$('#svc button').forEach(b=>b.onclick=()=>{S.svc=b.dataset.s;S.Q=null;renderVC();calc()});
+const applyPromo=()=>{S.promo=$('#promo').value.trim().toUpperCase();$('#promo').value=S.promo;if(!S.route&&S.promo){$('#promoMsg').textContent='Mã sẽ được áp dụng khi có lộ trình';$('#promoMsg').className='pm'}calc()};
+$('#promoBtn').onclick=applyPromo;$('#promo').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();applyPromo()}});
+try{const pc=new URLSearchParams(location.search).get('ma');if(pc){$('#promo').value=pc.toUpperCase();S.promo=pc.toUpperCase()}}catch(e){}
 $('#fBook').addEventListener('submit',submit);
 prefill(); calc();
 const t0=new URLSearchParams(location.search).get('t'),ds0=new URLSearchParams(location.search).get('ds'); if(ds0){settlement(ds0)}else if(t0){go('track');track(t0)}else go('book');

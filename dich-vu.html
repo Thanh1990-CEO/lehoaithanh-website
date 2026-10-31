@@ -163,6 +163,9 @@ table.pr td small{display:block;color:var(--muted);font-size:12px;margin-top:2px
 .tot .v{font-size:21px;font-weight:800;color:var(--acc)}.tot .s{flex:1;min-width:150px;font-size:12.5px;color:var(--muted)}
 .site{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fff}.site b{display:block}
 .src{font-size:12px;color:var(--muted);line-height:1.5}.src a{color:var(--muted)}
+.it{display:flex;gap:10px;align-items:flex-start;border-top:1px solid var(--line);padding:10px 2px}.it:first-child{border-top:0}.it input[type=checkbox]{width:20px;height:20px;margin-top:2px;accent-color:var(--acc);flex:none}.it .nm{flex:1}.it .nm b{font-weight:600}.it .nm small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.it .qt{display:flex;align-items:center;gap:6px;white-space:nowrap}.it .qt input{width:80px;text-align:right;border:1px solid var(--line);border-radius:8px;padding:6px;min-height:36px;font:inherit}.it .qt span{font-size:12px;color:var(--muted)}.it .sv{font-size:12px;color:var(--amber);white-space:nowrap}.it .am{font-weight:700;white-space:nowrap;min-width:90px;text-align:right}
+.promo{display:flex;gap:6px;flex-wrap:wrap}.promo input{width:150px;text-transform:uppercase;border:1px solid var(--line);border-radius:10px;padding:8px;font:inherit}.promo .pm{font-size:12px}.promo .pm.ok{color:var(--green)}.promo .pm.no{color:var(--red)}
 @media(max-width:600px){table.pr thead{display:none}table.pr tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;border-top:1px solid var(--line);padding:9px 0}table.pr td{border:0;padding:0}table.pr td:first-child{grid-column:1/-1}table.pr td.n{text-align:left}table.pr td:nth-child(3){grid-column:1;color:var(--muted);font-size:12.5px}table.pr td:nth-child(4){grid-column:2;grid-row:2/4;align-self:center}}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.g2{grid-template-columns:1fr}}
 .dl{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}.dl label{border:1.5px solid var(--line);border-radius:999px;padding:7px 11px;font-size:13px;font-weight:600;cursor:pointer;background:#fff}.dl input{display:none}.dl input:checked+span{color:var(--acc)}.dl label:has(input:checked){border-color:var(--acc);background:var(--soft)}
@@ -432,32 +435,27 @@ const BS={thi_truong:'Giá thị trường',de_xuat:'Giá đề xuất KHG',khg:
 const DEAL={dich_vu:'Sử dụng dịch vụ',thue:'Cần thuê',cho_thue:'Cần cho thuê',mua:'Cần mua',ban:'Cần bán',chuyen_nhuong:'Chuyển nhượng',ky_gui:'Ký gửi'};
 const DEALS={kho:['dich_vu','thue'],gtgt:['dich_vu'],boc_xep:['dich_vu'],xe_nang_thue:['thue'],cau:['thue'],xe_nang_ban:['mua','ban','thue','ky_gui'],bai_xe:['thue','cho_thue'],bds:['thue','cho_thue','mua','ban','chuyen_nhuong','ky_gui']};
 const KIND={kho:'Kho',xuong:'Nhà xưởng',bai:'Bãi',dat:'Đất công nghiệp / đất trống',van_phong_kho:'Văn phòng + kho'};
-let CAT=[],SITES=[],cur=(location.hash.slice(1)||'kho'),QTY={};
-const unitPrice=c=>c.price==null?null:Number(c.price);
-const priceTxt=c=>{if(c.grp==='xe_nang_ban'&&c.price==null)return c.sell_price?fmtN(c.sell_price):'Liên hệ';if(c.unit==='× cước xe tải')return '+30% cước xe tải';if(c.price==null)return 'Khảo sát, báo giá';const pct=/%|tháng tiền thuê/.test(c.unit);
-  const f=v=>pct||/USD/.test(c.unit)?String(v).replace('.',','):fmtN(v);
-  if(Number(c.price)===0&&!c.price_max)return 'Miễn phí';
-  return c.price_max&&Number(c.price_max)!==Number(c.price)?`${f(c.price)} – ${f(c.price_max)}`:f(c.price)};
-const qtyable=c=>!c.survey_required&&c.price!=null&&Number(c.price)>0&&!c.price_max&&!/%|tháng tiền thuê|USD|×/.test(c.unit);
+let CAT=[],SITES=[],cur=(location.hash.slice(1)||'kho'),QTY={},PICK={},PROMO='',SQ=null;
+const qtyable=c=>!!c.pick;
+const unitTxt=u=>String(u||'').replace(/^đ\//,'').replace(/^đ$/,'lần');
 async function load(){
-  const [{data:c,error},{data:s}]=await Promise.all([sb.from('khg_service_catalog').select('*').eq('active',true).order('sort'),sb.rpc('khg_public_sites')]);
+  const [{data:c,error},{data:s}]=await Promise.all([sb.rpc('khg_public_services'),sb.rpc('khg_public_sites')]);
   if(error){$('#main').innerHTML='<div class="err">Không tải được bảng giá. Vui lòng thử lại.</div>';return}
   CAT=c||[];SITES=s||[];if(!GN[cur])cur='kho';draw()}
 function draw(){
-  const g=GN[cur];const rows=CAT.filter(x=>x.grp===cur);const srcs=[...new Set(rows.map(r=>r.source).filter(Boolean))];
+  const g=GN[cur];const rows=CAT.filter(x=>x.grp===cur);
   $('#main').innerHTML=`<div class="hero"><h1>Một đầu mối cho hàng hóa của bạn<span>Vận chuyển · Kho bãi · Phân chia hàng · Bốc xếp · Cẩu, xe nâng · Kho xưởng – đất toàn quốc</span></h1>
     <div class="eco"><a href="/dat-xe"><b>🚚 Đặt xe tải</b>Tra cước theo km, đặt xe</a><a href="/thue-tai-xe"><b>🧑‍✈️ Thuê tài xế</b>Tài xế đã xác thực</a><a href="/doi-tac"><b>🤝 Đối tác xe</b>Đưa xe vào mạng lưới KHG</a><a href="/fast-driver"><b>🪪 Fast Driver</b>Việc làm cho tài xế</a></div></div>
    <div class="sel" id="sel">${G.map(x=>`<button data-g="${x[0]}" class="${x[0]===cur?'on':''}">${x[1]} ${esc(x[2])}</button>`).join('')}</div>
    <div class="card"><div class="gh"><div class="ic">${g[1]}</div><div><h2>${esc(g[2])}</h2><p>${esc(g[3])}</p></div></div>
-    ${rows.some(r=>r.survey_required)?`<div class="warn" style="margin-top:12px">📸 <b>Dịch vụ cần khảo sát thực tế.</b> Giá trong bảng chỉ để tham khảo. Bạn gửi thông tin kèm hình ảnh, video hiện trạng ở form bên dưới – KHG khảo sát và báo giá trực tiếp qua số điện thoại bạn để lại.</div>`:''}
-    ${cur==='cau'?`<div class="card" style="background:var(--soft);border-color:#F3C4C4;margin:12px 0 0"><b>🚚 Xe tải gắn cẩu 1,5 – 8 tấn: tính cước theo km như đặt xe tải, cộng 30%</b><p class="note" style="margin:6px 0 10px">Chọn loại xe, nhập điểm lấy và điểm giao – hệ thống tính ngay giá cước xe gắn cẩu.</p><a class="btn p" href="/dat-xe?cau=1">🧮 Tính cước & đặt xe cẩu</a></div>`:''}
+    ${rows.some(r=>r.survey_required)?`<div class="warn" style="margin-top:12px">📸 <b>Dịch vụ cần khảo sát thực tế.</b> Bạn tick chọn dịch vụ cần dùng, gửi thông tin kèm hình ảnh, video hiện trạng ở form bên dưới – KHG khảo sát và báo giá trực tiếp qua số điện thoại bạn để lại.</div>`:''}
+    ${cur==='cau'?`<div class="card" style="background:var(--soft);border-color:#F3C4C4;margin:12px 0 0"><b>🏗️ Xe tải gắn cẩu 2 – 8 tấn</b><p class="note" style="margin:6px 0 10px">Chọn loại xe theo tải trọng, nhập điểm lấy và điểm giao – hệ thống báo giá và thời gian xe đến ngay.</p><a class="btn p" href="/dat-xe?cau=1">🧮 Tính cước & đặt xe cẩu</a></div>`:''}
     ${cur==='kho'||cur==='bai_xe'||cur==='bds'?sitesHtml():''}
-    <div style="overflow-x:auto"><table class="pr"><thead><tr><th>Hạng mục</th><th style="text-align:right">Đơn giá (chưa VAT)</th><th>Đơn vị</th>${rows.some(qtyable)?'<th style="text-align:right">Số lượng</th>':''}</tr></thead><tbody>
-     ${rows.map(r=>`<tr><td>${esc(r.name)}<span class="bs ${r.basis}">${BS[r.basis]||''}</span>${r.spec?`<small>${esc(r.spec)}</small>`:''}${r.min_charge?`<small>Tối thiểu ${fmtN(r.min_charge)} đ</small>`:''}</td>
-       <td class="n">${priceTxt(r)}</td><td>${esc(r.unit)}</td>${rows.some(qtyable)?`<td class="n">${qtyable(r)?`<input inputmode="decimal" data-q="${r.code}" value="${QTY[r.code]||''}" placeholder="0">`:''}</td>`:''}</tr>`).join('')}
-    </tbody></table></div>
-    ${rows.some(qtyable)?`<div class="tot"><div><div class="note" style="margin:0">Tạm tính (chưa VAT)</div><div class="v" id="tv">0 đ</div></div><div class="s" id="ts">Nhập số lượng cho các dòng cần dùng. Cách tính chung: Thành tiền = Σ đơn giá × số lượng, áp mức tối thiểu từng dòng.</div><button class="btn p" id="go1">Gửi yêu cầu báo giá</button></div>`:''}
-    <p class="note">Giá thị trường: đối chiếu từ bảng giá công bố của các đơn vị trong nước (xem nguồn bên dưới). Giá đề xuất KHG: chưa có nguồn công khai đủ tin cậy để đối chiếu – áp dụng tạm, điều chỉnh theo khảo sát thực tế. Ngoài giờ (17h–22h) +50%, Chủ nhật +100%, ngày lễ +200% với dịch vụ có nhân công.</p>
+    <div style="margin-top:10px">${rows.map(r=>`<label class="it"><input type="checkbox" data-pk="${r.code}" ${PICK[r.code]?'checked':''}><div class="nm"><b>${esc(r.name)}</b>${r.spec?`<small>${esc(r.spec)}</small>`:''}</div>
+       ${qtyable(r)?`<div class="qt ${PICK[r.code]?'':'hidden'}" data-qw="${r.code}"><input inputmode="decimal" data-q="${r.code}" value="${QTY[r.code]||''}" placeholder="Số lượng"><span>${esc(unitTxt(r.unit))}</span></div><div class="am" data-am="${r.code}"></div>`:/×/.test(r.unit)?`<a class="sv" href="/dat-xe?cau=1" style="color:var(--acc);font-weight:700">Báo giá ngay ›</a>`:`<span class="sv">KHG khảo sát, báo giá</span>`}</label>`).join('')}</div>
+    <div class="tot"><div><div class="note" style="margin:0">Tạm tính (chưa VAT)</div><div class="v" id="tv">0 đ</div></div><div class="s" id="ts">Tick chọn dịch vụ cần dùng và nhập số lượng – giá tự động cập nhật.</div>
+      <div class="promo"><input id="pc" placeholder="Mã giảm giá" value="${esc(PROMO)}"><button class="btn g" id="pcB" type="button">Áp dụng</button><span class="pm" id="pcM"></span></div><button class="btn p" id="go1">Gửi yêu cầu báo giá</button></div>
+    <p class="note">Giá đã gồm nhân công, thiết bị theo hạng mục; chưa gồm VAT. Dịch vụ cần khảo sát, làm ngoài giờ, Chủ nhật, ngày lễ được KHG báo giá trực tiếp.</p>
    </div>
    <div class="card" id="rq"><h3 style="margin-top:0">📝 Gửi yêu cầu – KHG báo giá và liên hệ lại</h3>
     <label class="f">Nhu cầu</label><div class="dl">${(DEALS[cur]||['dich_vu']).map((d,i)=>`<label><input type="radio" name="deal" value="${d}" ${i?'':'checked'}><span>${DEAL[d]}</span></label>`).join('')}</div>
@@ -474,25 +472,34 @@ function draw(){
     <input id="rHp" style="display:none" tabindex="-1" autocomplete="off"><div class="err hidden" id="rErr"></div>
     <button class="btn p w" id="rGo" style="margin-top:12px">Gửi yêu cầu</button>
     <p class="note">KHG liên hệ lại trong giờ làm việc. Thông tin chỉ dùng để báo giá, tư vấn cho bạn.</p></div>
-   ${srcs.length?`<div class="card src"><b>Nguồn đối chiếu giá thị trường</b><br>${srcs.map(esc).join('<br>')}</div>`:''}`;
+`;
   $$('#sel button').forEach(b=>b.onclick=()=>{cur=b.dataset.g;history.replaceState(null,'','#'+cur);draw();window.scrollTo({top:0,behavior:'smooth'})});
   $$('[data-q]').forEach(i=>i.oninput=()=>{QTY[i.dataset.q]=i.value;calc()});
+  $$('[data-pk]').forEach(i=>i.onchange=()=>{PICK[i.dataset.pk]=i.checked;const w=document.querySelector(`[data-qw="${i.dataset.pk}"]`);if(w){w.classList.toggle('hidden',!i.checked);if(i.checked){const q=w.querySelector('input');if(!QTY[i.dataset.pk]){QTY[i.dataset.pk]='1';q.value='1'}q.focus()}}calc()});
+  const ap=()=>{PROMO=$('#pc').value.trim().toUpperCase();$('#pc').value=PROMO;calc()};$('#pcB').onclick=ap;$('#pc').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();ap()}};
   const g1=$('#go1');if(g1)g1.onclick=()=>$('#rq').scrollIntoView({behavior:'smooth'});
   try{const s=JSON.parse(localStorage.getItem('khg_lh')||'{}');if(s.n)$('#rName').value=s.n;if(s.p)$('#rPhone').value=s.p}catch(e){}
   $('#rGo').onclick=()=>busy($('#rGo'),submit);calc()}
 function sitesHtml(){if(!SITES.length)return '';return `<div style="margin-top:12px"><b>Kho, bãi KHG đang vận hành</b><div class="note" style="margin:2px 0 8px">KHG mở rộng kho theo nhu cầu trên toàn quốc – ghi địa điểm bạn cần ở form bên dưới.</div>${SITES.map(s=>`<div class="site"><b>${esc(s.name)}</b><span class="note">${esc(s.province||'')}${s.kho_m2?' · kho '+fmtN(s.kho_m2)+' m²':''}${s.bai_m2?' · bãi '+fmtN(s.bai_m2)+' m²':''}${s.available_m2?' · còn trống ~'+fmtN(s.available_m2)+' m²':''}</span></div>`).join('')}</div>`}
-function lines(){const out=[];CAT.filter(x=>x.grp===cur&&qtyable(x)).forEach(c=>{const q=parseFloat(String(QTY[c.code]||'').replace(',','.'))||0;if(q>0){const a=Math.max(q*Number(c.price),Number(c.min_charge)||0);out.push({code:c.code,name:c.name,unit:c.unit,qty:q,price:Number(c.price),amount:Math.round(a)})}});return out}
-function calc(){const tv=$('#tv');if(!tv)return;const L=lines();const t=L.reduce((s,x)=>s+x.amount,0);tv.textContent=fmtM(t);$('#ts').textContent=L.length?`${L.length} hạng mục · VAT 8%: ${fmtM(t*0.08)} · Tổng gồm VAT ${fmtM(t*1.08)}`:'Nhập số lượng cho các dòng cần dùng. Thành tiền = Σ đơn giá × số lượng, áp mức tối thiểu từng dòng.'}
+function items(){return CAT.filter(x=>x.grp===cur&&qtyable(x)&&PICK[x.code]).map(c=>({code:c.code,qty:String(QTY[c.code]||'').replace(',','.')})).filter(x=>parseFloat(x.qty)>0)}
+let cSeq=0;
+async function calc(){const tv=$('#tv');if(!tv)return;const it=items();$$('[data-am]').forEach(e=>e.textContent='');
+  if(!it.length){SQ=null;tv.textContent='0 đ';const sv=CAT.filter(x=>x.grp===cur&&!qtyable(x)&&PICK[x.code]).length;$('#ts').textContent=sv?`${sv} dịch vụ cần khảo sát – KHG báo giá sau khi nhận thông tin.`:'Tick chọn dịch vụ cần dùng và nhập số lượng – giá tự động cập nhật.';$('#pcM').textContent='';return}
+  const my=++cSeq;tv.textContent='Đang tính…';const {data:Q,error}=await sb.rpc('khg_public_svc_quote',{p:{items:it,promo:PROMO}});if(my!==cSeq)return;
+  if(error||!Q){tv.textContent='–';$('#ts').textContent='Chưa tính được, vui lòng thử lại.';return}SQ=Q;
+  (Q.lines||[]).forEach(l=>{const e=document.querySelector(`[data-am="${l.code}"]`);if(e)e.textContent=fmtM(l.amount)});
+  tv.textContent=fmtM(Q.net);$('#ts').textContent=`${(Q.lines||[]).length} hạng mục${Q.discount?` · đã giảm ${fmtM(Q.discount)}`:''} · VAT 8%: ${fmtM(Q.vat)} · Tổng gồm VAT ${fmtM(Q.grand)}`;
+  const m=$('#pcM');if(Q.promo){m.textContent=Q.promo.msg||'';m.className='pm '+(Q.promo.ok?'ok':'no')}else{m.textContent='';m.className='pm'}}
 async function upMedia(){const fs=[...($('#rMed')?.files||[])].slice(0,8);const out=[];for(const [i,f] of fs.entries()){if(f.size>52428800){toast('Bỏ qua tệp quá 50 MB: '+f.name);continue}
     $('#rMedN').textContent=`Đang tải tệp ${i+1}/${fs.length}…`;const ext=(f.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5);
     const path=`yc/${new Date().toISOString().slice(0,10)}/${Date.now().toString(36)}${Math.random().toString(36).slice(2,8)}.${ext}`;
     const {error}=await sb.storage.from('svc-media').upload(path,f,{contentType:f.type||undefined,upsert:false});if(error){toast('Không tải được '+f.name+': '+error.message);continue}out.push(path)}
   if(fs.length)$('#rMedN').textContent=`Đã tải ${out.length}/${fs.length} tệp.`;return out}
-async function submit(){const L=lines();const media=await upMedia();const t=L.reduce((s,x)=>s+x.amount,0);const kinds=$$('input[name="kind"]:checked').map(i=>KIND[i.value]);
+async function submit(){const it=items();const media=await upMedia();const sv=CAT.filter(x=>x.grp===cur&&PICK[x.code]).map(x=>x.code);const kinds=$$('input[name="kind"]:checked').map(i=>KIND[i.value]);
   const p={grp:cur,deal:($('input[name="deal"]:checked')||{}).value||'dich_vu',site_name:$('#rSite').value.trim(),province:$('#rProv').value,qty:$('#rQty').value.trim(),
     area_m2:/^\d+([.,]\d+)?$/.test($('#rQty').value.trim())&&['kho','bds','bai_xe'].includes(cur)?$('#rQty').value.trim().replace(',','.'):'',duration:$('#rWhen').value.trim(),budget:($('#rBud')||{}).value||'',
     detail:(kinds.length?'Loại: '+kinds.join(', ')+'. ':'')+$('#rDet').value.trim(),contact_name:$('#rName').value.trim(),phone:$('#rPhone').value.trim(),company:$('#rCo').value.trim(),
-    services:L.map(x=>x.code),est_amount:t||'',quote:L.length?{lines:L,total:t,vat:Math.round(t*0.08)}:null,source:'web-dich-vu',media,hp:$('#rHp').value};
+    services:sv,items:it,promo:PROMO,source:'web-dich-vu',media,hp:$('#rHp').value};
   const {data,error}=await sb.rpc('khg_service_request',{p});
   if(error){$('#rErr').textContent=error.message;$('#rErr').classList.remove('hidden');return}
   try{localStorage.setItem('khg_lh',JSON.stringify({n:p.contact_name,p:p.phone}))}catch(e){}
