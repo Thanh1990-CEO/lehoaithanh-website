@@ -1,0 +1,461 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bán hàng KHG – app sale</title><meta name="theme-color" content="#C8102E"><meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23C8102E'/%3E%3Ctext x='32' y='42' font-size='24' font-family='Arial' font-weight='700' fill='white' text-anchor='middle'%3EBH%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--red:#C8102E;--ink:#141414;--ink2:#3A3A3A;--muted:#6B6B6B;--bg:#F4F4F2;--card:#fff;--line:#E4E1DE;--green:#1E7A4C;--amber:#B5651D;--blue:#1C5FA8;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--acc)}
+.hidden{display:none!important}
+header{background:var(--ink);color:#fff;position:sticky;top:0;z-index:50}
+.hd{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 16px}
+.hd img{width:38px;height:38px;border-radius:10px;flex:none}
+.hd .nm{line-height:1.15;min-width:0}.hd .nm b{display:block;font-size:15px}.hd .nm span{font-size:12px;color:#C9C9C9;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+.hd .sp{flex:1}
+.hb{background:#2A2A2A;color:#fff;border:0;border-radius:999px;padding:8px 12px;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.hb.a{background:var(--acc)}
+.tabs{display:none}
+nav.bot{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:60;padding-bottom:env(safe-area-inset-bottom)}
+nav.bot button{flex:1;background:none;border:0;padding:8px 2px 9px;font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:600;position:relative;cursor:pointer}
+nav.bot button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.bot button.on{color:var(--acc)}
+nav.bot .dot{position:absolute;top:4px;left:calc(50% + 6px);background:var(--red);color:#fff;border-radius:999px;font-size:10px;min-width:17px;height:17px;display:grid;place-items:center;padding:0 4px}
+@media(min-width:900px){body{padding-bottom:24px}nav.bot{position:sticky;top:58px;bottom:auto;max-width:1100px;margin:0 auto;border:1px solid var(--line);border-radius:0 0 14px 14px}nav.bot button{flex-direction:row;justify-content:center;font-size:13.5px;padding:11px 6px}}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:16.5px}
+.card h3{margin:0 0 8px;font-size:15px}
+h1.pg{font-size:20px;margin:2px 0 12px}
+label.f{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);margin:10px 0 4px}
+.i{width:100%;border:1px solid var(--line);background:#FBFAF9;border-radius:10px;padding:10px 12px;outline:none;min-height:44px}
+.i:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px var(--soft)}
+textarea.i{min-height:70px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.row.s1{grid-template-columns:1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:12px;padding:11px 15px;font-weight:700;cursor:pointer;min-height:44px;text-decoration:none;font-size:14.5px}
+.btn.p{background:var(--acc);color:#fff}.btn.p:disabled{opacity:.55;cursor:not-allowed}
+.btn.g{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn.r{background:#FDECEC;color:#9B1C1C}
+.btn.k{background:var(--green);color:#fff}
+.btn.s{min-height:36px;padding:7px 11px;font-size:13px;border-radius:10px}
+.btn.w{width:100%}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.seg{display:flex;background:#ECE9E6;border-radius:10px;padding:3px;gap:3px;margin-bottom:12px;overflow-x:auto}
+.seg button{flex:1;border:0;background:none;border-radius:8px;padding:8px 10px;font-weight:600;cursor:pointer;color:var(--ink2);white-space:nowrap}
+.seg button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips label{display:inline-flex}.chips input{display:none}
+.chips span{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer;user-select:none}
+.chips input:checked+span{border-color:var(--acc);background:var(--soft);color:var(--acc);font-weight:700}
+.grp{font-size:12px;font-weight:700;color:var(--muted);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.3px}
+.kp{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:700px){.kp{grid-template-columns:repeat(4,1fr)}}
+.kp div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.kp small{display:block;color:var(--muted);font-size:12px}.kp b{font-size:19px;display:block;margin-top:2px}.kp em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.kp .hl{background:var(--soft);border-color:transparent}.kp .hl b{color:var(--acc)}
+.list{display:grid;gap:10px}
+@media(min-width:900px){.list.two{grid-template-columns:1fr 1fr}}
+.it{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+.it .t{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.it .t b{font-size:15px}
+.it .m{font-size:13px;color:var(--ink2);margin-top:4px}
+.it .m div{margin-top:2px}
+.it .pr{font-size:18px;font-weight:800;color:var(--acc);white-space:nowrap}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;background:#EFEFEF;color:#555;white-space:nowrap}
+.pill.green{background:#E5F4EC;color:var(--green)}.pill.amber{background:#FBEFE3;color:var(--amber)}.pill.red{background:#FDECEC;color:#B42318}.pill.blue{background:#E6EEF8;color:var(--blue)}
+.empty{text-align:center;color:var(--muted);padding:26px 10px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.5}
+.warn{background:#FFF7E8;border:1px solid #F3D9A8;border-radius:12px;padding:12px;font-size:13.5px;margin-bottom:14px}
+.err{background:#FDECEC;color:#9B1C1C;border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;z-index:200;max-width:92vw;text-align:center}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150;display:flex;align-items:flex-end;justify-content:center}
+.sheet .bx{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+@media(min-width:700px){.sheet{align-items:center}.sheet .bx{border-radius:18px}}
+.sheet h3{margin:0 0 8px;font-size:17px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td{padding:7px 6px;border-bottom:1px solid #EFECE9;text-align:left}table.t .n{text-align:right;white-space:nowrap}
+.tw{overflow-x:auto}
+.bars{display:flex;align-items:flex-end;gap:3px;height:90px;margin-top:8px}
+.bars i{flex:1;background:var(--acc);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:8px}
+.files a{display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;text-decoration:none;color:var(--ink2);font-size:11px;background:#FAFAFA}
+.files img{width:100%;height:76px;object-fit:cover;display:block}.files span{display:block;padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.files .x{height:76px;display:grid;place-items:center;font-weight:800;color:var(--muted)}
+.doc{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fff}
+.doc .ic{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;flex:none}
+.doc .ic.ok{background:#E5F4EC;color:var(--green)}.doc .ic.no{background:#F1EFEE;color:var(--muted)}
+.doc div{flex:1;min-width:0}.doc small{display:block;color:var(--muted);font-size:12px}
+.steps{display:flex;gap:4px;margin:8px 0 4px}.steps i{flex:1;height:6px;border-radius:3px;background:#E4E0DD}.steps i.on{background:var(--acc)}
+.stl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);gap:4px}.stl span{flex:1;text-align:center}
+.auth{max-width:460px;margin:0 auto}
+.hp{position:absolute;left:-5000px;width:1px;height:1px;opacity:0}
+.foot{max-width:1100px;margin:6px auto 0;padding:0 16px 22px;color:var(--muted);font-size:12px;text-align:center}
+#nl-badge-frame{bottom:calc(70px + env(safe-area-inset-bottom))!important}
+/* chuông */
+.kring{position:fixed;inset:0;z-index:400;background:rgba(200,16,46,.92);display:grid;place-items:center;padding:20px;animation:krp 1s infinite}
+@keyframes krp{0%,100%{background:rgba(200,16,46,.92)}50%{background:rgba(120,0,20,.95)}}
+.kr-bx{background:#fff;border-radius:20px;padding:22px 18px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.kr-bx b{display:block;font-size:19px;margin:6px 0}.kr-bx p{margin:0 0 14px;color:var(--ink2)}
+.kr-ic{font-size:54px;animation:krs .5s infinite alternate}@keyframes krs{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+/* điện thoại: chống iOS phóng to khi nhập, nút to dễ bấm */
+@media(max-width:900px){.i,select.i,textarea.i,input,select,textarea{font-size:16px!important}.btn{min-height:46px}.btn.s{min-height:40px}}
+.next{background:linear-gradient(120deg,var(--acc),#0b3b6b);color:#fff;border-radius:16px;padding:16px;margin-bottom:14px}
+.next small{opacity:.85;display:block}.next b{display:block;font-size:18px;margin:4px 0 10px}.next .btn{background:#fff;color:var(--acc)}
+
+/* ===== Hồ sơ xác thực (KYC) ===== */
+.kst{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:12px;margin-bottom:12px;font-size:13.5px}
+.kst b{display:block;font-size:15px}.kst.amber{background:#FFF7E8;border:1px solid #F3D9A8}.kst.green{background:#E5F4EC;border:1px solid #BFE3CF}.kst.red{background:#FDECEC;border:1px solid #F5C2C2}.kst.blue{background:var(--soft);border:1px solid transparent}
+.kbar{height:8px;background:#EEE;border-radius:99px;overflow:hidden;margin:8px 0 2px}.kbar i{display:block;height:100%;background:var(--acc);border-radius:99px}
+.kg{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin:14px 0 6px}
+.ki{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0EEEC}
+.ki .c{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;flex:none;font-size:14px}
+.ki .c.ok{background:#E5F4EC;color:var(--green)}.ki .c.no{background:#FDECEC;color:var(--red)}
+.ki .t{flex:1;min-width:0}.ki .t b{display:block;font-size:14px}.ki .t small{color:var(--muted);font-size:12px}
+.ki .a{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.kthumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.kthumbs img{width:54px;height:54px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+/* camera */
+.kcam{position:fixed;inset:0;background:#000;z-index:300;display:flex;flex-direction:column;color:#fff}
+.kcam-top{display:flex;align-items:center;gap:10px;padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top))}.kcam-top b{flex:1;font-size:15px}
+.kcam-top button{background:#333;color:#fff;border:0;border-radius:999px;width:36px;height:36px;font-size:16px}
+.kcam-v{flex:1;position:relative;overflow:hidden;display:grid;place-items:center}
+.kcam-v video{width:100%;height:100%;object-fit:cover}.kcam-v video.mir{transform:scaleX(-1)}
+.kcam-oval{position:absolute;width:64vmin;height:82vmin;max-width:340px;max-height:430px;border:3px dashed rgba(255,255,255,.85);border-radius:50%;box-shadow:0 0 0 2000px rgba(0,0,0,.35)}
+.kcam-oval.doc{border-radius:14px;width:86vmin;height:56vmin;max-width:520px;max-height:340px}
+.kcam-msg{position:absolute;top:16px;left:12px;right:12px;text-align:center;font-size:19px;font-weight:800;text-shadow:0 2px 8px #000}
+.kcam-cd{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:52px;font-weight:800;text-shadow:0 2px 10px #000}
+.kcam-bot{padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center;background:#111}
+.kcam-bot .btn{min-width:150px}
+.kcam-shots{display:flex;gap:6px;position:absolute;bottom:90px;left:10px}.kcam-shots img{width:48px;height:60px;object-fit:cover;border-radius:6px;border:2px solid #fff}
+/* chữ ký */
+.ksig{position:fixed;inset:0;background:#fff;z-index:300;display:flex;flex-direction:column}
+.ksig .hd2{padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top));border-bottom:1px solid var(--line);font-weight:700}
+.ksig .pad{flex:1;position:relative;margin:12px;border:2px dashed #C9C4BF;border-radius:14px;touch-action:none;background:#FFFEFB}
+.ksig canvas{position:absolute;inset:0;width:100%;height:100%}
+.ksig .ln{position:absolute;left:8%;right:8%;bottom:28%;border-bottom:1.5px solid #D5D0CA;pointer-events:none}
+.ksig .ln span{position:absolute;left:0;top:6px;font-size:12px;color:#A39E98}
+.ksig .ft{display:flex;gap:10px;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.kdoc{white-space:pre-wrap;font-size:13.5px;line-height:1.6;background:#FBFAF9;border:1px solid var(--line);border-radius:12px;padding:12px;max-height:46vh;overflow:auto}
+.kchk{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:13.5px}.kchk input{width:20px;height:20px;margin-top:2px;flex:none}
+.khash{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;word-break:break-all;color:var(--muted)}
+.nt{border-left:4px solid var(--acc)}.nt.unread{background:#F5F9FF}.nt.vp{border-left-color:var(--red)}
+.locbar{background:#FFF7E8;border:1px solid #F3D9A8;border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:12px;display:flex;gap:10px;align-items:center}
+
+:root{--acc:#C8102E;--soft:#FDECEC}
+.kp2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kp2 div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}.kp2 b{display:block;font-size:20px}.kp2 small{color:var(--muted)}
+.bar2{height:10px;background:#F1EDEA;border-radius:6px;overflow:hidden;margin-top:6px}.bar2 i{display:block;height:100%;background:var(--acc)}
+.ol{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}.ol b{display:block}.ol small{color:var(--muted)}
+.pr{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center;border-bottom:1px dashed var(--line);padding:8px 0}.pr input{width:64px;text-align:center;border:1px solid var(--line);border-radius:8px;height:36px}
+.stk{position:sticky;bottom:64px;background:#fff;border:1.5px solid var(--acc);border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:center;margin-top:10px}
+</style></head><body>
+<header><div class="hd"><svg viewBox="0 0 120 120" width="36" height="36" style="flex:none"><rect width="120" height="120" rx="20" fill="#C8102E"/><path d="M34 46 L38 22 L50 35 L60 16 L70 35 L82 22 L86 46 Z" fill="#fff"/><text x="60" y="92" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="34" fill="#fff">KHG</text></svg>
+ <div class="nm"><b>Bán hàng KHG</b><span id="hN">App nhân viên sale</span></div><div class="sp"></div><button class="hb hidden" id="hOut">Thoát</button></div></header>
+<nav class="bot hidden" id="nav"></nav><main id="main"><div class="empty">Đang tải…</div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL='https://kbpcmifwplbtggfcnfrx.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_buS_4Iky59zQlMME9dn2NQ_1FqIwlVt';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtN=n=>(Number(n)||0).toLocaleString('vi-VN');
+const fmtM=n=>fmtN(Math.round(Number(n)||0))+' đ';
+const fmtD=d=>d?new Date(String(d).length<=10?d+'T00:00:00':d).toLocaleDateString('vi-VN'):'';
+const fmtDT=d=>d?new Date(d).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'';
+const isoD=d=>{const x=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return x.toISOString().slice(0,10)};
+const today=()=>isoD(new Date());
+const normPhone=p=>{let d=String(p||'').replace(/\D/g,'');if(d.startsWith('84'))d='0'+d.slice(2);return d};
+const qs=k=>new URLSearchParams(location.search).get(k)||'';
+const tel=p=>p?`<a href="tel:${esc(p)}">${esc(p)}</a>`:'';
+function toast(t,ms=3200){let e=$('#toast');if(!e){e=document.createElement('div');e.id='toast';e.className='toast';document.body.appendChild(e)}e.textContent=t;e.classList.remove('hidden');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.add('hidden'),ms)}
+function sheet(html){closeSheet();const d=document.createElement('div');d.className='sheet';d.id='sheet';d.innerHTML=`<div class="bx">${html}</div>`;d.onclick=e=>{if(e.target===d)closeSheet()};document.body.appendChild(d);return d}
+const closeSheet=()=>$('#sheet')?.remove();
+const pill=(map,v,colors)=>v?`<span class="pill ${(colors||{})[v]||''}">${esc((map||{})[v]||v)}</span>`:'';
+const chips=(name,opts,sel=[])=>`<div class="chips">${Object.entries(opts).map(([k,l])=>`<label><input type="checkbox" name="${name}" value="${esc(k)}" ${sel.includes(k)?'checked':''}><span>${esc(l)}</span></label>`).join('')}</div>`;
+const radios=(name,opts,v)=>`<div class="chips">${Object.entries(opts).map(([k,l])=>`<label><input type="radio" name="${name}" value="${esc(k)}" ${v===k?'checked':''}><span>${esc(l)}</span></label>`).join('')}</div>`;
+const picked=(root,name)=>[...root.querySelectorAll(`input[name="${name}"]:checked`)].map(i=>i.value);
+const opt=(map,v,blank)=>(blank?`<option value="">${esc(blank)}</option>`:'')+Object.entries(map).map(([k,l])=>`<option value="${esc(k)}" ${String(v??'')===k?'selected':''}>${esc(l)}</option>`).join('');
+async function busy(btn,fn){if(btn){btn.disabled=true}try{return await fn()}catch(e){toast(e.message||String(e));}finally{if(btn)btn.disabled=false}}
+const rpc=async(n,a)=>{const {data,error}=await sb.rpc(n,a||{});if(error)throw new Error(error.message);return data};
+
+// loại xe trên thị trường (bảng khg_vehicle_types)
+let VT=[];const VTN={};
+async function loadVT(){if(VT.length)return VT;const {data}=await sb.from('khg_vehicle_types').select('*').order('sort');VT=data||[];VT.forEach(v=>VTN[v.code]=v.name);return VT}
+function vtChips(name,sel=[]){const g={};VT.forEach(v=>(g[v.grp]=g[v.grp]||[]).push(v));return Object.entries(g).map(([k,a])=>`<div class="grp">${esc(k)}</div>`+chips(name,Object.fromEntries(a.map(v=>[v.code,v.name])),sel)).join('')}
+function vtSelect(v,blank='— Chọn loại xe —'){const g={};VT.forEach(x=>(g[x.grp]=g[x.grp]||[]).push(x));return `<option value="">${blank}</option>`+Object.entries(g).map(([k,a])=>`<optgroup label="${esc(k)}">${a.map(x=>`<option value="${x.code}" ${v===x.code?'selected':''}>${esc(x.name)}${x.license?' · GPLX '+x.license:''}</option>`).join('')}</optgroup>`).join('')}
+
+// GPLX (Luật TTATGT 2024 – Điều 57) và bằng cấp trước 2025
+const LIC={A1:'A1 – mô tô ≤125cc',A:'A – mô tô >125cc',B1:'B1 – mô tô 3 bánh',B:'B – ô tô ≤8 chỗ khách, tải ≤3,5 t',C1:'C1 – tải 3,5–7,5 t',C:'C – tải >7,5 t',D1:'D1 – 9–16 chỗ khách',D2:'D2 – 17–29 chỗ khách',D:'D – >29 chỗ, giường nằm',
+  BE:'BE – hạng B kéo rơ moóc',C1E:'C1E – C1 kéo rơ moóc',CE:'CE – đầu kéo, container',D1E:'D1E',D2E:'D2E',DE:'DE'};
+const LIC_OLD={B2:'B2 (cũ) → B',C_CU:'C (cũ) → C',D_CU:'D (cũ) → D2',E_CU:'E (cũ) → D',FB2:'FB2 (cũ) → BE',FC:'FC (cũ) → CE',FD:'FD (cũ) → D2E',FE:'FE (cũ) → DE',B1_CU:'B1 số tự động (cũ) – không lái thuê'};
+const LIC_COVER={A1:['A1'],A:['A1','A'],B1:['A1','B1'],B:['B'],B2:['B'],C1:['B','C1'],C:['B','C1','C'],C_CU:['B','C1','C'],D1:['B','C1','C','D1'],D2:['B','C1','C','D1','D2'],D_CU:['B','C1','C','D1','D2'],
+  D:['B','C1','C','D1','D2','D'],E_CU:['B','C1','C','D1','D2','D'],BE:['B','BE'],FB2:['B','BE'],C1E:['B','C1','BE','C1E'],CE:['B','C1','C','BE','C1E','CE'],FC:['B','C1','C','BE','C1E','CE'],
+  D1E:['B','C1','C','D1','BE','C1E','CE','D1E'],D2E:['B','C1','C','D1','D2','BE','C1E','CE','D1E','D2E'],FD:['B','C1','C','D1','D2','BE','C1E','CE','D1E','D2E'],DE:['B','C1','C','D1','D2','D','BE','C1E','CE','D1E','D2E','DE'],FE:['B','C1','C','D1','D2','D','BE','C1E','CE','D1E','D2E','DE']};
+const covers=held=>[...new Set((held||[]).flatMap(h=>LIC_COVER[String(h).toUpperCase()]||[]))];
+const licOk=(held,need)=>!need||covers(held).includes(String(need).toUpperCase());
+
+// ảnh: nén trước khi tải lên
+async function shrink(file,max=1600){
+  if(!/^image\//.test(file.type)||/gif|svg/.test(file.type))return file;
+  try{const bmp=await createImageBitmap(file);const k=Math.min(1,max/Math.max(bmp.width,bmp.height));const c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.82));return b&&b.size<file.size?new File([b],file.name.replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):file}catch(e){return file}}
+const safeName=n=>String(n||'file').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').replace(/[^\w.-]+/g,'-').slice(-60);
+async function putFile(prefix,file){const f=await shrink(file);const path=`${prefix}/${Date.now()}-${safeName(f.name)}`;
+  const {error}=await sb.storage.from('khg-files').upload(path,f,{contentType:f.type||'application/octet-stream',upsert:false});if(error)throw new Error(error.message);return {path,name:f.name,mime:f.type,size:f.size}}
+async function signedMap(paths){if(!paths.length)return {};const {data}=await sb.storage.from('khg-files').createSignedUrls(paths,3600);const m={};(data||[]).forEach(x=>{if(x.signedUrl)m[x.path]=x.signedUrl});return m}
+async function fileGrid(files){const u=await signedMap(files.map(f=>f.file_path));return `<div class="files">${files.map(f=>{const url=u[f.file_path]||'#';return `<a href="${url}" target="_blank" rel="noopener">${/^image/.test(f.mime||'')||/\.(jpe?g|png|webp)$/i.test(f.file_path)?`<img src="${url}" alt="" loading="lazy">`:`<div class="x">${esc((f.file_path.split('.').pop()||'').toUpperCase())}</div>`}<span>${esc(DOCT[f.doc_type]||f.doc_type)}</span></a>`}).join('')}</div>`}
+const DOCT={cccd:'CCCD',bang_lai:'Bằng lái',anh_dai_dien:'Ảnh chân dung',giay_kham_suc_khoe:'Giấy khám sức khỏe',ly_lich_tu_phap:'Lý lịch tư pháp',chung_chi:'Chứng chỉ',xac_nhan_cu_tru:'Xác nhận cư trú',hop_dong:'Hợp đồng',
+  giay_phep_kd:'Giấy phép KD',uy_quyen:'Ủy quyền',dang_ky_xe:'Đăng ký xe',dang_kiem:'Đăng kiểm',bao_hiem:'Bảo hiểm',phu_hieu:'Phù hiệu',hinh_xe:'Hình xe',pod:'Chứng từ giao hàng',bien_ban_giao_nhan:'Biên bản giao nhận',hinh_hang:'Hình hàng',selfie:'Ảnh chân dung nhận hàng',hoa_don:'Hóa đơn',su_co:'Sự cố',chung_tu_cod:'Chứng từ COD',khac:'Khác'};
+// chọn tệp/ảnh rồi gọi cb(file)
+function pickFiles(accept,multiple,cb,capture){const i=document.createElement('input');i.type='file';i.accept=accept||'image/*,application/pdf';i.multiple=!!multiple;if(capture)i.capture='environment';i.onchange=()=>cb([...i.files]);i.click()}
+const IC=p=>`<svg viewBox="0 0 24 24">${p}</svg>`;
+
+// ================= Chuông báo lớn, kêu lặp + rung + thông báo hệ thống =================
+const KRing=(()=>{let ac=null,timer=null,el=null,cnt=0;
+  const unlock=()=>{try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}};
+  ['touchstart','pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,unlock,{passive:true}));
+  const beep=()=>{if(!ac)return;try{const t=ac.currentTime;[[988,0],[740,.2],[988,.4],[740,.6],[1175,.8]].forEach(([f,d])=>{const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=f;
+    g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.7,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.18);o.connect(g);g.connect(ac.destination);o.start(t+d);o.stop(t+d+.19)})}catch(e){}};
+  function stop(){clearInterval(timer);timer=null;if(el){el.remove();el=null}try{navigator.vibrate&&navigator.vibrate(0)}catch(e){}}
+  function start(title,body,onOpen){stop();unlock();el=document.createElement('div');el.className='kring';
+    el.innerHTML=`<div class="kr-bx"><div class="kr-ic">🔔</div><b>${esc(title||'Có thông báo mới')}</b><p>${esc(body||'')}</p><button class="btn p w" data-o>Xem ngay</button><button class="btn g w" data-x style="margin-top:8px">Tắt chuông</button></div>`;
+    document.body.appendChild(el);el.querySelector('[data-o]').onclick=()=>{stop();onOpen&&onOpen()};el.querySelector('[data-x]').onclick=stop;
+    cnt=0;beep();try{navigator.vibrate&&navigator.vibrate([500,200,500,200,900])}catch(e){}
+    timer=setInterval(()=>{beep();cnt++;if(cnt%2===0)try{navigator.vibrate&&navigator.vibrate([500,200,500])}catch(e){}if(cnt>80)stop()},1500);
+    try{if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState!=='visible'){const o={body:body||'',vibrate:[500,200,500],requireInteraction:true,tag:'khg-ring',renotify:true};
+      (navigator.serviceWorker&&navigator.serviceWorker.getRegistration?navigator.serviceWorker.getRegistration():Promise.resolve(null)).then(r=>r?r.showNotification(title,o):new Notification(title,o)).catch(()=>{})}}catch(e){}}
+  function askNotif(){try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}}
+  // theo dõi tín hiệu mới (khg_ping) và rung chuông khi có thay đổi
+  function watch(onOpen,onCount,ms=20000){let last=null;const key='kring_k_'+location.pathname;try{const v=localStorage.getItem(key);last=v?Number(v):null}catch(e){}
+    const tick=async()=>{try{const {data:p}=await sb.rpc('khg_ping');if(!p)return;onCount&&onCount(p.n||0);
+      if(last!==null&&Number(p.k)>last)start(p.msg||'Có thông báo mới',p.n?('Bạn có '+p.n+' mục cần xem'):'',onOpen);
+      last=Number(p.k);try{localStorage.setItem(key,String(last))}catch(e){}}catch(e){}};
+    tick();setInterval(tick,ms);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')tick()});
+    document.addEventListener('pointerdown',function f(){askNotif();document.removeEventListener('pointerdown',f)},{once:true})}
+  return {start,stop,watch,askNotif,unlock}})();
+
+// ===== Để lại liên hệ (thay cho số hotline – KHG gọi lại, tránh gọi làm phiền) =====
+const LH_APP=(location.pathname.split('/').pop()||'').replace('.html','')||'app';
+function contactSheet(need){
+  sheet(`<h3 style="margin:0 0 4px">📝 Để lại thông tin – KHG gọi lại cho bạn</h3><p class="note" style="margin:0 0 10px">Nhân viên Kim Hoàng Gia liên hệ lại trong giờ làm việc (7h30 – 18h). Thông tin chỉ dùng để hỗ trợ bạn.</p>
+   <label class="f">Họ và tên *</label><input class="i" id="lhN" autocomplete="name">
+   <label class="f">Số điện thoại / Zalo *</label><input class="i" id="lhP" inputmode="tel" autocomplete="tel">
+   <label class="f">Địa chỉ (phường/xã, tỉnh/thành) *</label><input class="i" id="lhA" autocomplete="street-address">
+   <label class="f">Bạn cần hỗ trợ gì?</label><input class="i" id="lhD" value="${esc(need||'')}" placeholder="VD: quên mật khẩu, hỏi về hồ sơ, hợp tác xe…">
+   <label class="f">Thời gian tiện nghe máy</label><select class="i" id="lhW"><option value="">Bất kỳ lúc nào</option><option>Buổi sáng</option><option>Buổi trưa</option><option>Buổi chiều</option><option>Sau 17h</option></select>
+   <input id="lhH" style="display:none" tabindex="-1" autocomplete="off"><div class="err hidden" id="lhE" style="margin-top:8px"></div>
+   <button class="btn p w" id="lhG" style="margin-top:12px">Gửi thông tin</button><button class="btn g w" id="lhC" style="margin-top:8px">Đóng</button>`);
+  try{const s=JSON.parse(localStorage.getItem('khg_lh')||'{}');if(s.n)$('#lhN').value=s.n;if(s.p)$('#lhP').value=s.p;if(s.a)$('#lhA').value=s.a}catch(e){}
+  $('#lhC').onclick=closeSheet;
+  $('#lhG').onclick=()=>busy($('#lhG'),async()=>{const n=$('#lhN').value.trim(),p=$('#lhP').value.trim(),a=$('#lhA').value.trim();
+    const {error}=await sb.rpc('khg_contact_request',{p:{name:n,phone:p,address:a,need:$('#lhD').value.trim(),when:$('#lhW').value,app:LH_APP,hp:$('#lhH').value}});
+    if(error){$('#lhE').textContent=error.message;$('#lhE').classList.remove('hidden');return}
+    try{localStorage.setItem('khg_lh',JSON.stringify({n,p,a}))}catch(e){}
+    sheet(`<div style="text-align:center;padding:10px 4px"><div style="font-size:42px">✅</div><h3>Đã nhận thông tin của bạn</h3><p class="note">KHG sẽ gọi lại số <b>${esc(p)}</b> sớm nhất trong giờ làm việc. Bạn không cần gọi lại.</p><button class="btn p w" onclick="closeSheet()">Đóng</button></div>`)});
+}
+document.addEventListener('click',e=>{const a=e.target.closest('[data-lh]');if(a){e.preventDefault();contactSheet(a.dataset.lh||'')}});
+
+// ================= HỒ SƠ XÁC THỰC (KYC) · KÝ ĐIỆN TỬ · HỘP THƯ – dùng chung app Đối tác & Fast Driver =================
+Object.assign(DOCT,{cccd_truoc:'CCCD mặt trước',cccd_sau:'CCCD mặt sau',bang_lai_truoc:'GPLX mặt trước',bang_lai_sau:'GPLX mặt sau',gp_van_tai:'Giấy phép KD vận tải',
+  anh_van_phong:'Ảnh văn phòng',anh_bai_xe:'Ảnh bãi xe',anh_doi_xe:'Ảnh đội xe',selfie_xac_thuc:'Xác thực khuôn mặt',chu_ky:'Chữ ký điện tử',anh_ky_cam_ket:'Chân dung khi ký'});
+const KYC_ST={chua_nop:['Chưa nộp hồ sơ xác thực','amber'],cho_duyet:['Đã nộp – KHG đang xét duyệt','blue'],bo_sung:['KHG yêu cầu bổ sung','red'],da_duyet:['Hồ sơ đã được duyệt','green'],tu_choi:['Hồ sơ chưa được duyệt','red']};
+const VIO_KIND={tre_gio:'Trễ giờ',huy_chuyen:'Hủy chuyến',khong_cap_nhat:'Không cập nhật chuyến',hu_hong_hang:'Hư hỏng / thiếu hàng',thai_do:'Thái độ phục vụ',an_toan:'Vi phạm an toàn giao thông',ruou_bia:'Rượu bia / chất kích thích',giay_to:'Giấy tờ hết hạn / sai',bao_mat:'Vi phạm bảo mật',thu_tien:'Thu tiền sai quy định',khac:'Khác'};
+const VIO_SEV={nhac_nho:['Nhắc nhở',''],canh_bao:['Cảnh báo','amber'],phat_tien:['Phạt tiền','red'],tam_dung:['Tạm dừng nhận đơn','red'],cham_dut:['Chấm dứt hợp tác','red']};
+const VIO_ST={moi:['Chờ bạn phản hồi','red'],da_phan_hoi:['Đã phản hồi – chờ KHG','amber'],da_xu_ly:['Đã xử lý','green'],huy:['Đã hủy','']};
+
+const getPos=(ms=8000)=>new Promise(r=>{if(!navigator.geolocation)return r(null);let done=false;const t=setTimeout(()=>{if(!done){done=true;r(null)}},ms);
+  navigator.geolocation.getCurrentPosition(p=>{if(done)return;done=true;clearTimeout(t);r(p.coords)},()=>{if(done)return;done=true;clearTimeout(t);r(null)},{enableHighAccuracy:true,timeout:ms,maximumAge:60000})});
+const camErr='Không mở được camera. Hãy mở bằng Chrome (Android) hoặc Safari (iPhone), cho phép quyền Camera rồi thử lại. Không mở trong Zalo/Facebook.';
+
+function camSession({facing='user',title='',oval='face'}){
+  return new Promise(async(res,rej)=>{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return rej(new Error(camErr));
+    let stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1280},height:{ideal:960}},audio:false})}catch(e){return rej(new Error(camErr))}
+    const d=document.createElement('div');d.className='kcam';
+    d.innerHTML=`<div class="kcam-top"><b>${esc(title)}</b><button class="kx" aria-label="Đóng">✕</button></div><div class="kcam-v"><video playsinline autoplay muted class="${facing==='user'?'mir':''}"></video><div class="kcam-oval ${oval==='doc'?'doc':''}"></div><div class="kcam-msg"></div><div class="kcam-cd"></div><div class="kcam-shots"></div></div><div class="kcam-bot"></div>`;
+    document.body.appendChild(d);const video=d.querySelector('video');video.srcObject=stream;
+    const close=()=>{stream.getTracks().forEach(t=>t.stop());d.remove()};
+    d.querySelector('.kx').onclick=()=>{close();d._cancel&&d._cancel()};
+    await new Promise(r=>{video.onloadedmetadata=()=>r();setTimeout(r,2500)});try{await video.play()}catch(e){}
+    res({d,video,close,mirror:facing==='user',msg:t=>d.querySelector('.kcam-msg').textContent=t,cd:t=>d.querySelector('.kcam-cd').textContent=t,bot:h=>{d.querySelector('.kcam-bot').innerHTML=h;return d.querySelector('.kcam-bot')}});
+  });
+}
+function grab(S,label){const v=S.video,w=v.videoWidth||640,h=v.videoHeight||480,k=Math.min(1,1280/Math.max(w,h));const c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);
+  const g=c.getContext('2d');if(S.mirror){g.translate(c.width,0);g.scale(-1,1)}g.drawImage(v,0,0,c.width,c.height);g.setTransform(1,0,0,1,0,0);
+  g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,c.height-30,c.width,30);g.fillStyle='#fff';g.font='15px sans-serif';g.fillText('KHG · '+(label||'')+' · '+new Date().toLocaleString('vi-VN'),10,c.height-10);
+  return new Promise(r=>c.toBlob(b=>r(b),'image/jpeg',.86))}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function countdown(S,n=3){for(let i=n;i>0;i--){S.cd(String(i));await sleep(900)}S.cd('📸');await sleep(250);S.cd('')}
+
+// Xác thực khuôn mặt: chụp trực tiếp theo 4 thao tác ngẫu nhiên (không cho tải ảnh có sẵn)
+async function liveness(){
+  const P=['Quay mặt sang TRÁI','Quay mặt sang PHẢI','Ngước mặt LÊN','Mỉm cười','Nháy mắt'].sort(()=>Math.random()-.5);
+  const steps=['Nhìn thẳng vào camera',P[0],P[1],'Nhìn thẳng – giữ yên'];
+  const S=await camSession({facing:'user',title:'Xác thực khuôn mặt'});
+  return new Promise(res=>{S.d._cancel=()=>res(null);S.msg('Đưa khuôn mặt vào khung, đủ sáng, không đeo kính râm/khẩu trang');
+    const b=S.bot('<button class="btn p">Bắt đầu</button>');b.querySelector('button').onclick=async()=>{b.innerHTML='<span class="note" style="color:#ccc">Làm theo hướng dẫn trên màn hình…</span>';const out=[];
+      for(const s of steps){S.msg(s);await countdown(S,3);const bl=await grab(S,'Xác thực: '+s);out.push({blob:bl,label:s});const im=document.createElement('img');im.src=URL.createObjectURL(bl);S.d.querySelector('.kcam-shots').appendChild(im)}
+      S.msg('Hoàn tất ✓');await sleep(500);S.close();res(out)}});
+}
+// Chân dung chụp ngay sau khi ký
+async function portrait(){const S=await camSession({facing:'user',title:'Chụp chân dung xác nhận chữ ký'});
+  return new Promise(async res=>{S.d._cancel=()=>res(null);S.msg('Giữ khuôn mặt trong khung – tự chụp sau 3 giây');await sleep(1200);await countdown(S,3);const b=await grab(S,'Chân dung khi ký');S.close();res(b)})}
+// Chụp giấy tờ bằng camera sau
+async function docShot(title){const S=await camSession({facing:'environment',title,oval:'doc'});
+  return new Promise(res=>{S.d._cancel=()=>res(null);S.msg('Đặt giấy tờ vừa khung, rõ chữ, không lóa');const b=S.bot('<button class="btn p">📸 Chụp</button>');
+    b.querySelector('button').onclick=async()=>{const bl=await grab(S,title);S.close();res(bl)}})}
+// Bảng ký tay
+function signPad(name){return new Promise(res=>{const d=document.createElement('div');d.className='ksig';
+  d.innerHTML=`<div class="hd2">✍️ Ký tên – ${esc(name||'')}<div class="note">Ký bằng ngón tay hoặc bút cảm ứng trong khung bên dưới</div></div><div class="pad"><canvas></canvas><div class="ln"><span>Chữ ký</span></div></div>
+   <div class="ft"><button class="btn g" data-c>Xóa ký lại</button><button class="btn g" data-x>Hủy</button><button class="btn p" data-ok style="flex:1">Xác nhận chữ ký</button></div>`;
+  document.body.appendChild(d);const pad=d.querySelector('.pad'),c=d.querySelector('canvas');const dpr=window.devicePixelRatio||1;
+  const fit=()=>{c.width=pad.clientWidth*dpr;c.height=pad.clientHeight*dpr;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height)};fit();
+  const g=c.getContext('2d');let drawing=false,last=null,len=0,minX=1e9,minY=1e9,maxX=0,maxY=0;
+  const pt=e=>{const r=c.getBoundingClientRect();return [(e.clientX-r.left)*dpr,(e.clientY-r.top)*dpr]};
+  c.onpointerdown=e=>{drawing=true;last=pt(e);c.setPointerCapture(e.pointerId)};
+  c.onpointermove=e=>{if(!drawing)return;const p=pt(e);g.strokeStyle='#0B2A6B';g.lineWidth=2.6*dpr;g.lineCap='round';g.lineJoin='round';g.beginPath();g.moveTo(...last);g.lineTo(...p);g.stroke();
+    len+=Math.hypot(p[0]-last[0],p[1]-last[1]);minX=Math.min(minX,p[0]);minY=Math.min(minY,p[1]);maxX=Math.max(maxX,p[0]);maxY=Math.max(maxY,p[1]);last=p};
+  c.onpointerup=c.onpointercancel=()=>{drawing=false};
+  d.querySelector('[data-c]').onclick=()=>{fit();len=0;minX=minY=1e9;maxX=maxY=0};
+  d.querySelector('[data-x]').onclick=()=>{d.remove();res(null)};
+  d.querySelector('[data-ok]').onclick=()=>{if(len<120*dpr)return toast('Chữ ký quá ngắn – ký rõ họ tên hoặc chữ ký thường dùng');
+    const pd=16*dpr,x=Math.max(0,minX-pd),y=Math.max(0,minY-pd),w=Math.min(c.width,maxX+pd)-x,h=Math.min(c.height,maxY+pd)-y;const o=document.createElement('canvas');o.width=w;o.height=h+26*dpr;
+    const og=o.getContext('2d');og.fillStyle='#fff';og.fillRect(0,0,o.width,o.height);og.drawImage(c,x,y,w,h,0,0,w,h);og.fillStyle='#555';og.font=(11*dpr)+'px sans-serif';og.fillText((name||'')+' · '+new Date().toLocaleString('vi-VN'),6*dpr,h+18*dpr);
+    o.toBlob(b=>{d.remove();res(b)},'image/png')};
+})}
+
+const KYC={};
+KYC.load=()=>rpc('khg_kyc_me');
+KYC.upload=async(ctx,doc,blobOrFile,name,pos)=>{const f=blobOrFile instanceof File?blobOrFile:new File([blobOrFile],name||(doc+'.jpg'),{type:blobOrFile.type||'image/jpeg'});
+  const u=await putFile(`${ctx.prefix}/${doc}`,f);await ctx.addFile(doc,u,pos);return u};
+KYC.signFlow=async(ctx,K)=>{const ag=K.agreement;
+  sheet(`<h3>${esc(ag.title)}</h3><p class="note">Phiên bản ${esc(ag.version)} · Đọc kỹ trước khi ký. Văn bản được lưu cùng mã băm SHA-256, chữ ký, ảnh chân dung, thời điểm và vị trí ký.</p><div class="kdoc">${esc(ag.body)}</div>
+   <label class="kchk"><input type="checkbox" id="kA1"><span>Tôi đã đọc, hiểu và đồng ý toàn bộ nội dung văn bản trên; thông tin tôi cung cấp là đúng sự thật.</span></label>
+   <label class="kchk"><input type="checkbox" id="kA2"><span>Tôi đồng ý cho KHG xử lý dữ liệu cá nhân, gồm hình ảnh khuôn mặt (dữ liệu sinh trắc học), theo Điều 7.</span></label>
+   <div class="btns"><button class="btn p" id="kSign" style="flex:1">✍️ Ký và chụp chân dung</button><button class="btn g" onclick="closeSheet()">Để sau</button></div>`);
+  $('#kSign').onclick=async()=>{if(!$('#kA1').checked||!$('#kA2').checked)return toast('Đánh dấu cả 2 ô đồng ý trước khi ký');closeSheet();
+    const posP=getPos(9000);const sig=await signPad(ctx.signerName());if(!sig)return;toast('Tiếp theo: chụp chân dung xác nhận người ký',2500);
+    let shot;try{shot=await portrait()}catch(e){return toast(e.message,6000)}if(!shot)return;
+    const ov=sheet('<div class="empty">Đang lưu chữ ký điện tử…</div>');try{const pos=await posP;
+      const a=await putFile(`${ctx.prefix}/ky`,new File([sig],'chu-ky.png',{type:'image/png'}));const b=await putFile(`${ctx.prefix}/ky`,new File([shot],'chan-dung-khi-ky.jpg',{type:'image/jpeg'}));
+      const r=await rpc('khg_sign_agreement',{p_signature_path:a.path,p_portrait_path:b.path,p_lat:pos?.latitude??null,p_lng:pos?.longitude??null,p_acc:pos?.accuracy??null,p_ua:navigator.userAgent});
+      closeSheet();sheet(`<h3>✅ Đã ký điện tử</h3><p>Văn bản “${esc(ag.title)}” đã được ký lúc <b>${fmtDT(r.signed_at)}</b>.</p><p class="note">Mã xác thực văn bản (SHA-256):</p><div class="khash">${esc(r.doc_hash)}</div><div class="btns"><button class="btn p w" onclick="closeSheet()">Đóng</button></div>`);await ctx.onChange()}
+    catch(e){closeSheet();toast(e.message||String(e),6000)}};
+};
+// Danh mục hồ sơ: host = phần tử, ctx = {type,prefix,addFile,actions,docs,onChange,signerName}
+KYC.render=async(host,ctx)=>{
+  const K=await KYC.load();ctx.K=K;const docs=ctx.docs()||[];const by={};docs.forEach(x=>(by[x.doc_type]=by[x.doc_type]||[]).push(x));
+  const thumbs=Object.values(by).flat().filter(x=>/\.(jpe?g|png|webp)$/i.test(x.file_path));const urls=await signedMap(thumbs.map(x=>x.file_path));
+  const st=KYC_ST[K.kyc_status]||KYC_ST.chua_nop;const n=K.items.length,ok=n-K.missing;
+  const groups={};K.items.forEach(x=>(groups[x.g]=groups[x.g]||[]).push(x));
+  const actBtn=x=>{if(x.k==='ky')return x.ok?`<button class="btn g s" data-sign>Ký lại</button>`:`<button class="btn p s" data-sign>✍️ Ký</button>`;
+    if(x.k==='selfie_xac_thuc')return `<button class="btn ${x.ok?'g':'p'} s" data-live>🙂 ${x.ok?'Làm lại':'Xác thực'}</button>`;
+    if(x.doc)return `<button class="btn ${x.ok?'g':'p'} s" data-cam="${x.k}">📷 Chụp</button><button class="btn g s" data-up="${x.k}">🖼 Tải lên</button>`;
+    return ctx.actions[x.k]?`<button class="btn ${x.ok?'g':'p'} s" data-go="${x.k}">${x.ok?'Sửa':'Nhập'}</button>`:''};
+  const alias={cccd_truoc:['cccd'],bang_lai_truoc:['bang_lai']};
+  const nx=K.items.find(x=>!x.ok);const stepN=K.items.indexOf(nx)+1;
+  host.innerHTML=(nx&&['chua_nop','bo_sung',null,undefined].includes(K.kyc_status)?`<div class="next"><small>Bước ${K.items.length-K.missing+1}/${K.items.length} · còn ${K.missing} bước</small><b>${esc(nx.l)}</b><div class="a" style="display:flex;gap:8px;flex-wrap:wrap">${actBtn(nx).replace(/btn g s|btn p s/g,'btn')}</div></div>`:
+    K.complete&&['chua_nop','bo_sung',null,undefined].includes(K.kyc_status)?`<div class="next"><small>Đã đủ ${K.items.length}/${K.items.length} bước</small><b>Bấm nộp hồ sơ để KHG duyệt</b><button class="btn" id="kSub2">📨 Nộp hồ sơ ngay</button></div>`:'')+`<div class="card"><h2>🛡️ Hồ sơ pháp lý & xác thực</h2>
+    <div class="kst ${st[1]}"><div><b>${st[0]}</b>${K.kyc_note?esc(K.kyc_note):K.kyc_status==='chua_nop'?'Hoàn thiện đủ các mục dưới đây rồi bấm “Nộp hồ sơ”. KHG chỉ duyệt khi hồ sơ đầy đủ.':K.kyc_status==='cho_duyet'?'KHG sẽ kiểm tra ảnh, giấy tờ và gọi xác nhận trong 1–2 ngày làm việc.':''}</div></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px"><span>Đã hoàn thành ${ok}/${n} mục</span><b>${Math.round(ok*100/n)}%</b></div><div class="kbar"><i style="width:${ok*100/n}%"></i></div>
+    ${Object.entries(groups).map(([g,a])=>`<div class="kg">${esc(g)}</div>`+a.map(x=>{const fs=[...(by[x.k]||[]),...((alias[x.k]||[]).flatMap(k=>by[k]||[]))].filter(f=>urls[f.file_path]).slice(0,6);
+      return `<div class="ki"><div class="c ${x.ok?'ok':'no'}">${x.ok?'✓':'!'}</div><div class="t"><b>${esc(x.l)}</b>${fs.length?`<div class="kthumbs">${fs.map(f=>`<a href="${urls[f.file_path]}" target="_blank"><img src="${urls[f.file_path]}" alt=""></a>`).join('')}</div>`:''}</div><div class="a">${actBtn(x)}</div></div>`}).join('')).join('')}
+    ${K.signed.length?`<div class="kg">Văn bản đã ký</div>${K.signed.map(s=>`<div class="note">• ${esc(s.title)} (v${esc(s.version)}) – ${fmtDT(s.signed_at)} ${pill({hieu_luc:'Hiệu lực',thay_the:'Đã thay thế',thu_hoi:'Thu hồi'},s.status,{hieu_luc:'green'})}<div class="khash">${esc(s.doc_hash)}</div></div>`).join('')}`:''}
+    <div class="btns">${['chua_nop','bo_sung'].includes(K.kyc_status)||!K.kyc_status?`<button class="btn ${K.complete?'p':'g'} w" id="kSub" ${K.complete?'':'disabled'}>${K.complete?'📨 Nộp hồ sơ cho KHG duyệt':'Còn '+K.missing+' mục chưa hoàn thành'}</button>`:''}</div>
+    <p class="note">Ảnh xác thực khuôn mặt, chữ ký và chân dung khi ký được chụp trực tiếp, đóng dấu thời gian và không thể xóa/sửa. Thông tin chỉ dùng cho xét duyệt, thanh toán và nghĩa vụ pháp lý (Nghị định 13/2023/NĐ-CP).</p></div>`;
+  host.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>ctx.actions[b.dataset.go]());
+  host.querySelectorAll('[data-sign]').forEach(b=>b.onclick=()=>KYC.signFlow(ctx,K));
+  host.querySelectorAll('[data-live]').forEach(b=>b.onclick=()=>busy(b,async()=>{let fr;try{fr=await liveness()}catch(e){return toast(e.message,6000)}if(!fr)return;
+    const pos=await getPos(6000);for(const [i,f] of fr.entries())await KYC.upload(ctx,'selfie_xac_thuc',f.blob,`xac-thuc-${i+1}-${safeName(f.label)}.jpg`,pos);toast('Đã lưu ảnh xác thực khuôn mặt');await ctx.onChange()}));
+  host.querySelectorAll('[data-cam]').forEach(b=>b.onclick=()=>busy(b,async()=>{const k=b.dataset.cam;let bl;try{bl=await docShot(DOCT[k]||k)}catch(e){
+      return pickFiles('image/*',false,files=>busy(b,async()=>{const pos=await getPos(5000);for(const f of files)await KYC.upload(ctx,k,f,f.name,pos);toast('Đã lưu '+(DOCT[k]||k));await ctx.onChange()}),true)}
+    if(!bl)return;const pos=await getPos(5000);await KYC.upload(ctx,k,bl,k+'.jpg',pos);toast('Đã lưu '+(DOCT[k]||k));await ctx.onChange()}));
+  host.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>pickFiles('image/*,application/pdf',true,files=>busy(b,async()=>{const k=b.dataset.up;for(const f of files)await KYC.upload(ctx,k,f,f.name,null);toast('Đã tải lên '+(DOCT[k]||k));await ctx.onChange()})));
+  const sb3=host.querySelector('#kSub2');if(sb3)sb3.onclick=()=>busy(sb3,async()=>{await rpc('khg_kyc_submit');toast('Đã nộp hồ sơ – KHG sẽ xét duyệt và báo trên app',4000);await ctx.onChange()});
+  const sb2=host.querySelector('#kSub');if(sb2)sb2.onclick=()=>busy(sb2,async()=>{await rpc('khg_kyc_submit');toast('Đã nộp hồ sơ – KHG sẽ xét duyệt và báo trên app',4000);await ctx.onChange()});
+  return K;
+};
+
+// Hộp thư: thông báo, vi phạm, văn bản đã ký, hợp đồng, quy trình
+KYC.badge=async()=>{try{const I=await rpc('khg_ext_inbox');return I.notices.filter(n=>!n.read).length+I.violations.filter(v=>v.status==='moi').length}catch(e){return 0}};
+KYC.inbox=async(host,ctx)=>{const I=await rpc('khg_ext_inbox');let tab=ctx.tab||'tb';
+  const draw=async()=>{const unread=I.notices.filter(n=>!n.read).length,vopen=I.violations.filter(v=>v.status==='moi').length;
+    host.innerHTML=`<h1 class="pg">Thông báo & tuân thủ</h1><div class="seg"><button data-t="tb" class="${tab==='tb'?'on':''}">Thông báo${unread?' ('+unread+')':''}</button><button data-t="vp" class="${tab==='vp'?'on':''}">Vi phạm${vopen?' ('+vopen+')':''}</button><button data-t="hd" class="${tab==='hd'?'on':''}">Hợp đồng</button><button data-t="qt" class="${tab==='qt'?'on':''}">Quy trình</button></div><div id="kib"></div>`;
+    host.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});const w=host.querySelector('#kib');
+    if(tab==='tb'){w.innerHTML=`<div class="list">${I.notices.map(n=>`<div class="it nt ${n.read?'':'unread'} ${n.kind==='vi_pham'?'vp':''}"><div class="t"><b>${esc(n.title)}</b><span class="note">${fmtDT(n.at)}</span></div>${n.body?`<div class="m">${esc(n.body)}</div>`:''}${n.link?`<div class="m"><a href="${esc(n.link)}">Mở</a></div>`:''}</div>`).join('')||'<div class="empty">Chưa có thông báo.</div>'}</div>`;
+      const ids=I.notices.filter(n=>!n.read).map(n=>n.id);if(ids.length){rpc('khg_ext_notice_read',{p_ids:ids}).then(()=>{I.notices.forEach(n=>n.read=true);ctx.onRead&&ctx.onRead()}).catch(()=>{})}}
+    if(tab==='vp'){const ev=I.violations.flatMap(v=>v.evidence||[]);const u=await signedMap(ev);
+      w.innerHTML=`<p class="note">KHG ghi nhận vi phạm kèm bằng chứng. Bạn có 48 giờ để phản hồi. Khoản phạt đã xử lý được khấu trừ vào kỳ đối soát/thanh toán.</p><div class="list">${I.violations.map(v=>`<div class="it nt vp"><div class="t"><b>${esc(v.code)} · ${esc(VIO_KIND[v.kind]||v.kind)}</b>${pill(Object.fromEntries(Object.entries(VIO_ST).map(([k,a])=>[k,a[0]])),v.status,Object.fromEntries(Object.entries(VIO_ST).map(([k,a])=>[k,a[1]])))}</div>
+        <div class="m">${pill(Object.fromEntries(Object.entries(VIO_SEV).map(([k,a])=>[k,a[0]])),v.severity,Object.fromEntries(Object.entries(VIO_SEV).map(([k,a])=>[k,a[1]])))} ${fmtDT(v.at)}${v.plate?' · Xe '+esc(v.plate):''}${v.order_code?' · Đơn '+esc(v.order_code):''}</div><div class="m">${esc(v.description)}</div>
+        ${Number(v.amount)>0?`<div class="m"><b style="color:var(--red)">Mức phạt: ${fmtM(v.amount)}</b>${v.deduct?' – khấu trừ khi đối soát':''}</div>`:''}${(v.evidence||[]).length?`<div class="kthumbs">${v.evidence.map(p=>u[p]?`<a href="${u[p]}" target="_blank"><img src="${u[p]}"></a>`:'').join('')}</div>`:''}
+        ${v.reply?`<div class="m"><i>Bạn phản hồi:</i> ${esc(v.reply)}</div>`:''}${v.resolution?`<div class="m"><i>KHG kết luận:</i> ${esc(v.resolution)}</div>`:''}
+        ${['moi','da_phan_hoi'].includes(v.status)?`<div class="btns"><button class="btn g s" data-rp="${v.id}">💬 ${v.reply?'Bổ sung phản hồi':'Phản hồi / giải trình'}</button></div>`:''}</div>`).join('')||'<div class="empty">Không có vi phạm. Cảm ơn bạn đã tuân thủ quy trình! 👍</div>'}</div>`;
+      w.querySelectorAll('[data-rp]').forEach(b=>b.onclick=()=>{const t=prompt('Nội dung phản hồi / giải trình:');if(!t)return;busy(b,async()=>{await rpc('khg_violation_reply',{p_id:b.dataset.rp,p_text:t});toast('Đã gửi phản hồi cho KHG');const J=await rpc('khg_ext_inbox');Object.assign(I,J);draw()})})}
+    if(tab==='hd'){const c=I.contract;w.innerHTML=(c?`<div class="card"><h3>Hợp đồng nguyên tắc</h3><div class="m">Số: <b>${esc(c.contract_no||'–')}</b> · ${esc(c.status||'')}<br>Hiệu lực: ${fmtD(c.start_date)}${c.end_date?' – '+fmtD(c.end_date):''}${c.payment_terms?'<br>Thanh toán: '+esc(c.payment_terms):''}</div>${c.file_url?`<div class="btns"><a class="btn g s" href="${esc(c.file_url)}" target="_blank">📄 Xem hợp đồng</a></div>`:''}</div>`:'<div class="card"><h3>Hợp đồng nguyên tắc</h3><p class="note">KHG sẽ gửi hợp đồng sau khi hồ sơ được duyệt.</p></div>')+
+      `<div class="card"><h3>Văn bản đã ký điện tử</h3>${I.agreements.map(a=>`<details style="margin-top:8px"><summary><b>${esc(a.title)}</b> · v${esc(a.version)} · ${fmtDT(a.signed_at)} ${pill({hieu_luc:'Hiệu lực',thay_the:'Đã thay thế',thu_hoi:'Thu hồi'},a.status,{hieu_luc:'green'})}</summary><div class="kdoc" style="margin-top:8px">${esc(a.body)}</div><p class="note">Người ký: ${esc(a.signer_name)} · Mã SHA-256:</p><div class="khash">${esc(a.doc_hash)}</div></details>`).join('')||'<p class="note">Chưa ký văn bản nào.</p>'}</div>`}
+    if(tab==='qt'){w.innerHTML=`<div class="list">${I.policies.map(p=>`<details class="it"><summary><b>${esc(p.title)}</b> <span class="note">${esc(p.category||'')}</span></summary><div class="m" style="white-space:pre-wrap">${esc(p.content||'')}</div></details>`).join('')||'<div class="empty">KHG chưa công bố quy trình cho mục này.</div>'}</div>`}
+  };await draw();
+};
+
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const DOMAIN='@taixe.kimhoanggia.vn';let ACC=null,REP=null,OUT=[],CAT=[],PL=[],CUR='home',CART={},OSEL=null;
+const CH={tap_hoa:'Tạp hóa',dai_ly:'Đại lý cấp 2',sieu_thi:'Siêu thị, cửa hàng tiện lợi',horeca:'Nhà hàng, quán',truong_hoc_bv:'Trường học, bếp ăn',online:'Online',khac:'Khác'};
+const VR={co_don:'Có đơn',khong_don:'Không đặt hàng',dong_cua:'Đóng cửa',ton_kho_cao:'Tồn kho còn nhiều',khach_hen:'Khách hẹn lại',khac:'Khác'};
+const ST={nhap:'Nháp',cho_duyet:'Chờ duyệt',da_duyet:'Đã duyệt',dang_giao:'Đang giao',da_giao:'Đã giao',huy:'Hủy',tra_hang:'Trả hàng'};
+const NAVS=[['home','Hôm nay','🏠'],['out','Điểm bán','🏪'],['order','Đặt đơn','🛒'],['orders','Đơn','📋'],['debt','Công nợ','💰']];
+async function login(msg){$('#nav').classList.add('hidden');$('#main').innerHTML=`<div class="card" style="margin-top:20px"><h2>Đăng nhập</h2>${msg?`<div class="err">${esc(msg)}</div>`:''}<label class="f">Số điện thoại hoặc email</label><input class="i" id="lU" inputmode="tel"><label class="f">Mật khẩu</label><input class="i" type="password" id="lP">
+  <button class="btn p w" id="lG" style="margin-top:12px">Đăng nhập</button><p class="note">Dùng tài khoản do quản trị cấp trong CRM (Nhân sự → Tài khoản).</p></div>`;
+  $('#lG').onclick=()=>busy($('#lG'),async()=>{const u=$('#lU').value.trim();const {error}=await sb.auth.signInWithPassword({email:u.includes('@')?u:normPhone(u)+DOMAIN,password:$('#lP').value});if(error)return login('Sai tên đăng nhập hoặc mật khẩu');boot()})}
+async function boot(){const {data:s}=await sb.auth.getSession();if(!s?.session)return login();const {data:a}=await sb.rpc('khg_my_access');if(!a)return login('Tài khoản chưa gắn hồ sơ nhân sự');ACC=a;
+  const [{data:r},{data:pl}]=await Promise.all([sb.from('khg_dms_reps').select('*').eq('person_id',a.id).maybeSingle(),sb.from('khg_dms_price_lists').select('*').eq('active',true).order('priority')]);REP=r;PL=pl||[];
+  $('#hN').textContent=(ACC.full_name||'')+(REP?' · '+REP.code:' · chưa gắn mã sale');$('#hOut').classList.remove('hidden');
+  $('#nav').classList.remove('hidden');$('#nav').innerHTML=NAVS.map(([k,l,i])=>`<button data-n="${k}"><span style="font-size:18px">${i}</span>${l}</button>`).join('');$$('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.n));await loadOut();go('home')}
+async function loadOut(){let q=sb.from('khg_dms_outlets').select('*').neq('code','KHACHLE').order('name').limit(1000);if(REP)q=q.eq('rep_id',REP.id);const {data}=await q;OUT=data||[]}
+function go(n){CUR=n;$$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.n===n));window.scrollTo(0,0);({home,out:outlets,order,orders,debt})[n]()}
+async function home(){const m0=today().slice(0,8)+'01';let q=sb.from('khg_dms_orders').select('id,total,vat,status,outlet_id,order_date').gte('order_date',m0).in('status',['cho_duyet','da_duyet','dang_giao','da_giao']);if(REP)q=q.eq('rep_id',REP.id);
+  const [{data:o},{data:v}]=await Promise.all([q,sb.from('khg_dms_visits').select('id,result,visited_at').gte('visited_at',m0).eq('created_by',ACC.id)]);const rev=(o||[]).reduce((s,x)=>s+Number(x.total)-Number(x.vat||0),0);
+  const tg=Number(REP?.target_month||0);const d=new Date(),days=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),fc=rev/d.getDate()*days;const td=(o||[]).filter(x=>x.order_date===today());
+  const wd=['CN','T2','T3','T4','T5','T6','T7'][d.getDay()];const {data:rt}=REP?await sb.from('khg_dms_routes').select('*').eq('rep_id',REP.id):{data:[]};const todayR=(rt||[]).filter(r=>String(r.weekdays||'').toUpperCase().includes(wd));
+  $('#main').innerHTML=`<div class="card"><h2 style="margin-top:0">Tháng ${d.getMonth()+1}</h2><div class="kp2"><div><small>Doanh số (chưa VAT)</small><b>${fmtN(rev)}</b></div><div><small>Chỉ tiêu</small><b>${tg?fmtN(tg):'—'}</b></div>
+     <div><small>Đạt</small><b style="color:${tg&&rev>=tg?'var(--green)':'var(--acc)'}">${tg?Math.round(rev*100/tg)+'%':'—'}</b></div><div><small>Dự báo cuối tháng</small><b>${fmtN(fc)}</b></div></div>${tg?`<div class="bar2"><i style="width:${Math.min(100,rev*100/tg)}%"></i></div>`:''}
+     <p class="note">Hôm nay: ${td.length} đơn · ${(v||[]).filter(x=>String(x.visited_at).slice(0,10)===today()).length} lượt ghé · tháng này ${(v||[]).length} lượt ghé, ${(o||[]).length} đơn, ${new Set((o||[]).map(x=>x.outlet_id)).size} điểm mua.</p></div>
+   <div class="card"><h3 style="margin-top:0">Tuyến hôm nay (${wd})</h3>${todayR.length?todayR.map(r=>`<div class="ol"><b>${esc(r.name)}</b><small>${OUT.filter(x=>x.route_id===r.id).length} điểm bán · ${esc(r.area||'')}</small></div>`).join(''):'<div class="note">Chưa có tuyến cho hôm nay.</div>'}
+    <button class="btn p w" onclick="go('out')">Mở danh sách điểm bán</button></div>`}
+function outlets(){$('#main').innerHTML=`<div class="bar" style="display:flex;gap:8px;margin-bottom:8px"><input class="i" id="oQ" placeholder="🔎 Tìm điểm bán" style="flex:1"><button class="btn p" id="oN">＋ Mới</button></div><div id="oL"></div>`;
+  const draw=()=>{const q=$('#oQ').value.trim().toLowerCase();$('#oL').innerHTML=OUT.filter(o=>!q||(o.name+' '+(o.phone||'')+' '+(o.address||'')).toLowerCase().includes(q)).slice(0,200).map(o=>`<div class="ol"><b>${esc(o.name)} <span class="pill">${esc(o.tier||'')}</span></b><small>${esc(o.owner_name||'')} · ${tel(o.phone)} · ${esc(o.address||'')}</small>
+    <div class="btns" style="margin-top:6px"><button class="btn p s" data-od="${o.id}">🛒 Đặt đơn</button><button class="btn g s" data-vi="${o.id}">📍 Ghé thăm</button>${o.lat?`<a class="btn g s" href="https://www.google.com/maps/dir/?api=1&destination=${o.lat},${o.lng}" target="_blank" rel="noopener">🧭 Chỉ đường</a>`:''}</div></div>`).join('')||'<div class="empty">Chưa có điểm bán.</div>';
+    $$('[data-od]').forEach(b=>b.onclick=()=>{OSEL=OUT.find(o=>o.id===b.dataset.od);CART={};go('order')});$$('[data-vi]').forEach(b=>b.onclick=()=>visit(OUT.find(o=>o.id===b.dataset.vi)))};
+  $('#oQ').oninput=draw;$('#oN').onclick=newOutlet;draw()}
+const gps=()=>new Promise(r=>{if(!navigator.geolocation)return r(null);navigator.geolocation.getCurrentPosition(p=>r({lat:p.coords.latitude,lng:p.coords.longitude}),()=>r(null),{enableHighAccuracy:true,timeout:9000})});
+function newOutlet(){sheet(`<h3>Mở điểm bán mới</h3><label class="f">Tên cửa hàng *</label><input class="i" id="nN"><label class="f">Chủ cửa hàng</label><input class="i" id="nO"><label class="f">Điện thoại *</label><input class="i" id="nP" inputmode="tel">
+  <label class="f">Địa chỉ *</label><input class="i" id="nA"><label class="f">Tỉnh / thành</label><input class="i" id="nPr" value="TP. Hồ Chí Minh"><label class="f">Kênh</label><select class="i" id="nC">${opt(CH,'tap_hoa')}</select>
+  <label class="f">Hạng</label><select class="i" id="nT">${opt({A:'A – doanh số cao',B:'B – khá',C:'C – trung bình',D:'D – nhỏ'},'C')}</select><p class="note">Hệ thống lấy vị trí GPS hiện tại làm vị trí cửa hàng.</p><button class="btn p w" id="nGo">Lưu điểm bán</button>`);
+  $('#nGo').onclick=()=>busy($('#nGo'),async()=>{if(!$('#nN').value.trim()||!$('#nP').value.trim()||!$('#nA').value.trim())return toast('Nhập tên, điện thoại, địa chỉ');const g=await gps();
+    const {data,error}=await sb.from('khg_dms_outlets').insert({name:$('#nN').value.trim(),owner_name:$('#nO').value.trim(),phone:$('#nP').value.trim(),address:$('#nA').value.trim(),province:$('#nPr').value.trim(),channel:$('#nC').value,tier:$('#nT').value,status:'tiem_nang',rep_id:REP?.id||null,lat:g?.lat,lng:g?.lng}).select().single();
+    if(error)throw new Error(error.message);OUT.unshift(data);closeSheet();toast('Đã tạo điểm bán');outlets()})}
+function visit(o){sheet(`<h3>Ghé thăm: ${esc(o.name)}</h3><label class="f">Kết quả</label><select class="i" id="vR">${opt(VR,'co_don')}</select><label class="f">Tồn kho tại điểm / trưng bày</label><input class="i" id="vS"><label class="f">Ghi chú</label><textarea class="i" id="vN"></textarea><button class="btn p w" id="vGo" style="margin-top:10px">Check-in (lấy GPS)</button>`);
+  $('#vGo').onclick=()=>busy($('#vGo'),async()=>{const g=await gps();const {error}=await sb.from('khg_dms_visits').insert({rep_id:REP?.id||null,outlet_id:o.id,lat:g?.lat,lng:g?.lng,result:$('#vR').value,stock_note:$('#vS').value,note:$('#vN').value,created_by:ACC.id});if(error)throw new Error(error.message);
+    closeSheet();toast('Đã check-in'+(g?'':' (không lấy được GPS)'));if($('#vR').value==='co_don'){OSEL=o;CART={};go('order')}})}
+async function order(){if(!OSEL){$('#main').innerHTML='<div class="card"><h3>Chọn điểm bán để đặt đơn</h3><button class="btn p w" onclick="go(\'out\')">Mở danh sách điểm bán</button></div>';return}
+  const list=OSEL.price_list_id||PL.find(l=>l.kind==='si')?.id||null;CAT=await rpc('khg_pos_catalog',{p_wh:null,p_list:list});const pl=PL.find(l=>l.id===list);
+  const draw=()=>{const q=($('#pQ')?.value||'').toLowerCase();const items=CAT.filter(p=>!q||(p.name+' '+p.sku).toLowerCase().includes(q));
+    const totalV=Object.entries(CART).reduce((s,[id,qty])=>{const p=CAT.find(x=>x.id===id);return s+(p?Number(p.price)*qty:0)},0);
+    $('#main').innerHTML=`<div class="card"><b>${esc(OSEL.name)}</b><div class="note">${esc(OSEL.address||'')} · Bảng giá: ${esc(pl?.name||'Giá sỉ niêm yết')}${pl&&!pl.vat_included?' (chưa VAT)':''}</div><button class="btn g s" onclick="OSEL=null;go('out')">Đổi điểm bán</button></div>
+      <input class="i" id="pQ" placeholder="🔎 Tìm sản phẩm" value="${esc(q)}"><div class="card" style="margin-top:8px">${items.map(p=>`<div class="pr"><div><b>${esc(p.name)}</b><div class="note" style="margin:0">${esc(p.sku)} · ${fmtN(p.price)} đ/${esc(p.unit||'')} · tồn ${fmtN(p.stock)}</div></div><input data-q="${p.id}" inputmode="numeric" value="${CART[p.id]||''}" placeholder="0"></div>`).join('')||'<div class="empty">Không có sản phẩm.</div>'}</div>
+      <label class="f">Ghi chú đơn</label><input class="i" id="pN" value="${esc(window._on||'')}"><label class="chk" style="margin-top:8px"><input type="checkbox" id="pD" checked> Cần KHG giao hàng</label>
+      <div class="stk"><div style="flex:1"><small class="note">Tạm tính (chính sách chiết khấu tự áp khi lưu)</small><b style="display:block;font-size:19px;color:var(--acc)">${fmtN(totalV)} đ</b></div><button class="btn p" id="pGo">Gửi đơn</button></div>`;
+    $('#pQ').oninput=()=>{const v=$('#pQ').value;draw();const e=$('#pQ');e.focus();e.setSelectionRange(v.length,v.length)};
+    $$('[data-q]').forEach(i=>i.onchange=()=>{const v=parseFloat(i.value.replace(',','.'))||0;if(v>0)CART[i.dataset.q]=v;else delete CART[i.dataset.q];window._on=$('#pN').value;draw()});
+    $('#pGo').onclick=()=>busy($('#pGo'),async()=>{const lines=Object.entries(CART).map(([id,qty])=>{const p=CAT.find(x=>x.id===id);const vi=pl?pl.vat_included:false;return {product_id:id,qty,unit_price:vi?Math.round(Number(p.price)/(1+Number(p.vat||0.08))):Number(p.price)}});
+      if(!lines.length)return toast('Chưa nhập số lượng');const r=await rpc('khg_dms_order_save',{p:{outlet_id:OSEL.id,rep_id:REP?.id||'',status:'cho_duyet',delivery_requested:$('#pD').checked,note:$('#pN').value,lines}});
+      toast(`Đã gửi đơn ${r.code} · ${fmtN(r.total)} đ – chờ duyệt`);CART={};window._on='';OSEL=null;go('orders')})};draw()}
+async function orders(){let q=sb.from('khg_dms_orders').select('id,code,order_date,total,paid,status,outlet_id').order('created_at',{ascending:false}).limit(100);if(REP)q=q.eq('rep_id',REP.id);else q=q.eq('created_by',ACC.id);const {data}=await q;
+  $('#main').innerHTML=`<h3>Đơn của tôi</h3>${(data||[]).map(o=>`<div class="ol"><b>${esc(o.code)} · ${fmtN(o.total)} đ <span class="pill">${ST[o.status]||o.status}</span></b><small>${esc(OUT.find(x=>x.id===o.outlet_id)?.name||'')} · ${fmtD(o.order_date)} · đã thu ${fmtN(o.paid)}</small></div>`).join('')||'<div class="empty">Chưa có đơn.</div>'}`}
+async function debt(){const ids=OUT.map(o=>o.id);const {data}=await sb.from('khg_dms_ar').select('*');const L=(data||[]).filter(a=>ids.includes(a.outlet_id)&&a.sales-a.received>0).sort((a,b)=>(b.sales-b.received)-(a.sales-a.received));
+  $('#main').innerHTML=`<h3>Công nợ điểm bán phụ trách</h3><div class="kp2"><div><small>Tổng còn nợ</small><b>${fmtN(L.reduce((s,a)=>s+a.sales-a.received,0))}</b></div><div><small>Quá hạn</small><b style="color:var(--acc)">${fmtN(L.reduce((s,a)=>s+Number(a.overdue||0),0))}</b></div></div>
+   ${L.map(a=>`<div class="ol"><b>${esc(a.name)}</b><small>Còn nợ ${fmtN(a.sales-a.received)} đ${a.overdue>0?` · <span style="color:var(--acc)">quá hạn ${fmtN(a.overdue)}</span>`:''} · hạn mức ${fmtN(a.credit_limit)}</small></div>`).join('')||'<div class="empty">Không có công nợ.</div>'}<p class="note">Thu tiền: kế toán ghi phiếu thu trong CRM; tiền vào sổ quỹ và tự trừ công nợ.</p>`}
+$('#hOut').onclick=async()=>{await sb.auth.signOut();location.reload()};
+boot();
+</script></body></html>
