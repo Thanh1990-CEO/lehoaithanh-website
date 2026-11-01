@@ -1273,6 +1273,16 @@
   .listing-form-panel .field input:focus,
   .listing-form-panel .field textarea:focus,
   .listing-form-panel select:focus{ outline:none; border-color:var(--lht-gold, #E03C31); }
+  /* 01/11/2026: khối thông tin người đăng tin (CTV) + nguồn tin — chèn bằng JS vào cuối mỗi form
+     đăng tin (6 mục có giao dịch/tài sản), KHÔNG áp dụng cho mục Kiến thức & Media. Thuần CSS phụ
+     trợ, không đổi field/logic cũ. */
+  .listing-ctv-section{ margin-top:10px; padding-top:14px; border-top:1px dashed var(--rule); }
+  .listing-ctv-section .ctv-section-title{ font-family:inherit; font-size:0.82rem; font-weight:700; color:var(--navy); margin:0 0 4px; text-transform:uppercase; letter-spacing:.02em; }
+  .listing-ctv-section .ctv-section-hint{ font-size:0.78rem; color:var(--text); opacity:.75; margin:0 0 10px; }
+  .listing-ctv-section .form-grid{ margin-top:0; }
+  .pillar-section.on-navy .listing-ctv-section{ border-top-color:var(--rule); }
+  .pillar-section.on-navy .listing-ctv-section .ctv-section-title{ color:#fff; }
+  .pillar-section.on-navy .listing-ctv-section .ctv-section-hint{ color:var(--ink-on-navy-dim); }
   .listing-form-actions{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:18px;}
   .form-status{font-size:0.8rem; color:var(--text-dim);}
 
@@ -4391,6 +4401,86 @@
     };
   }
 
+  // ==== 01/11/2026: Bổ sung thông tin người đăng tin (CTV) + nguồn tin cho CÁC FORM ĐĂNG TIN TRỰC
+  // TIẾP TRÊN WEB (6 mục có giao dịch/tài sản: bds, bds2, log, xn, da, pl — KHÔNG áp dụng cho
+  // media_posts). Mục đích: biết được CTV nào đăng tin (để trả phí giới thiệu) và nguồn thông tin
+  // lấy từ đâu (Zalo/Facebook/...), giống cách bot Telegram đang thu thập.
+  // Lưu ý bảo mật: lht_listing_sources có RLS chặn tuyệt đối vai trò anon (xem policy
+  // lht_sources_no_anon) — web (anon key) KHÔNG thể insert thẳng vào bảng này. Vì vậy các field
+  // này KHÔNG được gộp vào payload insert lht_listings (giữ nguyên 100% logic/field cũ của
+  // lht_listings), mà được gửi riêng, sau khi đăng tin thành công, tới 1 Edge Function
+  // (submit-listing-source) dùng service role key để ghi thay — đúng kiến trúc bot đang dùng.
+  const LHT_SOURCE_FN_URL = SUPABASE_URL + '/functions/v1/submit-listing-source';
+
+  function lhtCtvSourceFieldsHtml(prefix){
+    const p = prefix;
+    return (
+      '<div class="field listing-ctv-section" style="grid-column:1/-1;">'
+      + '<p class="ctv-section-title">Thông tin người đăng tin (CTV) &amp; nguồn tin — nội bộ, không hiển thị công khai</p>'
+      + '<p class="ctv-section-hint">Dùng để xác minh, liên hệ và chi trả phí giới thiệu cho CTV. Thông tin này không hiển thị trên tin đăng công khai.</p>'
+      + '<div class="form-grid">'
+      + '<div class="field"><label for="' + p + '-lf-ctvName">Họ tên người đăng tin (CTV) <span style="color:#c0392b;">*</span></label>'
+      + '<input id="' + p + '-lf-ctvName" name="ctvName" type="text" required placeholder="VD: Nguyễn Văn A"></div>'
+      + '<div class="field"><label for="' + p + '-lf-ctvPhone">SĐT người đăng tin (CTV) <span style="color:#c0392b;">*</span></label>'
+      + '<input id="' + p + '-lf-ctvPhone" name="ctvPhone" type="text" required placeholder="VD: 0909 123 456"></div>'
+      + '<div class="field"><label for="' + p + '-lf-ctvCccd">Số CCCD người đăng tin <span style="color:#c0392b;">*</span></label>'
+      + '<input id="' + p + '-lf-ctvCccd" name="ctvCccd" type="text" required placeholder="VD: 079201xxxxxx"></div>'
+      + '<div class="field"><label for="' + p + '-lf-ctvAddress">Địa chỉ người đăng tin <span style="color:#c0392b;">*</span></label>'
+      + '<input id="' + p + '-lf-ctvAddress" name="ctvAddress" type="text" required placeholder="VD: 12 Nguyễn Huệ, Q.1, TP.HCM"></div>'
+      + '<div class="field"><label for="' + p + '-lf-sourceChannel">Nguồn thông tin lấy từ đâu? <span style="color:#c0392b;">*</span></label>'
+      + '<select id="' + p + '-lf-sourceChannel" name="sourceChannel" required>'
+      + '<option value="">— Chọn kênh —</option>'
+      + '<option value="website">Website</option><option value="zalo">Zalo</option><option value="facebook">Facebook</option>'
+      + '<option value="tiktok">TikTok</option><option value="youtube">YouTube</option><option value="wechat">WeChat</option>'
+      + '<option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="khac">Khác</option>'
+      + '</select></div>'
+      + '<div class="field"><label for="' + p + '-lf-sourceName">Họ tên người gửi nhu cầu (nếu có)</label>'
+      + '<input id="' + p + '-lf-sourceName" name="sourceName" type="text" placeholder="VD: chủ tài sản / khách gửi nhu cầu"></div>'
+      + '<div class="field"><label for="' + p + '-lf-sourcePhone">SĐT người gửi nhu cầu (nếu có)</label>'
+      + '<input id="' + p + '-lf-sourcePhone" name="sourcePhone" type="text" placeholder="VD: 0912 345 678"></div>'
+      + '</div></div>'
+    );
+  }
+  function lhtInjectCtvSourceFields(formEl, prefix){
+    if (!formEl || formEl.querySelector('.listing-ctv-section')) return; /* idempotent */
+    const actions = formEl.querySelector('.listing-form-actions');
+    const wrap = document.createElement('div');
+    wrap.innerHTML = lhtCtvSourceFieldsHtml(prefix);
+    const node = wrap.firstChild;
+    if (actions && actions.parentNode === formEl) formEl.insertBefore(node, actions);
+    else formEl.appendChild(node);
+  }
+  function lhtReadCtvSourceFields(fd){
+    return {
+      ctv_name: (fd.get('ctvName') || '').toString().trim(),
+      ctv_phone: (fd.get('ctvPhone') || '').toString().trim(),
+      ctv_cccd: (fd.get('ctvCccd') || '').toString().trim(),
+      ctv_address: (fd.get('ctvAddress') || '').toString().trim(),
+      source_name: (fd.get('sourceName') || '').toString().trim(),
+      source_phone: (fd.get('sourcePhone') || '').toString().trim(),
+      source_channel: (fd.get('sourceChannel') || '').toString().trim()
+    };
+  }
+  function lhtValidateCtvSourceFields(v){
+    return !!(v.ctv_name && v.ctv_phone && v.ctv_cccd && v.ctv_address && v.source_channel);
+  }
+  // Gửi SAU KHI tin đã đăng thành công vào lht_listings — lỗi ở bước này (mạng chập chờn, Edge
+  // Function tạm lỗi...) sẽ KHÔNG được hiển thị như lỗi đăng tin (tin đã đăng xong), chỉ log lại
+  // để không đổi trải nghiệm/luồng đăng tin hiện có của người dùng.
+  async function lhtSubmitListingSource(listingId, v){
+    try {
+      await fetch(LHT_SOURCE_FN_URL, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify(Object.assign({ listing_id: listingId }, v))
+      });
+    } catch(err){ console.warn('lht_listing_sources: gửi thông tin CTV/nguồn tin thất bại (không ảnh hưởng tin đã đăng):', err); }
+  }
+
   function mountBdsModule(cfg){
     const prefix = cfg.prefix;
     const collection = cfg.collection;
@@ -4411,6 +4501,7 @@
     const cancelBtn = document.getElementById(prefix + '-listing-form-cancel');
     const statusEl = document.getElementById(prefix + '-listing-form-status');
     if (!feedEl || !formEl) return null;
+    lhtInjectCtvSourceFields(formEl, prefix); /* 01/11/2026: thêm field CTV + nguồn tin */
     feedEl.classList.add('lc-grid-feed'); /* 05/10: lưới thẻ gọn 3 cột theo ảnh tham khảo */
 
   let lastDocs = [];
@@ -4790,6 +4881,13 @@
         submitBtn.disabled = false;
         return;
       }
+      // 01/11/2026: thông tin người đăng tin (CTV) + nguồn tin — bắt buộc ngay từ đầu.
+      const ctvSource = lhtReadCtvSourceFields(fd);
+      if (!lhtValidateCtvSourceFields(ctvSource)){
+        statusEl.textContent = 'Vui lòng điền đủ thông tin người đăng tin (họ tên/SĐT/CCCD/địa chỉ) và nguồn tin.';
+        submitBtn.disabled = false;
+        return;
+      }
 
       const tiers = areasRaw.split(',')
         .map(s => parseFloat(s.trim()))
@@ -4834,6 +4932,8 @@
         electricity, water, amenities, description, phone, occupancyRate, legalStatus,
         imageIds, createdAt: Date.now()
       });
+      // Gửi riêng sau khi tin đã đăng thành công — không đổi/ảnh hưởng payload và logic insert lht_listings ở trên.
+      lhtSubmitListingSource(id, ctvSource);
 
       statusEl.textContent = 'Đăng tin thành công!';
       formEl.reset();
@@ -4961,6 +5061,7 @@
     const cancelBtn = document.getElementById(prefix + '-listing-form-cancel');
     const statusEl = document.getElementById(prefix + '-listing-form-status');
     if (!feedEl || !formEl) return;
+    lhtInjectCtvSourceFields(formEl, prefix); /* 01/11/2026: thêm field CTV + nguồn tin */
     feedEl.classList.add('lc-grid-feed'); /* 05/10: lưới thẻ gọn 3 cột theo ảnh tham khảo */
 
     const gState = { db:null, assets:null, sample:null };
@@ -5258,6 +5359,13 @@
           submitBtn.disabled = false;
           return;
         }
+        // 01/11/2026: thông tin người đăng tin (CTV) + nguồn tin — bắt buộc ngay từ đầu.
+        const ctvSource = lhtReadCtvSourceFields(fd);
+        if (!lhtValidateCtvSourceFields(ctvSource)){
+          statusEl.textContent = 'Vui lòng điền đủ thông tin người đăng tin (họ tên/SĐT/CCCD/địa chỉ) và nguồn tin.';
+          submitBtn.disabled = false;
+          return;
+        }
 
         const qtys = qtysRaw.split(',').map(s => parseFloat(s.trim())).filter(n => n > 0);
         const amenities = amenitiesRaw.split(',').map(s => s.trim()).filter(Boolean);
@@ -5299,6 +5407,8 @@
           extraCost, amenities, description, phone,
           imageIds, createdAt: Date.now()
         });
+        // Gửi riêng sau khi tin đã đăng thành công — không đổi/ảnh hưởng payload và logic insert lht_listings ở trên.
+        lhtSubmitListingSource(id, ctvSource);
 
         statusEl.textContent = 'Đăng tin thành công!';
         formEl.reset();
