@@ -219,6 +219,23 @@
   }
   .card-err.show{display:block;}
 
+  /* 01/11/2026: nhãn AI cảnh báo nghi ngờ spam/thiếu thông tin — do edge function
+     optimize-listing-seo chấm điểm ngay sau khi CTV đăng tin, hiển thị ở đây để admin dễ nhận
+     ra tin rác trước khi bấm Duyệt. Thuần hiển thị, không tự động chặn/xoá tin nào. */
+  .spam-box{
+    margin:8px 0; padding:9px 11px; border-radius:8px; font-size:0.8rem; font-weight:600;
+  }
+  .spam-box.high{ background:#fdeceb; border:1px solid #f3c7c2; color:var(--red); }
+  .spam-box.medium{ background:#fff7ed; border:1px solid #f0dcb4; color:#7a5215; }
+  .spam-box .spam-reason{ font-weight:400; margin-top:2px; }
+
+  .ctv-box{
+    margin:10px 0; padding:10px 12px; border-radius:8px;
+    background:#eef3fb; border:1px dashed #a9c0e6; font-size:0.8rem; color:#1f3a63;
+  }
+  .ctv-box-label{font-weight:700; margin-bottom:4px; font-size:0.72rem; letter-spacing:.02em;}
+  .ctv-box div{margin:2px 0;}
+
   @media (max-width:420px){
     .act-btn{min-width:0;}
   }
@@ -447,6 +464,28 @@
          </div>`
       : '';
 
+    // 01/11/2026: thông tin người đăng tin (CTV) — do form "+ Đăng tin mới" trên website thu thập
+    // (bắt buộc từ 01/11/2026), lưu ở cùng bảng lht_listing_sources, nội bộ, không public — hiển
+    // thị ở đây để admin biết CTV nào đăng tin, phục vụ trả phí giới thiệu + liên hệ xác minh.
+    const ctvHtml = (src.ctv_name || src.ctv_phone || src.ctv_cccd || src.ctv_address)
+      ? `<div class="ctv-box">
+           <div class="ctv-box-label">🧑‍💼 Người đăng tin / CTV (nội bộ, không hiển thị công khai)</div>
+           ${src.ctv_name ? `<div>👤 ${escapeHtml(src.ctv_name)}</div>` : ''}
+           ${src.ctv_phone ? `<div>📞 ${escapeHtml(src.ctv_phone)}</div>` : ''}
+           ${src.ctv_cccd ? `<div>🪪 CCCD: ${escapeHtml(src.ctv_cccd)}</div>` : ''}
+           ${src.ctv_address ? `<div>📍 ${escapeHtml(src.ctv_address)}</div>` : ''}
+         </div>`
+      : '';
+
+    // AI chấm điểm nghi ngờ spam/thiếu thông tin (edge function optimize-listing-seo, chạy ngay
+    // sau khi CTV đăng tin qua website) — chỉ hiển thị cảnh báo, KHÔNG tự động ẩn/chặn tin nào,
+    // admin vẫn toàn quyền Duyệt/Từ chối như cũ.
+    const spamHtml = (d.spam_risk === 'cao')
+      ? `<div class="spam-box high">⚠️ AI nghi ngờ đây là tin rác / không liên quan ngành${d.spam_reason ? `<div class="spam-reason">${escapeHtml(d.spam_reason)}</div>` : ''}</div>`
+      : (d.spam_risk === 'trung_binh')
+      ? `<div class="spam-box medium">ℹ️ AI: nội dung thiếu thông tin / cần kiểm tra kỹ trước khi duyệt${d.spam_reason ? `<div class="spam-reason">${escapeHtml(d.spam_reason)}</div>` : ''}</div>`
+      : '';
+
     return `
     <div class="card" data-id="${escapeHtml(row.id)}">
       <div class="card-top">
@@ -454,12 +493,14 @@
         <span class="card-time">${escapeHtml(friendlyTime(row.created_at))}</span>
       </div>
       <h3>${escapeHtml(title)}</h3>
+      ${spamHtml}
       ${row.asset_code ? `<div class="asset-code-line">Mã tài sản: <b>${escapeHtml(row.asset_code)}</b></div>` : ''}
       ${chipsHtml ? `<div class="detail-lines">${chipsHtml}</div>` : ''}
       ${thumbsHtml}
       ${descHtml}
       ${chipListHtml}
       ${phoneHtml}
+      ${ctvHtml}
       ${linkHtml}
       ${sourceHtml}
       <div class="card-err" data-role="card-err"></div>
@@ -552,7 +593,7 @@
     try {
       const { data, error } = await sb
         .from(TABLE)
-        .select('*, lht_listing_sources(source_name, source_phone, source_channel)')
+        .select('*, lht_listing_sources(source_name, source_phone, source_channel, ctv_name, ctv_phone, ctv_cccd, ctv_address)')
         .eq('status', 'pending')
         .order('created_at', { ascending: true });
       if (error) throw error;

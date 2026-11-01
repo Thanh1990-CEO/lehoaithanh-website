@@ -4481,6 +4481,27 @@
     } catch(err){ console.warn('lht_listing_sources: gửi thông tin CTV/nguồn tin thất bại (không ảnh hưởng tin đã đăng):', err); }
   }
 
+  // 01/11/2026: ngay sau khi CTV đăng tin thành công (tin vẫn ở status='pending' như cũ — RLS
+  // 'public read' chỉ cho web công khai hiện tin status='approved' nên không ảnh hưởng gì tới
+  // việc tin có hiện ra ngoài web hay không), gọi Edge Function "optimize-listing-seo" để AI viết
+  // lại mô tả cho chuẩn SEO + sinh tiêu đề/từ khoá SEO + chấm điểm nghi ngờ spam, lưu thẳng vào
+  // tin TRƯỚC KHI admin mở trang duyệt tin (admin.html) — không đổi logic/luồng insert lht_listings
+  // ở trên, không đổi status, không bỏ qua bước duyệt của admin (admin vẫn phải bấm Duyệt như cũ).
+  const LHT_SEO_FN_URL = SUPABASE_URL + '/functions/v1/optimize-listing-seo';
+  async function lhtOptimizeListingSeo(listingId){
+    try {
+      await fetch(LHT_SEO_FN_URL, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({ listingId: listingId })
+      });
+    } catch(err){ console.warn('optimize-listing-seo: tối ưu AI thất bại (tin vẫn đăng bình thường, admin duyệt theo mô tả gốc):', err); }
+  }
+
   function mountBdsModule(cfg){
     const prefix = cfg.prefix;
     const collection = cfg.collection;
@@ -4934,6 +4955,7 @@
       });
       // Gửi riêng sau khi tin đã đăng thành công — không đổi/ảnh hưởng payload và logic insert lht_listings ở trên.
       lhtSubmitListingSource(id, ctvSource);
+      lhtOptimizeListingSeo(id); // AI viết lại mô tả chuẩn SEO + chấm điểm spam trước khi admin duyệt
 
       statusEl.textContent = 'Đăng tin thành công!';
       formEl.reset();
@@ -5409,6 +5431,7 @@
         });
         // Gửi riêng sau khi tin đã đăng thành công — không đổi/ảnh hưởng payload và logic insert lht_listings ở trên.
         lhtSubmitListingSource(id, ctvSource);
+        lhtOptimizeListingSeo(id); // AI viết lại mô tả chuẩn SEO + chấm điểm spam trước khi admin duyệt
 
         statusEl.textContent = 'Đăng tin thành công!';
         formEl.reset();
