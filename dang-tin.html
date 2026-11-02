@@ -1,0 +1,248 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Đăng tin CTV – Lê Hoài Thanh</title>
+<meta name="description" content="Trang đăng tin dành cho CTV / nhân viên kinh doanh Lê Hoài Thanh: chọn đúng loại hình, điền thông tin — hệ thống tự tối ưu SEO và chuyển tin vào CRM chờ duyệt trước khi hiển thị công khai.">
+<meta name="theme-color" content="#E03C31">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Đăng tin LHT">
+<link rel="manifest" href="/dang-tin.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/dangtin-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/dangtin-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--red:#E03C31;--navy:#2C2C2C;--muted:#6B6B6B;--line:#E4E1DE;--bg:#F7F7F7;--card:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--navy);font:15px/1.5 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+header{background:var(--navy);color:#fff;padding:22px 18px 26px}
+header .w{max-width:760px;margin:0 auto}
+header h1{margin:0 0 6px;font-size:21px;font-weight:800}
+header p{margin:0;color:#D8D5D2;font-size:13.5px;line-height:1.5}
+main{max-width:760px;margin:0 auto;padding:18px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.cat-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;gap:12px;align-items:flex-start;text-align:left;cursor:pointer;font:inherit;color:inherit;-webkit-appearance:none;appearance:none}
+.cat-card:active{transform:scale(.98)}
+.cat-card .ic{width:44px;height:44px;border-radius:12px;background:#FDECEA;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}
+.cat-card b{display:block;font-size:15.5px;margin-bottom:2px}
+.cat-card span{font-size:12.5px;color:var(--muted);display:block}
+.note{font-size:12.5px;color:var(--muted);margin-top:16px;padding:12px 14px;background:#fff;border:1px dashed var(--line);border-radius:12px}
+.note b{color:var(--navy)}
+
+#formView{position:fixed;inset:0;background:#fff;z-index:50;display:flex;flex-direction:column}
+#formView[hidden]{display:none}
+.topbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;background:var(--navy);color:#fff;flex:none}
+.topbar button{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:10px;padding:9px 13px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit}
+.topbar span{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.iframeWrap{position:relative;flex:1;min-height:0}
+.iframeWrap iframe{width:100%;height:100%;border:0;display:block;background:#fff}
+#loading{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-size:13.5px;color:var(--muted);text-align:center;padding:24px}
+#loading[hidden]{display:none!important}
+#formView[hidden],.cat-card[hidden]{display:none!important}
+.spin{width:30px;height:30px;border-radius:50%;border:3px solid #EEE;border-top-color:var(--red);animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* Logo "Powered by Netlify" (Netlify tự chèn) – nâng lên trên, tránh đè khi cài-app banner hiện */
+#nl-badge-frame{bottom:calc(16px + env(safe-area-inset-bottom))!important}
+</style></head><body>
+
+<header><div class="w">
+  <h1>📋 Đăng tin — Lê Hoài Thanh</h1>
+  <p>Chọn đúng loại hình bên dưới để điền đúng form. Hệ thống tự tối ưu nội dung chuẩn SEO, sau đó chuyển vào CRM để admin duyệt trước khi hiển thị công khai trên web.</p>
+</div></header>
+
+<main>
+  <div class="grid" id="cats"></div>
+  <div class="note"><b>Lưu ý:</b> Tin đăng sẽ vào hàng chờ duyệt — <b>chưa hiển thị ngay</b> trên web công khai cho đến khi admin bấm Duyệt trong CRM. Vui lòng điền đúng, đủ thông tin người đăng (họ tên/SĐT/CCCD/địa chỉ) để công ty đối chiếu và trả phí cho CTV.</div>
+</main>
+
+<div id="formView" hidden>
+  <div class="topbar">
+    <button id="backBtn" type="button">← Chọn loại khác</button>
+    <span id="formTitle"></span>
+  </div>
+  <div class="iframeWrap">
+    <iframe id="formFrame" title="Form đăng tin"></iframe>
+    <div id="loading"><div class="spin"></div><div id="loadingText">Đang tải form…</div></div>
+  </div>
+</div>
+
+<script>
+const CATS = [
+  { key:'bds',  panel:'bds-listing-form-panel',  name:'BĐS công nghiệp',           hint:'Kho xưởng, đất KCN, nhà xưởng',               icon:'🏭' },
+  { key:'bds2', panel:'bds2-listing-form-panel', name:'BĐS dân dụng & thương mại', hint:'Nhà phố, căn hộ, đất nền, mặt bằng kinh doanh', icon:'🏠' },
+  { key:'log',  panel:'log-listing-form-panel',  name:'Logistics & sản xuất',      hint:'Kho bãi, dịch vụ hậu cần, sản xuất',           icon:'🚛' },
+  { key:'xn',   panel:'xn-listing-form-panel',   name:'Xe nâng & thiết bị',        hint:'Xe nâng, thiết bị công nghiệp',                 icon:'🏗️' },
+  { key:'da',   panel:'da-listing-form-panel',   name:'Dự án & đầu tư',            hint:'Dự án đầu tư, hợp tác phát triển',              icon:'📈' },
+  { key:'pl',   panel:'pl-listing-form-panel',   name:'Pháp lý & tài chính',       hint:'Dịch vụ pháp lý, tài chính, thủ tục',           icon:'📄' }
+];
+
+const catsEl = document.getElementById('cats');
+catsEl.innerHTML = CATS.map((c,i) => `<button type="button" class="cat-card" data-i="${i}"><span class="ic">${c.icon}</span><span><b>${c.name}</b><span>${c.hint}</span></span></button>`).join('');
+
+const formView = document.getElementById('formView');
+const frame = document.getElementById('formFrame');
+const loading = document.getElementById('loading');
+const loadingText = document.getElementById('loadingText');
+const formTitle = document.getElementById('formTitle');
+const backBtn = document.getElementById('backBtn');
+
+// Cô lập trang index.html bên trong iframe: chỉ hiện đúng 1 khối form (#<panel>-listing-form-panel),
+// ẩn toàn bộ phần còn lại (header, menu, feed tin, các mục khác) — KHÔNG đổi/xoá gì trong DOM gốc,
+// chỉ display:none các phần tử anh em trên đường đi từ panel lên tới <body>. Không đụng tới logic
+// đăng tin / API Supabase / field id / tên collection — form chạy y hệt như trên trang chính.
+function isolateToForm(doc, panelId){
+  const panel = doc.getElementById(panelId);
+  if (!panel) return false;
+  let node = panel;
+  while (node && node !== doc.body){
+    const parent = node.parentElement;
+    if (parent){
+      Array.prototype.forEach.call(parent.children, function(sib){
+        if (sib !== node) sib.style.setProperty('display', 'none', 'important');
+      });
+    }
+    node = parent;
+  }
+  panel.hidden = false;
+  panel.style.setProperty('display', 'block', 'important');
+  panel.style.setProperty('margin', '0', 'important');
+  panel.style.setProperty('border', '0', 'important');
+  panel.style.setProperty('border-radius', '0', 'important');
+  try { doc.body.style.paddingBottom = '40px'; } catch(e){}
+  try { panel.scrollIntoView({ block: 'start' }); } catch(e){}
+  return true;
+}
+
+let loadTimer = null;
+let pollTimer = null;
+function openCat(cat){
+  formTitle.textContent = cat.name;
+  loadingText.textContent = 'Đang tải form…';
+  loading.hidden = false;
+  loading.style.display = 'flex';
+  formView.hidden = false;
+  document.body.style.overflow = 'hidden';
+
+  if (pollTimer) clearInterval(pollTimer);
+  if (loadTimer) clearTimeout(loadTimer);
+
+  // Không chờ sự kiện "load" đầy đủ của iframe (phải đợi hết font/analytics/ảnh bên ngoài tải xong,
+  // có khi vài giây) — chỉ cần phần tử form đã có trong DOM là cô lập + hiện ngay cho CTV, nhanh hơn
+  // nhiều mà không ảnh hưởng gì tới logic đăng tin (phần tử form là HTML tĩnh, có sẵn ngay khi parse xong).
+  const startedAt = Date.now();
+  let done = false;
+  function tryIsolate(){
+    if (done) return;
+    let doc;
+    try { doc = frame.contentDocument; } catch(e){ doc = null; }
+    if (!doc || !doc.getElementById(cat.panel)){
+      if (Date.now() - startedAt > 15000){
+        done = true;
+        clearInterval(pollTimer);
+        loadingText.textContent = 'Không tải được form — vui lòng kiểm tra mạng rồi bấm "Chọn loại khác" để thử lại.';
+      }
+      return;
+    }
+    try {
+      const ok = isolateToForm(doc, cat.panel);
+      if (ok){
+        done = true;
+        clearInterval(pollTimer);
+        if (loadTimer) clearTimeout(loadTimer);
+        loading.hidden = true;
+        loading.style.display = 'none';
+      }
+    } catch(e){
+      done = true;
+      clearInterval(pollTimer);
+      loadingText.textContent = 'Có lỗi khi mở form (' + e.message + '). Vui lòng thử lại.';
+    }
+  }
+  pollTimer = setInterval(tryIsolate, 150);
+  loadTimer = setTimeout(function(){
+    if (!done) loadingText.textContent = 'Đang tải hơi lâu — vui lòng kiểm tra mạng, hoặc bấm "Chọn loại khác" rồi thử lại.';
+  }, 8000);
+  frame.src = '/index.html?ctv=' + Date.now();
+}
+
+catsEl.addEventListener('click', function(e){
+  const btn = e.target.closest('.cat-card');
+  if (!btn) return;
+  openCat(CATS[Number(btn.getAttribute('data-i'))]);
+});
+
+backBtn.addEventListener('click', function(){
+  if (pollTimer) clearInterval(pollTimer);
+  if (loadTimer) clearTimeout(loadTimer);
+  formView.hidden = true;
+  document.body.style.overflow = '';
+  frame.src = 'about:blank';
+});
+
+// ===== KInstall: cài app lên màn hình chính (Android, iPhone, máy tính) =====
+(function(){
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
+  const inApp = /Zalo|FBAN|FBAV|FB_IAB|Messenger|Instagram|Line\/|TikTok|musical_ly|ZaloTheme/i.test(ua);
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let deferred = null;
+  if ('serviceWorker' in navigator) window.addEventListener('load', function(){ navigator.serviceWorker.register('/dangtin-sw.js', { scope: '/' }).catch(function(){}); });
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferred = e; show(); });
+  window.addEventListener('appinstalled', function(){ try{ localStorage.setItem('dangtin_installed','1'); }catch(e){} hide(); });
+  const css = '#kins{position:fixed;left:10px;right:10px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:120;background:#111827;color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center;font:14px/1.4 "Be Vietnam Pro",system-ui,sans-serif;max-width:520px;margin:0 auto}'
+    + '#kins img{width:40px;height:40px;border-radius:10px}#kins b{display:block;font-size:15px}#kins .x{background:none;border:0;color:#9CA3AF;font-size:20px;padding:4px}'
+    + '#kins .go{background:#E03C31;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;white-space:nowrap}'
+    + '#kinsg{position:fixed;inset:0;z-index:130;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center}'
+    + '#kinsg .bx{background:#fff;color:#111;width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));font:15px/1.5 "Be Vietnam Pro",system-ui,sans-serif}'
+    + '#kinsg ol{padding-left:20px;margin:8px 0}#kinsg li{margin:8px 0}#kinsg .k{display:inline-block;border:1px solid #ddd;border-radius:6px;padding:0 6px;background:#f6f6f6}'
+    + '#kinsg button{width:100%;border:0;border-radius:12px;padding:13px;font-weight:800;margin-top:8px}#kinsg .p{background:#E03C31;color:#fff}#kinsg .o{background:#f1f1f1}';
+  const icon = (document.querySelector('link[rel=apple-touch-icon]') || {}).href || '';
+  const name = (document.querySelector('meta[name=apple-mobile-web-app-title]') || {}).content || 'Đăng tin LHT';
+  function ensureCss(){ if (!document.getElementById('kins-css')){ const s = document.createElement('style'); s.id = 'kins-css'; s.textContent = css; document.head.appendChild(s); } }
+  function hide(){ const el = document.getElementById('kins'); if (el) el.remove(); }
+  function show(force){
+    if (standalone) return;
+    try { if (!force && (localStorage.getItem('dangtin_ins_hide') > Date.now() || localStorage.getItem('dangtin_installed'))) return; } catch(e){}
+    ensureCss();
+    hide();
+    const d = document.createElement('div'); d.id = 'kins';
+    d.innerHTML = (icon ? '<img src="' + icon + '" alt="">' : '') + '<div style="flex:1"><b>Cài "' + name + '" lên màn hình chính</b>' + (inApp ? 'Đang mở trong Zalo/Facebook – mở bằng trình duyệt để cài' : 'Mở nhanh như app, đăng tin mọi lúc') + '</div><button class="go">Cài app</button><button class="x" aria-label="Đóng">✕</button>';
+    document.body.appendChild(d);
+    d.querySelector('.x').onclick = function(){ try{ localStorage.setItem('dangtin_ins_hide', Date.now() + 3*864e5); }catch(e){} hide(); };
+    d.querySelector('.go').onclick = function(){ window.KInstall.open(); };
+  }
+  function guide(html){
+    ensureCss();
+    const old = document.getElementById('kinsg'); if (old) old.remove();
+    const g = document.createElement('div'); g.id = 'kinsg';
+    g.innerHTML = '<div class="bx">' + html + '<button class="o" id="kgc">Đóng</button></div>';
+    document.body.appendChild(g);
+    g.onclick = function(e){ if (e.target.id === 'kinsg') g.remove(); };
+    document.getElementById('kgc').onclick = function(){ g.remove(); };
+  }
+  window.KInstall = {
+    standalone: standalone, isIOS: isIOS, isAndroid: isAndroid, inApp: inApp, show: function(){ show(true); },
+    open: async function(){
+      const url = location.href.split('#')[0];
+      if (inApp){
+        const intent = 'intent://' + location.host + location.pathname + location.search + '#Intent;scheme=https;package=com.android.chrome;end';
+        guide('<h3 style="margin:0 0 6px">Mở bằng trình duyệt để cài app</h3><p>Zalo / Facebook không cho cài app. Hãy mở link này bằng ' + (isIOS ? '<b>Safari</b>' : '<b>Chrome</b>') + ':</p>'
+          + '<ol><li>Bấm nút <span class="k">⋯</span> hoặc <span class="k">⋮</span> ở góc trên.</li><li>Chọn <b>Mở bằng trình duyệt</b> / <b>Open in ' + (isIOS ? 'Safari' : 'Chrome') + '</b>.</li><li>Trong trình duyệt, bấm lại <b>Cài app</b>.</li></ol>'
+          + (isAndroid ? '<a href="' + intent + '"><button class="p">Mở bằng Chrome</button></a>' : '') + '<button class="o" id="kcp">📋 Sao chép link</button>');
+        const cp = document.getElementById('kcp');
+        if (cp) cp.onclick = function(){ navigator.clipboard && navigator.clipboard.writeText(url); cp.textContent = 'Đã sao chép – dán vào ' + (isIOS ? 'Safari' : 'Chrome'); };
+        return;
+      }
+      if (deferred){ deferred.prompt(); const r = await deferred.userChoice; deferred = null; if (r.outcome === 'accepted') hide(); return; }
+      if (isIOS){ guide('<h3 style="margin:0 0 6px">Cài lên iPhone / iPad</h3><ol><li>Mở trang này bằng <b>Safari</b>.</li><li>Bấm nút <b>Chia sẻ</b> <span class="k">⬆︎</span> ở thanh dưới (hoặc trên).</li><li>Kéo xuống, chọn <b>Thêm vào MH chính</b> (Add to Home Screen).</li><li>Bấm <b>Thêm</b>. Biểu tượng ' + name + ' xuất hiện trên màn hình chính.</li></ol>'); return; }
+      guide('<h3 style="margin:0 0 6px">Cài lên ' + (isAndroid ? 'điện thoại Android' : 'máy tính') + '</h3><ol>' + (isAndroid ? '<li>Mở bằng <b>Chrome</b>.</li><li>Bấm <span class="k">⋮</span> góc phải trên.</li><li>Chọn <b>Cài đặt ứng dụng</b> / <b>Thêm vào màn hình chính</b>.</li><li>Bấm <b>Cài đặt</b>.</li>' : '<li>Mở bằng Chrome hoặc Edge.</li><li>Bấm biểu tượng <b>Cài đặt</b> ⊕ ở cuối thanh địa chỉ.</li><li>Bấm <b>Cài đặt</b> – app mở thành cửa sổ riêng, ghim vào thanh tác vụ.</li>') + '</ol>');
+    }
+  };
+  if (/[?&]install=1/.test(location.search) && !standalone) setTimeout(function(){ window.KInstall.open(); }, 900);
+  else if (!standalone && (isIOS || isAndroid || inApp)) setTimeout(function(){ show(false); }, 3000);
+})();
+</script>
+</body></html>
