@@ -2077,12 +2077,31 @@
           <div class="field"><label for="bds-lf-total" data-i18n="form.bds.label-total">Tổng diện tích (m²)</label><input id="bds-lf-total" name="totalArea" type="number" min="0" required placeholder="VD: 23000" data-i18n-placeholder="form.bds.ph-total"></div>
           <div class="field"><label id="bds-lf-areas-label" for="bds-lf-areas" data-i18n="form.bds.label-areas">Các mức diện tích cho thuê (m², cách nhau bởi dấu phẩy)</label><input id="bds-lf-areas" name="areas" type="text" required placeholder="VD: 800, 1600, 3200" data-i18n-placeholder="form.bds.ph-areas"></div>
           <div class="field"><label id="bds-lf-price-label" for="bds-lf-price" data-i18n="form.bds.label-price">Đơn giá thuê (đ/m²/tháng, chưa VAT)</label><input id="bds-lf-price" name="pricePerM2" type="number" min="0" required placeholder="VD: 95000" data-i18n-placeholder="form.bds.ph-price"></div>
-          <div class="field"><label for="bds-lf-electricity" data-i18n="form.bds.label-electricity">Đơn giá điện</label><input id="bds-lf-electricity" name="electricity" type="text" placeholder="VD: 5.000 đ/kWh" data-i18n-placeholder="form.bds.ph-electricity"></div>
-          <div class="field"><label for="bds-lf-water" data-i18n="form.bds.label-water">Đơn giá nước</label><input id="bds-lf-water" name="water" type="text" placeholder="VD: 17.000 đ/m³" data-i18n-placeholder="form.bds.ph-water"></div>
+          <div class="field"><label for="bds-lf-lease-term">Thời hạn cho thuê (không bắt buộc)</label><input id="bds-lf-lease-term" name="leaseTerm" type="text" placeholder="VD: 12 tháng, có thể gia hạn"></div>
+          <div class="field"><label for="bds-lf-deposit">Đặt cọc bao nhiêu tháng? (không bắt buộc)</label><input id="bds-lf-deposit" name="depositMonths" type="number" min="0" placeholder="VD: 3"></div>
+          <div class="field"><label for="bds-lf-pccc">Giấy phép PCCC đã nghiệm thu chưa? (không bắt buộc)</label><select id="bds-lf-pccc" name="pccc"><option value="">— Chọn —</option><option value="Đã nghiệm thu đầy đủ">Đã nghiệm thu đầy đủ</option><option value="Đã cấp phép, chưa nghiệm thu">Đã cấp phép, chưa nghiệm thu</option><option value="Đang hoàn thiện hồ sơ">Đang hoàn thiện hồ sơ</option><option value="Chưa có / Không áp dụng">Chưa có / Không áp dụng</option></select></div>
+          <div class="field"><label for="bds-lf-handover">Thời gian bàn giao (không bắt buộc)</label><input id="bds-lf-handover" name="handoverTime" type="text" placeholder="VD: Ngay / Trong 30 ngày sau khi cọc"></div>
           <div class="field"><label for="bds-lf-phone" data-i18n="form.common.label-phone">Số điện thoại liên hệ</label><input id="bds-lf-phone" name="phone" type="text" required placeholder="VD: 0399 831 228" data-i18n-placeholder="form.common.placeholder-phone"></div>
           <div class="field"><label for="bds-lf-amenities" data-i18n="form.bds.label-amenities">Tiện ích (cách nhau bởi dấu phẩy)</label><input id="bds-lf-amenities" name="amenities" type="text" placeholder="VD: Có PCCC, Có văn phòng, Sân bãi rộng" data-i18n-placeholder="form.bds.ph-amenities"></div>
           <div class="field"><label for="bds-lf-occupancy">Tỷ lệ lấp đầy (%, không bắt buộc)</label><input id="bds-lf-occupancy" name="occupancyRate" type="number" min="0" max="100" placeholder="VD: 85"></div>
           <div class="field"><label for="bds-lf-legal">Tình trạng pháp lý (không bắt buộc)</label><input id="bds-lf-legal" name="legalStatus" type="text" placeholder="VD: Đầy đủ giấy tờ"></div>
+          <div class="field" style="grid-column:1/-1;"><label>Ngành nghề được chủ trương hoạt động (không bắt buộc — tick chọn hoặc ghi thêm ở ô bên dưới)</label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:5px 14px;margin:6px 0 10px;">
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Sản xuất, gia công cơ khí"> Sản xuất, gia công cơ khí</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Dệt may, da giày"> Dệt may, da giày</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Thực phẩm, đồ uống"> Thực phẩm, đồ uống</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Điện tử, linh kiện"> Điện tử, linh kiện</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Nhựa, cao su"> Nhựa, cao su</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Gỗ, nội thất"> Gỗ, nội thất</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Hóa chất (không nguy hiểm cháy nổ)"> Hóa chất (không nguy hiểm cháy nổ)</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Vật liệu xây dựng"> Vật liệu xây dựng</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="In ấn, bao bì"> In ấn, bao bì</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Nông sản, chế biến nông sản"> Nông sản, chế biến nông sản</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Lắp ráp, chế tạo thiết bị"> Lắp ráp, chế tạo thiết bị</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Kho vận, logistics, phân phối"> Kho vận, logistics, phân phối</label>
+            </div>
+            <input id="bds-lf-industries-other" name="industriesOther" type="text" placeholder="Ngành nghề khác (nếu có), cách nhau bởi dấu phẩy">
+          </div>
           <div class="field" style="grid-column:1/-1;"><label for="bds-lf-desc" data-i18n="form.common.label-desc">Mô tả thêm (không bắt buộc — hệ thống sẽ tối ưu giúp bạn)</label><textarea id="bds-lf-desc" name="description" placeholder="Ghi vài ý cơ bản, hệ thống sẽ viết lại cho chuyên nghiệp và đầy đủ hơn" data-i18n-placeholder="form.common.placeholder-desc"></textarea></div>
           <div class="field" style="grid-column:1/-1;"><label for="bds-lf-images" data-i18n="form.common.label-images">Hình ảnh (có thể chọn nhiều)</label><input id="bds-lf-images" name="images" type="file" accept="image/*" multiple></div>
         </div>
@@ -2199,12 +2218,31 @@
           <div class="field"><label for="bds2-lf-total" data-i18n="form.bds.label-total">Tổng diện tích (m²)</label><input id="bds2-lf-total" name="totalArea" type="number" min="0" required placeholder="VD: 23000" data-i18n-placeholder="form.bds.ph-total"></div>
           <div class="field"><label id="bds2-lf-areas-label" for="bds2-lf-areas" data-i18n="form.bds.label-areas">Các mức diện tích cho thuê (m², cách nhau bởi dấu phẩy)</label><input id="bds2-lf-areas" name="areas" type="text" required placeholder="VD: 800, 1600, 3200" data-i18n-placeholder="form.bds.ph-areas"></div>
           <div class="field"><label id="bds2-lf-price-label" for="bds2-lf-price" data-i18n="form.bds.label-price">Đơn giá thuê (đ/m²/tháng, chưa VAT)</label><input id="bds2-lf-price" name="pricePerM2" type="number" min="0" required placeholder="VD: 95000" data-i18n-placeholder="form.bds.ph-price"></div>
-          <div class="field"><label for="bds2-lf-electricity" data-i18n="form.bds.label-electricity">Đơn giá điện</label><input id="bds2-lf-electricity" name="electricity" type="text" placeholder="VD: 5.000 đ/kWh" data-i18n-placeholder="form.bds.ph-electricity"></div>
-          <div class="field"><label for="bds2-lf-water" data-i18n="form.bds.label-water">Đơn giá nước</label><input id="bds2-lf-water" name="water" type="text" placeholder="VD: 17.000 đ/m³" data-i18n-placeholder="form.bds.ph-water"></div>
+          <div class="field"><label for="bds2-lf-lease-term">Thời hạn cho thuê (không bắt buộc)</label><input id="bds2-lf-lease-term" name="leaseTerm" type="text" placeholder="VD: 12 tháng, có thể gia hạn"></div>
+          <div class="field"><label for="bds2-lf-deposit">Đặt cọc bao nhiêu tháng? (không bắt buộc)</label><input id="bds2-lf-deposit" name="depositMonths" type="number" min="0" placeholder="VD: 3"></div>
+          <div class="field"><label for="bds2-lf-pccc">Giấy phép PCCC đã nghiệm thu chưa? (không bắt buộc)</label><select id="bds2-lf-pccc" name="pccc"><option value="">— Chọn —</option><option value="Đã nghiệm thu đầy đủ">Đã nghiệm thu đầy đủ</option><option value="Đã cấp phép, chưa nghiệm thu">Đã cấp phép, chưa nghiệm thu</option><option value="Đang hoàn thiện hồ sơ">Đang hoàn thiện hồ sơ</option><option value="Chưa có / Không áp dụng">Chưa có / Không áp dụng</option></select></div>
+          <div class="field"><label for="bds2-lf-handover">Thời gian bàn giao (không bắt buộc)</label><input id="bds2-lf-handover" name="handoverTime" type="text" placeholder="VD: Ngay / Trong 30 ngày sau khi cọc"></div>
           <div class="field"><label for="bds2-lf-phone" data-i18n="form.common.label-phone">Số điện thoại liên hệ</label><input id="bds2-lf-phone" name="phone" type="text" required placeholder="VD: 0399 831 228" data-i18n-placeholder="form.common.placeholder-phone"></div>
           <div class="field"><label for="bds2-lf-amenities" data-i18n="form.bds.label-amenities">Tiện ích (cách nhau bởi dấu phẩy)</label><input id="bds2-lf-amenities" name="amenities" type="text" placeholder="VD: Có PCCC, Có văn phòng, Sân bãi rộng" data-i18n-placeholder="form.bds.ph-amenities"></div>
           <div class="field"><label for="bds2-lf-occupancy">Tỷ lệ lấp đầy (%, không bắt buộc)</label><input id="bds2-lf-occupancy" name="occupancyRate" type="number" min="0" max="100" placeholder="VD: 85"></div>
           <div class="field"><label for="bds2-lf-legal">Tình trạng pháp lý (không bắt buộc)</label><input id="bds2-lf-legal" name="legalStatus" type="text" placeholder="VD: Đầy đủ giấy tờ"></div>
+          <div class="field" style="grid-column:1/-1;"><label>Ngành nghề được chủ trương hoạt động (không bắt buộc — tick chọn hoặc ghi thêm ở ô bên dưới)</label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:5px 14px;margin:6px 0 10px;">
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Sản xuất, gia công cơ khí"> Sản xuất, gia công cơ khí</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Dệt may, da giày"> Dệt may, da giày</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Thực phẩm, đồ uống"> Thực phẩm, đồ uống</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Điện tử, linh kiện"> Điện tử, linh kiện</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Nhựa, cao su"> Nhựa, cao su</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Gỗ, nội thất"> Gỗ, nội thất</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Hóa chất (không nguy hiểm cháy nổ)"> Hóa chất (không nguy hiểm cháy nổ)</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Vật liệu xây dựng"> Vật liệu xây dựng</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="In ấn, bao bì"> In ấn, bao bì</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Nông sản, chế biến nông sản"> Nông sản, chế biến nông sản</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Lắp ráp, chế tạo thiết bị"> Lắp ráp, chế tạo thiết bị</label>
+              <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px;"><input type="checkbox" name="industriesAccepted" value="Kho vận, logistics, phân phối"> Kho vận, logistics, phân phối</label>
+            </div>
+            <input id="bds2-lf-industries-other" name="industriesOther" type="text" placeholder="Ngành nghề khác (nếu có), cách nhau bởi dấu phẩy">
+          </div>
           <div class="field" style="grid-column:1/-1;"><label for="bds2-lf-desc" data-i18n="form.common.label-desc">Mô tả thêm (không bắt buộc — hệ thống sẽ tối ưu giúp bạn)</label><textarea id="bds2-lf-desc" name="description" placeholder="Ghi vài ý cơ bản, hệ thống sẽ viết lại cho chuyên nghiệp và đầy đủ hơn" data-i18n-placeholder="form.common.placeholder-desc"></textarea></div>
           <div class="field" style="grid-column:1/-1;"><label for="bds2-lf-images" data-i18n="form.common.label-images">Hình ảnh (có thể chọn nhiều)</label><input id="bds2-lf-images" name="images" type="file" accept="image/*" multiple></div>
         </div>
@@ -4022,6 +4060,10 @@
       lhtDetailRow('🏗️', t('fd.infra'), doc.infrastructure),
       lhtDetailRow('🏭', t('fd.industries-in'), doc.industriesAccepted),
       lhtDetailRow('🚫', t('fd.industries-ex'), doc.industriesExcluded),
+      lhtDetailRow('📅', t('fd.lease-term'), doc.leaseTerm),
+      lhtDetailRow('💰', t('fd.deposit'), (doc.depositMonths != null && doc.depositMonths !== '') ? (doc.depositMonths + ' tháng') : ''),
+      lhtDetailRow('🧯', t('fd.pccc'), doc.pccc),
+      lhtDetailRow('🔑', t('fd.handover'), doc.handoverTime),
       lhtDetailRow('💳', t('fd.payment'), doc.paymentTerms),
       lhtDetailRow('🧾', t('fd.fees'), doc.otherFees),
       lhtDetailRow('🎁', t('fd.incentives'), doc.incentives),
@@ -4891,6 +4933,17 @@
       const occupancyRateRaw = (fd.get('occupancyRate') || '').toString().trim();
       const occupancyRate = occupancyRateRaw ? Math.max(0, Math.min(100, parseFloat(occupancyRateRaw) || 0)) : null;
       const legalStatus = (fd.get('legalStatus') || '').toString().trim() || null;
+      // 02/11/2026: thay cho "đơn giá điện/nước" — các trường kiểm soát nguồn tài sản (ngành nghề
+      // được chủ trương, hạn thuê, cọc, PCCC, bàn giao). Tất cả không bắt buộc, không ảnh hưởng tin cũ.
+      const industriesChecked = Array.from(formEl.querySelectorAll('input[name="industriesAccepted"]:checked')).map(el => el.value);
+      const industriesOtherRaw = (fd.get('industriesOther') || '').toString().trim();
+      const industriesOther = industriesOtherRaw ? industriesOtherRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+      const industriesAccepted = industriesChecked.concat(industriesOther);
+      const leaseTerm = (fd.get('leaseTerm') || '').toString().trim() || null;
+      const depositMonthsRaw = (fd.get('depositMonths') || '').toString().trim();
+      const depositMonths = depositMonthsRaw ? (parseFloat(depositMonthsRaw) || null) : null;
+      const pccc = (fd.get('pccc') || '').toString().trim() || null;
+      const handoverTime = (fd.get('handoverTime') || '').toString().trim() || null;
 
       if (!txnTypes.length){
         statusEl.textContent = 'Vui lòng chọn ít nhất 1 loại giao dịch (Cho thuê / Bán / ...).';
@@ -4951,6 +5004,7 @@
       await state.db.doc(collection + '/' + id).set({
         txnTypes, txnType, title, location, propertyType, totalArea, tiers, pricePerM2,
         electricity, water, amenities, description, phone, occupancyRate, legalStatus,
+        industriesAccepted, leaseTerm, depositMonths, pccc, handoverTime,
         imageIds, createdAt: Date.now()
       });
       // Gửi riêng sau khi tin đã đăng thành công — không đổi/ảnh hưởng payload và logic insert lht_listings ở trên.
@@ -6555,6 +6609,10 @@
     "fd.infra": "Technical Infrastructure",
     "fd.industries-in": "Industries Accepted",
     "fd.industries-ex": "Restricted Industries",
+    "fd.lease-term": "Lease Term",
+    "fd.deposit": "Deposit",
+    "fd.pccc": "Fire Safety (PCCC) Status",
+    "fd.handover": "Handover Time",
     "fd.payment": "Payment Terms",
     "fd.fees": "Other Fees",
     "fd.incentives": "Investment Incentives",
@@ -7161,6 +7219,10 @@
     "fd.infra": "技術基礎設施",
     "fd.industries-in": "可接受行業",
     "fd.industries-ex": "限制接受行業",
+    "fd.lease-term": "租期",
+    "fd.deposit": "押金",
+    "fd.pccc": "消防驗收狀況",
+    "fd.handover": "交付時間",
     "fd.payment": "付款條款",
     "fd.fees": "其他費用",
     "fd.incentives": "投資優惠",
@@ -7767,6 +7829,10 @@
     "fd.infra": "技術インフラ",
     "fd.industries-in": "受け入れ可能な業種",
     "fd.industries-ex": "受け入れ制限業種",
+    "fd.lease-term": "賃貸期間",
+    "fd.deposit": "敷金",
+    "fd.pccc": "消防検査状況",
+    "fd.handover": "引き渡し時期",
     "fd.payment": "支払条件",
     "fd.fees": "その他の費用",
     "fd.incentives": "投資優遇",
@@ -7927,8 +7993,12 @@
     'fd.connectivity': 'Vị trí & kết nối vùng',
     'fd.labor': 'Nguồn lao động',
     'fd.infra': 'Hạ tầng kỹ thuật',
-    'fd.industries-in': 'Ngành nghề tiếp nhận',
+    'fd.industries-in': 'Ngành nghề được chủ trương hoạt động',
     'fd.industries-ex': 'Ngành nghề hạn chế tiếp nhận',
+    'fd.lease-term': 'Thời hạn cho thuê',
+    'fd.deposit': 'Đặt cọc',
+    'fd.pccc': 'Tình trạng PCCC',
+    'fd.handover': 'Thời gian bàn giao',
     'fd.payment': 'Điều khoản thanh toán',
     'fd.fees': 'Các loại phí khác',
     'fd.incentives': 'Ưu đãi đầu tư',
