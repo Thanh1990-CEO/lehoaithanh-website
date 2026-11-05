@@ -429,6 +429,7 @@ const addDaysA=(d,n)=>{const x=new Date(d+'T12:00:00+07:00');x.setDate(x.getDate
 const V={};
 V.don=async m=>{
   const callsP=sb.rpc('khg_driver_open_calls');
+  const kmP=(new Date(Date.now()+7*3600e3).getUTCHours()>=17&&ME.vehicle_id)?sb.from('khg_vehicle_daily').select('id').eq('person_id',ME.id).eq('log_date',today()).limit(1):null;
   const [{data:o},{data:c}]=await Promise.all([
     sb.from('khg_orders').select('*').eq('driver_id',ME.id).not('status','in','(huy,da_thu)').order('scheduled_at',{ascending:true,nullsFirst:false}).limit(60),
     sb.from('khg_customers').select('id,name,phone,contact_name')]);
@@ -466,8 +467,8 @@ V.don=async m=>{
      <div class="acts">${nx?`<button class="big ${nx[2]}" data-t="${nx[0]}">${nx[1]}</button>`:''}
       <div class="two"><button class="big o" data-ph="1">📷 Ảnh / video (${nf})</button><button class="big o" data-more="1">⋯ Trạng thái khác</button></div>
       <div class="two"><button class="big o" data-ev="1">🕘 Hành trình</button><a class="big o" style="text-align:center;text-decoration:none" href="tel:0399831228">📞 Điều phối</a></div></div></div>`};
-  const {data:calls}=await callsP;const CL=calls||[];
-  m.innerHTML=`${CL.length?`<div id="calls"><h2>📣 Đơn đang phát – ai nhận trước được giao (${CL.length})</h2>${CL.map(k=>`<div class="cl" id="cl-${k.order_id}"><div class="row"><span class="code">${esc(k.code)}</span><span style="flex:1"></span><span class="cd" data-until="${k.until}"></span></div>
+  const {data:calls}=await callsP;const CL=calls||[];const kmDone=kmP?((await kmP).data||[]).length>0:true;
+  m.innerHTML=`${kmDone?'':`<div id="banner" style="background:#0F4C3A;cursor:pointer" onclick="document.querySelector('#bn [data-v=chi]').click()">🛞 Cuối ngày rồi – bấm để báo km & kim dầu của xe</div>`}${CL.length?`<div id="calls"><h2>📣 Đơn đang phát – ai nhận trước được giao (${CL.length})</h2>${CL.map(k=>`<div class="cl" id="cl-${k.order_id}"><div class="row"><span class="code">${esc(k.code)}</span><span style="flex:1"></span><span class="cd" data-until="${k.until}"></span></div>
      <div class="pay">💰 ${k.pay?fmtM(k.pay):'Tiền chuyến: thỏa thuận'}</div><div class="kv"><b>Có mặt</b><span>${k.scheduled_at?fmtDT(k.scheduled_at):'Càng sớm càng tốt'}</span><b>Tuyến</b><span>${esc(k.from||'?')} → ${esc(k.to||'?')}</span>
      ${k.cargo||k.weight_t?`<b>Hàng</b><span>${esc([k.cargo,k.weight_t?k.weight_t+' tấn':''].filter(Boolean).join(' · '))}</span>`:''}${k.distance_km?`<b>Quãng đường</b><span>${fmtN(k.distance_km)} km</span>`:''}${k.need_loading?'<b>Bốc xếp</b><span>Có</span>':''}${k.cod?'<b>Thu hộ</b><span>Có COD</span>':''}${k.note?`<b>Ghi chú</b><span>${esc(k.note)}</span>`:''}</div>
      <div class="acts"><button class="big" data-claim="${k.order_id}">✋ NHẬN ĐƠN NGAY</button><button class="big o" data-skip="${k.order_id}">Bỏ qua</button></div></div>`).join('')}</div>`:''}${fresh.length?`<div id="banner">🔔 Có ${fresh.length} đơn mới – bấm NHẬN ĐƠN để xác nhận với điều phối</div>`:''}
@@ -571,7 +572,14 @@ V.chi=async m=>{
   const {data:myo}=await sb.from('khg_orders').select('id,code').eq('driver_id',ME.id).not('status','in','(huy,da_thu)').order('created_at',{ascending:false}).limit(20);
   const ADS={cho_duyet:['Chờ duyệt','red'],mo:['Đã nhận tiền','amber'],da_quyet_toan:['Đã quyết toán','green'],huy:['Không duyệt','']};
   const openAdv=(adv||[]).filter(a=>a.kind==='tam_ung_chi_phi'&&a.status==='mo');
-  m.innerHTML=`<h2>Chi phí & ứng tiền</h2>
+  m.innerHTML=`<h2>Km cuối ngày · chi phí · ứng tiền</h2>
+   <div class="card" id="kmc" style="border:2px solid #0F4C3A"><b>🛞 Báo km & kim dầu cuối ngày</b><div class="small" style="margin:4px 0 8px">Cuối mỗi ngày chạy: chụp đồng hồ km và kim nhiên liệu. Hệ thống tính số lít còn trong bình và quãng đường còn chạy được.</div><div id="kmLast" class="small"></div>
+    <label class="f">Xe<select class="in" id="kve">${Object.values(VEH).sort((a,b)=>a.plate.localeCompare(b.plate)).map(v=>`<option value="${v.id}" ${v.id===ME.vehicle_id?'selected':''}>${esc(v.plate)}</option>`).join('')}</select></label>
+    <label class="f">Số km trên đồng hồ (ODO)<input class="in" id="kodo" type="number" inputmode="numeric" placeholder="VD 125430"></label>
+    <div class="f">Kim nhiên liệu đang chỉ<div id="kgau" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px">${[[0,'Hết'],[12.5,'1/8'],[25,'1/4'],[37.5,'3/8'],[50,'1/2'],[62.5,'5/8'],[75,'3/4'],[87.5,'7/8'],[100,'Đầy']].map(([v,l])=>`<button type="button" class="pill" data-g="${v}" style="border:1px solid #ddd;padding:9px 0;font-weight:700">${l}</button>`).join('')}</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><label class="big o" style="display:block;text-align:center;padding:12px 6px">📷 Ảnh đồng hồ km <span id="kp1">✗</span><input id="kph1" type="file" accept="image/*" capture="environment" class="hidden"></label><label class="big o" style="display:block;text-align:center;padding:12px 6px">📷 Ảnh kim dầu <span id="kp2">✗</span><input id="kph2" type="file" accept="image/*" capture="environment" class="hidden"></label></div>
+    <label class="f">Ghi chú<input class="in" id="kno" placeholder="VD: chạy 2 chuyến Bình Dương – Long An"></label>
+    <button class="big" id="ksave">Gửi km cuối ngày</button><div id="kres"></div></div>
    <div class="card"><b>Ghi chi phí chuyến</b>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0" id="eit">${Object.entries(EXP).map(([k,l],i)=>`<button class="pill ${i===0?'red':''}" data-i="${k}" style="border:0;padding:8px 12px">${l}</button>`).join('')}</div>
     <label class="f">Số tiền (đ)<input class="in" id="eam" type="number" inputmode="numeric" placeholder="VD 1200000"></label>
@@ -589,6 +597,20 @@ V.chi=async m=>{
     <label class="f">Lý do<input class="in" id="apu"></label><button class="big o" id="asave">Gửi yêu cầu ứng</button>
     ${(adv||[]).map(a=>`<div class="li">${a.kind==='ung_luong'?'Ứng lương':'Tạm ứng chi phí'} <b>${fmtM(a.amount)}</b> · ${fmtD(a.advanced_on)} <span class="pill ${ADS[a.status][1]}">${ADS[a.status][0]}</span>${a.kind==='tam_ung_chi_phi'&&a.status==='mo'?`<div class="small">Đã quyết toán ${fmtM(a.settled_amount)} / ${fmtM(a.amount)}</div>`:''}</div>`).join('')}</div>
    <div class="card"><b>Chi phí đã ghi</b>${(ex||[]).map(e=>`<div class="li">${fmtD(e.spent_on)} · ${EXP[e.item]||e.item} · <b>${fmtM(e.amount)}</b>${e.liters?' · '+e.liters+' L':''} <span class="pill ${e.status==='da_duyet'?'green':e.status==='tu_choi'?'red':'amber'}">${e.status==='da_duyet'?'Đã duyệt':e.status==='tu_choi'?'Từ chối':'Chờ duyệt'}</span>${e.reject_reason?`<div class="small" style="color:var(--red)">Lý do: ${esc(e.reject_reason)}</div>`:''}<div class="small">${esc(VEH[e.vehicle_id]?.plate||'')} ${e.payment_method==='cong_no'?'· ghi nợ':''} ${esc(e.supplier||'')}</div></div>`).join('')||'<div class="empty">Chưa có.</div>'}</div>`;
+  // ---- km & kim dầu cuối ngày ----
+  let kg=null,kf1=null,kf2=null;const FLK={km_lui:'Km thấp hơn lần trước – kiểm tra lại',km_bat_thuong:'Km trong ngày rất lớn',thieu_dau:'Dầu trong bình ít hơn tính toán',du_dau:'Dầu nhiều hơn tính toán (có thể chưa ghi lần đổ dầu)',sap_het_dau:'Sắp hết dầu – đổ thêm trước chuyến sau',thieu_anh_km:'Chưa có ảnh đồng hồ km',khong_bao_kim_dau:'Chưa báo kim dầu',moc_dau_tien:'Lần báo đầu tiên của xe'};
+  const kmShow=r=>r?`Lần báo gần nhất ${fmtD(r.log_date)}: ODO <b>${Number(r.odo_km).toLocaleString('vi-VN')}</b> km${r.km_day!=null?` · chạy ${r.km_day} km`:''} · còn ~<b>${r.reported_l??r.est_level_l??'?'} lít</b> · chạy được ~<b>${r.range_km??'?'} km</b>`:'Xe này chưa có lần báo km nào.';
+  const kmLoad=async()=>{const {data}=await sb.from('khg_vehicle_daily').select('*').eq('vehicle_id',$('#kve').value).order('log_date',{ascending:false}).order('logged_at',{ascending:false}).limit(1);$('#kmLast').innerHTML=kmShow((data||[])[0])};
+  $('#kve').onchange=kmLoad;if($('#kve').value)kmLoad();
+  m.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{kg=Number(b.dataset.g);m.querySelectorAll('[data-g]').forEach(x=>{x.style.background=x===b?'#0F4C3A':'';x.style.color=x===b?'#fff':''})});
+  $('#kph1').onchange=e=>{kf1=e.target.files[0]||null;$('#kp1').textContent=kf1?'✓':'✗'};$('#kph2').onchange=e=>{kf2=e.target.files[0]||null;$('#kp2').textContent=kf2?'✓':'✗'};
+  $('#ksave').onclick=async()=>{const odo=Number($('#kodo').value);const vid=$('#kve').value;if(!vid)return toast('Chọn xe');if(!odo)return toast('Nhập số km trên đồng hồ');if(kg===null)return toast('Chọn vị trí kim nhiên liệu');if(!kf1)return toast('Chụp ảnh đồng hồ km');
+    $('#ksave').disabled=true;const up=async(f,t)=>{if(!f)return null;const blob=await shrink(f);const path=`person/${ME.id}/km/${today()}_${t}_${Date.now()}.jpg`;const {error}=await sb.storage.from(BUCKET).upload(path,blob,{contentType:'image/jpeg'});return error?null:path};
+    const [p1,p2]=await Promise.all([up(kf1,'odo'),up(kf2,'dau')]);
+    const {data:r,error}=await sb.from('khg_vehicle_daily').insert({vehicle_id:vid,person_id:ME.id,odo_km:odo,fuel_level_pct:kg,odo_photo:p1,gauge_photo:p2,note:$('#kno').value||null,source:'app'}).select().single();
+    $('#ksave').disabled=false;if(error)return toast(error.message);
+    $('#kres').innerHTML=`<div class="li" style="background:#ECF5F1;border-radius:10px;padding:10px;margin-top:8px">✅ Đã gửi. ${r.km_day!=null?`Hôm nay chạy <b>${r.km_day} km</b>${r.filled_l?` · đã đổ ${r.filled_l} lít`:''} · theo định mức dùng ~${r.used_l} lít.<br>`:''}Trong bình còn ~<b>${r.reported_l??r.est_level_l} lít</b> (bình ${r.tank_l} lít) → chạy được thêm khoảng <b>${r.range_km} km</b>.${(r.flags||[]).filter(f=>f!=='moc_dau_tien').map(f=>`<div style="color:${/thieu|lui|sap|bat/.test(f)?'var(--red)':'#8a4b00'};margin-top:4px">⚠ ${FLK[f]||f}</div>`).join('')}</div>`;
+    $('#kodo').value='';kf1=kf2=null;$('#kp1').textContent=$('#kp2').textContent='✗';kmLoad()};
   $('#eor').innerHTML+= (myo||[]).map(x=>`<option value="${x.id}">${esc(x.code)}</option>`).join('');
   let ephs=[];$('#eph').onchange=e=>{ephs=[...e.target.files];$('#ecn').textContent=ephs.length};
   let item='nhien_lieu';

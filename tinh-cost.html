@@ -161,9 +161,17 @@ main{max-width:980px}
 .two{display:grid;grid-template-columns:1.25fr 1fr;gap:12px}@media(max-width:820px){.two{grid-template-columns:1fr}.res{position:static}}
 .acts2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.acts2 .btn{flex:1}
 .his{font-size:13px}.his div{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.quick{border:2px solid var(--acc);background:linear-gradient(180deg,#F3FAF6,#fff)}
+.big2{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}.kp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px}.kp>div{border:1px solid var(--line);border-radius:12px;padding:9px 10px;background:#fff}.kp>div small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}.kp>div b{font-size:18px;font-variant-numeric:tabular-nums}
+.kp .ok{background:#ECF5F1;border-color:#0F4C3A}.kp .ok b{color:#0F4C3A}.kp .dn b{color:#B91C1C}.kp .ref b{color:#1D4ED8}
+.advice{border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.55;margin:8px 0}.advice.g{background:#ECF5F1;color:#0F4C3A}.advice.w{background:#FFF4E5;color:#8a4b00}.advice.r{background:#FEF2F2;color:#991B1B}
+details.sec>summary{cursor:pointer;font-weight:700;font-size:15px;list-style:none;display:flex;align-items:center;gap:8px}details.sec>summary::-webkit-details-marker{display:none}details.sec>summary:after{content:'▾';margin-left:auto;color:var(--muted)}details.sec[open]>summary{margin-bottom:8px}
+.dep{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.dep div{background:#F6FBF8;border-radius:10px;padding:8px;text-align:center}.dep div small{display:block;font-size:11px;color:var(--muted)}.dep div b{font-size:14.5px;font-variant-numeric:tabular-nums}
+.closeP{display:flex;gap:8px;align-items:center;margin:8px 0}.closeP>span{flex:0 0 150px;line-height:1.3}.closeP input{flex:1;height:44px;border:2px solid var(--acc);border-radius:10px;padding:0 12px;font:inherit;font-size:18px;font-weight:800;text-align:right}
+.ln.sub{font-size:12.5px;color:var(--muted)}
 </style></head><body>
 <header><div class="hd"><img src="/icons/cost-192.png" width="36" height="36" style="border-radius:9px;flex:none" alt="">
- <div class="nm"><b>Tính cost chuyến xe</b><span id="hN">KHG · nhiên liệu, tài xế, khấu hao, phí → báo giá theo % lãi</span></div><div class="sp"></div><button class="hb" id="hInst">Cài app</button><button class="hb hidden" id="hOut">Thoát</button></div></header>
+ <div class="nm"><b>Check cost & báo giá chuyến xe</b><span id="hN">KHG · khách hỏi → biết ngay cost và giá nên bán</span></div><div class="sp"></div><button class="hb" id="hInst">Cài app</button><button class="hb hidden" id="hOut">Thoát</button></div></header>
 <main id="main"><div class="empty">Đang tải…</div></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
@@ -623,103 +631,146 @@ KYC.inbox=async(host,ctx)=>{const I=await rpc('khg_ext_inbox');let tab=ctx.tab||
   try{sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_IN'||ev==='INITIAL_SESSION')setTimeout(chk,400)})}catch(e){}setTimeout(chk,1200)})();
 
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const DOMAIN='@taixe.kimhoanggia.vn';let ACC=null,CP=[],FN=[],VEH=[],MK={},ROUTE=null;
+const DOMAIN='@taixe.kimhoanggia.vn';let ACC=null,CP=[],FN=[],VEH=[],LEASE={},MK={},ROUTE=null,QT={},RECENT=null,QTK='';
 const ROLES=['admin','ke_toan','dieu_phoi','quan_ly','kinh_doanh'];
 const can=()=>ACC&&(ROLES.includes(ACC.role)||(ACC.extra_roles||[]).some(r=>ROLES.includes(r)));
 const N=v=>{if(v==null||v==='')return null;const x=KMONEY.parse(String(v));return x==null||isNaN(x)?null:x};
 const DEC=v=>{if(v==null||v==='')return null;const x=Number(String(v).replace(/\s/g,'').replace(',','.'));return isNaN(x)?null:x};
+const vn=x=>String(Math.round(x*10)/10).replace('.',',');const r10=x=>Math.ceil(x/10000)*10000;
 $('#hInst').onclick=()=>window.KInstall?KInstall.open():toast('Mở bằng Chrome/Safari rồi chọn “Thêm vào màn hình chính”');
 async function login(msg){$('#main').innerHTML=`<div class="card" style="margin-top:20px;max-width:420px"><h2>Đăng nhập nội bộ</h2>${msg?`<div class="err">${esc(msg)}</div>`:''}<label class="f">Số điện thoại hoặc email</label><input class="i" id="lU" inputmode="tel"><label class="f">Mật khẩu</label><input class="i" type="password" id="lP">
   <button class="btn p w" id="lG" style="margin-top:12px">Đăng nhập</button><p class="note">Dùng tài khoản CRM KHG. Cài lên điện thoại: bấm “Cài app” trên cùng.</p></div>`;
   $('#lG').onclick=()=>busy($('#lG'),async()=>{const u=$('#lU').value.trim();const {error}=await sb.auth.signInWithPassword({email:u.includes('@')?u:normPhone(u)+DOMAIN,password:$('#lP').value});if(error)return login('Sai tên đăng nhập hoặc mật khẩu');boot()})}
 async function boot(){const {data:s}=await sb.auth.getSession();if(!s?.session)return login();const {data:a}=await sb.rpc('khg_my_access');if(!a)return login('Tài khoản chưa gắn hồ sơ nhân sự');ACC=a;
-  if(!can())return login('App này dành cho quản trị, kế toán, điều phối, kinh doanh.');$('#hN').textContent=(ACC.full_name||'')+' · tính cost chuyến';$('#hOut').classList.remove('hidden');$('#hOut').onclick=async()=>{await sb.auth.signOut();location.reload()};
-  const [c,f,v]=await Promise.all([sb.from('khg_cost_params').select('*').order('vehicle_price'),sb.from('khg_fuel_norms').select('*').is('archived_at',null).order('sort'),sb.from('khg_vehicles').select('id,plate,load_t,vehicle_type,fuel_norm_l100,fuel_type').is('archived_at',null).order('plate')]);
-  CP=c.data||[];FN=f.data||[];VEH=v.data||[];
-  if(!CP.length)CP=[{code:'2t',label:'Xe 2 tấn',vehicle_price:550000000,life_years:8,residual_pct:20,fixed_month:1200000,monthly_km:4500,maint_per_km:800,toll_per_km:600,driver_salary_month:10000000,driver_trip_allowance:120000,working_days:26,l_per_100km:15.6,overhead_pct:5,target_margin_pct:15}];
-  for(const t of ['dau_diesel','xang']){try{const {data}=await sb.rpc('khg_fuel_market',{p_date:today(),p_type:t});MK[t]=Number(data)||null}catch(e){}}
+  if(!can())return login('App này dành cho quản trị, kế toán, điều phối, kinh doanh.');$('#hN').textContent=(ACC.full_name||'')+' · check cost & báo giá';$('#hOut').classList.remove('hidden');$('#hOut').onclick=async()=>{await sb.auth.signOut();location.reload()};
+  const [c,f,v,l]=await Promise.all([sb.from('khg_cost_params').select('*').order('vehicle_price'),sb.from('khg_fuel_norms').select('*').is('archived_at',null).order('sort'),sb.from('khg_vehicles').select('id,plate,load_t,vehicle_type,fuel_norm_l100,fuel_type,ownership').is('archived_at',null).order('plate'),sb.from('khg_vehicle_leases').select('vehicle_id,monthly_price,vat_pct,lessor_name').eq('status','hieu_luc')]);
+  CP=(c.data||[]).filter(x=>x.vehicle_price!=null);FN=f.data||[];VEH=(v.data||[]).filter(x=>x.ownership!=='lien_ket');(l.data||[]).forEach(x=>{if(x.vehicle_id)LEASE[x.vehicle_id]=x});
+  if(!CP.length)CP=[{code:'2t',label:'Xe 2 tấn',vehicle_price:550000000,life_years:8,residual_pct:20,fixed_month:1200000,monthly_km:4500,maint_per_km:800,toll_per_km:600,driver_salary_month:10000000,driver_trip_allowance:120000,working_days:26,l_per_100km:13,overhead_pct:5,target_margin_pct:15}];
+  CP.forEach(x=>x.lt=parseFloat(String(x.code).replace(',','.'))||0);CP.sort((a,b)=>a.lt-b.lt);
+  for(const t of ['dau_diesel','xang']){try{const {data}=await sb.rpc('khg_fuel_market',{p_date:today(),p_type:t});const x=Number(data)||0;MK[t]=x>1000?x:null}catch(e){}}
   draw()}
-const S={vt:null,veh:'',km:'',ret:'empty',trips:1,fuel:'dau_diesel',norm:'',fp:'',days:'',sal:'',allow:'',dep:'',maint:'',toll:'',gate:'',tip:'',cafe:'',load:'',over:'',margin:15,vat:true,extra:[]};
+const S={vt:null,veh:'',w:'',m3:'',km:'',ret:'empty',trips:1,stops:0,ends:0,wait:'',fuel:'dau_diesel',norm:'',fp:'',days:'',salm:'',allow:'',price:'',years:'',res:'',fixm:'',intm:'',wd:'',maint:'',toll:'',gate:'',tip:'',cafe:'',load:'',over:'',margin:null,mmin:5,vat:true,close:'',extra:[]};
 const cpOf=()=>CP.find(x=>x.code===S.vt)||CP[0];
 const dl=(id,arr)=>`<datalist id="${id}">${arr.filter(x=>x!=null&&x!=='').map(x=>`<option value="${esc(typeof x==='object'?x.v:x)}">${esc(typeof x==='object'?x.l:'')}</option>`).join('')}</datalist>`;
-const F=(k,l,ph,sug,opt={})=>`<div class="fld"><label>${l}</label><input id="f_${k}" data-k="${k}" ${sug?`list="dl_${k}"`:''} inputmode="${opt.dec?'decimal':'numeric'}" ${opt.money?'data-money':''} placeholder="${esc(ph)}" value="${esc(S[k]??'')}" autocomplete="off">${sug?dl('dl_'+k,sug):''}<div class="hint" id="h_${k}"></div></div>`;
-function draw(){if(!S.vt)S.vt=(CP.find(x=>x.code==='2t')||CP[0]).code;const c=cpOf();
+const F=(k,l,ph,sug,opt={})=>`<div class="fld"${opt.span?' style="grid-column:span '+opt.span+'"':''}><label>${l}</label><input id="f_${k}" data-k="${k}" ${sug&&sug.length?`list="dl_${k}"`:''} inputmode="${opt.dec?'decimal':'numeric'}" ${opt.money?'data-money':''} placeholder="${esc(ph)}" value="${esc(S[k]??'')}" autocomplete="off">${sug&&sug.length?dl('dl_'+k,sug):''}<div class="hint" id="h_${k}"></div></div>`;
+// xe phù hợp theo tải trọng / thể tích hàng
+function pickVT(){const w=DEC(S.w)||0,m3=DEC(S.m3)||0;if(!w&&!m3)return;const fit=CP.find(x=>x.lt>=w*1.0&&(!m3||m3<=(x.lt<=1.5?8:x.lt<=2.5?12:x.lt<=4?15:x.lt<=6.5?21:x.lt<=9?35:x.lt<=12?45:50)*0.9));if(fit&&fit.code!==S.vt){S.vt=fit.code;S.veh='';return true}}
+function draw(){if(!S.vt)S.vt=(CP.find(x=>x.code==='2t')||CP[0]).code;const c=cpOf();if(S.margin==null)S.margin=Number(c.target_margin_pct||15);
   const vtOpt=CP.map(x=>`<label><input type="radio" name="vt" value="${esc(x.code)}" ${x.code===S.vt?'checked':''}><span>${esc(x.label)}</span></label>`).join('');
   const normS=[...new Set([c.l_per_100km,...FN.map(f=>f.l_per_100km)])].map(v=>({v:String(v).replace('.',','),l:FN.find(f=>f.l_per_100km==v)?.label||'Định mức '+c.label}));
-  const fpS=[MK.dau_diesel&&{v:MK.dau_diesel,l:'Dầu diesel Petrolimex hôm nay'},MK.xang&&{v:MK.xang,l:'Xăng Petrolimex hôm nay'}].filter(Boolean);
+  const fpS=[MK.dau_diesel&&{v:fmtN(MK.dau_diesel),l:'Dầu diesel hôm nay'},MK.xang&&{v:fmtN(MK.xang),l:'Xăng hôm nay'}].filter(Boolean);
   $('#main').innerHTML=`<div class="two"><div>
-   <div class="sec"><h3>🚚 Xe & tuyến</h3><div class="vt" id="vt">${vtOpt}</div>
-    <div class="gr" style="margin-top:8px"><div class="fld"><label>Hoặc chọn xe KHG</label><select id="f_veh"><option value="">— Theo loại xe ở trên —</option>${VEH.map(v=>`<option value="${v.id}" ${S.veh===v.id?'selected':''}>${esc(v.plate)}${v.load_t?' · '+v.load_t+'t':''}</option>`).join('')}</select><div class="hint"></div></div></div>
-    <div class="gr" style="margin-top:6px"><div class="fld" style="grid-column:span 2"><label>Điểm lấy</label><input id="fA" data-addr placeholder="Gõ địa chỉ, KCN…" autocomplete="off"><div class="hint"></div></div><div class="fld" style="grid-column:span 2"><label>Điểm giao</label><input id="fB" data-addr placeholder="Gõ địa chỉ giao" autocomplete="off"><div class="hint" id="rNote"></div></div></div>
-    <div class="gr">${F('km','Km một chiều','VD 120',[50,100,150,200,300,500],{dec:1})}
-     <div class="fld"><label>Chiều về</label><select id="f_ret" data-k="ret"><option value="empty" ${S.ret==='empty'?'selected':''}>Chạy rỗng về (×2 km)</option><option value="half" ${S.ret==='half'?'selected':''}>Về nửa đường (×1,5)</option><option value="load" ${S.ret==='load'?'selected':''}>Có hàng về (×1)</option></select><div class="hint"></div></div>
-     ${F('trips','Số chuyến','1',[1,2,3,5,10])}${F('days','Ngày công tài xế/chuyến','tự tính',[0.5,1,1.5,2,3],{dec:1})}</div></div>
-   <div class="sec"><h3>⛽ Nhiên liệu <small>gợi ý theo định mức KHG (đã cộng 30%) – sửa tay được</small></h3><div class="gr">
+   <div class="sec quick"><h3>⚡ Khách hỏi giá <small>nhập tuyến + hàng là ra cost và giá nên bán</small></h3>
+    <div class="gr"><div class="fld" style="grid-column:1/-1"><label>Điểm lấy hàng</label><input id="fA" data-addr placeholder="Gõ địa chỉ, KCN, quận…" autocomplete="off"><div class="hint"></div></div><div class="fld" style="grid-column:1/-1"><label>Điểm giao hàng</label><input id="fB" data-addr placeholder="Gõ địa chỉ giao" autocomplete="off"><div class="hint" id="rNote"></div></div></div>
+    <div class="gr">${F('km','Km một chiều','tự tính theo bản đồ',[10,20,30,50,80,100,150,200,300,500],{dec:1})}
+     <div class="fld"><label>Chiều về</label><select id="f_ret" data-k="ret"><option value="empty" ${S.ret==='empty'?'selected':''}>Chạy rỗng về (km × 2)</option><option value="half" ${S.ret==='half'?'selected':''}>Có hàng về nửa đường (× 1,5)</option><option value="load" ${S.ret==='load'?'selected':''}>Có hàng chiều về (× 1)</option></select><div class="hint"></div></div>
+     ${F('w','Hàng nặng (tấn)','VD 1,5',[0.5,1,1.5,2,3,5,8,10,15],{dec:1})}${F('m3','Thể tích (m³)','nếu có',[5,8,10,12,15,20,30],{dec:1})}
+     ${F('trips','Số chuyến','1',[1,2,3,5,10,20])}${F('stops','Điểm giao thêm','0',[0,1,2,3,5])}
+     <div class="fld"><label>Bốc xếp</label><select id="f_ends" data-k="ends"><option value="0" ${S.ends==0?'selected':''}>Không / khách tự bốc</option><option value="1" ${S.ends==1?'selected':''}>KHG bốc 1 đầu</option><option value="2" ${S.ends==2?'selected':''}>KHG bốc 2 đầu</option></select><div class="hint"></div></div>${F('wait','Chờ thêm (giờ)','0',[0,1,2,3,4],{dec:1})}</div>
+    <div class="vt" id="vt" style="margin-top:8px">${vtOpt}</div>
+    <div class="gr" style="margin-top:6px"><div class="fld"><label>Hoặc chọn đúng xe KHG</label><select id="f_veh"><option value="">— Theo loại xe ở trên —</option>${VEH.map(v=>`<option value="${v.id}" ${S.veh===v.id?'selected':''}>${esc(v.plate)}${v.load_t?' · '+vn(v.load_t)+'t':''}${LEASE[v.id]?' · xe thuê':''}</option>`).join('')}</select><div class="hint" id="h_veh"></div></div></div></div>
+   <details class="sec" id="dFuel"><summary>⛽ Nhiên liệu <small style="font-weight:500;color:var(--muted)">định mức KHG (đã +30%) · giá dầu hôm nay</small></summary><div class="gr">
      <div class="fld"><label>Loại nhiên liệu</label><select id="f_fuel" data-k="fuel"><option value="dau_diesel" ${S.fuel==='dau_diesel'?'selected':''}>Dầu diesel</option><option value="xang" ${S.fuel==='xang'?'selected':''}>Xăng</option></select><div class="hint"></div></div>
-     ${F('norm','Định mức (lít/100 km)',String(c.l_per_100km).replace('.',','),normS,{dec:1})}${F('fp','Giá nhiên liệu (đ/lít)',MK[S.fuel]?fmtN(MK[S.fuel]):'VD 29.440',fpS,{money:1})}</div></div>
-   <div class="sec"><h3>👷 Tài xế & xe <small>theo tham số loại xe – sửa tay được</small></h3><div class="gr">
-     ${F('sal','Lương tài xế / ngày công','tự tính',[Math.round(c.driver_salary_month/(c.working_days||26)),300000,350000,400000,500000],{money:1})}${F('allow','Phụ cấp, tiền chuyến tài xế / chuyến','tự tính',[c.driver_trip_allowance,100000,150000,200000,300000],{money:1})}
-     ${F('dep','Khấu hao + chi phí cố định (đ/km)','tự tính',[],{money:1})}${F('maint','Bảo dưỡng, lốp, nhớt (đ/km)',fmtN(c.maint_per_km),[c.maint_per_km,500,800,1000,1500,2000],{money:1})}</div></div>
-   <div class="sec"><h3>🧾 Phí trên đường <small>gõ số hoặc chọn gợi ý</small></h3><div class="gr">
-     ${F('toll','Vé cầu đường, BOT (cả chuyến)','tự ước tính',[50000,100000,200000,300000,500000],{money:1})}${F('gate','Ra vào kho bãi, chành, cảng','0',[20000,50000,100000,200000],{money:1})}
-     ${F('tip','Tiền lót tay, bồi dưỡng','0',[50000,100000,200000,500000],{money:1})}${F('cafe','Cafe, ăn uống, nước','0',[30000,50000,100000,150000],{money:1})}
-     ${F('load','Bốc xếp thuê ngoài','0',[100000,200000,300000,500000],{money:1})}${F('over','Chi phí chung (% trên cost)',String(c.overhead_pct||5),[0,3,5,8,10],{dec:1})}</div>
-     <div id="xr"></div><button class="btn s" id="xAdd" style="margin-top:6px">＋ Thêm khoản khác</button></div>
+     ${F('norm','Định mức (lít/100 km)',vn(c.l_per_100km),normS,{dec:1})}${F('fp','Giá nhiên liệu (đ/lít)',MK[S.fuel]?fmtN(MK[S.fuel]):'VD 29.260',fpS,{money:1})}</div></details>
+   <details class="sec" id="dDep"><summary>🏷️ Khấu hao & chi phí cố định xe <small style="font-weight:500;color:var(--muted)">tính theo ngày xe chạy</small></summary><div class="gr">
+     ${F('price','Giá mua xe (đ)',fmtN(c.vehicle_price),[c.vehicle_price,400000000,550000000,700000000,900000000,1200000000],{money:1})}${F('years','Số năm khấu hao',String(c.life_years||8),[5,6,7,8,10],{dec:1})}${F('res','Giá trị còn lại (%)',String(c.residual_pct??20),[0,10,20,30],{dec:1})}
+     ${F('fixm','Cố định/tháng (bảo hiểm, đăng kiểm, phí đường bộ, GPS, bãi)',fmtN(c.fixed_month||0),[c.fixed_month,1000000,1500000,2000000,3000000],{money:1,span:2})}${F('intm','Lãi vay mua xe/tháng',fmtN(c.interest_month||0),[0,3000000,5000000,8000000],{money:1})}${F('wd','Ngày xe chạy/tháng',String(c.working_days||26),[22,24,26,28,30],{dec:1})}</div>
+     <div class="dep" id="depBox"></div></details>
+   <details class="sec" id="dDrv"><summary>👷 Tài xế & bảo dưỡng</summary><div class="gr">
+     ${F('salm','Lương tài xế/tháng',fmtN(c.driver_salary_month),[c.driver_salary_month,9000000,10000000,12000000,15000000],{money:1})}${F('allow','Tiền chuyến, phụ cấp/chuyến',fmtN(c.driver_trip_allowance||0),[c.driver_trip_allowance,100000,150000,200000,300000],{money:1})}
+     ${F('days','Số ngày xe + tài xế cho 1 chuyến','tự tính',[0.5,1,1.5,2,3],{dec:1})}${F('maint','Bảo dưỡng, lốp, nhớt (đ/km)',fmtN(c.maint_per_km),[c.maint_per_km,500,800,1000,1500,2000],{money:1})}</div></details>
+   <details class="sec" id="dFee"><summary>🧾 Phí trên đường & khác</summary><div class="gr">
+     ${F('toll','Cầu đường, BOT (cả chuyến)','tự ước tính',[50000,100000,200000,300000,500000],{money:1})}${F('gate','Ra vào cổng, kho, cảng','0',[20000,50000,100000,200000],{money:1})}
+     ${F('load','Thuê bốc xếp ngoài','0',[100000,200000,300000,500000],{money:1})}${F('tip','Bồi dưỡng, lót tay','0',[50000,100000,200000,500000],{money:1})}${F('cafe','Ăn uống, nước','0',[30000,50000,100000,150000],{money:1})}${F('over','Chi phí chung văn phòng, điều phối (%)',String(c.overhead_pct??5),[0,3,5,8,10],{dec:1})}</div>
+     <div id="xr"></div><button class="btn s" id="xAdd" style="margin-top:6px">＋ Thêm khoản khác</button></details>
   </div><div><div class="sec res" id="res"></div><div class="sec"><h3>🕘 Đã tính gần đây</h3><div class="his" id="his"></div></div></div></div>`;
-  $$('#vt input').forEach(r=>r.onchange=()=>{S.vt=r.value;S.veh='';S.norm='';S.sal='';S.allow='';S.dep='';S.maint='';S.over='';draw()});
-  $('#f_veh').onchange=e=>{S.veh=e.target.value;const v=VEH.find(x=>x.id===S.veh);if(v){const lt=Number(v.load_t)||0;const best=CP.slice().sort((a,b)=>Math.abs(parseFloat(a.code)-lt)-Math.abs(parseFloat(b.code)-lt))[0];if(best)S.vt=best.code;S.norm=v.fuel_norm_l100?String(v.fuel_norm_l100).replace('.',','):'';if(v.fuel_type)S.fuel=v.fuel_type==='xang'?'xang':'dau_diesel'}draw()};
-  $$('[data-k]').forEach(i=>{const ev=i.tagName==='SELECT'?'change':'input';i.addEventListener(ev,()=>{S[i.dataset.k]=i.value;if(i.dataset.k==='fuel'){S.fp='';draw();return}calc()})});
-  KADDR.attach($('#fA'),()=>route());KADDR.attach($('#fB'),()=>route());
+  $$('#vt input').forEach(r=>r.onchange=()=>{S.vt=r.value;S.veh='';['norm','salm','allow','price','years','res','fixm','intm','wd','maint','over'].forEach(k=>S[k]='');S.margin=null;draw()});
+  $('#f_veh').onchange=e=>{S.veh=e.target.value;const v=VEH.find(x=>x.id===S.veh);if(v){const lt=Number(v.load_t)||0;const best=CP.slice().sort((a,b)=>Math.abs(a.lt-lt)-Math.abs(b.lt-lt))[0];if(best)S.vt=best.code;S.norm=v.fuel_norm_l100?String(v.fuel_norm_l100).replace('.',','):'';if(v.fuel_type)S.fuel=v.fuel_type==='xang'?'xang':'dau_diesel'}draw()};
+  $$('[data-k]').forEach(i=>{const ev=i.tagName==='SELECT'?'change':'input';i.addEventListener(ev,()=>{S[i.dataset.k]=i.value;if(i.dataset.k==='fuel'){S.fp='';draw();return}if((i.dataset.k==='w'||i.dataset.k==='m3')&&pickVT()){const keep=i.dataset.k;draw();const el=$('#f_'+keep);if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length)}return}calc()})});
+  KADDR.attach($('#fA'),()=>route());KADDR.attach($('#fB'),()=>route());if(S._a)$('#fA').value=S._a;if(S._b)$('#fB').value=S._b;
   const xr=()=>{$('#xr').innerHTML=S.extra.map((x,i)=>`<div class="xrow"><input data-x="${i}" data-xk="n" placeholder="Tên khoản (phí cân, phí đỗ…)" value="${esc(x.n||'')}"><input data-x="${i}" data-xk="v" data-money inputmode="numeric" placeholder="Số tiền" value="${esc(x.v||'')}"><button data-xd="${i}">✕</button></div>`).join('');
     $$('[data-x]').forEach(i=>i.oninput=()=>{S.extra[+i.dataset.x][i.dataset.xk]=i.value;calc()});$$('[data-xd]').forEach(b=>b.onclick=()=>{S.extra.splice(+b.dataset.xd,1);xr();calc()})};
   $('#xAdd').onclick=()=>{S.extra.push({n:'',v:''});xr();$$('#xr input')[S.extra.length*2-2].focus()};xr();
   calc();his()}
-async function route(){const a=$('#fA')._geo,b=$('#fB')._geo;if(!a||!b)return;$('#rNote').textContent='Đang tính quãng đường…';
+async function route(){const a=$('#fA')._geo,b=$('#fB')._geo;S._a=$('#fA').value;S._b=$('#fB').value;if(!a||!b)return;$('#rNote').textContent='Đang tính quãng đường…';
   try{const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=false`);const j=await r.json();const rt=j.routes&&j.routes[0];
-    if(rt){ROUTE={km:Math.ceil(rt.distance/1000),min:Math.round(rt.duration/60)};S.km=String(ROUTE.km);$('#f_km').value=S.km;$('#rNote').textContent=`Theo bản đồ: ${ROUTE.km} km · xe con ~${Math.floor(ROUTE.min/60)}h${String(ROUTE.min%60).padStart(2,'0')} (xe tải chậm hơn ~30%)`;calc()}}
+    if(rt){ROUTE={km:Math.ceil(rt.distance/1000),min:Math.round(rt.duration/60)};S.km=String(ROUTE.km);$('#f_km').value=S.km;$('#rNote').textContent=`Theo bản đồ: ${ROUTE.km} km một chiều`;calc()}}
   catch(e){$('#rNote').textContent='Không tính được km – nhập tay'}}
-function calc(){const c=cpOf();const H=(k,t)=>{const e=$('#h_'+k);if(e)e.innerHTML=t};
-  const km1=DEC(S.km)||0,trips=Math.max(1,DEC(S.trips)||1),mult=S.ret==='empty'?2:S.ret==='half'?1.5:1,kmT=km1*mult;
-  const norm=(DEC(S.norm)??Number(c.l_per_100km))||0;H('norm',S.norm?'Đang dùng số anh nhập':`Theo ${esc(c.label)}: ${String(c.l_per_100km).replace('.',',')} L/100km`);
-  const fp=N(S.fp)??MK[S.fuel]??0;H('fp',S.fp?'Giá nhập tay':MK[S.fuel]?'Giá Petrolimex vùng 1 hôm nay (tự cập nhật)':'Chưa lấy được giá – nhập tay');
+// giá biểu KHG + giá các đơn tương tự gần đây (tham chiếu thị trường)
+let qTimer=null;
+function refs(c,km1,trips,stops,ends,wait){const key=[c.code,Math.round(km1),trips,stops,ends,wait].join('|');if(key===QTK)return;QTK=key;clearTimeout(qTimer);
+  qTimer=setTimeout(async()=>{if(!km1){QT={};RECENT=null;calc(true);return}
+    try{const {data,error}=await sb.rpc('khg_quote',{p_code:c.code,p_km:km1,p_trips:1,p_stops:stops,p_loading:ends>0,p_wait_h:wait});QT=error?{}:{p:Number(data.per_trip)||0,lines:data.lines,label:data.label};if(!error&&ends>1){const ld=(data.lines||[]).find(x=>/Bốc xếp/.test(x[0]));if(ld)QT.p+=Number(ld[1])||0}}catch(e){QT={}}
+    try{const since=new Date(Date.now()-180*864e5).toISOString();const {data:o}=await sb.from('khg_orders').select('revenue,distance_km,vehicle_class,vehicle_req,trips,status').gte('created_at',since).neq('status','huy').gte('distance_km',km1*0.7).lte('distance_km',km1*1.3).limit(300);
+      const L=(o||[]).filter(x=>Number(x.revenue)>0&&parseFloat(String(x.vehicle_class||x.vehicle_req||'').replace(',','.'))===c.lt);const per=L.map(x=>Number(x.revenue)/Math.max(1,Number(x.trips)||1)).sort((a,b)=>a-b);
+      RECENT=per.length?{n:per.length,avg:Math.round(per.reduce((s,x)=>s+x,0)/per.length),min:per[0],max:per[per.length-1]}:null}catch(e){RECENT=null}
+    calc(true)},350)}
+function calc(fromRef){const c=cpOf();const H=(k,t)=>{const e=$('#h_'+k);if(e)e.innerHTML=t};
+  const km1=DEC(S.km)||0,trips=Math.max(1,DEC(S.trips)||1),mult=S.ret==='empty'?2:S.ret==='half'?1.5:1,kmT=km1*mult,stops=Math.max(0,DEC(S.stops)||0),ends=Number(S.ends)||0,wait=DEC(S.wait)||0;
+  const w=DEC(S.w)||0;if(w&&w>c.lt)H('w',`<b style="color:#B91C1C">Quá tải ${esc(c.label)} – chọn xe lớn hơn</b>`);else H('w',w?`Hợp với ${esc(c.label)}`:'');
+  // nhiên liệu
+  const norm=(DEC(S.norm)??Number(c.l_per_100km))||0;H('norm',S.norm?'Đang dùng số anh nhập':`Định mức KHG ${esc(c.label)}: ${vn(c.l_per_100km)} L/100km`);
+  const fp=N(S.fp)??MK[S.fuel]??29000;H('fp',S.fp?'Giá nhập tay':MK[S.fuel]?'Giá Petrolimex vùng 1 hôm nay':'Chưa lấy được giá hôm nay – đang tạm tính 29.000');
   const liters=kmT*norm/100,fuel=liters*fp;
-  const daysAuto=Math.max(0.5,Math.ceil((kmT/350)*2)/2);const days=DEC(S.days)??daysAuto;H('days',S.days?'':`Tự tính: ${String(daysAuto).replace('.',',')} ngày (~350 km/ngày)`);
-  const salD=N(S.sal)??Math.round(c.driver_salary_month/(c.working_days||26));H('sal',S.sal?'':`${fmtN(c.driver_salary_month)}/tháng ÷ ${c.working_days||26} công`);
-  const allow=N(S.allow)??Number(c.driver_trip_allowance||0);H('allow',S.allow?'':'Theo tham số loại xe');
-  const depAuto=((c.vehicle_price*(1-(c.residual_pct||0)/100))/((c.life_years||8)*12)+Number(c.fixed_month||0)+Number(c.interest_month||0))/(c.monthly_km||5000);
-  const dep=N(S.dep)??depAuto;H('dep',S.dep?'':`Xe ${fmtN(c.vehicle_price)} đ, ${c.life_years} năm, còn ${c.residual_pct}% · ${fmtN(c.monthly_km)} km/tháng + cố định ${fmtN(c.fixed_month)}/tháng → ${fmtN(Math.round(depAuto))} đ/km`);
-  const maint=N(S.maint)??Number(c.maint_per_km||0);
-  const tollAuto=Math.round(km1*(c.toll_per_km||0)*(S.ret==='load'?1:2)/1000)*1000;const toll=N(S.toll)??tollAuto;H('toll',S.toll?'':`Ước tính ${fmtN(c.toll_per_km)} đ/km × ${S.ret==='load'?'1':'2'} chiều`);
-  const gate=N(S.gate)||0,tip=N(S.tip)||0,cafe=N(S.cafe)||0,load=N(S.load)||0,ext=S.extra.reduce((s,x)=>s+(N(x.v)||0),0);
-  const L=[['Nhiên liệu',fuel,`${fmtN(Math.round(kmT))} km × ${String(norm).replace('.',',')} L/100 = ${liters.toFixed(1).replace('.',',')} lít × ${fmtN(fp)}`],['Lương tài xế',salD*days,`${String(days).replace('.',',')} ngày × ${fmtN(salD)}`],['Phụ cấp, tiền chuyến tài xế',allow,''],
-    ['Khấu hao + cố định xe',dep*kmT,`${fmtN(Math.round(dep))} đ/km`],['Bảo dưỡng, lốp, nhớt',maint*kmT,`${fmtN(maint)} đ/km`],['Cầu đường, BOT',toll,''],['Kho bãi, chành, cảng',gate,''],['Lót tay, bồi dưỡng',tip,''],['Cafe, ăn uống',cafe,''],['Bốc xếp thuê ngoài',load,''],...S.extra.filter(x=>N(x.v)).map(x=>[x.n||'Khoản khác',N(x.v),''])].filter(x=>x[1]>0||['Nhiên liệu','Lương tài xế'].includes(x[0]));
+  // thời gian chuyến → số ngày xe + tài xế
+  const spd=kmT<=60?25:kmT<=200?35:45;const hrs=kmT/spd+2+stops*0.5+wait;const daysAuto=Math.max(0.5,Math.ceil(hrs/10*2)/2);const days=DEC(S.days)??daysAuto;
+  H('days',S.days?'':`Tự tính: ${vn(daysAuto)} ngày (~${vn(hrs)} giờ: chạy ${vn(kmT/spd)}h + bốc dỡ, chờ)`);
+  // khấu hao & cố định theo ngày
+  const wd=DEC(S.wd)||Number(c.working_days)||26,price=N(S.price)??Number(c.vehicle_price),years=DEC(S.years)??Number(c.life_years||8),res=DEC(S.res)??Number(c.residual_pct??20);
+  const fixm=N(S.fixm)??Number(c.fixed_month||0),intm=N(S.intm)??Number(c.interest_month||0);
+  const ls=S.veh&&LEASE[S.veh];const rentM=ls?Number(ls.monthly_price)*(1+Number(ls.vat_pct||0)/100):0;
+  const depM=ls?0:price*(1-res/100)/(Math.max(1,years)*12);const depD=depM/wd,fixD=fixm/wd,intD=ls?0:intm/wd,rentD=rentM/wd;
+  $('#depBox').innerHTML=ls?`<div><small>Tiền thuê xe NCC/tháng</small><b>${fmtN(Math.round(rentM))}</b></div><div><small>Thuê xe/ngày</small><b>${fmtN(Math.round(rentD))}</b></div><div><small>Cố định/ngày</small><b>${fmtN(Math.round(fixD))}</b></div>`
+    :`<div><small>Khấu hao/tháng</small><b>${fmtN(Math.round(depM))}</b></div><div><small>Khấu hao/ngày</small><b>${fmtN(Math.round(depD))}</b></div><div><small>Cố định + lãi vay/ngày</small><b>${fmtN(Math.round(fixD+intD))}</b></div>`;
+  H('price',ls?`Xe thuê của ${esc(ls.lessor_name||'NCC')} – dùng tiền thuê thay khấu hao`:`(Giá xe × (1 − ${vn(res)}%)) ÷ ${vn(years)} năm ÷ 12 tháng`);H('wd','Dùng để chia chi phí tháng ra ngày');
+  // tài xế
+  const salM=N(S.salm)??Number(c.driver_salary_month||0);const salD=salM/wd;H('salm',`= ${fmtN(Math.round(salD))} đ/ngày`);
+  const allow=N(S.allow)??Number(c.driver_trip_allowance||0);const maint=N(S.maint)??Number(c.maint_per_km||0);
+  const tollAuto=Math.round(kmT*(c.toll_per_km||0)/1000)*1000;const toll=N(S.toll)??tollAuto;H('toll',S.toll?'':`Ước tính ${fmtN(c.toll_per_km)} đ/km × ${fmtN(Math.round(kmT))} km – sửa theo tuyến thực tế`);
+  const gate=N(S.gate)||0,tip=N(S.tip)||0,cafe=N(S.cafe)||0,load=N(S.load)||0;
+  const L=[['Nhiên liệu',fuel,`${fmtN(Math.round(kmT))} km × ${vn(norm)} L/100 = ${vn(liters)} lít × ${fmtN(fp)}`],['Lương tài xế',salD*days,`${vn(days)} ngày × ${fmtN(Math.round(salD))}`],['Tiền chuyến, phụ cấp tài xế',allow,''],
+    ls?['Thuê xe NCC',rentD*days,`${vn(days)} ngày × ${fmtN(Math.round(rentD))}`]:['Khấu hao xe',depD*days,`${vn(days)} ngày × ${fmtN(Math.round(depD))}/ngày (${fmtN(Math.round(depM))}/tháng)`],
+    ['Chi phí cố định xe'+(intD?' + lãi vay':''),(fixD+intD)*days,`${vn(days)} ngày × ${fmtN(Math.round(fixD+intD))}`],['Bảo dưỡng, lốp, nhớt',maint*kmT,`${fmtN(maint)} đ/km × ${fmtN(Math.round(kmT))} km`],
+    ['Cầu đường, BOT',toll,''],['Cổng, kho, cảng',gate,''],['Thuê bốc xếp ngoài',load,''],['Bồi dưỡng, lót tay',tip,''],['Ăn uống',cafe,''],...S.extra.filter(x=>N(x.v)).map(x=>[x.n||'Khoản khác',N(x.v),''])].filter(x=>x[1]>0||['Nhiên liệu','Lương tài xế'].includes(x[0]));
   const base=L.reduce((s,x)=>s+x[1],0);const ov=(DEC(S.over)??Number(c.overhead_pct||0));const ovA=base*ov/100;const cost1=base+ovA;const cost=cost1*trips;
-  const m=Math.min(80,Math.max(0,DEC(S.margin)??15));const price=x=>Math.ceil(cost1/(1-x/100)/10000)*10000;const p=price(m),pLo=price(Math.max(0,m-7)),pHi=price(m+8);
-  const vat=S.vat?Math.round(p*0.08):0;
-  $('#res').innerHTML=`<h3>📋 Cost & báo giá · ${esc(c.label)}${trips>1?` · ${trips} chuyến`:''}</h3>
-   ${km1?'':'<div class="warn2" style="background:#FFF4E5;color:#8a4b00;border-radius:10px;padding:8px 10px;font-size:13px">Nhập km hoặc chọn điểm lấy, điểm giao để tính.</div>'}
-   ${L.map(x=>`<div class="ln"><span>${esc(x[0])}${x[2]?`<br><small>${esc(x[2])}</small>`:''}</span><b>${fmtN(Math.round(x[1]))}</b></div>`).join('')}
-   <div class="ln"><span>Chi phí chung ${String(ov).replace('.',',')}%</span><b>${fmtN(Math.round(ovA))}</b></div>
-   <div class="ln t"><span><b>Cost 1 chuyến</b>${kmT?`<br><small>${fmtN(Math.round(cost1/kmT))} đ/km · ${fmtN(Math.round(cost1/Math.max(1,km1)))} đ/km 1 chiều</small>`:''}</span><b>${fmtN(Math.round(cost1))}</b></div>
-   ${trips>1?`<div class="ln"><span>Cost ${trips} chuyến</span><b>${fmtN(Math.round(cost))}</b></div>`:''}
-   <div class="mg"><span><b>Muốn lãi</b></span><input type="range" id="mR" min="0" max="50" step="1" value="${m}"><input type="number" id="mN" min="0" max="80" step="0.5" value="${m}"><b>%</b></div>
-   <div class="pr"><div class="lo"><small>Giá sàn thương lượng (lãi ${Math.max(0,m-7)}%)</small><b>${fmtN(pLo)}</b></div><div class="md"><small>Giá chào (lãi ${m}%)</small><b>${fmtN(p)}</b></div><div class="hi"><small>Giá mở đầu (lãi ${m+8}%)</small><b>${fmtN(pHi)}</b></div></div>
-   <div class="ln big"><span>Báo giá 1 chuyến</span><b>${fmtN(p)} đ</b></div>
+  const m=Math.min(60,Math.max(0,DEC(S.margin)??15)),mmin=Math.min(m,Math.max(0,DEC(S.mmin)??5));
+  const pT=km1?r10(cost1/(1-m/100)):0,pMin=km1?r10(cost1/(1-mmin/100)):0;const pList=QT.p||0;
+  let rec=pT,adv='';
+  if(km1&&pList){if(pList>=pT){rec=r10(pList);adv=`<div class="advice g">✅ Biểu giá KHG <b>${fmtN(pList)}</b> cao hơn cost + lãi ${vn(m)}% → <b>chào theo biểu giá</b> (lãi ${vn((1-cost1/pList)*100)}%). Thương lượng được xuống tới <b>${fmtN(Math.max(pMin,pT))}</b>.</div>`}
+    else if(pList>=pMin){rec=pT;adv=`<div class="advice w">⚠ Biểu giá KHG ${fmtN(pList)} chỉ lãi ${vn((1-cost1/pList)*100)}% – thấp hơn mục tiêu ${vn(m)}%. Nên chào <b>${fmtN(pT)}</b>; nếu khách ép giá, tối thiểu ${fmtN(pMin)}.</div>`}
+    else{rec=pT;adv=`<div class="advice r">⛔ Biểu giá KHG ${fmtN(pList)} ${pList<cost1?'<b>thấp hơn cost</b> – bán theo biểu giá là lỗ':'lãi dưới '+vn(mmin)+'%'}. Chào <b>${fmtN(pT)}</b>, không bán dưới <b>${fmtN(pMin)}</b>. Nên xem lại bảng giá cho tuyến/loại xe này.</div>`}}
+  if(km1&&RECENT)adv+=`<div class="advice ${RECENT.avg<cost1?'r':'g'}" style="margin-top:4px">📊 ${RECENT.n} đơn tương tự (±30% km, ${esc(c.label)}) 6 tháng qua: bình quân <b>${fmtN(RECENT.avg)}</b>/chuyến (${fmtN(RECENT.min)} – ${fmtN(RECENT.max)})${RECENT.avg<cost1?' – thấp hơn cost hiện tại, kiểm tra lại giá cũ':''}.</div>`;
+  const close=N(S.close)||rec;const profit=close-cost1,mg=close?profit/close*100:0;const vat=S.vat?Math.round(close*0.08):0;
+  $('#res').innerHTML=`<h3>📋 ${esc(c.label)}${trips>1?` · ${trips} chuyến`:''}${km1?` · ${fmtN(km1)} km`:''}</h3>
+   ${km1?'':'<div class="advice w">Nhập điểm lấy – điểm giao (tự ra km) hoặc gõ km để tính.</div>'}
+   <div class="kp"><div><small>COST 1 CHUYẾN</small><b>${fmtN(Math.round(cost1))}</b><span class="mut" style="display:block;font-size:11.5px">${kmT?fmtN(Math.round(cost1/kmT))+' đ/km chạy':''}</span></div><div class="ok"><small>GIÁ NÊN CHÀO</small><b>${fmtN(rec)}</b><span class="mut" style="display:block;font-size:11.5px">${rec?'lãi '+vn((1-cost1/rec)*100)+'%':''}</span></div>
+    <div class="dn"><small>KHÔNG BÁN DƯỚI (lãi ${vn(mmin)}%)</small><b>${fmtN(pMin)}</b><span class="mut" style="display:block;font-size:11.5px">hòa vốn ${fmtN(r10(cost1))}</span></div><div class="ref"><small>BIỂU GIÁ KHG</small><b>${pList?fmtN(pList):'—'}</b><span class="mut" style="display:block;font-size:11.5px">${RECENT?'đơn cũ TB '+fmtN(RECENT.avg):'chưa có đơn tương tự'}</span></div></div>
+   ${adv}
+   <div class="mg"><span><b>Lãi mục tiêu</b></span><input type="range" id="mR" min="0" max="40" step="1" value="${m}"><input type="number" id="mN" min="0" max="60" step="0.5" value="${m}"><b>%</b></div>
+   <div class="mg"><span style="font-size:13px">Lãi tối thiểu</span><input type="number" id="mM" min="0" max="40" step="0.5" value="${mmin}" style="width:70px"><b>%</b><span class="mut" style="font-size:12px">lãi tính trên giá bán</span></div>
+   <div class="closeP"><span><b>Giá chốt với khách</b><br><small class="mut">để trống = giá nên chào</small></span><input id="cP" inputmode="numeric" data-money placeholder="${fmtN(rec)}" value="${esc(S.close||'')}"></div>
+   <div class="ln"><span>Lãi 1 chuyến với giá chốt</span><b style="color:${profit<0?'#B91C1C':'#15803D'}">${fmtN(Math.round(profit))} (${vn(mg)}%)</b></div>
+   ${close&&close<pMin?`<div class="advice r">Giá chốt thấp hơn mức tối thiểu ${fmtN(pMin)}${close<cost1?' – <b>LỖ</b>':''}.</div>`:''}
    <div class="ln"><span><label><input type="checkbox" id="vT" ${S.vat?'checked':''}> Cộng VAT 8%</label></span><b>${S.vat?fmtN(vat):'—'}</b></div>
-   <div class="ln t"><span><b>Khách thanh toán${trips>1?` (${trips} chuyến)`:''}</b></span><b>${fmtN((p+vat)*trips)} đ</b></div>
-   <div class="ln"><span>Lãi dự kiến${trips>1?` ${trips} chuyến`:''}</span><b class="up" style="color:#15803D">${fmtN(Math.round((p-cost1)*trips))}</b></div>
-   <div class="ln"><span>Không được bán dưới (hòa vốn)</span><b class="dn" style="color:#B91C1C">${fmtN(Math.ceil(cost1/10000)*10000)}</b></div>
+   <div class="ln t"><span><b>Khách thanh toán${trips>1?` (${trips} chuyến)`:''}</b></span><b>${fmtN((close+vat)*trips)} đ</b></div>
+   ${trips>1?`<div class="ln"><span>Cost ${trips} chuyến · lãi ${trips} chuyến</span><b>${fmtN(Math.round(cost))} · ${fmtN(Math.round(profit*trips))}</b></div>`:''}
+   <details style="margin-top:8px"><summary style="cursor:pointer;font-weight:700">Chi tiết cost (nội bộ)</summary>
+    ${L.map(x=>`<div class="ln"><span>${esc(x[0])}${x[2]?`<br><small>${esc(x[2])}</small>`:''}</span><b>${fmtN(Math.round(x[1]))}</b></div>`).join('')}
+    <div class="ln"><span>Chi phí chung ${vn(ov)}%</span><b>${fmtN(Math.round(ovA))}</b></div><div class="ln t"><span><b>Cost 1 chuyến</b></span><b>${fmtN(Math.round(cost1))}</b></div>
+    ${pList&&QT.lines?`<div class="ln sub"><span>Biểu giá KHG gồm: ${(QT.lines||[]).map(x=>esc(x[0])+' '+fmtN(x[1])).join(' · ')}</span></div>`:''}</details>
    <div class="acts2"><button class="btn" id="cpIn">📋 Chép chi tiết nội bộ</button><button class="btn p" id="cpKh">📨 Chép báo giá gửi khách</button><button class="btn" id="svH">💾 Lưu</button></div>
-   <p class="note" style="font-size:12px;color:var(--muted)">Báo giá gửi khách chỉ có giá, tuyến, loại xe – không lộ cách tính chi phí.</p>`;
-  const setM=v=>{S.margin=v;calc()};$('#mR').oninput=e=>setM(e.target.value);$('#mN').onchange=e=>setM(e.target.value);$('#vT').onchange=e=>{S.vat=e.target.checked;calc()};
-  const a=$('#fA')?$('#fA').value:'',b=$('#fB')?$('#fB').value:'';
-  const inTxt=()=>`COST CHUYẾN · ${c.label} · ${a||'?'} → ${b||'?'} · ${km1} km 1 chiều (${S.ret==='empty'?'rỗng về':S.ret==='half'?'về nửa':'có hàng về'}) · ${trips} chuyến\n`+L.map(x=>`- ${x[0]}: ${fmtN(Math.round(x[1]))}${x[2]?' ('+x[2]+')':''}`).join('\n')+`\n- Chi phí chung ${ov}%: ${fmtN(Math.round(ovA))}\n= COST 1 chuyến: ${fmtN(Math.round(cost1))} đ\nGiá sàn ${fmtN(pLo)} · giá chào ${fmtN(p)} (lãi ${m}%) · giá mở đầu ${fmtN(pHi)}\nLãi dự kiến: ${fmtN(Math.round((p-cost1)*trips))} đ`;
-  const khTxt=()=>`CÔNG TY TNHH KIM HOÀNG GIA – BÁO GIÁ VẬN CHUYỂN\nTuyến: ${a||'(điểm lấy)'} → ${b||'(điểm giao)'}${km1?` (~${km1} km)`:''}\nLoại xe: ${c.label}${trips>1?` · ${trips} chuyến`:''}\nĐơn giá: ${fmtN(p)} đ/chuyến${S.vat?` (chưa VAT) · VAT 8%: ${fmtN(vat)} đ · Tổng: ${fmtN(p+vat)} đ/chuyến`:''}${trips>1?`\nTổng ${trips} chuyến: ${fmtN((p+vat)*trips)} đ`:''}\nĐã gồm nhiên liệu, tài xế, cầu đường thông thường. Báo giá có hiệu lực 7 ngày, điều chỉnh theo giá nhiên liệu.\nHotline: 0399 831 228`;
+   <p class="note" style="font-size:12px;color:var(--muted)">Báo giá gửi khách chỉ có tuyến, loại xe, giá – không lộ cost.</p>`;
+  if(!fromRef)refs(c,km1,trips,stops,ends,wait);
+  const setM=v=>{S.margin=v;calc(true)};$('#mR').oninput=e=>setM(e.target.value);$('#mN').onchange=e=>setM(e.target.value);$('#mM').onchange=e=>{S.mmin=e.target.value;calc(true)};
+  $('#cP').onchange=e=>{S.close=e.target.value;calc(true)};$('#vT').onchange=e=>{S.vat=e.target.checked;calc(true)};
+  const a=$('#fA')?$('#fA').value:'',b=$('#fB')?$('#fB').value:'';const rt=S.ret==='empty'?'rỗng về':S.ret==='half'?'về nửa đường':'có hàng về';
+  const inTxt=()=>`COST CHUYẾN · ${c.label} · ${a||'?'} → ${b||'?'} · ${km1} km 1 chiều (${rt}) · ${trips} chuyến${w?' · hàng '+vn(w)+' tấn':''}\n`+L.map(x=>`- ${x[0]}: ${fmtN(Math.round(x[1]))}${x[2]?' ('+x[2]+')':''}`).join('\n')+`\n- Chi phí chung ${vn(ov)}%: ${fmtN(Math.round(ovA))}\n= COST 1 chuyến: ${fmtN(Math.round(cost1))} đ\nGiá nên chào ${fmtN(rec)} · không bán dưới ${fmtN(pMin)} · biểu giá KHG ${pList?fmtN(pList):'—'}${RECENT?' · đơn cũ TB '+fmtN(RECENT.avg):''}\nGiá chốt ${fmtN(close)} → lãi ${fmtN(Math.round(profit))}/chuyến (${vn(mg)}%)`;
+  const khTxt=()=>`CÔNG TY TNHH KIM HOÀNG GIA – BÁO GIÁ VẬN CHUYỂN\nTuyến: ${a||'(điểm lấy)'} → ${b||'(điểm giao)'}${km1?` (~${fmtN(km1)} km)`:''}\nLoại xe: ${c.label}${w?` · hàng ~${vn(w)} tấn`:''}${stops?` · ${stops} điểm giao thêm`:''}${ends?` · bốc xếp ${ends} đầu`:''}${trips>1?` · ${trips} chuyến`:''}\nĐơn giá: ${fmtN(close)} đ/chuyến${S.vat?` (chưa VAT) · VAT 8%: ${fmtN(vat)} đ · Tổng: ${fmtN(close+vat)} đ/chuyến`:''}${trips>1?`\nTổng ${trips} chuyến: ${fmtN((close+vat)*trips)} đ`:''}\nĐã gồm nhiên liệu, tài xế, cầu đường thông thường. Báo giá có hiệu lực 7 ngày, điều chỉnh theo giá nhiên liệu.\nHotline: 0399 831 228`;
   const cp=(t,msg)=>{(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(msg)).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast(msg)})};
   $('#cpIn').onclick=()=>cp(inTxt(),'Đã chép chi tiết nội bộ');$('#cpKh').onclick=()=>cp(khTxt(),'Đã chép báo giá – dán vào Zalo gửi khách');
-  $('#svH').onclick=()=>{try{const H=JSON.parse(localStorage.getItem('khg_cost_his')||'[]');H.unshift({t:new Date().toISOString(),l:`${c.label} · ${a||'?'} → ${b||'?'} · ${km1} km`,cost:Math.round(cost1),p,S:JSON.parse(JSON.stringify(S)),a,b});localStorage.setItem('khg_cost_his',JSON.stringify(H.slice(0,20)));toast('Đã lưu');his()}catch(e){toast('Không lưu được trên máy này')}}}
+  $('#svH').onclick=()=>{try{const Hh=JSON.parse(localStorage.getItem('khg_cost_his')||'[]');Hh.unshift({t:new Date().toISOString(),l:`${c.label} · ${a||'?'} → ${b||'?'} · ${km1} km`,cost:Math.round(cost1),p:close,S:JSON.parse(JSON.stringify({...S,_a:a,_b:b}))});localStorage.setItem('khg_cost_his',JSON.stringify(Hh.slice(0,30)));toast('Đã lưu');his()}catch(e){toast('Không lưu được trên máy này')}}}
 function his(){let H=[];try{H=JSON.parse(localStorage.getItem('khg_cost_his')||'[]')}catch(e){}const el=$('#his');if(!el)return;
   el.innerHTML=H.length?H.map((h,i)=>`<div data-h="${i}"><span>${esc(h.l)}<br><small class="mut">${new Date(h.t).toLocaleString('vi-VN')}</small></span><span style="text-align:right">cost ${fmtN(h.cost)}<br><b>${fmtN(h.p)}</b></span></div>`).join(''):'<span class="mut">Chưa có. Bấm “Lưu” sau khi tính.</span>';
-  $$('[data-h]').forEach(d=>d.onclick=()=>{const h=H[+d.dataset.h];Object.assign(S,h.S);draw();if(h.a)$('#fA').value=h.a;if(h.b)$('#fB').value=h.b;calc()})}
+  $$('[data-h]').forEach(d=>d.onclick=()=>{const h=H[+d.dataset.h];Object.assign(S,h.S);QTK='';draw()})}
 boot();
 </script></body></html>
