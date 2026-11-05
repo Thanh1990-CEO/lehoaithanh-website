@@ -1029,13 +1029,13 @@ async function renderList(name,host,opts={}){
 }
 
 
-// ===================== BÁO CÁO HĐKT LOGISTICS · TÀI CHÍNH · DÒNG TIỀN · ĐỐI SOÁT (v22) =====================
+// ===================== BÁO CÁO HĐKD KHG LOGISTICS · TÀI CHÍNH · DÒNG TIỀN · ĐỐI SOÁT (v22) =====================
 const RSUB=[['fin','💰 Tài chính & dòng tiền',['admin','ke_toan']],['exec','Bảng điều hành CEO'],['ceo','Toàn cảnh CEO'],['overview','Tổng quan'],['analytics','Phân tích doanh thu'],['pnl','Lãi/lỗ chuyến & xe'],['fuel','⛽ Nhiên liệu theo xe',['admin','ke_toan','dieu_phoi']]];
 const RPT={sub:null};
 function rptAllowed(){const al=new Set(allowed().map(t=>t[0]));return RSUB.filter(([k,,roles])=>roles?(isAdmin()||has(roles)):al.has(k))}
 async function viewReports(m){const subs=rptAllowed();if(!subs.length){m.innerHTML='<div class="empty">Không có báo cáo nào được cấp quyền.</div>';return}
   if(!RPT.sub||!subs.find(s=>s[0]===RPT.sub))RPT.sub=subs[0][0];
-  m.innerHTML=`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><h2 style="margin:0">Báo cáo HĐKT Logistics</h2><span style="flex:1"></span><button class="btn p" data-hdkt>⬇ Tải báo cáo HĐKT (Excel dashboard)</button></div><div class="subtabs rptt" id="rptt">${subs.map(([k,l])=>`<button data-r="${k}" class="${k===RPT.sub?'on':''}">${esc(l)}</button>`).join('')}</div><div id="rpth"></div>`;
+  m.innerHTML=`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><h2 style="margin:0">Báo cáo HĐKD KHG LOGISTICS</h2><span style="flex:1"></span><button class="btn p" data-hdkt>⬇ Tải báo cáo HĐKD (Excel dashboard)</button></div><div class="subtabs rptt" id="rptt">${subs.map(([k,l])=>`<button data-r="${k}" class="${k===RPT.sub?'on':''}">${esc(l)}</button>`).join('')}</div><div id="rpth"></div>`;
   const sw=async k=>{RPT.sub=k;m.querySelectorAll('#rptt button').forEach(b=>b.classList.toggle('on',b.dataset.r===k));const h=$('#rpth');h.innerHTML='<div class="empty">Đang tải…</div>';
     try{if(k==='fin')await finBoard(h);else if(k==='fuel')await fuelBoard(h);else await VIEWS[k](h)}catch(e){h.innerHTML='<div class="empty">'+esc(e.message||e)+'</div>'}};
   m.querySelectorAll('#rptt button').forEach(b=>b.onclick=()=>sw(b.dataset.r));await sw(RPT.sub)}
@@ -4215,9 +4215,9 @@ VIEWS.exec=async m=>{
 TABS.push(['exec','Bảng điều hành CEO',['admin','ke_toan']]);
 TABS.push(['excel','Nhập/xuất Excel & báo cáo',['admin','ke_toan','dieu_phoi']]);VIEWS.excel=viewExcel;
 TABS.push(['data','Data chi tiết (sửa trực tiếp)',['admin','ke_toan']]);VIEWS.data=viewData;
-TABS.push(['reports','Báo cáo HĐKT Logistics',ALL]);VIEWS.reports=viewReports;ICONS.reports=IC('<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>');
+TABS.push(['reports','Báo cáo HĐKD KHG LOGISTICS',ALL]);VIEWS.reports=viewReports;ICONS.reports=IC('<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>');
 TABS.push(['recon','Đối soát khách hàng',['admin','ke_toan']]);VIEWS.recon=viewRecon;{setTimeout(()=>{},0)}ICONS.recon=IC('<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2h9"/>');
-// ===================== v26 · EXCEL CHUẨN TRÌNH GIÁM ĐỐC · BÁO CÁO HĐKT · DATA TOÀN BỘ PHÁT SINH · TĂNG CA · HỒ SƠ GIẤY TỜ · MẪU AI =====================
+// ===================== v26 · EXCEL CHUẨN TRÌNH GIÁM ĐỐC · BÁO CÁO HĐKD · DATA TOÀN BỘ PHÁT SINH · TĂNG CA · HỒ SƠ GIẤY TỜ · MẪU AI =====================
 const XC={red:'FFC8102E',dark:'FF1B1616',head:'FF7A0C1F',band:'FFFBF6F5',line:'FFE7DCDA',soft:'FFF3E9E7',green:'FF15803D',amber:'FFB45309',gray:'FF6B7280',white:'FFFFFFFF',blue:'FF1D4ED8'};
 async function xjLib(){if(window.ExcelJS)return window.ExcelJS;await loadScript('https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js');return window.ExcelJS}
 async function xjSave(wb,name){const b=await wb.xlsx.writeBuffer();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([b],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}
@@ -4275,9 +4275,9 @@ async function xlsx(filename,sheets,opt={}){let EX;try{EX=await xjLib()}catch(e)
     if(opt.dry)return wb;
     await xjSave(wb,String(filename).replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,'_')+'_'+today()+'.xlsx')}catch(e){console.error(e);toast('Xuất kiểu chuẩn lỗi, chuyển sang bản thường: '+e.message);return xlsxPlain(filename,sheets)}}
 
-// ===================== BÁO CÁO HĐKT · TẢI EXCEL DASHBOARD + DATA CHI TIẾT =====================
+// ===================== BÁO CÁO HĐKD · TẢI EXCEL DASHBOARD + DATA CHI TIẾT =====================
 function hdktDialog(){const P=PST.hdkt=PST.hdkt||{kind:'thang'};
-  modal(`<h3>⬇ Tải báo cáo hoạt động kinh doanh (HĐKT)</h3><p class="sub">Chọn kỳ báo cáo: tuần, tháng, quý, năm hoặc từ ngày – đến ngày bất kỳ. File Excel gồm trang <b>Dashboard</b> trình Giám đốc / cổ đông (chỉ số chính, kết quả kinh doanh, biểu đồ thanh, top khách, chi phí, hiệu quả xe, công nợ, dự toán dòng tiền, lịch chi lương) và các trang <b>data chi tiết</b> liên quan để đối chiếu.</p>
+  modal(`<h3>⬇ Tải báo cáo HĐKD KHG LOGISTICS</h3><p class="sub">Chọn kỳ báo cáo: tuần, tháng, quý, năm hoặc từ ngày – đến ngày bất kỳ. File Excel gồm trang <b>Dashboard</b> trình Giám đốc / cổ đông (chỉ số chính, kết quả kinh doanh, biểu đồ thanh, top khách, chi phí, hiệu quả xe, công nợ, dự toán dòng tiền, lịch chi lương) và các trang <b>data chi tiết</b> liên quan để đối chiếu.</p>
    <div class="bar" id="hdP"></div><label class="sub" style="display:flex;gap:6px;align-items:center;margin:6px 0"><input type="checkbox" id="hdD" checked> Kèm data chi tiết (đơn hàng, công nợ, chi phí, sổ quỹ, nhân công, lương, tăng ca, phải trả, tạm ứng, vay, thuê xe)</label>
    <div class="acts"><span class="sp"></span><button class="btn" id="hdX">Đóng</button><button class="btn p" id="hdGo">⬇ Tải file Excel</button></div>`);
   let cur=periodRange(P);periodPicker($('#hdP'),P,p=>{cur=p});$('#hdX').onclick=closeModal;
@@ -4310,9 +4310,9 @@ async function hdktExport(p,withData,dry){const EXJ=await xjLib();const D=await 
   const fund=FB?.fund||{};const AR=FB?.ar||{};const APg=FB?.ap||{};const apT=['vay','ncc','xe','luong','khac'].reduce((a,k)=>a+Number(APg[k]?.total||0),0);
   const f30=(FB?.forecast||[]).find(f=>f.days===30)||{};
   const wb=new EXJ.Workbook();wb.creator='CRM Kim Hoàng Gia';wb.created=new Date();
-  const ws=wb.addWorksheet('Dashboard',{properties:{tabColor:{argb:XC.red}},pageSetup:{paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,margins:{left:.3,right:.3,top:.4,bottom:.45,header:.2,footer:.2}},headerFooter:{oddFooter:'&L&8Công ty TNHH Kim Hoàng Gia · Báo cáo HĐKT '+p.label+'&R&8Trang &P / &N'},views:[{showGridLines:false}]});
+  const ws=wb.addWorksheet('Dashboard',{properties:{tabColor:{argb:XC.red}},pageSetup:{paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,margins:{left:.3,right:.3,top:.4,bottom:.45,header:.2,footer:.2}},headerFooter:{oddFooter:'&L&8Công ty TNHH Kim Hoàng Gia · Báo cáo HĐKD KHG LOGISTICS '+p.label+'&R&8Trang &P / &N'},views:[{showGridLines:false}]});
   const NC=12;ws.columns=Array.from({length:NC},(_,i)=>({width:i===0?22:12.5}));
-  xjHead(ws,NC,'BÁO CÁO HOẠT ĐỘNG KINH DOANH',`Kỳ báo cáo: ${p.label} (từ ${fmtD(p.from)} đến ${fmtD(p.to)}) · Đơn vị tính: đồng`);
+  xjHead(ws,NC,'BÁO CÁO HĐKD KHG LOGISTICS',`Kỳ báo cáo: ${p.label} (từ ${fmtD(p.from)} đến ${fmtD(p.to)}) · Đơn vị tính: đồng`);
   let R=6;const F=(argb)=>({type:'pattern',pattern:'solid',fgColor:{argb}});
   const sec=t=>{R+=1;ws.mergeCells(R,1,R,NC);const c=ws.getCell(R,1);c.value=t;c.font={name:'Arial',size:11.5,bold:true,color:{argb:XC.white}};c.fill=F(XC.head);c.alignment={vertical:'middle',indent:1};ws.getRow(R).height=21;R+=1};
   const card=(r,c,label,val,sub,color,fmt)=>{ws.mergeCells(r,c,r,c+2);ws.mergeCells(r+1,c,r+1,c+2);ws.mergeCells(r+2,c,r+2,c+2);
@@ -4382,7 +4382,7 @@ async function hdktExport(p,withData,dry){const EXJ=await xjLib();const D=await 
     add('Phải trả',E.payables,PY.filter(r=>Number(r.amount)>Number(r.paid_amount||0)));add('Tạm ứng',E.advances,AD);add('Tiền vay',E.loans,LO);if(E.vleases&&VL.length)add('Thuê xe NCC',E.vleases,VL)}
   if(dry==='wb')return wb;
   if(dry){const buf=await wb.xlsx.writeBuffer();return {bytes:buf.byteLength,sheets:wb.worksheets.map(w=>[w.name,w.rowCount,w.columnCount]),kpi:{rev,collected,openAR,cost,gp}}}
-  await xjSave(wb,`Bao_cao_HDKT_KHG_${p.from}_${p.to}.xlsx`);toast('Đã tải báo cáo HĐKT '+p.label)}
+  await xjSave(wb,`Bao_cao_HDKD_KHG_LOGISTICS_${p.from}_${p.to}.xlsx`);toast('Đã tải báo cáo HĐKD '+p.label)}
 window.KHGX={b64:async wb=>{const b=new Uint8Array(await wb.xlsx.writeBuffer());let s='';for(let i=0;i<b.length;i+=8192)s+=String.fromCharCode.apply(null,b.subarray(i,i+8192));return btoa(s)},wb:(from,to,data)=>hdktExport({from,to,label:fmtD(from)+' – '+fmtD(to)},!!data,'wb'),xl:(sheets)=>xlsx('test',sheets,{dry:1}),hdkt:(from,to)=>hdktExport({from,to,label:fmtD(from)+' – '+fmtD(to)},true,true),lib:xjLib};
 
 // ===================== DATA CHI TIẾT: TOÀN BỘ PHÁT SINH THU – CHI =====================
@@ -4601,7 +4601,7 @@ function leaseInsHTML(F){const L=F.leases||[],I=(F.inspections||[]).filter(x=>x.
   return `<div class="card"><h3>🚚 Xe thuê NCC & đăng kiểm sắp tới</h3>${L.length?`<div class="sub" style="line-height:1.7">${L.map(l=>`<b>${esc(l.plate||'')}</b> thuê ${esc(l.lessor)} · ${fmtN(l.monthly)}/tháng · trả ngày ${l.pay_day||5}${l.next_due?` (kỳ tới ${fmtD(l.next_due)})`:''}${l.end_date?` · HĐ hết ${fmtD(l.end_date)}`:''} · sửa chữa: ${esc(O.lparty[l.repair_by]||'')}`).join('<br>')}<br>Tiền thuê 30 ngày tới: <b>${fmtN(F.lease_due30)}</b></div>`:''}
     ${I.length?`<div class="sub" style="margin-top:6px;line-height:1.7">${I.map(x=>`🛠 ${esc(x.plate||'')} đăng kiểm <b>${fmtD(x.due_on)}</b> · ${x.fee?'dự kiến '+fmtN(x.fee)+' đ':'NCC chịu'}`).join('<br>')}<br>Tổng phí đăng kiểm 90 ngày: <b>${fmtN(sum(I,x=>x.fee))}</b></div>`:''}</div>`}
 
-TABS.push(['loans','Tiền vay vận hành',['admin','ke_toan']]);VIEWS.loans=async m=>{m.innerHTML='<h2>Tiền vay vận hành</h2><p class="sub">Ghi khoản vay → tiền tự vào sổ quỹ. Chi phí, tạm ứng chọn “Chi từ tiền vay” để biết đã dùng bao nhiêu. Trả nợ ở Báo cáo HĐKT → Tài chính & dòng tiền.</p><div id="h"></div>';await renderList('loans',$('#h'),{sumKey:'amount'})};ICONS.loans=IC('<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.2 1.3-2 3-2s3 .8 3 2-1.3 1.8-3 2-3 .8-3 2 1.3 2 3 2 3-.8 3-2"/>');
+TABS.push(['loans','Tiền vay vận hành',['admin','ke_toan']]);VIEWS.loans=async m=>{m.innerHTML='<h2>Tiền vay vận hành</h2><p class="sub">Ghi khoản vay → tiền tự vào sổ quỹ. Chi phí, tạm ứng chọn “Chi từ tiền vay” để biết đã dùng bao nhiêu. Trả nợ ở Báo cáo HĐKD KHG LOGISTICS → Tài chính & dòng tiền.</p><div id="h"></div>';await renderList('loans',$('#h'),{sumKey:'amount'})};ICONS.loans=IC('<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.2 1.3-2 3-2s3 .8 3 2-1.3 1.8-3 2-3 .8-3 2 1.3 2 3 2 3-.8 3-2"/>');
 TABS.push(['doctrack','Theo dõi chứng từ',['admin','ke_toan','dieu_phoi','kinh_doanh']]);VIEWS.doctrack=viewDocs;
 {const g=NAV_GROUPS.find(x=>x[0]==='Vận hành');if(g)g[1].splice(2,0,'doctrack');}
 ICONS.doctrack=IC('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>');
