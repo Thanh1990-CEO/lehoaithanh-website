@@ -394,6 +394,27 @@ if(!window.HUNT){window.HUNT=(()=>{const N=s=>(window.KADDR?KADDR.N(s):String(s|
     return T[a.business_line]||T.van_tai}
   return {analyze,reply,phones,provinces}})();}
 
+/*KMONEY-START*/
+/* KHG · Ô nhập tiền hiện số dễ đọc ngay khi gõ: 12554423 → "12.554.423 đ · 12 triệu 554 nghìn 423"
+   Gắn tự động cho ô có data-money, hoặc tên chứa amount/price/cost/fee/revenue/tien/gia/cuoc */
+(function(){
+if(window.KMONEY)return;
+function words(n){n=Math.round(Math.abs(n));if(!n)return '0';const ty=Math.floor(n/1e9),tr=Math.floor(n%1e9/1e6),ng=Math.floor(n%1e6/1e3),d=n%1e3;
+  return [ty?ty.toLocaleString('vi-VN')+' tỷ':'',tr?tr+' triệu':'',ng?ng+' nghìn':'',d?d+' đồng':''].filter(Boolean).join(' ')}
+function parse(v){let s=String(v||'').trim().toLowerCase().replace(/\s/g,'');if(!s)return null;
+  let m=s.match(/^(\d+)(?:tr|trieu|m)(\d{0,3})$/);if(m)return +m[1]*1e6+(m[2]?+(m[2]+'00').slice(0,3)*1e3:0);
+  m=s.match(/^(\d+(?:[.,]\d+)?)(k|ng|nghin)$/);if(m)return Math.round(parseFloat(m[1].replace(',','.'))*1e3);
+  m=s.match(/^(\d+(?:[.,]\d+)?)(ty|tỷ|b)$/);if(m)return Math.round(parseFloat(m[1].replace(',','.'))*1e9);
+  const d=s.replace(/[.,](?=\d{3}(\D|$))/g,'').replace(',','.');const x=parseFloat(d);return isNaN(x)?null:x}
+function attach(inp){if(!inp||inp._km)return;inp._km=1;const h=document.createElement('div');h.className='kmh';h.style.cssText='font-size:12px;color:#1E7A4C;margin:2px 0 0;min-height:15px;font-weight:600';
+  inp.insertAdjacentElement('afterend',h);const upd=()=>{const n=parse(inp.value);h.textContent=n==null?'':(n.toLocaleString('vi-VN')+' đ'+(n>=1000?' · '+words(n):''));h.style.color=n!=null&&n>0&&n<1000?'#B45309':'#1E7A4C';if(n!=null&&n>0&&n<1000)h.textContent+=' – kiểm tra lại, có thiếu số 0?'};
+  inp.addEventListener('input',upd);upd()}
+const RE=/(amount|price|cost|fee_|revenue|salary|budget|value_est|target)|(^|[_\s])(gia|tien|cuoc|luong)([_\s]|$)/i;
+document.addEventListener('focusin',e=>{const el=e.target;if(!el||el.tagName!=='INPUT'||el._km)return;if(el.dataset.money!==undefined||(el.type!=='checkbox'&&el.type!=='date'&&RE.test((el.name||'')+' '+(el.id||'')+' '+(el.dataset.k||''))))attach(el)},true);
+window.KMONEY={attach,parse,words};
+})();
+/*KMONEY-END*/
+
 // ================= HỒ SƠ XÁC THỰC (KYC) · KÝ ĐIỆN TỬ · HỘP THƯ – dùng chung app Đối tác & Fast Driver =================
 Object.assign(DOCT,{cccd_truoc:'CCCD mặt trước',cccd_sau:'CCCD mặt sau',bang_lai_truoc:'GPLX mặt trước',bang_lai_sau:'GPLX mặt sau',gp_van_tai:'Giấy phép KD vận tải',
   anh_van_phong:'Ảnh văn phòng',anh_bai_xe:'Ảnh bãi xe',anh_doi_xe:'Ảnh đội xe',selfie_xac_thuc:'Xác thực khuôn mặt',chu_ky:'Chữ ký điện tử',anh_ky_cam_ket:'Chân dung khi ký'});
