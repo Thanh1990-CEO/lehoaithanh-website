@@ -116,6 +116,7 @@ td.neg{color:var(--red)}table.kv td{padding:5px 8px;font-size:13px}table.kv td:f
 .form input,.form select,.form textarea{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink);font-weight:400;font-size:14px;width:100%}
 .form textarea{min-height:66px;resize:vertical}
 .form .hint{font-weight:400;font-size:11px;color:var(--grey)}
+.mw{display:block;font-weight:500;font-size:11.5px;color:#1E7A4C;margin-top:2px;min-height:14px}.mw.big{color:#B45309}
 .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
 .acts .sp{flex:1}
 .files{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
@@ -420,6 +421,31 @@ const addDays=(iso,n)=>{const d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+
 const vnDate=ts=>ts?new Date(new Date(ts).getTime()+7*36e5).toISOString().slice(0,10):'';
 const fmtD=s=>s?String(s).slice(0,10).split('-').reverse().join('/'):'';
 const fmtDT=s=>{if(!s)return'';const d=new Date(s);return d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})};
+// ===== Ô tiền: tự chấm phân cách, đọc số thành chữ (tỷ, triệu, nghìn) để kiểm tra nhập đủ số
+const moneyWords=n=>{n=Math.round(Number(n)||0);if(!n)return '';const neg=n<0;n=Math.abs(n);const p=[];const ty=Math.floor(n/1e9),tr=Math.floor(n%1e9/1e6),ng=Math.floor(n%1e6/1e3),d=n%1e3;
+  if(ty)p.push(ty.toLocaleString('vi-VN')+' tỷ');if(tr)p.push(tr+' triệu');if(ng)p.push(ng+' nghìn');if(d)p.push(d+' đồng');return (neg?'âm ':'')+p.join(' ')+(d?'':' đồng')};
+const moneyParse=v=>{let s=String(v??'').trim().toLowerCase().replace(/\s/g,'');if(!s)return null;const neg=/^-/.test(s);s=s.replace(/^-/,'');let m;
+  if((m=s.match(/^(\d+)(?:tr|trieu|triệu|m)(\d{0,3})$/)))return (neg?-1:1)*(+m[1]*1e6+(m[2]?+(m[2]+'00').slice(0,3)*1e3:0));
+  if((m=s.match(/^(\d+(?:[.,]\d+)?)(?:tr|trieu|triệu|m)$/)))return (neg?-1:1)*Math.round(parseFloat(m[1].replace(',','.'))*1e6);
+  if((m=s.match(/^(\d+(?:[.,]\d+)?)(?:k|ng|nghin|nghìn)$/)))return (neg?-1:1)*Math.round(parseFloat(m[1].replace(',','.'))*1e3);
+  if((m=s.match(/^(\d+(?:[.,]\d+)?)(?:ty|tỷ|tỉ|b)$/)))return (neg?-1:1)*Math.round(parseFloat(m[1].replace(',','.'))*1e9);
+  const d=s.replace(/[^\d]/g,'');return d?(neg?-1:1)*Number(d):null};
+const moneyFmt=v=>{const n=moneyParse(v);return n==null?'':n.toLocaleString('vi-VN')};
+function moneyHint(inp){let h=inp.parentElement.querySelector('.mw');if(!h){h=document.createElement('span');h.className='mw';inp.insertAdjacentElement('afterend',h)}const n=moneyParse(inp.value);h.textContent=n?'= '+moneyWords(n):'';h.classList.toggle('big',Math.abs(n||0)>=1e9)}
+document.addEventListener('change',e=>{const el=e.target;if(el&&el.matches&&el.matches('input[data-money]')&&/[a-zà-ỹ]/i.test(el.value)){el.value=moneyFmt(el.value);moneyHint(el);el.dispatchEvent(new Event('input',{bubbles:true}))}},true);
+document.addEventListener('input',e=>{const el=e.target;if(!el||!el.matches||!el.matches('input[data-money]'))return;if(/[a-zà-ỹ]/i.test(el.value)){moneyHint(el);return}const pos=el.selectionStart,len=el.value.length;el.value=moneyFmt(el.value);
+  try{const np=Math.max(0,pos+(el.value.length-len));el.setSelectionRange(np,np)}catch(x){}moneyHint(el)},true);
+document.addEventListener('focusin',e=>{const el=e.target;if(el&&el.matches&&el.matches('input[data-money]'))moneyHint(el)},true);
+function orderFeeCalc(frm){if(!frm)return;const g=k=>frm.elements[k];const num=k=>{const e=g(k);if(!e)return 0;return e.dataset.money!==undefined?(moneyParse(e.value)||0):(Number(e.value)||0)};
+  let box=frm.querySelector('#revBox');if(!box){box=document.createElement('div');box.id='revBox';box.className='w';box.style.cssText='grid-column:1/-1;background:#F2FAF5;border:1px solid #CFE8DA;border-radius:10px;padding:8px 12px;font-size:13.5px';
+    const anchor=g('extra_charge')?g('extra_charge').closest('label'):null;if(anchor)anchor.insertAdjacentElement('afterend',box);else frm.appendChild(box)}
+  let manual=!!(g('fee_freight')&&g('fee_freight').value&&!(g('quantity')&&g('quantity').value&&g('unit_price')&&g('unit_price').value));
+  const calc=src=>{if(src==='fee_freight')manual=true;if(src==='quantity'||src==='unit_price')manual=false;
+    const q=num('quantity'),p=num('unit_price');if(!manual&&q&&p&&g('fee_freight')){g('fee_freight').value=moneyFmt(Math.round(q*p));moneyHint(g('fee_freight'))}
+    const parts=[['Cước',num('fee_freight')],['Bốc xếp',num('fee_loading')],['Thêm điểm',num('fee_extra_stops')],['Chờ, lưu xe',num('fee_wait')],['Cầu đường',num('fee_toll')],['Thu khác',num('fee_other')],['Phụ thu',num('extra_charge')]].filter(x=>x[1]);
+    const disc=num('discount_amount');const tot=parts.reduce((s,x)=>s+x[1],0)-disc;
+    box.innerHTML=`<b>Doanh thu đơn: <span style="font-size:17px;color:#1E7A4C">${fmtM(tot)}</span></b> <span class="sub">(${tot?moneyWords(tot):'chưa có khoản nào'})</span><br><span class="sub">${parts.map(x=>x[0]+' '+fmtN(x[1])).join(' + ')||'—'}${disc?' − giảm giá '+fmtN(disc):''}</span>`};
+  ['quantity','unit_price','fee_freight','fee_loading','fee_extra_stops','fee_wait','fee_toll','fee_other','extra_charge','discount_amount'].forEach(k=>{const e=g(k);if(e)e.addEventListener('input',()=>calc(k))});calc()}
 const toLocalInput=s=>{if(!s)return'';const d=new Date(s);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
 const daysBetween=(a,b)=>Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/864e5);
 const sum=(a,f)=>a.reduce((s,x)=>s+(Number(f(x))||0),0);
@@ -487,7 +513,7 @@ const EXP_CAT_OF=i=>['nhien_lieu','cau_duong','sua_chua','thue_kho','dien_nuoc',
 // ===================== Cấu hình bảng =====================
 // t: text|area|num|money|date|dt|sel|fk|bool|arr ; list: hiện trong bảng ; ro: chỉ đọc ; {h:'...'} = tiêu đề nhóm trong form
 const E={
- orders:{table:'khg_orders',title:'Đơn hàng',order:['created_at',false],dateKey:'scheduled_at',files:'order',search:['code','pickup','dropoff','cargo','customer_text','note','pickup_province','drop_province','drop_district'],
+ orders:{table:'khg_orders',title:'Đơn hàng',onForm:(frm)=>orderFeeCalc(frm),order:['created_at',false],dateKey:'scheduled_at',files:'order',search:['code','pickup','dropoff','cargo','customer_text','note','pickup_province','drop_province','drop_district'],
   filters:[['status','order_status'],['trip_status','trip'],['order_type','order_type'],['service','service'],['driver_id','@people'],['vehicle_id','@vehicles'],['customer_id','@customers']],
   f:[{h:'Đơn hàng'},{k:'code',l:'Mã đơn',t:'text',ro:true,list:true},{k:'order_type',l:'Loại đơn',t:'sel',o:'order_type',list:true,def:'chuyen'},
    {k:'service',l:'Dịch vụ',t:'sel',o:'service',def:'van_chuyen'},{k:'customer_id',l:'Khách hàng',t:'fk',ref:'customers',list:true},
@@ -497,8 +523,10 @@ const E={
    {h:'Hàng & xe'},{k:'cargo',l:'Hàng hóa',t:'text'},{k:'weight_t',l:'Khối lượng (tấn)',t:'num'},{k:'trips',l:'Số chuyến',t:'num',def:1},
    {k:'vehicle_req',l:'Yêu cầu xe',t:'text'},{k:'vehicle_id',l:'Xe',t:'fk',ref:'vehicles',list:true},{k:'driver_id',l:'Tài xế',t:'fk',ref:'people',list:true},
    {k:'loading_included',l:'Kèm bốc xếp',t:'bool',def:false},
-   {h:'Tính cước'},{k:'unit',l:'Đơn vị tính',t:'sel',o:'unit',def:'chuyen'},{k:'quantity',l:'Số lượng',t:'num'},{k:'unit_price',l:'Đơn giá',t:'money'},
-   {k:'extra_charge',l:'Phụ thu',t:'money'},{k:'revenue',l:'Doanh thu',t:'money',list:true,hint:'Tự tính = số lượng × đơn giá + phụ thu'},{k:'partner_cost',l:'Trả xe liên kết',t:'money'},{k:'driver_pay',l:'Tiền chuyến trả tài xế',t:'money',hint:'Hiện trên app tài xế khi gán/phát đơn'},
+   {h:'Doanh thu = cộng các khoản thu khách'},{k:'unit',l:'Đơn vị tính cước',t:'sel',o:'unit',def:'chuyen'},{k:'quantity',l:'Số lượng tính cước',t:'num',hint:'Số chuyến / khối / tấn… dùng để tính cước, không phải thể tích hàng'},{k:'unit_price',l:'Đơn giá cước',t:'money'},
+   {k:'fee_freight',l:'Cước vận chuyển',t:'money',hint:'Tự = số lượng × đơn giá; hoặc nhập thẳng tổng cước'},{k:'fee_loading',l:'Phí bốc xếp',t:'money'},{k:'fee_extra_stops',l:'Phí giao thêm điểm',t:'money'},
+   {k:'fee_wait',l:'Phí chờ, lưu xe',t:'money'},{k:'fee_toll',l:'Phí cầu đường, vé cổng thu khách',t:'money'},{k:'fee_other',l:'Thu khác (cẩu, nâng, kho…)',t:'money'},{k:'extra_charge',l:'Phụ thu (đêm, lễ…)',t:'money'},
+   {k:'revenue',l:'Doanh thu',t:'money',list:true,ro:true,hint:'Tự cộng: cước + các phí + phụ thu − giảm giá'},{k:'partner_cost',l:'Trả xe liên kết',t:'money'},{k:'driver_pay',l:'Tiền chuyến trả tài xế',t:'money',hint:'Hiện trên app tài xế khi gán/phát đơn'},
    {h:'Tình trạng'},{k:'status',l:'Trạng thái đơn',t:'sel',o:'order_status',list:true,def:'moi'},{k:'trip_status',l:'Tình trạng chuyến',t:'sel',o:'trip',list:true,ro:true},
    {k:'trip_note',l:'Ghi chú chuyến (tài xế)',t:'text',ro:true},{k:'accepted_at',l:'Lúc nhận',t:'dt',ro:true},{k:'picked_at',l:'Lúc lấy hàng',t:'dt',ro:true},{k:'unloading_at',l:'Lúc trả hàng',t:'dt',ro:true},
    {k:'delivered_at',l:'Lúc giao xong',t:'dt',ro:true},{k:'source',l:'Nguồn',t:'sel',o:'source',def:'web'},{k:'created_at',l:'Tạo lúc',t:'dt',ro:true},{k:'note',l:'Ghi chú',t:'area'}]},
@@ -526,8 +554,8 @@ const E={
   f:[{k:'warehouse_id',l:'Kho',t:'fk',ref:'warehouses',list:true,req:true},{k:'customer_id',l:'Khách thuê',t:'fk',ref:'customers',list:true},{k:'kind',l:'Loại',t:'sel',o:'lease_kind',list:true,def:'kho'},
    {k:'area_m2',l:'Diện tích (m²)',t:'num',list:true,req:true},{k:'price_per_m2',l:'Giá/m²/tháng',t:'money',list:true,req:true},{k:'start_date',l:'Bắt đầu',t:'date',list:true,req:true},
    {k:'end_date',l:'Kết thúc',t:'date',list:true},{k:'status',l:'Trạng thái',t:'sel',o:'lease_status',list:true,def:'hieu_luc'},{k:'note',l:'Ghi chú',t:'area'}]},
- people:{table:'khg_people',title:'Nhân sự',order:['full_name',true],files:'person',search:['full_name','phone','email','id_number','license_no'],filters:[['role','role'],['employment_status','emp_status']],label:'full_name',
-  f:[{h:'Thông tin cá nhân'},{k:'full_name',l:'Họ tên',t:'text',list:true,req:true},{k:'dob',l:'Ngày sinh',t:'date'},{k:'gender',l:'Giới tính',t:'sel',o:'gender'},
+ people:{table:'khg_people',title:'Nhân sự',order:['full_name',true],files:'person',search:['full_name','emp_code','phone','email','id_number','license_no'],filters:[['role','role'],['employment_status','emp_status']],label:'full_name',
+  f:[{h:'Thông tin cá nhân'},{k:'full_name',l:'Họ tên',t:'text',list:true,req:true},{k:'emp_code',l:'Mã nhân sự',t:'text',list:true,hint:'Để trống thì hệ thống tự cấp: TX001, KD002…'},{k:'dob',l:'Ngày sinh',t:'date'},{k:'gender',l:'Giới tính',t:'sel',o:'gender'},
    {k:'phone',l:'Điện thoại (đăng nhập app, /link bot)',t:'text',list:true},{k:'email',l:'Email đăng nhập CRM (quản lý)',t:'text'},{k:'id_number',l:'Số CCCD',t:'text'},
    {k:'id_issued_on',l:'Ngày cấp CCCD',t:'date'},{k:'id_issued_place',l:'Nơi cấp',t:'text'},{k:'tax_code',l:'Mã số thuế cá nhân',t:'text'},
    {k:'address_permanent',l:'Địa chỉ thường trú',t:'text'},{k:'address_current',l:'Chỗ ở hiện tại',t:'text'},{k:'emergency_contact',l:'Liên hệ khẩn cấp',t:'text'},
@@ -844,6 +872,7 @@ function formHTML(cfg,row,defaults={}){
     if(f.t==='bool') return `<select name="${f.k}" ${dis}><option value="true" ${val===true?'selected':''}>Có</option><option value="false" ${val!==true?'selected':''}>Không</option></select>`;
     if(f.t==='arr') return `<input name="${f.k}" value="${esc((val||[]).join(', '))}" ${dis}>`;
     if(f.t==='lines') return `<textarea name="${f.k}" ${dis} ${rq}>${esc((val||[]).join('\n'))}</textarea>`;
+    if(f.t==='money') return `<input type="text" inputmode="numeric" data-money name="${f.k}" value="${esc(val==null||val===''?'':moneyFmt(val))}" ${dis} ${rq} autocomplete="off"><span class="mw">${val?'= '+moneyWords(val):''}</span>`;
     const type={num:'number',money:'number',date:'date',dt:'datetime-local'}[f.t]||'text';
     const shown=f.t==='dt'?toLocalInput(val):f.t==='date'?(val?String(val).slice(0,10):''):(val??'');
     return `<input type="${type}" ${['num','money'].includes(f.t)?'step="any"':''} name="${f.k}" value="${esc(shown)}" ${dis} ${rq}>`;
@@ -854,7 +883,7 @@ function readForm(cfg,frm,row){
   const data={};
   for(const f of fields(cfg)){ if(f.ro||!frm.elements[f.k])continue;
     const raw=frm.elements[f.k].value;let val=raw===''?null:raw;
-    if(val!=null){ if(['num','money'].includes(f.t))val=Number(val); else if(f.t==='dt')val=new Date(val).toISOString(); else if(f.t==='bool')val=raw==='true'; else if(f.t==='arr')val=raw.split(',').map(s=>s.trim()).filter(Boolean); else if(f.t==='lines')val=raw.split('\n').map(s=>s.trim()).filter(Boolean); else if(f.t==='sel'&&f.o==='segment')val=Number(val)}
+    if(val!=null){ if(f.t==='money')val=moneyParse(val); else if(f.t==='num')val=Number(val); else if(f.t==='dt')val=new Date(val).toISOString(); else if(f.t==='bool')val=raw==='true'; else if(f.t==='arr')val=raw.split(',').map(s=>s.trim()).filter(Boolean); else if(f.t==='lines')val=raw.split('\n').map(s=>s.trim()).filter(Boolean); else if(f.t==='sel'&&f.o==='segment')val=Number(val)}
     if(f.t==='arr'&&val==null)val=[];
     data[f.k]=val;
   }
@@ -869,6 +898,7 @@ async function openForm(name,row,after,defaults={},extraHTML=''){
   modal(`<h3>${row?(RO?'Xem':'Sửa'):'Thêm'} · ${esc(cfg.title)}${row&&row.code?' · '+esc(row.code):''}</h3><form class="form" id="frm">${formHTML(cfg,row,defaults)}</form>${extraHTML}
    <div class="acts">${row&&!RO?'<button class="btn" id="arc" style="color:var(--red)">🗂 Lưu trữ</button>':''}${row?'<button class="btn" id="lnk">🔗 Sao chép link</button>':''}${row&&cfg.files?'<button class="btn" id="fil">📎 Chứng từ</button>':''}<span class="sp"></span><button class="btn" id="cancel">Đóng</button>${RO?'':'<button class="btn p" id="save">Lưu</button>'}</div>`);
   if(RO)$('#frm').querySelectorAll('input,select,textarea').forEach(x=>x.disabled=true);
+  if(cfg.onForm)try{cfg.onForm($('#frm'),row)}catch(e){console.warn(e)}
   if(row)$('#lnk').onclick=()=>copyText(`${cfg.title} ${row.code||row.full_name||row.name||row.plate||row.party||''}: ${recLink(name,row.id)}`,'Đã sao chép link');
   $('#cancel').onclick=closeModal;
   if(row&&cfg.files) $('#fil').onclick=()=>openFiles(cfg.files,row.id,row.code||row.full_name||row.plate||row.name||'');
@@ -1584,11 +1614,131 @@ async function tripPayView(h){
   $('#tpX').onclick=()=>xlsx('Tien-chuyen-tai-xe',{'Tổng hợp':rows.map(r=>({'Tài xế':r.name,'SĐT':r.phone,'Số chuyến':r.trips,'Số đơn':r.orders,'Tiền chuyến':Number(r.pay),'Đơn chưa ghi tiền':r.missing})),'Chi tiết':rows.flatMap(r=>r.lines.map(l=>({'Tài xế':r.name,'Đơn':l.code,'Ngày':fmtD(l.date),'Tuyến':l.route,'Chuyến':l.trips,'Doanh thu':Number(l.revenue||0),'Tiền chuyến':l.driver_pay==null?'':Number(l.driver_pay)})))});
   await load();
 }
+// ===================== BẢNG CHẤM CÔNG THÁNG (v16) =====================
+const TS={month:null,brush:'co_mat',showPay:false,q:''};
+const TS_ST={co_mat:['✓','Đủ công','#1E7A4C','#E7F5EC'],nua_ngay:['½','Nửa ngày','#B45309','#FEF3E2'],vang:['V','Vắng','#B91C1C','#FDECEC'],nghi_phep:['P','Nghỉ phép','#1D4ED8','#E8EEFD']};
+const TS_DOW=['CN','T2','T3','T4','T5','T6','T7'];
+function tsCss(){if(document.getElementById('tsCss'))return;const s=document.createElement('style');s.id='tsCss';s.textContent=`
+.tsbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.tsbar .br{display:flex;gap:4px;flex-wrap:wrap}
+.tsbar .br button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:5px 10px;cursor:pointer;font-size:13px}.tsbar .br button.on{outline:2px solid var(--ink);font-weight:700}
+.tsw{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:12px;background:#fff}
+table.ts{border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:100%}
+table.ts th,table.ts td{border-bottom:1px solid #EEE;border-right:1px solid #F3F3F3;padding:0;text-align:center;white-space:nowrap}
+table.ts thead th{position:sticky;top:0;background:#FAF7F5;z-index:2;padding:4px 2px;font-weight:600}
+table.ts .fx{position:sticky;left:0;background:#fff;z-index:1;text-align:left;padding:4px 8px}table.ts .fx2{position:sticky;left:64px;background:#fff;z-index:1;text-align:left;padding:4px 8px;min-width:150px;max-width:190px;overflow:hidden;text-overflow:ellipsis}
+table.ts thead .fx,table.ts thead .fx2{z-index:3;background:#FAF7F5}
+table.ts th.dh{min-width:34px;cursor:pointer}table.ts th.dh small{display:block;font-weight:400;color:#888;font-size:10.5px}
+table.ts th.we{background:#F1F1F1}table.ts th.le{background:#FDECEC;color:#B91C1C}table.ts th.td{box-shadow:inset 0 -3px 0 #C8102E}
+table.ts td.c{width:34px;height:34px;cursor:pointer;position:relative;font-weight:700;font-size:14px;user-select:none}
+table.ts td.c.we{background:#FAFAFA}table.ts td.c.le{background:#FFF6F6}table.ts td.c:hover{outline:2px solid #C8102E55;outline-offset:-2px}
+table.ts td.c .ot{position:absolute;right:1px;top:0;font-size:9.5px;color:#7C3AED;font-weight:700}table.ts td.c .nt{position:absolute;left:2px;top:1px;width:5px;height:5px;border-radius:50%;background:#F59E0B}
+table.ts td.c .pv{display:block;font-size:9.5px;font-weight:500;color:#555;line-height:1}
+table.ts td.c.pend{opacity:.55}table.ts td.n{text-align:right;padding:4px 8px;font-variant-numeric:tabular-nums}
+table.ts tfoot td{background:#FAF7F5;font-size:11.5px;padding:4px 2px;position:sticky;bottom:0}
+.tspop{position:fixed;z-index:9999;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px #0002;padding:12px;width:290px;font-size:13.5px}
+.tspop h4{margin:0 0 8px;font-size:14px}.tspop .row{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.tspop label{display:block;font-size:12px;color:#666;margin-top:6px}
+.tspop input{width:100%;box-sizing:border-box}.tsleg{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#555;margin:8px 0}
+table.ts .mc{display:none}@media(max-width:700px){table.ts .fx{display:none}table.ts .fx2{left:0;min-width:96px;max-width:110px;white-space:normal;font-size:12px}table.ts .mc{display:inline;color:#888}}
+.rolebar{height:10px;border-radius:6px;background:#C8102E;display:inline-block;vertical-align:middle}`;document.head.appendChild(s)}
+function tsPop(x,y,html){document.querySelectorAll('.tspop').forEach(e=>e.remove());const p=document.createElement('div');p.className='tspop';p.innerHTML=html;document.body.appendChild(p);
+  const w=p.offsetWidth,hh=p.offsetHeight;p.style.left=Math.max(8,Math.min(x,innerWidth-w-8))+'px';p.style.top=Math.max(8,Math.min(y,innerHeight-hh-8))+'px';
+  setTimeout(()=>{const off=e=>{if(!p.contains(e.target)){p.remove();document.removeEventListener('mousedown',off,true)}};document.addEventListener('mousedown',off,true)},0);return p}
+async function tsGrid(h){
+  tsCss();const canEdit=isAdmin()||has(['admin','ke_toan'])||PERMS.payroll==='edit'||PERMS.payroll==='full'||(!PERMS.payroll&&['edit','full'].includes(RPERMS.payroll));const canHol=isAdmin()||has(['admin','ke_toan']);
+  TS.month=TS.month||today().slice(0,7);
+  h.innerHTML=`<div class="tsbar"><input type="month" id="tsM" value="${TS.month}"><button class="btn s" id="tsPrev">◀</button><button class="btn s" id="tsNext">▶</button>
+    ${canEdit?`<span class="sub">Bút chấm:</span><div class="br" id="tsBr">${Object.entries(TS_ST).map(([k,v])=>`<button data-b="${k}" style="color:${v[2]}">${v[0]} ${v[1]}</button>`).join('')}<button data-b="ot" style="color:#7C3AED">⏱ Tăng ca / ghi chú</button><button data-b="x">✕ Xóa ô</button></div>`:''}
+    <label style="font-size:13px"><input type="checkbox" id="tsPay" ${TS.showPay?'checked':''}> Hiện lương từng ngày</label>
+    <input id="tsQ" placeholder="Tìm tên, mã NV…" value="${esc(TS.q)}" style="max-width:170px"><button class="btn" id="tsX">⬇ Excel</button></div>
+    <div class="tsleg"><span><b style="color:#1E7A4C">✓</b> đủ công</span><span><b style="color:#B45309">½</b> nửa ngày</span><span><b style="color:#B91C1C">V</b> vắng</span><span><b style="color:#1D4ED8">P</b> phép</span><span><b style="color:#7C3AED">+2</b> giờ tăng ca</span><span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#F59E0B"></span> có ghi chú</span><span style="background:#F1F1F1;padding:0 4px">CN</span> chủ nhật (200%)<span style="background:#FDECEC;color:#B91C1C;padding:0 4px">Lễ</span> ngày lễ (300%)</div>
+    <div id="tsB"><p class="sub">Đang tải bảng chấm công…</p></div><div id="tsC" style="margin-top:14px"></div>
+    <p class="sub" style="margin-top:8px">Cách tính mỗi ngày: lương tháng ÷ 26 (lương ngày thì lấy đúng mức ngày) · tăng ca = lương giờ × 150% ngày thường, 200% chủ nhật, 300% lễ · phụ cấp tháng ÷ 26 theo ngày công · cộng tiền chuyến tài xế theo ngày giao. Chuyên cần cộng khi đủ 26 công. Bấm vào ô để chấm; bấm lại cùng bút để bỏ. Bấm tên để chấm nhanh cả tháng, bấm tiêu đề ngày để chấm cả cột${canHol?' hoặc đặt ngày lễ':''}.</p>`;
+  const br=h.querySelector('#tsBr');const setBr=b=>{TS.brush=b;br&&br.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.b===b))};
+  if(br){br.querySelectorAll('button').forEach(x=>x.onclick=()=>setBr(x.dataset.b));setBr(TS.brush)}
+  let D=null;
+  const mFrom=()=>TS.month+'-01';
+  const load=async()=>{const {data,error}=await sb.rpc('khg_timesheet',{p_month:mFrom()});if(error){h.querySelector('#tsB').innerHTML=`<p class="sub">${esc(error.message)}</p>`;return}D=data;draw()};
+  const set=async(pids,dates,st,ot,note)=>{const {error}=await sb.rpc('khg_timesheet_set',{p_people:pids,p_dates:dates,p_status:st,p_ot:ot==null?null:Number(ot),p_note:note==null?null:note});
+    if(error){toast(error.message);return false}await load();return true};
+  const roleName=r=>(O.role&&O.role[r])||r;
+  const draw=()=>{const days=D.days||[];const td=today();const q=TS.q.trim().toLowerCase();
+    const ppl=(D.people||[]).filter(p=>!q||(p.full_name+' '+(p.emp_code||'')+' '+roleName(p.role)).toLowerCase().includes(q));
+    const head=`<tr><th class="fx">Mã NV</th><th class="fx2">Họ tên · vị trí</th>${days.map(d=>{const dd=new Date(d.d+'T00:00');return `<th class="dh ${d.t==='le'?'le':d.t==='cuoi_tuan'?'we':''} ${d.d===td?'td':''}" data-d="${d.d}" title="${esc(d.h||'')}">${dd.getDate()}<small>${d.t==='le'?'Lễ':TS_DOW[dd.getDay()]}</small></th>`}).join('')}
+      <th>Công</th><th>Giờ TC</th><th>Phụ cấp</th><th>Tiền chuyến</th><th>Lương tạm tính</th><th>Lương 1 công</th><th>Bảng lương</th></tr>`;
+    const body=ppl.map(p=>{const rd=p.salary_type==='ngay'?p.base:(['thang','khoan'].includes(p.salary_type)?p.base/26:0);
+      return `<tr data-p="${p.id}"><td class="fx"><b>${esc(p.emp_code||'')}</b></td><td class="fx2" data-pn="${p.id}" style="cursor:pointer" title="Bấm để chấm nhanh"><span class="mc">${esc(p.emp_code||'')}<br></span><b>${esc(p.full_name)}</b><br><span class="sub">${esc(roleName(p.role))}${p.salary_type==='chuyen'?' · lương chuyến':p.salary_type==='khoan'?' · khoán':p.salary_type==='ngay'?' · lương ngày':''}</span></td>
+      ${days.map(d=>{const c=p.cells[d.d];const st=c&&TS_ST[c.s];const pv=p.daily[d.d];
+        return `<td class="c ${d.t==='le'?'le':d.t==='cuoi_tuan'?'we':''} ${c&&c.ap==='cho_duyet'?'pend':''}" data-c="${p.id}|${d.d}" style="${st?`color:${st[2]};background:${st[3]}`:''}" title="${esc([st?st[1]:'',c&&c.in?'Vào '+c.in:'',c&&c.out?'Ra '+c.out:'',c&&Number(c.ot)?'Tăng ca '+c.ot+'h':'',c&&c.n?c.n:'',c&&c.ap==='cho_duyet'?'Chờ duyệt (chấm qua app)':'',pv?'Lương ngày: '+fmtN(pv)+' đ':''].filter(Boolean).join(' · '))}">${st?st[0]:''}${c&&Number(c.ot)?`<span class="ot">+${Number(c.ot)}</span>`:''}${c&&c.n?'<span class="nt"></span>':''}${TS.showPay&&pv?`<span class="pv">${pv>=1e6?(pv/1e6).toFixed(1)+'tr':Math.round(pv/1e3)+'k'}</span>`:''}</td>`}).join('')}
+      <td class="n"><b>${Number(p.wd)}</b>${p.off_work?`<br><span class="sub">+${p.off_work} ngày nghỉ</span>`:''}</td><td class="n">${Number(p.ot)||''}</td><td class="n">${fmtN(p.ap)}</td><td class="n">${p.tp?fmtN(p.tp)+'<br><span class="sub">'+p.trips+' chuyến</span>':''}</td>
+      <td class="n"><b style="color:#1E7A4C">${fmtN(p.gross)}</b>${p.bon?'<br><span class="sub">gồm chuyên cần '+fmtN(p.bon)+'</span>':''}</td><td class="n">${rd?fmtN(Math.round(rd)):'<span class="sub">'+(p.base?'':'chưa có lương')+'</span>'}</td>
+      <td>${p.sal?`<span class="pill ${p.sal.status==='da_tra'?'green':''}">${O.pay_status&&O.pay_status[p.sal.status]||p.sal.status}</span>`:'<span class="sub">chưa chốt</span>'}</td></tr>`}).join('');
+    const foot=`<tr><td class="fx"></td><td class="fx2"><b>Có mặt / lương ngày</b></td>${days.map(d=>{const n=ppl.filter(p=>p.cells[d.d]&&['co_mat','nua_ngay'].includes(p.cells[d.d].s)).length;const s=sum(ppl,p=>p.daily[d.d]);return `<td title="${fmtN(s)} đ">${n||''}${s?`<br><span class="sub">${Math.round(s/1e3)}k</span>`:''}</td>`}).join('')}
+      <td class="n">${sum(ppl,p=>p.wd)}</td><td class="n">${sum(ppl,p=>p.ot)||''}</td><td class="n">${fmtN(sum(ppl,p=>p.ap))}</td><td class="n">${fmtN(sum(ppl,p=>p.tp))}</td><td class="n"><b>${fmtN(sum(ppl,p=>p.gross))}</b></td><td></td><td></td></tr>`;
+    h.querySelector('#tsB').innerHTML=ppl.length?`<div class="tsw"><table class="ts"><thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>`:'<p class="sub">Chưa có nhân sự đang làm việc. Thêm ở mục Nhân sự.</p>';
+    drawCost();bind()};
+  const drawCost=()=>{const R=D.by_role||[];const mx=Math.max(1,...R.map(r=>Number(r.gross)+Number(r.ins_er)));const tot=sum(R,r=>Number(r.gross)+Number(r.ins_er));
+    h.querySelector('#tsC').innerHTML=`<div class="card"><h3>Chi phí lương theo vị trí · tháng ${TS.month.split('-').reverse().join('/')}</h3>
+      <div class="tw"><table><thead><tr><th>Vị trí</th><th class="n">Số người</th><th class="n">Lương phát sinh</th><th class="n">BH công ty đóng (21,5%)</th><th class="n">Tổng chi phí</th><th style="min-width:160px"></th></tr></thead><tbody>
+      ${R.map(r=>{const t=Number(r.gross)+Number(r.ins_er);return `<tr><td>${esc(roleName(r.role))}</td><td class="n">${r.n}</td><td class="n">${fmtN(r.gross)}</td><td class="n">${fmtN(r.ins_er)}</td><td class="n"><b>${fmtN(t)}</b></td><td><span class="rolebar" style="width:${Math.round(t/mx*150)}px"></span></td></tr>`}).join('')}
+      <tr><td><b>Tổng</b></td><td class="n">${sum(R,r=>r.n)}</td><td class="n"><b>${fmtN(sum(R,r=>r.gross))}</b></td><td class="n">${fmtN(sum(R,r=>r.ins_er))}</td><td class="n"><b>${fmtN(tot)}</b></td><td></td></tr></tbody></table></div>
+      <p class="sub">${tot?moneyWords(tot)+'. ':''}Số này tự cộng lên Bảng điều hành CEO (mục chi phí lương theo vị trí) mỗi khi chấm công.</p>
+      ${has(['admin','ke_toan'])?`<div class="acts"><button class="btn p" id="tsClose">⚙ Chốt lương tháng → Bảng lương & chi phí</button></div><p class="sub">Chốt lương tạo bảng lương từng người (trừ bảo hiểm, tạm ứng, khấu trừ) và đưa vào báo cáo lãi lỗ. Khi bấm “Trả lương” ở tab Bảng lương, tiền chi ghi vào sổ quỹ mục Chi lương. Bảng đã duyệt hoặc đã trả giữ nguyên.</p>`:''}</div>`;
+    const cb=h.querySelector('#tsClose');if(cb)cb.onclick=async()=>{const f=D.from,t=D.to;if(!confirm(`Chốt lương tháng ${TS.month.split('-').reverse().join('/')} từ bảng chấm công?`))return;
+      const {data,error}=await sb.rpc('khg_calc_salary',{p_type:'thang',p_start:f,p_end:t});toast(error?error.message:`Đã chốt lương ${data} người. Xem ở tab Bảng lương.`);load()}};
+  const cellPop=(e,pid,d)=>{const p=D.people.find(x=>x.id===pid);const c=p.cells[d]||{};const dd=D.days.find(x=>x.d===d);
+    const pp=tsPop(e.clientX+8,e.clientY+8,`<h4>${esc(p.full_name)} · ${d.split('-').reverse().join('/')} ${dd&&dd.t==='le'?'(lễ)':dd&&dd.t==='cuoi_tuan'?'(chủ nhật)':''}</h4>
+      <div class="row">${Object.entries(TS_ST).map(([k,v])=>`<button class="btn s" data-s="${k}" style="color:${v[2]};${c.s===k?'outline:2px solid '+v[2]:''}">${v[0]} ${v[1]}</button>`).join('')}</div>
+      <label>Giờ tăng ca</label><input type="number" step="0.5" min="0" max="16" id="pOt" value="${Number(c.ot)||''}" placeholder="0">
+      <label>Ghi chú</label><input id="pNt" value="${esc(c.n||'')}" placeholder="VD: tăng ca giao hàng tối, đi công tác…">
+      ${c.in||c.out?`<p class="sub">Chấm qua app: vào ${c.in||'—'} · ra ${c.out||'—'}${c.ap==='cho_duyet'?' · đang chờ duyệt':''}</p>`:''}
+      ${p.daily[d]?`<p class="sub">Lương ngày này: <b>${fmtN(p.daily[d])} đ</b></p>`:''}
+      <div class="row"><button class="btn p" id="pSave">Lưu</button>${c.s?'<button class="btn" id="pDel">Xóa ô</button>':''}</div>`);
+    let st=c.s||'co_mat';pp.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{st=b.dataset.s;pp.querySelectorAll('[data-s]').forEach(x=>x.style.outline=x===b?'2px solid '+TS_ST[x.dataset.s][2]:'')});
+    pp.querySelector('#pSave').onclick=async()=>{const ot=pp.querySelector('#pOt').value;if(await set([pid],[d],st,ot===''?0:ot,pp.querySelector('#pNt').value))pp.remove()};
+    const dl=pp.querySelector('#pDel');if(dl)dl.onclick=async()=>{if(await set([pid],[d],null))pp.remove()}};
+  const bind=()=>{const B=h.querySelector('#tsB');
+    B.querySelectorAll('td.c').forEach(td=>{td.onclick=async e=>{const [pid,d]=td.dataset.c.split('|');if(!canEdit){return}
+        if(TS.brush==='ot')return cellPop(e,pid,d);const p=D.people.find(x=>x.id===pid);const c=p.cells[d];
+        if(TS.brush==='x'){if(c)await set([pid],[d],null);return}
+        td.style.opacity=.4;if(c&&c.s===TS.brush&&c.ap!=='cho_duyet')await set([pid],[d],null);else await set([pid],[d],TS.brush)};
+      td.oncontextmenu=e=>{if(!canEdit)return;e.preventDefault();const [pid,d]=td.dataset.c.split('|');cellPop(e,pid,d)};
+      td.ondblclick=e=>{if(!canEdit)return;const [pid,d]=td.dataset.c.split('|');cellPop(e,pid,d)}});
+    if(!canEdit)return;
+    B.querySelectorAll('th.dh').forEach(th=>th.onclick=e=>{const d=th.dataset.d;const dd=D.days.find(x=>x.d===d);const b=TS_ST[TS.brush]?TS.brush:'co_mat';const ids=D.people.map(p=>p.id);
+      const pp=tsPop(e.clientX,e.clientY+10,`<h4>Ngày ${d.split('-').reverse().join('/')} ${dd.h?'· '+esc(dd.h):''}</h4>
+        <div class="row"><button class="btn p" id="hAll">${TS_ST[b][0]} Chấm “${TS_ST[b][1]}” cho cả ${ids.length} người</button><button class="btn" id="hClr">✕ Xóa cả cột</button></div>
+        ${canHol?`<label>Tên ngày lễ</label><input id="hNm" value="${esc(dd.h||'')}" placeholder="VD: Quốc khánh"><div class="row"><button class="btn" id="hHol">${dd.t==='le'?'Bỏ ngày lễ':'🎌 Đặt là ngày lễ (300%)'}</button></div>`:''}`);
+      pp.querySelector('#hAll').onclick=async()=>{if(await set(ids,[d],b))pp.remove()};
+      pp.querySelector('#hClr').onclick=async()=>{if(!confirm('Xóa chấm công cả ngày '+d.split('-').reverse().join('/')+'?'))return;if(await set(ids,[d],null))pp.remove()};
+      const hh=pp.querySelector('#hHol');if(hh)hh.onclick=async()=>{const {error}=await sb.rpc('khg_holiday_toggle',{p_d:d,p_name:pp.querySelector('#hNm').value});if(error)return toast(error.message);pp.remove();toast('Đã cập nhật ngày lễ');load()}});
+    B.querySelectorAll('[data-pn]').forEach(td=>td.onclick=e=>{const pid=td.dataset.pn;const p=D.people.find(x=>x.id===pid);const b=TS_ST[TS.brush]?TS.brush:'co_mat';const td0=today();
+      const work=D.days.filter(d=>d.t==='thuong'&&d.d<=td0).map(d=>d.d);const empty=work.filter(d=>!p.cells[d]);
+      const pp=tsPop(e.clientX+8,e.clientY,`<h4>${esc(p.full_name)} · ${esc(p.emp_code||'')}</h4><p class="sub">Lương ${p.salary_type==='thang'?'tháng':p.salary_type==='ngay'?'ngày':p.salary_type==='khoan'?'khoán':'chuyến'}: <b>${fmtN(p.base)}</b> · phụ cấp tháng ${fmtN(p.allw)} · chuyên cần ${fmtN(p.bonus)}</p>
+        <div class="row"><button class="btn p" id="rEmpty">✓ Chấm đủ công ${empty.length} ngày còn trống (đến hôm nay, trừ CN, lễ)</button></div>
+        <div class="row"><button class="btn" id="rAll">${TS_ST[b][0]} Chấm “${TS_ST[b][1]}” tất cả ${work.length} ngày làm việc</button></div>
+        <div class="row"><button class="btn" id="rEdit">✎ Sửa mức lương, phụ cấp</button></div>`);
+      pp.querySelector('#rEmpty').onclick=async()=>{if(!empty.length)return toast('Không còn ngày trống');if(await set([pid],empty,'co_mat'))pp.remove()};
+      pp.querySelector('#rAll').onclick=async()=>{if(await set([pid],work,b))pp.remove()};
+      pp.querySelector('#rEdit').onclick=async()=>{pp.remove();const {data:row}=await sb.from('khg_people').select('*').eq('id',pid).single();openForm('people',row,load)}})};
+  h.querySelector('#tsM').onchange=e=>{TS.month=e.target.value||today().slice(0,7);load()};
+  const shift=k=>{const [y,m]=TS.month.split('-').map(Number);const d=new Date(y,m-1+k,1);TS.month=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');h.querySelector('#tsM').value=TS.month;load()};
+  h.querySelector('#tsPrev').onclick=()=>shift(-1);h.querySelector('#tsNext').onclick=()=>shift(1);
+  h.querySelector('#tsPay').onchange=e=>{TS.showPay=e.target.checked;D&&draw()};
+  h.querySelector('#tsQ').oninput=e=>{TS.q=e.target.value;D&&draw()};
+  h.querySelector('#tsX').onclick=()=>{if(!D)return;const days=D.days;const L={co_mat:'X',nua_ngay:'1/2',vang:'V',nghi_phep:'P'};
+    xlsx('Bang_cham_cong_'+TS.month,{'Chấm công':D.people.map(p=>{const o={'Mã NV':p.emp_code,'Họ tên':p.full_name,'Vị trí':roleName(p.role)};days.forEach(d=>{const c=p.cells[d.d];o[d.d.slice(8)]=c?(L[c.s]||'')+(Number(c.ot)?' +'+c.ot+'h':''):''});
+        return Object.assign(o,{'Công':Number(p.wd),'Giờ tăng ca':Number(p.ot),'Lương cơ bản theo công':Number(p.bp),'Tiền tăng ca':Number(p.op),'Phụ cấp':Number(p.ap),'Tiền chuyến':Number(p.tp),'Chuyên cần':Number(p.bon),'Lương tạm tính':Number(p.gross)})}),
+      'Lương từng ngày':D.people.map(p=>{const o={'Mã NV':p.emp_code,'Họ tên':p.full_name};days.forEach(d=>o[d.d.slice(8)]=Number(p.daily[d.d]||0));o['Tổng']=Number(p.gross);return o}),
+      'Chi phí theo vị trí':(D.by_role||[]).map(r=>({'Vị trí':roleName(r.role),'Số người':r.n,'Lương phát sinh':Number(r.gross),'BH công ty đóng':Number(r.ins_er),'Tổng chi phí':Number(r.gross)+Number(r.ins_er)})),
+      'Ghi chú':D.people.flatMap(p=>Object.entries(p.cells).filter(([k,c])=>c.n||Number(c.ot)).map(([k,c])=>({'Mã NV':p.emp_code,'Họ tên':p.full_name,'Ngày':k.split('-').reverse().join('/'),'Tăng ca (giờ)':Number(c.ot)||0,'Ghi chú':c.n||''})))})};
+  await load();
+}
 async function viewPayroll(m){
   const canPay=has(['admin','ke_toan']);
   m.innerHTML=`<h2>Chấm công & lương</h2><p class="sub">Lương = lương cứng theo ngày công (chuẩn 26) + tăng ca (150% ngày thường, 200% ngày nghỉ, 300% lễ Tết theo Bộ luật Lao động) + lương chuyến + chuyên cần (đủ 26 công) + phụ cấp + khác − BHXH, BHYT, BHTN người lao động 10,5% (khi đã đến ngày đóng) − khấu trừ − ứng lương.</p>
-   <div class="subtabs" id="st"><button data-s="sum" class="on">Tổng hợp công</button><button data-s="rev">Duyệt chấm công</button><button data-s="att">Chấm công</button><button data-s="site">Điểm chấm công</button><button data-s="trip">Tiền chuyến tài xế</button>${canPay?'<button data-s="pi">Thưởng / phạt</button><button data-s="sal">Bảng lương</button>':''}</div><div id="h"></div>`;
+   <div class="subtabs" id="st"><button data-s="grid" class="on">📅 Bảng chấm công tháng</button><button data-s="sum">Tổng hợp công</button><button data-s="rev">Duyệt chấm công</button><button data-s="att">Chấm công</button><button data-s="site">Điểm chấm công</button><button data-s="trip">Tiền chuyến tài xế</button>${canPay?'<button data-s="pi">Thưởng / phạt</button><button data-s="sal">Bảng lương</button>':''}</div><div id="h"></div>`;
   const sw=async n=>{m.querySelectorAll('#st button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));const h=$('#h');h.innerHTML='';
+    if(n==='grid')return tsGrid(h);
     if(n==='att')return renderList('attendance',h);
     if(n==='rev')return attReview(h);
     if(n==='site')return renderList('work_sites',h,{extraBtns:'<button class="btn" id="here">📍 Thêm điểm tại vị trí hiện tại</button>',bind:(host,load)=>{host.querySelector('#here').onclick=async()=>{toast('Đang lấy vị trí…');const c=await KCam.gps();if(!c)return toast('Không lấy được vị trí');openForm('work_sites',null,load,{lat:+c.latitude.toFixed(6),lng:+c.longitude.toFixed(6),radius_m:300})}}});
@@ -1621,7 +1771,7 @@ async function viewPayroll(m){
         }});
     }
   };
-  m.querySelectorAll('#st button').forEach(b=>b.onclick=()=>sw(b.dataset.s));sw('sum');
+  m.querySelectorAll('#st button').forEach(b=>b.onclick=()=>sw(b.dataset.s));sw('grid');
 }
 
 // ===================== CÁC TRANG KHÁC =====================
@@ -3357,7 +3507,8 @@ VIEWS.exec=async m=>{
           <div class="it">Công nợ điểm bán <b>${fmtM(FN.dms_ar)}</b> · phải trả <b>${fmtM(FN.ap_open)}</b></div><div class="it">Tồn kho hàng hóa <b>${fmtM(FN.stock_value)}</b></div>
           <div class="it">🚚 ${fmtN(FN.fleet)} xe · ${fmtN(FN.equip)} xe nâng, cẩu · ${fmtN(FN.partners)} đối tác xe</div><div class="it">🏬 Kho ${fmtN(FN.warehouse_m2)} m² · cho thuê ${fmtN(FN.leased_m2)} m² (${FN.warehouse_m2?Math.round(FN.leased_m2*100/FN.warehouse_m2):0}% lấp đầy)</div>
           <div class="it">🪪 ${fmtN(FN.fd_drivers)} tài xế Fast Driver · 🏪 ${fmtN(FN.outlets)} điểm bán · 👥 ${fmtN(FN.customers)} khách</div>
-          <div class="it">${FN.leads_late?'<span class="pill red">'+FN.leads_late+' lead quá hạn</span>':'<span class="pill green">Lead đúng hạn</span>'} ${FN.tasks_late?'<span class="pill red">'+FN.tasks_late+' việc quá hạn</span>':'<span class="pill green">Việc đúng hạn</span>'} · ${fmtN(FN.leads_open)} lead đang xử lý</div></div></div></div>`;
+          <div class="it">${FN.leads_late?'<span class="pill red">'+FN.leads_late+' lead quá hạn</span>':'<span class="pill green">Lead đúng hạn</span>'} ${FN.tasks_late?'<span class="pill red">'+FN.tasks_late+' việc quá hạn</span>':'<span class="pill green">Việc đúng hạn</span>'} · ${fmtN(FN.leads_open)} lead đang xử lý</div></div></div></div>`+(()=>{const PR=FN.payroll||[];const t=PR.reduce((a,r)=>a+Number(r.gross||0),0),pd=PR.reduce((a,r)=>a+Number(r.paid||0),0);
+        return `<div class="card" style="margin-bottom:12px"><h3>👥 Chi phí lương nhân sự theo vị trí <span class="sub" style="font-weight:400">· từ bảng chấm công · tổng ${fmtM(t)} · đã trả ${fmtM(pd)}</span></h3>${PR.some(r=>Number(r.gross))?CH.hbar(PR.filter(r=>Number(r.gross)).map(r=>({name:(O.role[r.role]||r.role)+' ('+r.n+' người)',v:Number(r.gross)}))):'<div class="empty">Chưa có ngày công nào trong kỳ. Chấm công ở mục Chấm công & lương → Bảng chấm công tháng.</div>'}</div>`})();
       $('#exb').innerHTML=TOP+`<details class="card" id="exDt"><summary style="cursor:pointer;font-weight:700">Chi tiết vận tải & phân phối: chỉ tiêu, lũy kế, miền, tỉnh, kênh, sản phẩm, nhân viên</summary><div style="margin-top:12px"><div class="kpis">${K.slice(1).map(([l,v,id,t,f,h2],i)=>{const pv=vpct(v,t),pf=vpct(fc(v),t);return `<div class="kpi ${pv!=null&&pv<-10?'hot':''}"><div class="l">${l}</div><div class="v">${f(v)}</div><div class="h">${vtag(pv,'So chỉ tiêu')}${t!=null?` · CT ${f(t)}`:''}</div><div class="h">Dự báo ${f(fc(v))} · ${pf==null?'':vtag(pf,'vs CT')}</div>${h2?`<div class="h">${h2}</div>`:''}</div>`}).join('')}</div>
        <div class="grid3"><div class="card" style="grid-column:span 2"><h3>Doanh thu lũy kế so với đường chỉ tiêu</h3>${CH.line(days_.map(d=>d.slice(8,10)+'/'+d.slice(5,7)),lineS)}</div>
         <div class="card"><h3>Theo miền</h3>${CH.hbar(Object.entries(byReg).map(([name,v])=>({name,v})).sort((a,b)=>b.v-a.v))}</div>
