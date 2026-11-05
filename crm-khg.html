@@ -607,6 +607,8 @@ const O={
   pay_kind:{thuong:'Thưởng',phu_cap:'Phụ cấp',phat:'Phạt',khau_tru:'Khấu trừ'},
   adv_status:{cho_duyet:'Chờ duyệt',mo:'Đã chi – đang mở',da_quyet_toan:'Đã quyết toán',huy:'Hủy'},
   account:{tien_mat:'Tiền mặt',ngan_hang:'Ngân hàng'},
+  fuel_type:{dau_diesel:'Dầu diesel',xang:'Xăng'},
+  chk:{lech_thanh_tien:'Lệch thành tiền',gia_cao:'Giá cao hơn niêm yết',thieu_so_lit:'Thiếu số lít',gia_thap_bat_thuong:'Giá thấp bất thường'},
   docst:{chua_thu:'Chưa thu',da_thu:'Đã thu',that_lac:'Thất lạc',da_tra_khach:'Đã trả khách hàng',khong_can:'Không cần chứng từ'},
   invoice_type:{hd_vat:'Có hóa đơn VAT',hd_ban_le:'Hóa đơn bán lẻ',phieu_thu:'Phiếu thu, biên nhận',khong_hd:'Không lấy hóa đơn'},
   cash_dir:{thu:'Thu',chi:'Chi'},
@@ -710,8 +712,8 @@ const E={
    {k:'attendance_bonus',l:'Chuyên cần',t:'money',list:true},{k:'allowance',l:'Phụ cấp',t:'money',list:true},{k:'other_income',l:'Thu nhập khác',t:'money'},
    {h:'Khấu trừ'},{k:'insurance_salary',l:'Lương đóng BH',t:'money'},{k:'insurance_employee',l:'BH người lao động 10,5%',t:'money',list:true},{k:'deduction',l:'Khấu trừ khác',t:'money'},{k:'advance',l:'Đã ứng lương',t:'money',list:true},
    {k:'total',l:'Thực lĩnh',t:'money',ro:true,list:true},{k:'status',l:'Trạng thái',t:'sel',o:'pay_status',list:true,def:'nhap'},{k:'note',l:'Ghi chú',t:'text'}]},
- expenses:{table:'khg_expenses',title:'Chi phí',order:['spent_on',false],dateKey:'spent_on',files:'expense',search:['note','supplier','doc_no'],filters:[['item','exp_item'],['doc_status','docst'],['payment_method','pay_method'],['vehicle_id','@vehicles'],['person_id','@people']],
-  f:[{h:'Khoản chi'},{k:'spent_on',l:'Ngày',t:'date',list:true,req:true,def:()=>today()},{k:'item',l:'Khoản chi',t:'sel',o:'exp_item',list:true,def:'nhien_lieu',req:true},{k:'amount',l:'Số tiền',t:'money',list:true,req:true},{k:'doc_status',l:'Tình trạng chứng từ',t:'sel',o:'docst',list:true,hint:'Không lấy hóa đơn → tự là Không cần chứng từ'},{h:'Xe & tài xế'},{k:'vehicle_id',l:'Xe',t:'fk',ref:'vehicles',list:true},{k:'person_id',l:'Tài xế / người sử dụng (người đổ dầu)',t:'fk',ref:'people',list:true},{k:'order_id',l:'Đơn',t:'fk',ref:'orders'},{k:'liters',l:'Số lít',t:'num',list:true},{k:'odometer_km',l:'Số km đồng hồ',t:'num'},{k:'warehouse_id',l:'Kho',t:'fk',ref:'warehouses'},{h:'Nơi chi & hóa đơn'},{k:'supplier',l:'Cây xăng / nhà cung cấp',t:'text',list:true},{k:'station_address',l:'Địa chỉ cây xăng / nơi chi',t:'text',addr:true},{k:'invoice_type',l:'Hóa đơn',t:'sel',o:'invoice_type',list:true,def:'khong_hd',hint:'Có lấy hóa đơn hay không'},{k:'doc_no',l:'Số hóa đơn / chứng từ',t:'text'},{k:'vat_amount',l:'Tiền thuế VAT',t:'money'},{k:'payment_method',l:'Cách trả',t:'sel',o:'pay_method',list:true,def:'tien_mat',hint:'Ghi công nợ → tự tạo khoản phải trả'},{k:'advance_id',l:'Trừ vào tạm ứng',t:'fk',ref:'advances'},{h:'Chứng từ, hóa đơn gốc'},{k:'doc_due',l:'Hạn thu hồi chứng từ',t:'date',hint:'Tự đặt theo ngày giao/ngày chi + số ngày cài ở Theo dõi chứng từ'},{k:'doc_done_at',l:'Ngày hoàn tất chứng từ',t:'date',list:true,hint:'Tự ghi khi chuyển Đã thu / Đã trả khách'},{k:'doc_submitter',l:'Người nộp chứng từ',t:'fk',ref:'people',hint:'Mặc định tài xế / người chi'},{k:'doc_collector',l:'Người thu chứng từ',t:'fk',ref:'people',hint:'Tự ghi người bấm Đã thu'},{k:'doc_receiver',l:'Người nhận cuối',t:'fk',ref:'people',hint:'Kế toán giữ bản gốc hoặc người bên khách nhận lại – gõ tay nếu là người ngoài'},{k:'doc_note',l:'Ghi chú chứng từ',t:'text'},{h:'Hiệu lực (bảo hiểm, đăng kiểm…)'},{k:'valid_from',l:'Hiệu lực từ',t:'date'},{k:'valid_until',l:'Hiệu lực đến',t:'date',hint:'Bảo hiểm, đăng kiểm, phí đường bộ, bảo dưỡng → tự cập nhật hạn của xe'},{h:'Khác'},{k:'source',l:'Nguồn',t:'sel',o:'source',list:true,def:'web'},{k:'note',l:'Ghi chú',t:'text',list:true},
+ expenses:{table:'khg_expenses',title:'Chi phí',onForm:(frm,row)=>priceCalc(frm,{q:['liters','quantity'],u:'unit_price',a:'amount',fuel:()=>{const e=frm.querySelector('[name="item"]');return !!e&&e.value==='nhien_lieu'},ft:'fuel_type',d:'spent_on'}),order:['spent_on',false],dateKey:'spent_on',files:'expense',search:['note','supplier','doc_no'],filters:[['item','exp_item'],['doc_status','docst'],['payment_method','pay_method'],['vehicle_id','@vehicles'],['person_id','@people']],
+  f:[{h:'Khoản chi'},{k:'spent_on',l:'Ngày',t:'date',list:true,req:true,def:()=>today()},{k:'item',l:'Khoản chi',t:'sel',o:'exp_item',list:true,def:'nhien_lieu',req:true},{k:'amount',l:'Số tiền',t:'money',list:true,req:true},{k:'doc_status',l:'Tình trạng chứng từ',t:'sel',o:'docst',list:true,def:'chua_thu',hint:'Không lấy hóa đơn → tự là Không cần chứng từ'},{h:'Xe & tài xế'},{k:'vehicle_id',l:'Xe',t:'fk',ref:'vehicles',list:true},{k:'person_id',l:'Tài xế / người sử dụng (người đổ dầu)',t:'fk',ref:'people',list:true},{k:'order_id',l:'Đơn',t:'fk',ref:'orders'},{k:'odometer_km',l:'Số km đồng hồ',t:'num'},{k:'warehouse_id',l:'Kho',t:'fk',ref:'warehouses'},{h:'Số lượng · đơn giá (kiểm tra số tài xế báo)'},{k:'fuel_type',l:'Loại nhiên liệu',t:'sel',o:'fuel_type',def:'dau_diesel'},{k:'liters',l:'Số lít',t:'num',list:true},{k:'quantity',l:'Số lượng (khoản khác)',t:'num'},{k:'unit',l:'Đơn vị',t:'text'},{k:'unit_price',l:'Đơn giá',t:'money',list:true,hint:'Nhiên liệu: đơn giá/lít trên bill cây xăng'},{k:'calc_amount',l:'Thành tiền tính lại (SL × đơn giá)',t:'money',ro:true},{k:'market_price',l:'Giá niêm yết ngày đổ',t:'money',ro:true},{k:'check_flags',l:'Kiểm tra giá',t:'arr',ro:true,list:true},{h:'Nơi chi & hóa đơn'},{k:'supplier',l:'Cây xăng / nhà cung cấp',t:'text',list:true},{k:'station_address',l:'Địa chỉ cây xăng / nơi chi',t:'text',addr:true},{k:'invoice_type',l:'Hóa đơn',t:'sel',o:'invoice_type',list:true,def:'khong_hd',hint:'Có lấy hóa đơn hay không'},{k:'doc_no',l:'Số hóa đơn / chứng từ',t:'text'},{k:'vat_amount',l:'Tiền thuế VAT',t:'money'},{k:'payment_method',l:'Cách trả',t:'sel',o:'pay_method',list:true,def:'tien_mat',hint:'Ghi công nợ → tự tạo khoản phải trả'},{k:'advance_id',l:'Trừ vào tạm ứng',t:'fk',ref:'advances'},{h:'Chứng từ, hóa đơn gốc'},{k:'doc_due',l:'Hạn thu hồi chứng từ',t:'date',hint:'Tự đặt theo ngày giao/ngày chi + số ngày cài ở Theo dõi chứng từ'},{k:'doc_done_at',l:'Ngày hoàn tất chứng từ',t:'date',list:true,hint:'Tự ghi khi chuyển Đã thu / Đã trả khách'},{k:'doc_submitter',l:'Người nộp chứng từ',t:'fk',ref:'people',hint:'Mặc định tài xế / người chi'},{k:'doc_collector',l:'Người thu chứng từ',t:'fk',ref:'people',hint:'Tự ghi người bấm Đã thu'},{k:'doc_receiver',l:'Người nhận cuối',t:'fk',ref:'people',hint:'Kế toán giữ bản gốc hoặc người bên khách nhận lại – gõ tay nếu là người ngoài'},{k:'doc_note',l:'Ghi chú chứng từ',t:'text'},{h:'Hiệu lực (bảo hiểm, đăng kiểm…)'},{k:'valid_from',l:'Hiệu lực từ',t:'date'},{k:'valid_until',l:'Hiệu lực đến',t:'date',hint:'Bảo hiểm, đăng kiểm, phí đường bộ, bảo dưỡng → tự cập nhật hạn của xe'},{h:'Khác'},{k:'source',l:'Nguồn',t:'sel',o:'source',list:true,def:'web'},{k:'note',l:'Ghi chú',t:'text',list:true},
    ...PPL({pay:'Người chi tiền cho tài xế / thủ quỹ',rec:'Người nhận tiền'})]},
  pay_items:{table:'khg_pay_items',title:'Thưởng, phạt, phụ cấp',order:['item_date',false],dateKey:'item_date',filters:[['kind','pay_kind'],['person_id','@people']],
   f:[{k:'item_date',l:'Ngày',t:'date',list:true,req:true,def:()=>today()},{k:'person_id',l:'Nhân sự',t:'fk',ref:'people',list:true,req:true},{k:'kind',l:'Loại',t:'sel',o:'pay_kind',list:true,req:true,def:'thuong'},
@@ -732,10 +734,10 @@ const E={
   f:[{k:'kind',l:'Loại',t:'sel',o:'pay_kind',list:true,req:true,def:'nha_cung_cap'},{k:'party',l:'Trả cho',t:'text',list:true,req:true},{k:'invoice_no',l:'Số hóa đơn',t:'text',list:true},
    {k:'order_id',l:'Đơn',t:'fk',ref:'orders'},{k:'amount',l:'Phải trả',t:'money',list:true,req:true},{k:'issued_on',l:'Ngày ghi nợ',t:'date',list:true,def:()=>today()},{k:'due_on',l:'Hạn trả',t:'date',list:true},
    {k:'paid_amount',l:'Đã trả',t:'money',list:true,ro:true},{k:'paid_on',l:'Ngày trả gần nhất',t:'date',ro:true},{k:'note',l:'Ghi chú',t:'text',list:true},...PPL({req:'Người đề nghị thanh toán',pay:'Người chi tiền',rec:'Người nhận tiền (bên bán)'})]},
- purchases:{table:'khg_purchases',title:'Mua hàng',order:['bought_on',false],dateKey:'bought_on',search:['supplier','item','note'],filters:[['category','pur_cat'],['status','pur_status']],
+ purchases:{table:'khg_purchases',title:'Mua hàng',onForm:frm=>priceCalc(frm,{q:['qty'],u:'unit_price',a:'amount'}),order:['bought_on',false],dateKey:'bought_on',search:['supplier','item','note'],filters:[['category','pur_cat'],['status','pur_status']],
   f:[{k:'bought_on',l:'Ngày',t:'date',list:true,req:true,def:()=>today()},{k:'supplier',l:'Nhà cung cấp',t:'text',list:true},{k:'item',l:'Mặt hàng',t:'text',list:true,req:true},
-   {k:'category',l:'Loại',t:'sel',o:'pur_cat',list:true,def:'hang_phan_phoi'},{k:'qty',l:'Số lượng',t:'num',list:true},{k:'unit',l:'Đơn vị',t:'text',list:true},
-   {k:'amount',l:'Thành tiền',t:'money',list:true,req:true},{k:'status',l:'Trạng thái',t:'sel',o:'pur_status',list:true,def:'dat_hang'},{k:'note',l:'Ghi chú',t:'text'},...PPL({req:'Người đề nghị mua',pay:'Người chi tiền',rec:'Người nhận hàng'})]},
+   {k:'category',l:'Loại',t:'sel',o:'pur_cat',list:true,def:'hang_phan_phoi'},{k:'qty',l:'Số lượng',t:'num',list:true},{k:'unit',l:'Đơn vị',t:'text',list:true},{k:'unit_price',l:'Đơn giá',t:'money',list:true},
+   {k:'amount',l:'Thành tiền',t:'money',list:true,req:true},{k:'check_flags',l:'Kiểm tra giá',t:'arr',ro:true,list:true},{k:'status',l:'Trạng thái',t:'sel',o:'pur_status',list:true,def:'dat_hang'},{k:'note',l:'Ghi chú',t:'text'},...PPL({req:'Người đề nghị mua',pay:'Người chi tiền',rec:'Người nhận hàng'})]},
  contracts:{table:'khg_contracts',title:'Hợp đồng, văn bản & chứng từ',order:['created_at',false],files:'contract',search:['party','contract_no','commitments','note'],filters:[['kind','con_kind'],['status','con_status']],
   f:[{k:'kind',l:'Loại',t:'sel',o:'con_kind',list:true,req:true},{k:'party',l:'Bên ký',t:'text',list:true,req:true},{k:'customer_id',l:'Khách (nếu có)',t:'fk',ref:'customers'},
    {k:'contract_no',l:'Số hợp đồng',t:'text',list:true},{k:'start_date',l:'Bắt đầu',t:'date',list:true},{k:'end_date',l:'Kết thúc',t:'date',list:true},{k:'value',l:'Giá trị',t:'money',list:true},
@@ -769,7 +771,7 @@ const fields=cfg=>cfg.f.filter(x=>x.k);
 // ===== Ô liên kết: chọn dữ liệu có sẵn hoặc gõ tay =====
 const FKMAP={khg_orders:{customer_id:'customer_text',vehicle_id:'plate_text'}};
 const FKT_TABLES=new Set(['khg_orders','khg_requests','khg_leases','khg_people','khg_attendance','khg_salary','khg_expenses','khg_pay_items','khg_advances','khg_cash','khg_receivables','khg_payables','khg_purchases','khg_contracts','khg_wallet_tx','khg_cod_settlements','khg_pay_accounts','khg_files','khg_partners','khg_partner_drivers','khg_order_offers','khg_partner_settlements','khg_partner_expenses','khg_fd_training_regs','khg_driver_jobs','khg_fd_exams','khg_driver_job_apps']);
-function PPL(o={}){return [{h:'Người liên quan'},{k:'requested_by',l:o.req||'Người đề nghị',t:'fk',ref:'people',list:true,def:()=>ME&&ME.id},{k:'approved_by',l:'Người duyệt',t:'fk',ref:'people',list:true,hint:'Khi bấm duyệt, hệ thống ghi đúng người bấm'},
+function PPL(o={}){return [{h:'Người liên quan'},{k:'requested_by',l:o.req||'Người đề nghị',t:'fk',ref:'people',list:true,hint:'Gõ tên hoặc chọn trong danh sách'},{k:'approved_by',l:'Người duyệt',t:'fk',ref:'people',list:true,hint:'Khi bấm duyệt, hệ thống ghi đúng người bấm'},
   {k:'paid_by',l:o.pay||'Người chi tiền',t:'fk',ref:'people'},{k:'receiver_id',l:o.rec||'Người nhận tiền',t:'fk',ref:'people'},{k:'watchers',l:'Người theo dõi',t:'fkm',ref:'people',hint:'Chọn nhiều người; gõ tên rồi Enter'}]}
 function fkLabels(ref){const m=REF[ref]||{};const cnt={},L={},I={};Object.entries(m).sort((a,b)=>String(a[1]).localeCompare(String(b[1]),'vi')).forEach(([id,l])=>{let lab=String(l??'').trim()||'(không tên)';const k0=lab.toLowerCase();if(cnt[k0]){cnt[k0]++;lab=lab+' ('+cnt[k0]+')'}else cnt[k0]=1;L[id]=lab;I[lab.toLowerCase()]=id});return {L,I}}
 function fkDatalists(cfg){[...new Set(fields(cfg).filter(f=>f.t==='fk'||f.t==='fkm').map(f=>f.ref))].forEach(ref=>{const id='dl_'+ref;let dl=document.getElementById(id);if(!dl){dl=document.createElement('datalist');dl.id=id;document.body.appendChild(dl)}dl.innerHTML=Object.values(fkLabels(ref).L).map(l=>`<option value="${esc(l)}">`).join('')})}
@@ -819,7 +821,7 @@ const isAdmin=()=>ROLES.includes('admin');
 // thanh cuộn tới link bản ghi: entity → mục
 const ENT_VIEW={work_sites:'payroll',wallet_tx:'wallet',cod_settlements:'wallet',pay_accounts:'wallet',orders:'orders',customers:'customers',vehicles:'fleet',equipment:'fleet',people:'hr',expenses:'expenses',advances:'expenses',attendance:'payroll',salary:'payroll',pay_items:'payroll',
   cash:'accounting',receivables:'accounting',payables:'accounting',purchases:'purchases',contracts:'contracts',leases:'wh',warehouses:'wh',requests:'requests',policies:'policies',documents:'documents',files:'filesv'};
-const LOCK=['code','created_at','total','settled_amount','paid_amount','paid_on','size_bytes','entity_id','telegram_chat_id','trip_status'];
+const LOCK=['check_flags','calc_amount','market_price','code','created_at','total','settled_amount','paid_amount','paid_on','size_bytes','entity_id','telegram_chat_id','trip_status'];
 const recLink=(name,id)=>location.origin+location.pathname+'#rec/'+name+'/'+id;
 const copyText=async(t,msg)=>{try{await navigator.clipboard.writeText(t);toast(msg||'Đã sao chép')}catch(e){prompt('Sao chép:',t)}};
 
@@ -839,6 +841,7 @@ async function ensureRefs(cfg){await Promise.all([...new Set(fields(cfg).filter(
 
 function cell(f,v,r,cfg){
   if(f.k==='doc_status'&&r)return docPill(r);
+  if(f.k==='check_flags')return chkPill(v,r);
   if((v==null||v===''||(Array.isArray(v)&&!v.length))&&(f.t==='fk'||f.t==='fkm')&&r){const m=fkManual(cfg||CUR_CFG,r,f.k);if(m)return `<i title="Nhập tay" style="color:#8A4B06">✎ ${esc(m)}</i>`}
   if(f.t==='fkm'&&Array.isArray(v)){const L=REF[f.ref]||{};return esc(v.map(x=>L[x]||'?').join(', '))+(r&&r.fk_text&&r.fk_text[f.k]?', ✎ '+esc(r.fk_text[f.k]):'')}
   if(v==null||v==='')return '';
@@ -856,6 +859,7 @@ function cell(f,v,r,cfg){
   }
 }
 function plain(f,v,r,cfg){
+  if(f.k==='check_flags')return (v||[]).map(x=>(O.chk||{})[x]||x).join(', ')||'OK';
   if((v==null||v===''||(Array.isArray(v)&&!v.length))&&(f.t==='fk'||f.t==='fkm')&&r){const m=fkManual(cfg||CUR_CFG,r,f.k);if(m)return m}
   if(f.t==='fkm'&&Array.isArray(v)){const L=REF[f.ref]||{};return v.map(x=>L[x]||'').filter(Boolean).concat(r&&r.fk_text&&r.fk_text[f.k]?[r.fk_text[f.k]]:[]).join(', ')}
   if(v==null||v==='')return '';
@@ -1007,9 +1011,37 @@ async function renderList(name,host,opts={}){
   host.querySelectorAll('[data-doc],[data-pdf]').forEach(b=>b.onclick=async()=>{b.disabled=true;const {data,error}=await query(5000);b.disabled=false;if(error)return toast(error.message);await listExport(b.dataset.doc!==undefined?'doc':'pdf',cfg,data||[])});
   if(opts.bind) opts.bind(host,load);
   await load();
-  if(['orders','expenses'].includes(name))try{docCss();docBanner(host,name)}catch(e){}
+  if(['orders','expenses'].includes(name))try{docCss();docBanner(host,name).then(()=>{if(name==='expenses')priceBanner(host)})}catch(e){}
   return load;
 }
+
+
+// ===================== KIỂM TRA ĐƠN GIÁ · THÀNH TIỀN (v21) =====================
+function chkPill(v,r){v=v||[];if(!v.length)return r&&(r.unit_price||r.calc_amount)?'<span class="pill green">✓ Khớp</span>':'';
+  return v.map(x=>{let t=(O.chk||{})[x]||x;if(x==='gia_cao'&&r&&r.market_price){const e=r.unit_price||(r.liters?r.amount/r.liters:0);if(e)t+=` +${((e-r.market_price)*100/r.market_price).toFixed(1).replace('.',',')}%`}
+    if(x==='lech_thanh_tien'&&r&&r.calc_amount)t+=` ${fmtN(r.amount-r.calc_amount)}`;return `<span class="pill ${x==='thieu_so_lit'?'amber':'red'}" title="${esc(x==='gia_cao'?'Đơn giá cao hơn giá Petrolimex niêm yết ngày đổ':x==='lech_thanh_tien'?'Số tiền khác số lượng × đơn giá':'')}">⚠ ${esc(t)}</span>`}).join(' ')}
+const MKT={};
+async function priceCalc(frm,o){if(!frm)return;const g=k=>frm.querySelector(`[name="${k}"]`);const num=k=>{const e=g(k);if(!e)return 0;return e.dataset.money!==undefined?(moneyParse(e.value)||0):(Number(e.value)||0)};
+  let box=frm.querySelector('#pcBox');if(!box){box=document.createElement('div');box.id='pcBox';box.className='w';box.style.cssText='grid-column:1/-1;border-radius:10px;padding:9px 12px;font-size:13px;border:1px solid var(--line);background:#F9FAFB';
+    const anc=g(o.u)?g(o.u).closest('label'):null;if(anc)anc.insertAdjacentElement('afterend',box);else frm.appendChild(box)}
+  const run=async()=>{const isF=o.fuel?o.fuel():false;const qk=o.q.find(k=>g(k)&&num(k))||o.q.find(k=>g(k));const q=qk?num(qk):0,u=num(o.u),a=num(o.a);const parts=[];let bad=false;
+    if(q&&u){const c=Math.round(q*u);parts.push(`${fmtN(q)} ${isF?'lít':(g('unit')&&g('unit').value)||''} × ${fmtN(u)} = <b>${fmtN(c)} đ</b>`);
+      if(a){const d=a-c;if(Math.abs(d)>Math.max(1000,c*0.005)){bad=true;parts.push(`<b style="color:#B91C1C">⚠ Số tiền ghi ${fmtN(a)} lệch ${d>0?'+':''}${fmtN(d)} đ</b>`)}else parts.push('<b style="color:#15803D">✓ khớp số tiền</b>')}
+      else parts.push('<button type="button" class="btn s" data-pcfill>Điền số tiền = '+fmtN(c)+'</button>')}
+    else if(q&&a){parts.push(`Đơn giá tính ra: <b>${fmtN(Math.round(a/q))} đ${isF?'/lít':''}</b> <button type="button" class="btn s" data-pcup>Điền đơn giá</button>`)}
+    else parts.push(isF?'Nhập số lít và đơn giá/lít trên bill để đối chiếu số tiền tài xế báo.':'Nhập số lượng và đơn giá để kiểm tra thành tiền.');
+    if(isF&&(u||(q&&a))){const d=(g(o.d)&&g(o.d).value)||today(),t=(o.ft&&g(o.ft)&&g(o.ft).value)||'dau_diesel';const key=d+'|'+t;
+      if(MKT[key]===undefined){const {data}=await sb.rpc('khg_fuel_market',{p_date:d,p_type:t});MKT[key]=data||null}const mk=MKT[key];const e=u||a/q;
+      if(mk){const pc=(e-mk)*100/mk;const hi=pc>3;if(hi)bad=true;parts.push(`Giá niêm yết ${t==='xang'?'xăng':'dầu'} ngày ${fmtD(d)}: <b>${fmtN(mk)} đ/lít</b> · đơn giá báo ${fmtN(Math.round(e))} (${pc>=0?'+':''}${pc.toFixed(1).replace('.',',')}%)${hi?' <b style="color:#B91C1C">⚠ cao hơn mức cho phép 3% – yêu cầu hóa đơn, tên và địa chỉ cây xăng</b>':pc<-20?' <b style="color:#B45309">⚠ thấp bất thường – kiểm tra số lít</b>':' ✓'}`);
+        if(q&&mk)parts.push(`Theo giá niêm yết: ${fmtN(q)} lít ≈ ${fmtN(Math.round(q*mk))} đ${a?` · chênh ${fmtN(Math.round(a-q*mk))} đ`:''}`)}}
+    box.style.background=bad?'#FEF2F2':'#F0FDF4';box.style.borderColor=bad?'#FECACA':'#BBF7D0';box.innerHTML=parts.join('<br>');
+    const fb=box.querySelector('[data-pcfill]');if(fb)fb.onclick=()=>{g(o.a).value=moneyFmt(Math.round(q*u));g(o.a).dispatchEvent(new Event('input',{bubbles:true}));run()};
+    const ub=box.querySelector('[data-pcup]');if(ub)ub.onclick=()=>{g(o.u).value=moneyFmt(Math.round(a/q));g(o.u).dispatchEvent(new Event('input',{bubbles:true}));run()}};
+  [...o.q,o.u,o.a,o.ft,o.d,'item','kind','unit'].filter(Boolean).forEach(k=>{const e=g(k);if(e){e.addEventListener('input',run);e.addEventListener('change',run)}});run()}
+async function priceBanner(host){const {data:A}=await sb.rpc('khg_price_alerts');if(!A)return;const n=A.lech+A.gia_cao+A.thap;if(!n&&!A.thieu)return;const d=document.createElement('div');d.className='docwarn';d.style.background='#FFF7ED';d.style.borderColor='#FED7AA';d.style.color='#9A3412';
+  d.innerHTML=`<span>💲 <b>Kiểm tra đơn giá:</b> ${A.gia_cao?`<b>${A.gia_cao}</b> lần đổ dầu giá cao hơn niêm yết quá ${A.tol}%${A.over_amt>0?' (chênh '+fmtM(A.over_amt)+')':''}`:''}${A.lech?`${A.gia_cao?' · ':''}<b>${A.lech}</b> khoản lệch thành tiền`:''}${A.thap?` · <b>${A.thap}</b> giá thấp bất thường`:''}${A.thieu?` · ${A.thieu} lần đổ dầu thiếu số lít`:''}</span><span style="flex:1"></span><button class="btn s" data-pb>Xem các khoản cần kiểm tra</button>`;
+  const ref=host.querySelector('.docwarn');if(ref)ref.insertAdjacentElement('afterend',d);else host.prepend(d);
+  d.querySelector('[data-pb]').onclick=()=>drill('expenses',{where:q=>q.neq('check_flags','{}'),allDates:true,title:'Chi phí cần kiểm tra đơn giá, thành tiền'})}
 
 // ===================== THEO DÕI CHỨNG TỪ (v19) =====================
 const DOC_DONE=['da_thu','da_tra_khach','khong_can'];
@@ -1356,7 +1388,7 @@ function readForm(cfg,frm,row){
   delete data.__fkm;if(useFT&&ftTouched)data.fk_text=ft;
   return data;
 }
-function modal(html,wide){const b=$('#modal-box');b.style.maxWidth=wide?'1240px':'';b.innerHTML=html;$('#modal').classList.remove('hidden')}
+function modal(html,wide){$('#modal')._dirty=false;const b=$('#modal-box');b.style.maxWidth=wide?'1240px':'';b.innerHTML=html;$('#modal').classList.remove('hidden')}
 const closeModal=()=>$('#modal').classList.add('hidden');window.closeModal=closeModal;
 async function openForm(name,row,after,defaults={},extraHTML=''){
   const base=E[name];await ensureRefs(base);
@@ -1486,7 +1518,12 @@ function quickForm(title,flds,onSubmit,defaults={}){
   $('#qc').onclick=closeModal;
   $('#qs').onclick=async()=>{const f=$('#qf');if(!f.reportValidity())return;$('#qs').disabled=true;const ok=await onSubmit(readForm(cfg,f));$('#qs').disabled=false;if(ok!==false)closeModal()};
 }
-$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+{let downOnBg=false;const M=$('#modal');
+  // chỉ đóng khi bấm hẳn vào vùng tối (nhấn và nhả chuột đều ở ngoài), kéo chuột bôi chữ ra ngoài không làm mất form
+  M.addEventListener('mousedown',e=>{downOnBg=e.target===M},true);M.addEventListener('touchstart',e=>{downOnBg=e.target===M},{capture:true,passive:true});
+  M.addEventListener('input',()=>{M._dirty=true},true);M.addEventListener('change',()=>{M._dirty=true},true);
+  M.addEventListener('click',e=>{if(e.target!==M||!downOnBg){downOnBg=false;return}downOnBg=false;
+    if(M._dirty&&M.querySelector('#frm,form,.dged')&&!confirm('Bạn đang nhập dở. Đóng và bỏ các thay đổi chưa lưu?'))return;closeModal()})};
 
 // Chi phí có hạn → cập nhật hạn giấy tờ của xe
 E.expenses.afterSave=async(r)=>{
@@ -2619,8 +2656,8 @@ Object.assign(E,{
    {k:'trips',l:'Số chuyến',t:'num',list:true,ro:true},{k:'amount',l:'Cước chuyến',t:'money',list:true,ro:true},{k:'extra',l:'Phụ phí cộng thêm',t:'money'},{k:'deductions',l:'Khấu trừ (phạt, tạm ứng…)',t:'money'},
    {k:'cod_total',l:'COD đối tác đang giữ',t:'money',list:true},{k:'net',l:'KHG phải trả',t:'money',list:true,ro:true},{k:'status',l:'Trạng thái',t:'sel',o:'pset_status',list:true},
    {k:'partner_note',l:'Ý kiến đối tác',t:'text',ro:true,list:true},{k:'paid_at',l:'Thanh toán lúc',t:'dt'},{k:'paid_ref',l:'Số UNC / tham chiếu',t:'text'},{k:'note',l:'Ghi chú (đối tác xem được)',t:'area'}]},
- pexpenses:{table:'khg_partner_expenses',title:'Chi phí đối tác tự ghi',order:['spent_on',false],noNew:true,dateKey:'spent_on',filters:[['partner_id','@partners'],['kind','pexp_kind']],
-  f:[{k:'partner_id',l:'Đối tác',t:'fk',ref:'partners',list:true},{k:'spent_on',l:'Ngày',t:'date',list:true},{k:'vehicle_id',l:'Xe',t:'fk',ref:'vehicles',list:true},{k:'kind',l:'Khoản',t:'sel',o:'pexp_kind',list:true},{k:'amount',l:'Số tiền',t:'money',list:true},{k:'note',l:'Ghi chú',t:'text',list:true}]},
+ pexpenses:{table:'khg_partner_expenses',title:'Chi phí đối tác tự ghi',onForm:frm=>priceCalc(frm,{q:['quantity'],u:'unit_price',a:'amount',fuel:()=>{const e=frm.querySelector('[name="kind"]');return !!e&&e.value==='nhien_lieu'}}),order:['spent_on',false],noNew:true,dateKey:'spent_on',filters:[['partner_id','@partners'],['kind','pexp_kind']],
+  f:[{k:'partner_id',l:'Đối tác',t:'fk',ref:'partners',list:true},{k:'spent_on',l:'Ngày',t:'date',list:true},{k:'vehicle_id',l:'Xe',t:'fk',ref:'vehicles',list:true},{k:'kind',l:'Khoản',t:'sel',o:'pexp_kind',list:true},{k:'quantity',l:'Số lượng / số lít',t:'num',list:true},{k:'unit_price',l:'Đơn giá',t:'money',list:true},{k:'amount',l:'Số tiền',t:'money',list:true},{k:'check_flags',l:'Kiểm tra giá',t:'arr',ro:true,list:true},{k:'note',l:'Ghi chú',t:'text',list:true}]},
  fd_drivers:{table:'khg_fd_drivers',title:'Tài xế Fast Driver',order:['created_at',false],files:'fd_driver',search:['full_name','phone','code','license_no','province'],filters:[['status','fd_status']],label:'full_name',
   f:[{h:'Thông tin'},{k:'code',l:'Mã',t:'text',list:true,ro:true},{k:'full_name',l:'Họ tên',t:'text',list:true,req:true},{k:'phone',l:'SĐT (đăng nhập)',t:'text',list:true,req:true},{k:'birth_year',l:'Năm sinh',t:'num'},
    {k:'gender',l:'Giới tính',t:'text'},{k:'id_number',l:'Số CCCD',t:'text'},{k:'address',l:'Địa chỉ',t:'text'},{k:'province',l:'Tỉnh/TP',t:'text',list:true},{k:'areas',l:'Khu vực nhận việc',t:'arr'},

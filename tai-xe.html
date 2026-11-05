@@ -578,7 +578,7 @@ V.chi=async m=>{
     <label class="f">Đơn hàng liên quan<select class="in" id="eor"><option value="">— không gắn đơn —</option></select></label>
     <label class="f">Chứng từ<select class="in" id="eiv"><option value="hd_vat">Hóa đơn VAT</option><option value="hd_ban_le">Hóa đơn bán lẻ / bill</option><option value="phieu_thu">Phiếu thu / vé</option><option value="khong_hd" selected>Không có hóa đơn</option></select></label>
     <label class="big o" style="display:block;text-align:center;margin-bottom:10px">📷 Chụp hóa đơn / vé (<span id="ecn">0</span>)<input id="eph" type="file" accept="image/*" capture="environment" multiple class="hidden"></label>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><label class="f">Số lít<input class="in" id="eli" type="number" inputmode="decimal"></label><label class="f">Km đồng hồ<input class="in" id="ekm" type="number" inputmode="numeric"></label></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><label class="f"><span id="eliL">Số lít</span><input class="in" id="eli" type="number" inputmode="decimal" step="any"></label><label class="f"><span id="eupL">Đơn giá / lít (đ)</span><input class="in" id="eup" type="number" inputmode="numeric" placeholder="VD 29440"></label></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="efr"><label class="f">Loại nhiên liệu<select class="in" id="eft"><option value="dau_diesel">Dầu diesel</option><option value="xang">Xăng</option></select></label><label class="f">Km đồng hồ<input class="in" id="ekm" type="number" inputmode="numeric"></label></div><div id="eck" class="small" style="margin:-2px 0 10px;min-height:16px"></div>
     <label class="f">Xe<select class="in" id="eve">${Object.values(VEH).sort((a,b)=>a.plate.localeCompare(b.plate)).map(v=>`<option value="${v.id}" ${v.id===ME.vehicle_id?'selected':''}>${esc(v.plate)}</option>`).join('')}<option value="">Không gắn xe</option></select></label>
     <label class="f">Cách trả<select class="in" id="epm"><option value="tien_mat">Tiền mặt của tôi / công ty</option><option value="cong_no">Ghi nợ (cây xăng, garage)</option><option value="chuyen_khoan">Công ty chuyển khoản</option><option value="the">Thẻ công ty</option>${openAdv.length?'<option value="tam_ung">Trừ vào tiền tạm ứng</option>':''}</select></label>
     <label class="f">Nơi chi / cây xăng<input class="in" id="esu" placeholder="VD Petrolimex QL13"></label>
@@ -592,10 +592,18 @@ V.chi=async m=>{
   $('#eor').innerHTML+= (myo||[]).map(x=>`<option value="${x.id}">${esc(x.code)}</option>`).join('');
   let ephs=[];$('#eph').onchange=e=>{ephs=[...e.target.files];$('#ecn').textContent=ephs.length};
   let item='nhien_lieu';
-  m.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{item=b.dataset.i;m.querySelectorAll('[data-i]').forEach(x=>x.classList.toggle('red',x===b))});
+  const MK={};const mkt=async(t)=>{if(MK[t]!==undefined)return MK[t];const {data}=await sb.rpc('khg_fuel_market',{p_date:today(),p_type:t});MK[t]=data||null;return MK[t]};
+  const chk=async()=>{const fuel=item==='nhien_lieu';$('#eliL').textContent=fuel?'Số lít':'Số lượng';$('#eupL').textContent=fuel?'Đơn giá / lít (đ)':'Đơn giá (đ)';$('#eft').closest('label').style.visibility=fuel?'visible':'hidden';
+    const q=Number($('#eli').value)||0,u=Number($('#eup').value)||0,a=Number($('#eam').value)||0;const box=$('#eck');const f=n=>Math.round(n).toLocaleString('vi-VN');let h='';
+    if(q&&u){const c=Math.round(q*u);h=`${q} × ${f(u)} = <b>${f(c)} đ</b>`+(a?'':` <button type="button" class="pill" style="border:0" onclick="document.getElementById('eam').value=${c};document.getElementById('eam').dispatchEvent(new Event('input'))">Điền số tiền</button>`);if(a&&Math.abs(a-c)>Math.max(1000,c*0.005))h+=` · <b style="color:var(--red)">lệch ${f(a-c)} đ so với số tiền bạn nhập – kiểm tra lại</b>`;else if(a)h+=' · <b style="color:#1E7A4C">khớp ✓</b>'}
+    else if(q&&a&&fuel)h=`Đơn giá tính ra ${f(a/q)} đ/lít`;
+    if(fuel&&(u||(q&&a))){const mk=await mkt($('#eft').value);const e=u||a/q;if(mk&&mk>1000){const d=(e-mk)*100/mk;h+=`<br>Giá niêm yết hôm nay ${f(mk)} đ/lít${Math.abs(d)>=0.5?` · ${d>0?'cao hơn':'thấp hơn'} ${Math.abs(d).toFixed(1)}%`:''}${d>3?' <b style="color:var(--red)">– ghi rõ tên, địa chỉ cây xăng và chụp hóa đơn</b>':''}`}}
+    box.innerHTML=h};
+  ['eli','eup','eam'].forEach(id=>$('#'+id).addEventListener('input',chk));$('#eft').onchange=chk;
+  m.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{item=b.dataset.i;m.querySelectorAll('[data-i]').forEach(x=>x.classList.toggle('red',x===b));chk()});chk();
   $('#esave').onclick=async()=>{const amt=Number($('#eam').value);if(!amt)return toast('Nhập số tiền');$('#esave').disabled=true;
     const pm=$('#epm').value;
-    const {data:ins,error}=await sb.from('khg_expenses').insert({spent_on:today(),item,amount:amt,liters:Number($('#eli').value)||null,odometer_km:Number($('#ekm').value)||null,vehicle_id:$('#eve').value||null,person_id:ME.id,
+    const {data:ins,error}=await sb.from('khg_expenses').insert({spent_on:today(),item,amount:amt,liters:item==='nhien_lieu'?Number($('#eli').value)||null:null,quantity:item!=='nhien_lieu'?Number($('#eli').value)||null:null,unit_price:Number($('#eup').value)||null,fuel_type:item==='nhien_lieu'?$('#eft').value:null,odometer_km:Number($('#ekm').value)||null,vehicle_id:$('#eve').value||null,person_id:ME.id,
       order_id:$('#eor').value||null,invoice_type:$('#eiv').value,
       payment_method:pm,advance_id:pm==='tam_ung'?openAdv[0].id:null,supplier:$('#esu').value||null,note:$('#eno').value||null,source:'khac'}).select('id').single();
     if(!error&&ephs.length){for(const f of ephs){const blob=await shrink(f);const path=`person/${ME.id}/chi/${Date.now()}_${Math.random().toString(36).slice(2,6)}.jpg`;
