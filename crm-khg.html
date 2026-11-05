@@ -547,6 +547,7 @@ const O={
   pay_kind:{thuong:'Thưởng',phu_cap:'Phụ cấp',phat:'Phạt',khau_tru:'Khấu trừ'},
   adv_status:{cho_duyet:'Chờ duyệt',mo:'Đã chi – đang mở',da_quyet_toan:'Đã quyết toán',huy:'Hủy'},
   account:{tien_mat:'Tiền mặt',ngan_hang:'Ngân hàng'},
+  docst:{chua_thu:'Chưa thu',da_thu:'Đã thu',that_lac:'Thất lạc',da_tra_khach:'Đã trả khách hàng',khong_can:'Không cần chứng từ'},
   invoice_type:{hd_vat:'Có hóa đơn VAT',hd_ban_le:'Hóa đơn bán lẻ',phieu_thu:'Phiếu thu, biên nhận',khong_hd:'Không lấy hóa đơn'},
   cash_dir:{thu:'Thu',chi:'Chi'},
   cash_cat:{thu_cuoc:'Thu cước vận chuyển',thu_thue_kho:'Thu thuê kho, bãi',thu_phan_phoi:'Thu bán hàng phân phối',thu_khac:'Thu khác',chi_xe_lien_ket:'Chi xe liên kết',chi_nhien_lieu:'Chi nhiên liệu',chi_luong:'Chi lương, ứng lương',chi_bao_hiem:'Chi bảo hiểm',chi_thue_kho:'Chi thuê kho',chi_mua_hang:'Chi mua hàng',chi_thue:'Chi thuế',chi_vay:'Trả nợ vay, trả góp',chi_khac:'Chi khác',khac:'Số dư / điều chỉnh'},
@@ -579,8 +580,8 @@ const EXP_CAT_OF=i=>['nhien_lieu','cau_duong','sua_chua','thue_kho','dien_nuoc',
 // t: text|area|num|money|date|dt|sel|fk|bool|arr ; list: hiện trong bảng ; ro: chỉ đọc ; {h:'...'} = tiêu đề nhóm trong form
 const E={
  orders:{table:'khg_orders',title:'Đơn hàng',onForm:(frm)=>orderFeeCalc(frm),order:['created_at',false],dateKey:'scheduled_at',files:'order',search:['code','pickup','dropoff','cargo','customer_text','note','pickup_province','drop_province','drop_district'],
-  filters:[['status','order_status'],['trip_status','trip'],['order_type','order_type'],['service','service'],['driver_id','@people'],['vehicle_id','@vehicles'],['customer_id','@customers']],
-  f:[{h:'Đơn hàng'},{k:'code',l:'Mã đơn',t:'text',ro:true,list:true},{k:'order_type',l:'Loại đơn',t:'sel',o:'order_type',list:true,def:'chuyen'},
+  filters:[['status','order_status'],['doc_status','docst'],['trip_status','trip'],['order_type','order_type'],['service','service'],['driver_id','@people'],['vehicle_id','@vehicles'],['customer_id','@customers']],
+  f:[{h:'Đơn hàng'},{k:'code',l:'Mã đơn',t:'text',ro:true,list:true},{k:'doc_status',l:'Tình trạng chứng từ',t:'sel',o:'docst',list:true,def:'chua_thu'},{k:'order_type',l:'Loại đơn',t:'sel',o:'order_type',list:true,def:'chuyen'},
    {k:'service',l:'Dịch vụ',t:'sel',o:'service',def:'van_chuyen'},{k:'customer_id',l:'Khách hàng',t:'fk',ref:'customers',list:true},
    {k:'scheduled_at',l:'Thời gian có mặt',t:'dt',list:true},{k:'eta_pickup_at',l:'Dự kiến xe đến lấy',t:'dt'},{k:'eta_delivery_at',l:'Dự kiến giao xong',t:'dt'},{k:'promo_code',l:'Mã giảm giá',t:'text'},{k:'discount_pct',l:'Giảm (%)',t:'num'},{k:'discount_amount',l:'Số tiền giảm',t:'money'},
    {h:'Tuyến đường'},{k:'pickup',l:'Điểm lấy',t:'text',list:true},{k:'pickup_district',l:'Quận/huyện/KCN lấy',t:'text'},{k:'pickup_province',l:'Tỉnh lấy',t:'text'},
@@ -594,7 +595,8 @@ const E={
    {k:'revenue',l:'Doanh thu',t:'money',list:true,ro:true,hint:'Tự cộng: cước + các phí + phụ thu − giảm giá'},{k:'partner_cost',l:'Trả xe liên kết',t:'money'},{k:'driver_pay',l:'Tiền chuyến trả tài xế',t:'money',hint:'Hiện trên app tài xế khi gán/phát đơn'},
    {h:'Tình trạng'},{k:'status',l:'Trạng thái đơn',t:'sel',o:'order_status',list:true,def:'moi'},{k:'trip_status',l:'Tình trạng chuyến',t:'sel',o:'trip',list:true,ro:true},
    {k:'trip_note',l:'Ghi chú chuyến (tài xế)',t:'text',ro:true},{k:'accepted_at',l:'Lúc nhận',t:'dt',ro:true},{k:'picked_at',l:'Lúc lấy hàng',t:'dt',ro:true},{k:'unloading_at',l:'Lúc trả hàng',t:'dt',ro:true},
-   {k:'delivered_at',l:'Lúc giao xong',t:'dt',ro:true},{k:'source',l:'Nguồn',t:'sel',o:'source',def:'web'},{k:'created_at',l:'Tạo lúc',t:'dt',ro:true},{k:'note',l:'Ghi chú',t:'area'}]},
+   {k:'delivered_at',l:'Lúc giao xong',t:'dt',ro:true},{k:'source',l:'Nguồn',t:'sel',o:'source',def:'web'},{k:'created_at',l:'Tạo lúc',t:'dt',ro:true},{k:'note',l:'Ghi chú',t:'area'},
+   {h:'Chứng từ giao hàng (biên bản, phiếu giao, hóa đơn ký nhận)'},{k:'doc_due',l:'Hạn thu hồi chứng từ',t:'date',hint:'Tự đặt theo ngày giao/ngày chi + số ngày cài ở Theo dõi chứng từ'},{k:'doc_done_at',l:'Ngày hoàn tất chứng từ',t:'date',list:true,hint:'Tự ghi khi chuyển Đã thu / Đã trả khách'},{k:'doc_submitter',l:'Người nộp chứng từ',t:'fk',ref:'people',hint:'Mặc định tài xế / người chi'},{k:'doc_collector',l:'Người thu chứng từ',t:'fk',ref:'people',hint:'Tự ghi người bấm Đã thu'},{k:'doc_receiver',l:'Người nhận cuối',t:'fk',ref:'people',hint:'Kế toán giữ bản gốc hoặc người bên khách nhận lại – gõ tay nếu là người ngoài'},{k:'doc_note',l:'Ghi chú chứng từ',t:'text'}]},
  requests:{table:'khg_requests',title:'Nhu cầu & việc phát sinh',order:['created_at',false],search:['content'],filters:[['status','req_status'],['kind','req_kind']],
   f:[{k:'created_at',l:'Lúc',t:'dt',ro:true,list:true},{k:'kind',l:'Loại',t:'sel',o:'req_kind',list:true,def:'nhu_cau'},{k:'content',l:'Nội dung',t:'area',list:true},
    {k:'customer_id',l:'Khách',t:'fk',ref:'customers',list:true},{k:'status',l:'Trạng thái',t:'sel',o:'req_status',list:true,def:'moi'},
@@ -648,8 +650,8 @@ const E={
    {k:'attendance_bonus',l:'Chuyên cần',t:'money',list:true},{k:'allowance',l:'Phụ cấp',t:'money',list:true},{k:'other_income',l:'Thu nhập khác',t:'money'},
    {h:'Khấu trừ'},{k:'insurance_salary',l:'Lương đóng BH',t:'money'},{k:'insurance_employee',l:'BH người lao động 10,5%',t:'money',list:true},{k:'deduction',l:'Khấu trừ khác',t:'money'},{k:'advance',l:'Đã ứng lương',t:'money',list:true},
    {k:'total',l:'Thực lĩnh',t:'money',ro:true,list:true},{k:'status',l:'Trạng thái',t:'sel',o:'pay_status',list:true,def:'nhap'},{k:'note',l:'Ghi chú',t:'text'}]},
- expenses:{table:'khg_expenses',title:'Chi phí',order:['spent_on',false],dateKey:'spent_on',files:'expense',search:['note','supplier','doc_no'],filters:[['item','exp_item'],['payment_method','pay_method'],['vehicle_id','@vehicles'],['person_id','@people']],
-  f:[{h:'Khoản chi'},{k:'spent_on',l:'Ngày',t:'date',list:true,req:true,def:()=>today()},{k:'item',l:'Khoản chi',t:'sel',o:'exp_item',list:true,def:'nhien_lieu',req:true},{k:'amount',l:'Số tiền',t:'money',list:true,req:true},{h:'Xe & tài xế'},{k:'vehicle_id',l:'Xe',t:'fk',ref:'vehicles',list:true},{k:'person_id',l:'Tài xế / người sử dụng (người đổ dầu)',t:'fk',ref:'people',list:true},{k:'order_id',l:'Đơn',t:'fk',ref:'orders'},{k:'liters',l:'Số lít',t:'num',list:true},{k:'odometer_km',l:'Số km đồng hồ',t:'num'},{k:'warehouse_id',l:'Kho',t:'fk',ref:'warehouses'},{h:'Nơi chi & hóa đơn'},{k:'supplier',l:'Cây xăng / nhà cung cấp',t:'text',list:true},{k:'station_address',l:'Địa chỉ cây xăng / nơi chi',t:'text',addr:true},{k:'invoice_type',l:'Hóa đơn',t:'sel',o:'invoice_type',list:true,def:'khong_hd',hint:'Có lấy hóa đơn hay không'},{k:'doc_no',l:'Số hóa đơn / chứng từ',t:'text'},{k:'vat_amount',l:'Tiền thuế VAT',t:'money'},{k:'payment_method',l:'Cách trả',t:'sel',o:'pay_method',list:true,def:'tien_mat',hint:'Ghi công nợ → tự tạo khoản phải trả'},{k:'advance_id',l:'Trừ vào tạm ứng',t:'fk',ref:'advances'},{h:'Hiệu lực (bảo hiểm, đăng kiểm…)'},{k:'valid_from',l:'Hiệu lực từ',t:'date'},{k:'valid_until',l:'Hiệu lực đến',t:'date',hint:'Bảo hiểm, đăng kiểm, phí đường bộ, bảo dưỡng → tự cập nhật hạn của xe'},{h:'Khác'},{k:'source',l:'Nguồn',t:'sel',o:'source',list:true,def:'web'},{k:'note',l:'Ghi chú',t:'text',list:true},
+ expenses:{table:'khg_expenses',title:'Chi phí',order:['spent_on',false],dateKey:'spent_on',files:'expense',search:['note','supplier','doc_no'],filters:[['item','exp_item'],['doc_status','docst'],['payment_method','pay_method'],['vehicle_id','@vehicles'],['person_id','@people']],
+  f:[{h:'Khoản chi'},{k:'spent_on',l:'Ngày',t:'date',list:true,req:true,def:()=>today()},{k:'item',l:'Khoản chi',t:'sel',o:'exp_item',list:true,def:'nhien_lieu',req:true},{k:'amount',l:'Số tiền',t:'money',list:true,req:true},{k:'doc_status',l:'Tình trạng chứng từ',t:'sel',o:'docst',list:true,hint:'Không lấy hóa đơn → tự là Không cần chứng từ'},{h:'Xe & tài xế'},{k:'vehicle_id',l:'Xe',t:'fk',ref:'vehicles',list:true},{k:'person_id',l:'Tài xế / người sử dụng (người đổ dầu)',t:'fk',ref:'people',list:true},{k:'order_id',l:'Đơn',t:'fk',ref:'orders'},{k:'liters',l:'Số lít',t:'num',list:true},{k:'odometer_km',l:'Số km đồng hồ',t:'num'},{k:'warehouse_id',l:'Kho',t:'fk',ref:'warehouses'},{h:'Nơi chi & hóa đơn'},{k:'supplier',l:'Cây xăng / nhà cung cấp',t:'text',list:true},{k:'station_address',l:'Địa chỉ cây xăng / nơi chi',t:'text',addr:true},{k:'invoice_type',l:'Hóa đơn',t:'sel',o:'invoice_type',list:true,def:'khong_hd',hint:'Có lấy hóa đơn hay không'},{k:'doc_no',l:'Số hóa đơn / chứng từ',t:'text'},{k:'vat_amount',l:'Tiền thuế VAT',t:'money'},{k:'payment_method',l:'Cách trả',t:'sel',o:'pay_method',list:true,def:'tien_mat',hint:'Ghi công nợ → tự tạo khoản phải trả'},{k:'advance_id',l:'Trừ vào tạm ứng',t:'fk',ref:'advances'},{h:'Chứng từ, hóa đơn gốc'},{k:'doc_due',l:'Hạn thu hồi chứng từ',t:'date',hint:'Tự đặt theo ngày giao/ngày chi + số ngày cài ở Theo dõi chứng từ'},{k:'doc_done_at',l:'Ngày hoàn tất chứng từ',t:'date',list:true,hint:'Tự ghi khi chuyển Đã thu / Đã trả khách'},{k:'doc_submitter',l:'Người nộp chứng từ',t:'fk',ref:'people',hint:'Mặc định tài xế / người chi'},{k:'doc_collector',l:'Người thu chứng từ',t:'fk',ref:'people',hint:'Tự ghi người bấm Đã thu'},{k:'doc_receiver',l:'Người nhận cuối',t:'fk',ref:'people',hint:'Kế toán giữ bản gốc hoặc người bên khách nhận lại – gõ tay nếu là người ngoài'},{k:'doc_note',l:'Ghi chú chứng từ',t:'text'},{h:'Hiệu lực (bảo hiểm, đăng kiểm…)'},{k:'valid_from',l:'Hiệu lực từ',t:'date'},{k:'valid_until',l:'Hiệu lực đến',t:'date',hint:'Bảo hiểm, đăng kiểm, phí đường bộ, bảo dưỡng → tự cập nhật hạn của xe'},{h:'Khác'},{k:'source',l:'Nguồn',t:'sel',o:'source',list:true,def:'web'},{k:'note',l:'Ghi chú',t:'text',list:true},
    ...PPL({pay:'Người chi tiền cho tài xế / thủ quỹ',rec:'Người nhận tiền'})]},
  pay_items:{table:'khg_pay_items',title:'Thưởng, phạt, phụ cấp',order:['item_date',false],dateKey:'item_date',filters:[['kind','pay_kind'],['person_id','@people']],
   f:[{k:'item_date',l:'Ngày',t:'date',list:true,req:true,def:()=>today()},{k:'person_id',l:'Nhân sự',t:'fk',ref:'people',list:true,req:true},{k:'kind',l:'Loại',t:'sel',o:'pay_kind',list:true,req:true,def:'thuong'},
@@ -776,6 +778,7 @@ const ensureRef=async n=>{if(!REF[n])await loadRef(n)};
 async function ensureRefs(cfg){await Promise.all([...new Set(fields(cfg).filter(x=>x.t==='fk'||x.t==='fkm').map(x=>x.ref).concat((cfg.filters||[]).filter(f=>f[1][0]==='@').map(f=>f[1].slice(1))))].map(ensureRef))}
 
 function cell(f,v,r,cfg){
+  if(f.k==='doc_status'&&r)return docPill(r);
   if((v==null||v===''||(Array.isArray(v)&&!v.length))&&(f.t==='fk'||f.t==='fkm')&&r){const m=fkManual(cfg||CUR_CFG,r,f.k);if(m)return `<i title="Nhập tay" style="color:#8A4B06">✎ ${esc(m)}</i>`}
   if(f.t==='fkm'&&Array.isArray(v)){const L=REF[f.ref]||{};return esc(v.map(x=>L[x]||'?').join(', '))+(r&&r.fk_text&&r.fk_text[f.k]?', ✎ '+esc(r.fk_text[f.k]):'')}
   if(v==null||v==='')return '';
@@ -882,7 +885,7 @@ async function renderList(name,host,opts={}){
     if(!host.querySelector('[data-cnt]'))return;host.querySelector('[data-cnt]').textContent=rows.length+' dòng'+(opts.sumKey?` · Tổng ${fields(cfg).find(f=>f.k===opts.sumKey).l.toLowerCase()}: ${fmtM(sum(rows,r=>r[opts.sumKey]))}`:'')+(rows.length>=1000?' (hiện 1.000 dòng đầu, Excel xuất đến 10.000)':'');
     if(!rows.length){tw.innerHTML='<div class="empty">Chưa có dữ liệu.</div>';return}
     tw.innerHTML=`<table><thead><tr>${canSel?'<th class="ck"><input type="checkbox" data-all title="Chọn tất cả"></th>':''}${cols.map(c=>`<th class="${['money','num'].includes(c.t)?'n':''}" title="${esc(c.l)}">${esc(shortL(c.l))}</th>`).join('')}<th></th></tr></thead><tbody>${
-      rows.map(r=>`<tr class="rw" data-id="${r.id}">${canSel?`<td class="ck"><input type="checkbox" data-sel="${r.id}"></td>`:''}${cols.map(c=>`<td class="${['money','num'].includes(c.t)?'n':''} t-${c.t} k-${c.k}">${cell(c,r[c.k],r,cfg)}</td>`).join('')}<td class="ra">${opts.rowActions?opts.rowActions(r):''}${RO?'':`<button class="ib" data-ed="${r.id}" title="Sửa">✎</button>`}<button class="ib" data-ln="${r.id}" title="Sao chép link gửi người khác">🔗</button>${cfg.files?`<button class="ib" data-files="${r.id}" title="Chứng từ">📎</button>`:''}${RO||opts.noArchive?'':`<button class="ib" data-ar="${r.id}" title="Chuyển vào lưu trữ">🗂</button>`}</td></tr>`).join('')}</tbody></table>`;
+      rows.map(r=>`<tr class="rw ${docRowCls(r)}" data-id="${r.id}">${canSel?`<td class="ck"><input type="checkbox" data-sel="${r.id}"></td>`:''}${cols.map(c=>`<td class="${['money','num'].includes(c.t)?'n':''} t-${c.t} k-${c.k}">${cell(c,r[c.k],r,cfg)}</td>`).join('')}<td class="ra">${opts.rowActions?opts.rowActions(r):''}${RO?'':`<button class="ib" data-ed="${r.id}" title="Sửa">✎</button>`}<button class="ib" data-ln="${r.id}" title="Sao chép link gửi người khác">🔗</button>${cfg.files?`<button class="ib" data-files="${r.id}" title="Chứng từ">📎</button>`:''}${RO||opts.noArchive?'':`<button class="ib" data-ar="${r.id}" title="Chuyển vào lưu trữ">🗂</button>`}</td></tr>`).join('')}</tbody></table>`;
     const open=r=>(opts.onOpen||((r,after)=>openForm(name,r,after)))(r,load);
     tw.querySelectorAll('tr.rw').forEach(tr=>tr.addEventListener('click',e=>{if(e.target.closest('[data-act],[data-files],input,.ib,a,button'))return;open(rows.find(r=>r.id===tr.dataset.id))}));
     tw.querySelectorAll('[data-ed]').forEach(b=>b.onclick=e=>{e.stopPropagation();openForm(name,rows.find(r=>r.id===b.dataset.ed),load)});
@@ -944,7 +947,73 @@ async function renderList(name,host,opts={}){
   host.querySelectorAll('[data-doc],[data-pdf]').forEach(b=>b.onclick=async()=>{b.disabled=true;const {data,error}=await query(5000);b.disabled=false;if(error)return toast(error.message);await listExport(b.dataset.doc!==undefined?'doc':'pdf',cfg,data||[])});
   if(opts.bind) opts.bind(host,load);
   await load();
+  if(['orders','expenses'].includes(name))try{docCss();docBanner(host,name)}catch(e){}
   return load;
+}
+
+// ===================== THEO DÕI CHỨNG TỪ (v19) =====================
+const DOC_DONE=['da_thu','da_tra_khach','khong_can'];
+const docLate=r=>r&&r.doc_status==='chua_thu'&&r.doc_due&&String(r.doc_due).slice(0,10)<today()?Math.round((new Date(today())-new Date(String(r.doc_due).slice(0,10)))/864e5):0;
+const docLeft=r=>r&&r.doc_status==='chua_thu'&&r.doc_due?Math.round((new Date(String(r.doc_due).slice(0,10))-new Date(today()))/864e5):null;
+function docPill(r){const v=r.doc_status||'chua_thu';const L=(O.docst||{})[v]||v;const late=docLate(r),left=docLeft(r);
+  const c={da_thu:'green',da_tra_khach:'blue',that_lac:'red',khong_can:'',chua_thu:late?'red':'amber'}[v];
+  const pod=r.pod_file_ids&&r.pod_file_ids.length?' <span title="Tài xế đã chụp ảnh chứng từ trên app">📷</span>':'';
+  const tail=v==='chua_thu'?(late?` · trễ ${late} ngày`:left!=null&&left<=1?` · ${left<=0?'hạn hôm nay':'còn 1 ngày'}`:''):'';
+  return `<span class="pill ${c} docp${late||v==='that_lac'?' blink':''}">${v==='that_lac'?'⚠ ':late?'⏰ ':''}${esc(L)}${tail}</span>${pod}`}
+const docRowCls=r=>r&&r.doc_status?(r.doc_status==='that_lac'?'docbad':docLate(r)?'doclate':''):'';
+function docCss(){if(document.getElementById('docCss'))return;const s=document.createElement('style');s.id='docCss';s.textContent=`
+tr.doclate td:first-child,tr.docbad td:first-child{box-shadow:inset 4px 0 0 #DC2626}tr.docbad td{background:#FFF5F5!important}
+.pill.docp{font-weight:700}.pill.blink{animation:docb 1.6s ease-in-out infinite}@keyframes docb{50%{box-shadow:0 0 0 3px rgba(220,38,38,.18)}}
+.docwarn{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;border-radius:12px;padding:9px 14px;margin:0 0 12px;font-size:13px}
+.docwarn b{font-size:14px}.docwarn .btn{min-height:30px;font-size:12.5px}
+.docok{background:#F0FDF4;border-color:#BBF7D0;color:#166534}
+.dkp{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+.dkp .kpi{cursor:pointer}.dkp .kpi.on{outline:2px solid var(--ink)}`;document.head.appendChild(s)}
+async function docBanner(host,name){docCss();const {data:A}=await sb.rpc('khg_doc_alerts');if(!A)return;const isO=name==='orders';
+  const late=isO?A.o_late:A.e_late,lost=isO?A.o_lost:A.e_lost,open=isO?A.o_open:A.e_open;const old=host.querySelector('.docwarn');if(old)old.remove();
+  const d=document.createElement('div');d.className='docwarn'+(late||lost?'':' docok');
+  d.innerHTML=late||lost?`<span>⚠ <b>Chứng từ ${isO?'giao hàng':'chi phí'}:</b> ${late?`<b>${late}</b> ${isO?'đơn':'khoản'} quá hạn thu hồi (quá ${A.days} ngày)${isO&&A.o_late_rev?' · tiền chưa đối soát được '+fmtM(A.o_late_rev):''}`:''}${late&&lost?' · ':''}${lost?`<b>${lost}</b> thất lạc`:''} · ${open} đang chờ thu</span><span style="flex:1"></span><button class="btn s" data-dw="late">Xem quá hạn</button>${lost?'<button class="btn s" data-dw="lost">Xem thất lạc</button>':''}<button class="btn s" data-dw="page">Mở Theo dõi chứng từ</button>`
+    :`<span>✓ Chứng từ ${isO?'giao hàng':'chi phí'}: không có khoản quá hạn · ${open} đang chờ thu trong hạn</span><span style="flex:1"></span><button class="btn s" data-dw="page">Theo dõi chứng từ</button>`;
+  host.prepend(d);d.querySelectorAll('[data-dw]').forEach(b=>b.onclick=()=>{const k=b.dataset.dw;if(k==='page'){DOCS.t=name;go('doctrack');return}
+    drill(name,k==='late'?{eq:{doc_status:'chua_thu'},where:q=>q.lt('doc_due',today()),allDates:true,title:'Chứng từ quá hạn thu hồi'}:{eq:{doc_status:'that_lac'},allDates:true,title:'Chứng từ thất lạc'})})}
+const DOCS={t:'orders',f:'late'};
+async function viewDocs(m){docCss();await Promise.all(['people','customers','vehicles'].map(ensureRef));
+  m.innerHTML=`<h2>Theo dõi chứng từ</h2><p class="sub">Biên bản giao hàng, phiếu giao nhận, hóa đơn của đơn hàng và hóa đơn chi phí. Chứng từ là căn cứ đối soát, xuất hóa đơn và thu công nợ: đơn nào quá ${'<b id="dd">3</b>'} ngày chưa thu hồi sẽ cảnh báo đỏ. Bấm nút trên từng dòng để cập nhật nhanh; người thu và ngày hoàn tất tự ghi.</p>
+   <div class="subtabs" id="dt"><button data-t="orders">🚚 Chứng từ đơn hàng</button><button data-t="expenses">🧾 Hóa đơn chi phí</button></div><div class="dkp" id="dk"></div><div class="bar"><input type="search" id="dq" placeholder="Tìm mã đơn, khách, tài xế…" style="flex:1 1 220px"><label class="sub" style="margin:0">Hạn thu chứng từ (ngày sau khi giao) <input type="number" id="dday" min="1" max="60" style="width:70px"></label><button class="btn" id="dx">⬇ Excel</button></div><div id="db"></div>`;
+  const {data:A}=await sb.rpc('khg_doc_alerts');if(A){$('#dd').textContent=A.days;$('#dday').value=A.days}
+  $('#dday').onchange=async e=>{const v=Math.max(1,Math.min(60,+e.target.value||3));const {error}=await sb.rpc('khg_set_doc_days',{p_days:v});toast(error?error.message:'Đã đặt hạn thu chứng từ '+v+' ngày (áp cho đơn giao từ nay)')};
+  let rows=[];
+  const load=async()=>{const isO=DOCS.t==='orders';m.querySelectorAll('#dt button').forEach(b=>b.classList.toggle('on',b.dataset.t===DOCS.t));
+    const q=isO?sb.from('khg_orders').select('id,code,customer_id,customer_text,pickup,dropoff,driver_id,vehicle_id,plate_text,fk_text,revenue,status,delivered_at,scheduled_at,created_at,pod_file_ids,doc_status,doc_due,doc_done_at,doc_submitter,doc_collector,doc_receiver,doc_note').neq('status','huy').or('doc_due.not.is.null,doc_status.neq.chua_thu').order('doc_due',{ascending:true,nullsFirst:false}).limit(3000)
+      :sb.from('khg_expenses').select('id,spent_on,item,amount,supplier,doc_no,invoice_type,person_id,vehicle_id,fk_text,doc_status,doc_due,doc_done_at,doc_submitter,doc_collector,doc_receiver,doc_note').neq('doc_status','khong_can').order('doc_due',{ascending:true,nullsFirst:false}).limit(3000);
+    const {data,error}=await q;if(error){$('#db').innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}rows=data||[];draw()};
+  const F={late:['⏰ Quá hạn',r=>docLate(r)>0],open:['Chưa thu',r=>r.doc_status==='chua_thu'],lost:['⚠ Thất lạc',r=>r.doc_status==='that_lac'],da_thu:['✓ Đã thu',r=>r.doc_status==='da_thu'],da_tra_khach:['↩ Đã trả khách',r=>r.doc_status==='da_tra_khach'],all:['Tất cả',r=>true]};
+  const draw=()=>{const isO=DOCS.t==='orders';const t=$('#dq').value.trim().toLowerCase();const P=REF.people||{},C=REF.customers||{},V=REF.vehicles||{};
+    const nm=(r,k)=>r[k]?P[r[k]]||'':(r.fk_text&&r.fk_text[k])||'';
+    $('#dk').innerHTML=Object.entries(F).map(([k,[l,fn]])=>{const L=rows.filter(fn);const money=sum(L,r=>isO?r.revenue:r.amount);return `<div class="kpi ${DOCS.f===k?'on':''} ${k==='late'&&L.length||k==='lost'&&L.length?'hot':''}" data-f="${k}"><div class="l">${l}</div><div class="v">${L.length}</div><div class="h">${fmtTr(money)}</div></div>`}).join('');
+    m.querySelectorAll('#dk [data-f]').forEach(x=>x.onclick=()=>{DOCS.f=x.dataset.f;draw()});
+    const L=rows.filter(F[DOCS.f][1]).filter(r=>!t||JSON.stringify([r.code,r.supplier,r.doc_no,C[r.customer_id],r.customer_text,P[r.driver_id],P[r.person_id],r.pickup,r.dropoff,r.fk_text]).toLowerCase().includes(t));
+    $('#db').innerHTML=L.length?`<div class="tw"><table><thead><tr>${isO?'<th>Mã đơn</th><th>Ngày giao</th><th>Khách hàng</th><th>Tuyến</th><th>Tài xế · xe</th><th class="n">Doanh thu</th>':'<th>Ngày chi</th><th>Khoản chi</th><th>Cây xăng / NCC</th><th>Hóa đơn</th><th>Người chi · xe</th><th class="n">Số tiền</th>'}<th>Hạn thu</th><th>Tình trạng chứng từ</th><th>Ngày hoàn tất</th><th>Người nộp</th><th>Người thu</th><th>Người nhận cuối</th><th>Ghi chú</th><th></th></tr></thead><tbody>${L.map(r=>`<tr class="${docRowCls(r)}" data-id="${r.id}">
+      ${isO?`<td class="k-code"><a href="#" data-op="${r.id}">${esc(r.code||'')}</a></td><td>${fmtD(orderDay(r))}</td><td>${esc(C[r.customer_id]||r.customer_text||'')}</td><td>${esc([r.pickup,r.dropoff].filter(Boolean).join(' → '))}</td><td>${esc(nm(r,'driver_id'))}${r.vehicle_id||r.plate_text?' · '+esc(V[r.vehicle_id]||r.plate_text||''):''}</td><td class="n">${fmtN(r.revenue)}</td>`
+        :`<td>${fmtD(r.spent_on)}</td><td>${esc((O.exp_item||{})[r.item]||r.item||'')}</td><td>${esc(r.supplier||'')}</td><td>${esc((O.invoice_type||{})[r.invoice_type]||'')}${r.doc_no?' · '+esc(r.doc_no):''}</td><td>${esc(nm(r,'person_id'))}${r.vehicle_id?' · '+esc(V[r.vehicle_id]||''):''}</td><td class="n">${fmtN(r.amount)}</td>`}
+      <td>${r.doc_due?fmtD(r.doc_due):'—'}</td><td>${docPill(r)}</td><td>${r.doc_done_at?fmtD(r.doc_done_at):''}</td><td>${esc(nm(r,'doc_submitter'))}</td><td>${esc(nm(r,'doc_collector'))}</td><td>${esc(nm(r,'doc_receiver'))}</td><td>${esc(r.doc_note||'')}</td>
+      <td class="ra" style="white-space:nowrap">${RO?'':`${r.doc_status!=='da_thu'?`<button class="btn s g" data-ds="da_thu">✓ Đã thu</button>`:''}${isO&&r.doc_status!=='da_tra_khach'?`<button class="btn s" data-ds="da_tra_khach">↩ Trả khách</button>`:''}${r.doc_status!=='that_lac'?`<button class="btn s" data-ds="that_lac" style="color:var(--red)">⚠ Thất lạc</button>`:''}${r.doc_status!=='chua_thu'?`<button class="btn s" data-ds="chua_thu">↺ Chưa thu</button>`:''}<button class="btn s" data-dm title="Sao chép lời nhắc nộp chứng từ">📋 Nhắc</button><button class="ib" data-de title="Sửa đầy đủ">✎</button>`}</td></tr>`).join('')}</tbody></table></div><p class="sub" style="margin-top:6px">${L.length} dòng · Dòng viền đỏ = quá hạn hoặc thất lạc.</p>`:'<div class="empty">Không có chứng từ nào ở mục này.</div>';
+    $('#db').querySelectorAll('tr[data-id]').forEach(tr=>{const r=rows.find(x=>x.id===tr.dataset.id);
+      tr.querySelectorAll('[data-ds]').forEach(b=>b.onclick=async()=>{const st=b.dataset.ds;let note=null,rec=undefined;
+        if(st==='that_lac'){note=prompt('Mô tả thất lạc (ai giữ lần cuối, ở đâu) – để lập biên bản và yêu cầu khách xác nhận lại:',r.doc_note||'');if(note===null)return}
+        if(st==='da_tra_khach'){const who=prompt('Trả cho ai bên khách (tên người nhận cuối):',(r.fk_text&&r.fk_text.doc_receiver)||'');if(who===null)return;rec=who.trim()}
+        const patch={doc_status:st};if(note!==null)patch.doc_note=note;if(st==='chua_thu')patch.doc_done_at=null;
+        if(rec!==undefined){const id=fkLabels('people').I[rec.toLowerCase()];if(id)patch.doc_receiver=id;else{patch.doc_receiver=null;patch.fk_text={...(r.fk_text||{}),doc_receiver:rec}}}
+        const {data,error}=await sb.from(isO?'khg_orders':'khg_expenses').update(patch).eq('id',r.id).select().single();if(error)return toast('Lỗi: '+error.message);Object.assign(r,data);toast('Đã cập nhật: '+O.docst[st]);draw()});
+      const dm=tr.querySelector('[data-dm]');if(dm)dm.onclick=()=>copyText(isO?`Nhắc ${nm(r,'doc_submitter')||nm(r,'driver_id')||'tài xế'}: nộp chứng từ (biên bản giao hàng, phiếu giao, hóa đơn có ký nhận) đơn ${r.code} – ${C[r.customer_id]||r.customer_text||''}, giao ngày ${fmtD(orderDay(r))}. Hạn nộp ${r.doc_due?fmtD(r.doc_due):'sớm nhất'}${docLate(r)?' (đã trễ '+docLate(r)+' ngày)':''}. Cần gấp để đối soát, thu tiền khách.`
+        :`Nhắc ${nm(r,'doc_submitter')||nm(r,'person_id')||'anh/chị'}: nộp hóa đơn ${(O.invoice_type||{})[r.invoice_type]||''} khoản ${(O.exp_item||{})[r.item]||''} ${fmtN(r.amount)} đ ngày ${fmtD(r.spent_on)}${r.supplier?' tại '+r.supplier:''}. Hạn nộp ${r.doc_due?fmtD(r.doc_due):'sớm nhất'}.`,'Đã sao chép lời nhắc – dán vào Zalo/Telegram');
+      const de=tr.querySelector('[data-de]');if(de)de.onclick=async()=>{const {data:full}=await sb.from(isO?'khg_orders':'khg_expenses').select('*').eq('id',r.id).single();(isO?openOrder:(x,a)=>openForm('expenses',x,a))(full,load)};
+      const op=tr.querySelector('[data-op]');if(op)op.onclick=async e=>{e.preventDefault();const {data:full}=await sb.from('khg_orders').select('*').eq('id',r.id).single();openOrder(full,load)}})};
+  m.querySelectorAll('#dt button').forEach(b=>b.onclick=()=>{DOCS.t=b.dataset.t;load()});$('#dq').oninput=draw;
+  $('#dx').onclick=()=>{const isO=DOCS.t==='orders';const P=REF.people||{},C=REF.customers||{};const nm=(r,k)=>r[k]?P[r[k]]||'':(r.fk_text&&r.fk_text[k])||'';
+    xlsx('Theo_doi_chung_tu_'+(isO?'don_hang':'chi_phi'),{'Chứng từ':rows.filter(F[DOCS.f][1]).map(r=>({...(isO?{'Mã đơn':r.code,'Ngày giao':fmtD(orderDay(r)),'Khách hàng':C[r.customer_id]||r.customer_text||'','Tài xế':nm(r,'driver_id'),'Doanh thu':Number(r.revenue||0)}:{'Ngày chi':fmtD(r.spent_on),'Khoản chi':(O.exp_item||{})[r.item]||r.item,'Cây xăng / NCC':r.supplier||'','Số HĐ':r.doc_no||'','Số tiền':Number(r.amount||0)}),
+      'Hạn thu':r.doc_due?fmtD(r.doc_due):'','Tình trạng':O.docst[r.doc_status]||r.doc_status,'Trễ (ngày)':docLate(r)||'','Ngày hoàn tất':r.doc_done_at?fmtD(r.doc_done_at):'','Người nộp':nm(r,'doc_submitter'),'Người thu':nm(r,'doc_collector'),'Người nhận cuối':nm(r,'doc_receiver'),'Ghi chú':r.doc_note||''}))})};
+  if(!F[DOCS.f])DOCS.f='late';await load();
 }
 
 // ===================== DATA CHI TIẾT · SỬA TRỰC TIẾP TỪNG Ô (v18) =====================
@@ -986,7 +1055,7 @@ async function dataGrid(host,name,opt={}){
     W.innerHTML=R.length?`<table class="dg"><thead><tr><th class="ck"><input type="checkbox" data-all></th>${fs.map(f=>`<th title="${esc(f.l)}">${esc(shortL(f.l))}${dgCanEdit(f)?'':' 🔒'}</th>`).join('')}<th class="ac"></th></tr></thead><tbody>${R.map(r=>row(r)).join('')}</tbody>
       ${sums.length?`<tfoot><tr><td class="ck"></td>${fs.map(f=>`<td class="${f.t==='money'?'n':''}">${f.t==='money'?fmtN(sum(R,r=>r[f.k])):''}</td>`).join('')}<td class="ac"></td></tr></tfoot>`:''}</table>`:'<div class="empty">Không có dữ liệu trong phạm vi này.</div>';
     host.querySelector('[data-cnt]').textContent=`${R.length} dòng${R.length<rows.length?' (lọc từ '+rows.length+')':''}${rows.length>=3000?' · hiện 3.000 dòng đầu, thu hẹp ngày để xem hết':''} · Bấm vào ô để sửa trực tiếp (Enter lưu, Esc hủy). Ô 🔒 là số tự tính.`;bind()};
-  const row=r=>`<tr data-id="${r.id}" class="${st.sel.has(r.id)?'sel':''}"><td class="ck"><input type="checkbox" data-s="${r.id}" ${st.sel.has(r.id)?'checked':''}></td>${fs.map(f=>`<td class="${dgCanEdit(f)?'ed':'ro'} ${['money','num'].includes(f.t)?'n':''}" data-k="${f.k}" title="${esc(String(plain(f,r[f.k],r,cfg)??''))}">${cell(f,r[f.k],r,cfg)}</td>`).join('')}<td class="ac"><button class="ib" data-open="${r.id}" title="Mở biểu mẫu đầy đủ">✎</button>${RO?'':`<button class="ib" data-ar="${r.id}" title="Bỏ dòng này (chuyển vào lưu trữ)">🗂</button>`}</td></tr>`;
+  const row=r=>`<tr data-id="${r.id}" class="${st.sel.has(r.id)?'sel':''} ${docRowCls(r)}"><td class="ck"><input type="checkbox" data-s="${r.id}" ${st.sel.has(r.id)?'checked':''}></td>${fs.map(f=>`<td class="${dgCanEdit(f)?'ed':'ro'} ${['money','num'].includes(f.t)?'n':''}" data-k="${f.k}" title="${esc(String(plain(f,r[f.k],r,cfg)??''))}">${cell(f,r[f.k],r,cfg)}</td>`).join('')}<td class="ac"><button class="ib" data-open="${r.id}" title="Mở biểu mẫu đầy đủ">✎</button>${RO?'':`<button class="ib" data-ar="${r.id}" title="Bỏ dòng này (chuyển vào lưu trữ)">🗂</button>`}</td></tr>`;
   const edit=td=>{if(td.classList.contains('editing'))return;const tr=td.closest('tr');const r=rows.find(x=>x.id===tr.dataset.id);const f=fs.find(x=>x.k===td.dataset.k);if(!r||!f)return;
     const sub={table:cfg.table,f:[{...f,ro:false,req:false,hint:''}]};td.classList.add('editing');
     td.innerHTML=`<form class="dged"><div class="form">${formHTML(sub,r)}</div><button class="btn s p" data-ok title="Lưu">✓</button><button class="btn s" type="button" data-no title="Hủy">✕</button></form>`;
@@ -1521,6 +1590,7 @@ async function viewOverview(m){
      <div class="kpi ${waiting?'hot':''}"><div class="l">Hôm nay</div><div class="v">${live.length} đơn</div><div class="h">Đang chạy ${running} · chờ xe/tài xế ${waiting}</div></div>
      <div class="kpi" ${dgAttr('attendance',{from:today(),to:today(),title:'Chấm công hôm nay'})}><div class="l">Có mặt hôm nay</div><div class="v">${(att.data||[]).filter(a=>['co_mat','nua_ngay'].includes(a.status)).length}</div><div class="h">Lấp đầy kho ${occ}% (hòa vốn ~97%)</div></div>
      <div class="kpi ${(adv.data||[]).length?'hot':''}" ${dgAttr('advances',{eq:{status:'cho_duyet'},allDates:true})}><div class="l">Tạm ứng chờ duyệt</div><div class="v">${(adv.data||[]).length}</div><div class="h">${fmtTr(sum(adv.data||[],a=>a.amount))}</div></div>
+     <div class="kpi" id="ovDoc" style="cursor:pointer" title="Mở Theo dõi chứng từ"><div class="l">Chứng từ quá hạn thu</div><div class="v">…</div><div class="h">Đang tải</div></div>
      <div class="kpi ${dues.length?'hot':''}"><div class="l">Giấy tờ sắp hết hạn</div><div class="v">${dues.length}</div><div class="h">Trong 30 ngày tới</div></div>
     </div>
     <div class="grid2" style="margin-bottom:16px">
@@ -1540,6 +1610,7 @@ async function viewOverview(m){
      <div class="card"><h3>Tạm ứng chờ duyệt<span class="sp"></span><button class="btn s" data-go="expenses">Duyệt →</button></h3><div class="list">${(adv.data||[]).map(a=>`<div class="it">${pill('adv_kind',a.kind)} <b>${esc(REF.people[a.person_id]||'')}</b> ${fmtM(a.amount)} ${esc(a.purpose||'')}</div>`).join('')||'<div class="empty">Không có.</div>'}</div></div>
      <div class="card"><h3>Nhu cầu mới</h3><div class="list">${(rq.data||[]).map(a=>`<div class="it">${pill('req_kind',a.kind)} ${esc(a.content)} <span style="color:var(--muted)">· ${fmtDT(a.created_at)}</span></div>`).join('')||'<div class="empty">Không có.</div>'}</div></div>
     </div>`;
+    (async()=>{const el=document.getElementById('ovDoc');if(!el)return;const {data:A}=await sb.rpc('khg_doc_alerts');if(!A)return;const n=A.o_late+A.e_late,l=A.o_lost+A.e_lost;el.classList.toggle('hot',!!(n||l));el.querySelector('.v').textContent=n+(l?' · '+l+' mất':'');el.querySelector('.h').textContent=`Đơn ${A.o_late} trễ · ${A.o_open} chờ thu · hóa đơn chi phí ${A.e_late} trễ`;el.onclick=()=>go('doctrack')})();
     ov.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
     $('#ovx').onclick=()=>xlsx('Tong_quan_KHG',{'Kết quả kinh doanh':[['Nhóm','Khoản','Số tiền'],...pl.lines,['','Tổng doanh thu',pl.rev],['','Tổng chi phí',pl.cost],['','Lãi gộp',pl.profit]],
       'Theo xe':gX.map(gRow),'Theo tài xế':gD.map(gRow),'Theo khách':gC.map(gRow),'Theo tải trọng':gT.map(gRow),'Theo tỉnh':gP.map(gRow)});
@@ -2135,7 +2206,8 @@ const VIEWS={
    const next={moi:'xac_nhan',xac_nhan:'dang_chay',dang_chay:'da_giao',da_giao:'doi_soat',doi_soat:'xuat_hd',xuat_hd:'da_thu'};
    await renderList('orders',m.querySelector('#h'),{sumKey:'revenue',onOpen:(r,after)=>openOrder(r,after),
     rowActions:r=>next[r.status]?`<button class="btn s" data-act="${next[r.status]}" data-id="${r.id}">→ ${O.order_status[next[r.status]]}</button>`:'',
-    onActs:async(st,id)=>{const {error}=await sb.from('khg_orders').update({status:st}).eq('id',id);toast(error?error.message:'Đã chuyển: '+O.order_status[st]+(st==='da_giao'?' · đã tạo công nợ':''))},
+    onActs:async(st,id)=>{if(['doi_soat','xuat_hd','da_thu'].includes(st)){const {data:o}=await sb.from('khg_orders').select('code,doc_status').eq('id',id).single();if(o&&!DOC_DONE.includes(o.doc_status)&&!confirm(`Đơn ${o.code} ${o.doc_status==='that_lac'?'đang THẤT LẠC chứng từ':'chưa thu chứng từ'}.\nĐối soát, xuất hóa đơn, thu tiền khi chưa có chứng từ dễ bị khách từ chối thanh toán.\nVẫn chuyển sang “${O.order_status[st]}”?`))return}
+      const {error}=await sb.from('khg_orders').update({status:st}).eq('id',id);toast(error?error.message:'Đã chuyển: '+O.order_status[st]+(st==='da_giao'?' · đã tạo công nợ':''))},
     exportExtra:r=>({'Tải xe (tấn)':loadClass(r)??'','Tháng':orderDay(r).slice(0,7)})})},
  requests:async m=>{m.innerHTML='<h2>Nhu cầu & việc phát sinh</h2><p class="sub">Nhu cầu khách, báo giá, sự cố và việc gửi từ bot Telegram.</p><div id="h"></div>';await renderList('requests',m.querySelector('#h'),{
    rowActions:r=>r.status==='moi'?`<button class="btn s" data-act="dang_xu_ly" data-id="${r.id}">Nhận xử lý</button>`:r.status==='dang_xu_ly'?`<button class="btn s" data-act="xong" data-id="${r.id}">Xong</button>`:'',
@@ -3884,6 +3956,9 @@ VIEWS.exec=async m=>{
 TABS.push(['exec','Bảng điều hành CEO',['admin','ke_toan']]);
 TABS.push(['excel','Nhập/xuất Excel & báo cáo',['admin','ke_toan','dieu_phoi']]);VIEWS.excel=viewExcel;
 TABS.push(['data','Data chi tiết (sửa trực tiếp)',['admin','ke_toan']]);VIEWS.data=viewData;
+TABS.push(['doctrack','Theo dõi chứng từ',['admin','ke_toan','dieu_phoi','kinh_doanh']]);VIEWS.doctrack=viewDocs;
+{const g=NAV_GROUPS.find(x=>x[0]==='Vận hành');if(g)g[1].splice(2,0,'doctrack');}
+ICONS.doctrack=IC('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>');
 {const g=NAV_GROUPS.find(x=>x[0]==='Điều hành');if(g)g[1].splice(1,0,'data');}
 ICONS.data=IC('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/>');
 {const g=NAV_GROUPS.find(x=>x[0]==='Tài chính');if(g)g[1].push('excel');}
