@@ -947,6 +947,88 @@ async function renderList(name,host,opts={}){
   return load;
 }
 
+// ===================== DATA CHI TIẾT · SỬA TRỰC TIẾP TỪNG Ô (v18) =====================
+const DG={};
+const dgMods=()=>Object.entries(E).filter(([n,c])=>c&&c.table&&Array.isArray(c.f)).map(([n,c])=>[n,c.title]).sort((a,b)=>a[1].localeCompare(b[1],'vi'));
+const dgCanEdit=f=>!RO&&!LOCK.includes(f.k)&&f.t!=='lines'&&(!f.ro||isAdmin());
+function dgCss(){if(document.getElementById('dgCss'))return;const s=document.createElement('style');s.id='dgCss';s.textContent=`
+.dgw{overflow:auto;max-height:68vh;border:1px solid var(--line);border-radius:12px;background:#fff}
+table.dg{border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:100%}
+table.dg th{position:sticky;top:0;z-index:2;background:#F9FAFB;font-size:11px;white-space:nowrap;padding:8px 9px;border-bottom:1px solid var(--line);text-align:left}
+table.dg td{padding:6px 9px;border-bottom:1px solid #F0F0F2;border-right:1px solid #F5F5F7;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+table.dg td.ed{cursor:text}table.dg td.ed:hover{background:#FFF8E6;outline:1px dashed #E0B060;outline-offset:-1px}
+table.dg td.ro{color:#6B7280;background:#FAFAFB}table.dg td.n{text-align:right;font-variant-numeric:tabular-nums}
+table.dg td.ck,table.dg th.ck{position:sticky;left:0;z-index:1;background:#fff;width:34px}table.dg th.ck{z-index:3;background:#F9FAFB}
+table.dg td.ac{position:sticky;right:0;background:#fff;box-shadow:-6px 0 8px -6px rgba(0,0,0,.12)}
+table.dg td.editing{padding:3px;max-width:none;overflow:visible;background:#FFFBEB}
+table.dg tr.sel td{background:#FDECEF}table.dg tr.saved td{transition:background .6s;background:#E7F5EC}
+table.dg tfoot td{position:sticky;bottom:0;background:#F9FAFB;font-weight:700;border-top:1px solid var(--line)}
+.dged{display:flex;gap:4px;align-items:flex-start;min-width:200px}.dged .form{display:block;flex:1}.dged .form label{font-size:0;gap:0;display:block}.dged .form label *{font-size:13px}
+.dged .form .hint,.dged .form .hd{display:none}.dged .form input,.dged .form select{height:32px}.dged .form .mw,.dged .form .fkst{font-size:11px!important}
+.dgbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.dgbar .chip{background:#EEF2F7;border-radius:99px;padding:3px 10px;font-size:12.5px}`;document.head.appendChild(s)}
+async function dataGrid(host,name,opt={}){
+  dgCss();const cfg=E[name];await ensureRefs(cfg);const fs=fields(cfg).filter(f=>f.t!=='lines');const st={q:'',from:opt.from||'',to:opt.to||'',eq:{...(opt.eq||{})},sel:new Set()};
+  const dk=cfg.dateKey,isTs=(fields(cfg).find(f=>f.k===dk)||{}).t==='dt';
+  if(dk&&!st.from&&!st.to&&!opt.allDates){const p=periodRange({kind:'thang'});st.from=p.from;st.to=p.to}
+  host.innerHTML=`<div class="dgbar">${opt.picker?`<select data-mod>${dgMods().map(([n,t])=>`<option value="${n}" ${n===name?'selected':''}>${esc(t)}</option>`).join('')}</select>`:''}
+    <input type="search" data-q placeholder="Lọc nhanh trong bảng…" style="flex:1 1 200px;height:36px;border:1px solid var(--line);border-radius:9px;padding:0 10px">
+    ${dk?`<label class="sub" style="margin:0">Từ <input type="date" data-from value="${st.from}"></label><label class="sub" style="margin:0">đến <input type="date" data-to value="${st.to}"></label>`:''}
+    ${Object.entries(st.eq).map(([k,v])=>{const f=fields(cfg).find(x=>x.k===k);return `<span class="chip">${esc(f?shortL(f.l):k)}: ${esc(f?plain(f,v):v)} <a href="#" data-unq="${k}" style="text-decoration:none">✕</a></span>`}).join('')}
+    <span style="flex:1"></span><button class="btn" data-bulk disabled>✎ Sửa hàng loạt</button><button class="btn" data-arch disabled style="color:var(--red)">🗂 Bỏ (lưu trữ) dòng đã chọn</button><button class="btn" data-xls>⬇ Excel</button>${cfg.noNew||RO?'':'<button class="btn p" data-new>+ Thêm</button>'}</div>
+    <div class="dgw"><div class="empty">Đang tải…</div></div><p class="sub" data-cnt style="margin-top:6px"></p>`;
+  const W=host.querySelector('.dgw');let rows=[];
+  const load=async()=>{let q=sb.from(cfg.table).select('*').order(cfg.order?cfg.order[0]:'created_at',{ascending:cfg.order?cfg.order[1]:false,nullsFirst:false}).limit(3000);
+    for(const [k,v] of Object.entries(st.eq))q=v===null?q.is(k,null):Array.isArray(v)?q.in(k,v):q.eq(k,v);
+    if(dk&&st.from)q=q.gte(dk,isTs?tsFrom(st.from):st.from);if(dk&&st.to)q=isTs?q.lt(dk,tsTo(st.to)):q.lte(dk,st.to);if(opt.where)q=opt.where(q);
+    const {data,error}=await q;if(error){W.innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}rows=data||[];st.sel.clear();draw()};
+  const vis=()=>{const t=st.q.trim().toLowerCase();return t?rows.filter(r=>fs.some(f=>String(plain(f,r[f.k],r,cfg)??'').toLowerCase().includes(t))):rows};
+  const draw=()=>{const R=vis();const sums=fs.filter(f=>f.t==='money');
+    W.innerHTML=R.length?`<table class="dg"><thead><tr><th class="ck"><input type="checkbox" data-all></th>${fs.map(f=>`<th title="${esc(f.l)}">${esc(shortL(f.l))}${dgCanEdit(f)?'':' 🔒'}</th>`).join('')}<th class="ac"></th></tr></thead><tbody>${R.map(r=>row(r)).join('')}</tbody>
+      ${sums.length?`<tfoot><tr><td class="ck"></td>${fs.map(f=>`<td class="${f.t==='money'?'n':''}">${f.t==='money'?fmtN(sum(R,r=>r[f.k])):''}</td>`).join('')}<td class="ac"></td></tr></tfoot>`:''}</table>`:'<div class="empty">Không có dữ liệu trong phạm vi này.</div>';
+    host.querySelector('[data-cnt]').textContent=`${R.length} dòng${R.length<rows.length?' (lọc từ '+rows.length+')':''}${rows.length>=3000?' · hiện 3.000 dòng đầu, thu hẹp ngày để xem hết':''} · Bấm vào ô để sửa trực tiếp (Enter lưu, Esc hủy). Ô 🔒 là số tự tính.`;bind()};
+  const row=r=>`<tr data-id="${r.id}" class="${st.sel.has(r.id)?'sel':''}"><td class="ck"><input type="checkbox" data-s="${r.id}" ${st.sel.has(r.id)?'checked':''}></td>${fs.map(f=>`<td class="${dgCanEdit(f)?'ed':'ro'} ${['money','num'].includes(f.t)?'n':''}" data-k="${f.k}" title="${esc(String(plain(f,r[f.k],r,cfg)??''))}">${cell(f,r[f.k],r,cfg)}</td>`).join('')}<td class="ac"><button class="ib" data-open="${r.id}" title="Mở biểu mẫu đầy đủ">✎</button>${RO?'':`<button class="ib" data-ar="${r.id}" title="Bỏ dòng này (chuyển vào lưu trữ)">🗂</button>`}</td></tr>`;
+  const edit=td=>{if(td.classList.contains('editing'))return;const tr=td.closest('tr');const r=rows.find(x=>x.id===tr.dataset.id);const f=fs.find(x=>x.k===td.dataset.k);if(!r||!f)return;
+    const sub={table:cfg.table,f:[{...f,ro:false,req:false,hint:''}]};td.classList.add('editing');
+    td.innerHTML=`<form class="dged"><div class="form">${formHTML(sub,r)}</div><button class="btn s p" data-ok title="Lưu">✓</button><button class="btn s" type="button" data-no title="Hủy">✕</button></form>`;
+    const frm=td.querySelector('form');fkmInit(frm);const inp=frm.querySelector('input:not([type=hidden]),select,textarea');if(inp){inp.focus();try{inp.select&&inp.select()}catch(e){}}
+    const cancel=()=>{td.classList.remove('editing');td.innerHTML=cell(f,r[f.k],r,cfg)};
+    const save=async e=>{e&&e.preventDefault();const patch=readForm(sub,frm,r);if(name==='expenses'&&patch.item)patch.category=EXP_CAT_OF(patch.item);
+      const same=JSON.stringify(patch[f.k]??null)===JSON.stringify(r[f.k]??null)&&JSON.stringify(patch.fk_text||{})===JSON.stringify(r.fk_text||{})&&Object.keys(patch).every(k=>k===f.k||k==='fk_text'||patch[k]===r[k]);
+      if(same)return cancel();td.style.opacity=.5;const {data,error}=await sb.from(cfg.table).update(patch).eq('id',r.id).select().single();td.style.opacity=1;
+      if(error){toast('Lỗi: '+error.message);return}Object.assign(r,data);if(cfg.label)delete REF[name];const nt=document.createElement('tbody');nt.innerHTML=row(r);const ntr=nt.firstElementChild;tr.replaceWith(ntr);ntr.classList.add('saved');setTimeout(()=>ntr.classList.remove('saved'),900);bindRow(ntr);
+      toast(`Đã sửa “${shortL(f.l)}”`);opt.onChange&&opt.onChange()};
+    frm.onsubmit=save;frm.querySelector('[data-no]').onclick=cancel;frm.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();cancel()}if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA'&&!e.target.dataset.fkm){e.preventDefault();save()}})};
+  const bindRow=tr=>{tr.querySelectorAll('td.ed').forEach(td=>td.onclick=e=>{if(e.target.closest('form'))return;edit(td)});
+    const cb=tr.querySelector('[data-s]');if(cb)cb.onchange=()=>{cb.checked?st.sel.add(cb.dataset.s):st.sel.delete(cb.dataset.s);tr.classList.toggle('sel',cb.checked);selUpd()};
+    const o=tr.querySelector('[data-open]');if(o)o.onclick=()=>{const r=rows.find(x=>x.id===o.dataset.open);const back=opt.inModal?()=>drill(name,opt):load;(name==='orders'?openOrder:(rr,a)=>openForm(name,rr,a))(r,back)};
+    const a=tr.querySelector('[data-ar]');if(a)a.onclick=async()=>{if(!confirm('Bỏ dòng này?\nDòng được chuyển vào Thùng lưu trữ (không xóa vĩnh viễn), số liệu liên quan tự tính lại. Quản trị khôi phục được khi cần.'))return;
+      const {error}=await sb.rpc('khg_archive',{p_table:cfg.table,p_id:a.dataset.ar});if(error)return toast('Lỗi: '+error.message);rows=rows.filter(x=>x.id!==a.dataset.ar);if(cfg.label)delete REF[name];draw();toast('Đã bỏ dòng (lưu trữ)');opt.onChange&&opt.onChange()}};
+  const selUpd=()=>{const n=st.sel.size;const b=host.querySelector('[data-bulk]'),ar=host.querySelector('[data-arch]');b.disabled=ar.disabled=!n||RO;b.textContent=n?`✎ Sửa hàng loạt (${n})`:'✎ Sửa hàng loạt';ar.textContent=n?`🗂 Bỏ ${n} dòng đã chọn`:'🗂 Bỏ (lưu trữ) dòng đã chọn'};
+  const bind=()=>{W.querySelectorAll('tbody tr').forEach(bindRow);const all=W.querySelector('[data-all]');if(all)all.onchange=()=>{vis().forEach(r=>all.checked?st.sel.add(r.id):st.sel.delete(r.id));draw();selUpd()};selUpd()};
+  host.querySelector('[data-q]').oninput=e=>{st.q=e.target.value;draw()};
+  const df=host.querySelector('[data-from]');if(df){df.onchange=()=>{st.from=df.value;load()};host.querySelector('[data-to]').onchange=e=>{st.to=e.target.value;load()}}
+  host.querySelectorAll('[data-unq]').forEach(a=>a.onclick=e=>{e.preventDefault();delete st.eq[a.dataset.unq];a.parentElement.remove();load()});
+  const md=host.querySelector('[data-mod]');if(md)md.onchange=()=>{DG.mod=md.value;dataGrid(host,md.value,{picker:true})};
+  host.querySelector('[data-xls]').onclick=()=>xlsx(cfg.title+'_chi_tiet',{[cfg.title]:rowsForExport(cfg,vis())});
+  host.querySelector('[data-bulk]').onclick=()=>bulkEdit(name,rows.filter(r=>st.sel.has(r.id)),opt.inModal?()=>drill(name,opt):load);
+  host.querySelector('[data-arch]').onclick=async()=>{const ids=[...st.sel];if(!ids.length||!confirm(`Bỏ ${ids.length} dòng đã chọn?\nCác dòng chuyển vào Thùng lưu trữ, không xóa vĩnh viễn.`))return;let ok=0,er='';
+    for(const id of ids){const {error}=await sb.rpc('khg_archive',{p_table:cfg.table,p_id:id});if(error)er=error.message;else ok++}toast(er?`Bỏ ${ok} dòng · lỗi: ${er}`:`Đã bỏ ${ok} dòng (lưu trữ)`);if(cfg.label)delete REF[name];load();opt.onChange&&opt.onChange()};
+  const nb=host.querySelector('[data-new]');if(nb)nb.onclick=()=>openForm(name,null,opt.inModal?()=>drill(name,opt):load,{...st.eq});
+  await load();
+}
+// Mở data chi tiết trong cửa sổ nổi từ bất kỳ con số nào
+async function drill(name,opt={}){if(!E[name])return toast('Chưa có mục dữ liệu này');
+  modal(`<h3>📋 Data chi tiết · ${esc(opt.title||E[name].title)}</h3><div id="dgm"></div><div class="acts"><button class="btn" id="dgFull">Mở trang Data chi tiết</button><span class="sp"></span><button class="btn" id="dgX">Đóng</button></div>`,true);
+  $('#modal-box').style.maxWidth='1400px';$('#dgX').onclick=()=>{closeModal();opt.after&&opt.after()};$('#dgFull').onclick=()=>{DG.mod=name;DG.opt={from:opt.from,to:opt.to,eq:opt.eq};closeModal();go('data')};
+  await dataGrid($('#dgm'),name,{...opt,inModal:true})}
+document.addEventListener('click',e=>{const el=e.target.closest&&e.target.closest('[data-dg]');if(!el)return;e.preventDefault();e.stopPropagation();try{const o=JSON.parse(el.dataset.dg);drill(o.n,o)}catch(x){console.warn(x)}},true);
+const dgExec=(k,p)=>{const o={from:p.from,to:p.to};const M={van_chuyen:['orders',{eq:{service:'van_chuyen'}}],xe_cau:['orders',{eq:{service:'xe_cau'}}],xe_nang:['orders',{eq:{service:'xe_nang'}}],boc_xep:['orders',{eq:{service:'boc_xep'}}],tron_goi:['orders',{eq:{service:'tron_goi'}}],kho_dv:['orders',{eq:{service:'kho'}}],
+  cho_thue_kho:['leases',{allDates:true}],phan_phoi:['dms_orders',{}],ban_quay:['dms_orders',{eq:{channel:'pos'}}],xe_nang_ban:['svc_requests',{eq:{grp:'xe_nang_ban'}}],bds:['svc_requests',{eq:{grp:'bds'}}],kho_dich_vu:['svc_requests',{}],nang_ha_dv:['svc_requests',{}]};const m=M[k];return m&&E[m[0]]?dgAttr(m[0],{...o,...m[1]}):''};
+const dgAttr=(n,o={})=>`data-dg='${esc(JSON.stringify({n,...o}))}' style="cursor:pointer" title="Bấm để xem và sửa data chi tiết"`;
+async function viewData(m){const name=DG.mod&&E[DG.mod]?DG.mod:'orders';const o=DG.opt||{};DG.opt=null;
+  m.innerHTML=`<h2>Data chi tiết</h2><p class="sub">Xem từng dòng dữ liệu gốc của mọi mục và sửa thẳng trên bảng: bấm vào ô → sửa → Enter. Chọn nhiều dòng để sửa hàng loạt hoặc bỏ dòng nhập nhầm. Dòng bị bỏ chuyển vào Thùng lưu trữ (không xóa vĩnh viễn), các báo cáo, lương, công nợ tự tính lại.</p><div id="dgp"></div>`;
+  await dataGrid($('#dgp'),name,{picker:true,...o})}
+
 // ===================== NHẬP / XUẤT EXCEL MẪU · AI ĐỌC BẢNG KÊ (v17) =====================
 const XL_SKIP=['code','source','archived_at','created_at'];
 const xlNorm=s=>String(s??'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/\(.*?\)/g,' ').replace(/[^a-z0-9]+/g,' ').trim();
@@ -1430,15 +1512,15 @@ async function viewOverview(m){
     const costRows=pl.lines.filter(x=>x[0]!=='Doanh thu').map(x=>({l:x[1],v:x[2]})).sort((a,b)=>b.v-a.v);
     const revRows=pl.lines.filter(x=>x[0]==='Doanh thu').map(x=>({l:x[1],v:x[2]})).sort((a,b)=>b.v-a.v);
     ov.innerHTML=`<div class="kpis">
-     <div class="kpi hot"><div class="l">Doanh thu</div><div class="v">${fmtTr(pl.rev)}</div><div class="h">${pl.orders.length} đơn · ${fmtN(pl.trips)} chuyến</div></div>
-     <div class="kpi"><div class="l">Chi phí</div><div class="v">${fmtTr(pl.cost)}</div><div class="h">Xe ngoài, chi phí, lương, kho</div></div>
+     <div class="kpi hot" ${dgAttr('orders',{from:p.from,to:p.to,title:'Đơn hàng trong kỳ (doanh thu)'})}><div class="l">Doanh thu</div><div class="v">${fmtTr(pl.rev)}</div><div class="h">${pl.orders.length} đơn · ${fmtN(pl.trips)} chuyến</div></div>
+     <div class="kpi" ${dgAttr('expenses',{from:p.from,to:p.to,title:'Chi phí trong kỳ'})}><div class="l">Chi phí</div><div class="v">${fmtTr(pl.cost)}</div><div class="h">Xe ngoài, chi phí, lương, kho</div></div>
      <div class="kpi"><div class="l">Lãi gộp</div><div class="v" style="color:${pl.profit<0?'var(--red)':'var(--green)'}">${fmtTr(pl.profit)}</div><div class="h">Biên ${pl.rev?(pl.profit*100/pl.rev).toFixed(1).replace('.',','):0}%</div></div>
-     <div class="kpi ${overdue?'hot':''}"><div class="l">Phải thu</div><div class="v">${fmtTr(owed)}</div><div class="h">Quá hạn ${fmtTr(overdue)}</div></div>
-     <div class="kpi"><div class="l">Phải trả</div><div class="v">${fmtTr(payOpen)}</div><div class="h">Đến hạn 7 ngày: ${fmtTr(payDue)}</div></div>
-     <div class="kpi"><div class="l">Tồn quỹ</div><div class="v">${fmtTr(bal('tien_mat')+bal('ngan_hang'))}</div><div class="h">TM ${fmtTr(bal('tien_mat'))} · NH ${fmtTr(bal('ngan_hang'))}</div></div>
+     <div class="kpi ${overdue?'hot':''}" ${dgAttr('receivables',{allDates:true})}><div class="l">Phải thu</div><div class="v">${fmtTr(owed)}</div><div class="h">Quá hạn ${fmtTr(overdue)}</div></div>
+     <div class="kpi" ${dgAttr('payables',{allDates:true})}><div class="l">Phải trả</div><div class="v">${fmtTr(payOpen)}</div><div class="h">Đến hạn 7 ngày: ${fmtTr(payDue)}</div></div>
+     <div class="kpi" ${dgAttr('cash',{from:p.from,to:p.to,title:'Sổ quỹ trong kỳ'})}><div class="l">Tồn quỹ</div><div class="v">${fmtTr(bal('tien_mat')+bal('ngan_hang'))}</div><div class="h">TM ${fmtTr(bal('tien_mat'))} · NH ${fmtTr(bal('ngan_hang'))}</div></div>
      <div class="kpi ${waiting?'hot':''}"><div class="l">Hôm nay</div><div class="v">${live.length} đơn</div><div class="h">Đang chạy ${running} · chờ xe/tài xế ${waiting}</div></div>
-     <div class="kpi"><div class="l">Có mặt hôm nay</div><div class="v">${(att.data||[]).filter(a=>['co_mat','nua_ngay'].includes(a.status)).length}</div><div class="h">Lấp đầy kho ${occ}% (hòa vốn ~97%)</div></div>
-     <div class="kpi ${(adv.data||[]).length?'hot':''}"><div class="l">Tạm ứng chờ duyệt</div><div class="v">${(adv.data||[]).length}</div><div class="h">${fmtTr(sum(adv.data||[],a=>a.amount))}</div></div>
+     <div class="kpi" ${dgAttr('attendance',{from:today(),to:today(),title:'Chấm công hôm nay'})}><div class="l">Có mặt hôm nay</div><div class="v">${(att.data||[]).filter(a=>['co_mat','nua_ngay'].includes(a.status)).length}</div><div class="h">Lấp đầy kho ${occ}% (hòa vốn ~97%)</div></div>
+     <div class="kpi ${(adv.data||[]).length?'hot':''}" ${dgAttr('advances',{eq:{status:'cho_duyet'},allDates:true})}><div class="l">Tạm ứng chờ duyệt</div><div class="v">${(adv.data||[]).length}</div><div class="h">${fmtTr(sum(adv.data||[],a=>a.amount))}</div></div>
      <div class="kpi ${dues.length?'hot':''}"><div class="l">Giấy tờ sắp hết hạn</div><div class="v">${dues.length}</div><div class="h">Trong 30 ngày tới</div></div>
     </div>
     <div class="grid2" style="margin-bottom:16px">
@@ -1942,7 +2024,7 @@ async function tsGrid(h){
       ${has(['admin','ke_toan'])?`<div class="acts"><button class="btn p" id="tsClose">⚙ Chốt lương tháng → Bảng lương & chi phí</button></div><p class="sub">Chốt lương tạo bảng lương từng người (trừ bảo hiểm, tạm ứng, khấu trừ) và đưa vào báo cáo lãi lỗ. Khi bấm “Trả lương” ở tab Bảng lương, tiền chi ghi vào sổ quỹ mục Chi lương. Bảng đã duyệt hoặc đã trả giữ nguyên.</p>`:''}</div>`;
     const cb=h.querySelector('#tsClose');if(cb)cb.onclick=async()=>{const f=D.from,t=D.to;if(!confirm(`Chốt lương tháng ${TS.month.split('-').reverse().join('/')} từ bảng chấm công?`))return;
       const {data,error}=await sb.rpc('khg_calc_salary',{p_type:'thang',p_start:f,p_end:t});toast(error?error.message:`Đã chốt lương ${data} người. Xem ở tab Bảng lương.`);load()}};
-  const cellPop=(e,pid,d)=>{const p=D.people.find(x=>x.id===pid);const c=p.cells[d]||{};const dd=D.days.find(x=>x.d===d);
+  const cellPop=(e,pid,d,after)=>{const p=D.people.find(x=>x.id===pid);const c=p.cells[d]||{};const dd=D.days.find(x=>x.d===d);
     const pp=tsPop(e.clientX+8,e.clientY+8,`<h4>${esc(p.full_name)} · ${d.split('-').reverse().join('/')} ${dd&&dd.t==='le'?'(lễ)':dd&&dd.t==='cuoi_tuan'?'(chủ nhật)':''}</h4>
       <div class="row">${Object.entries(TS_ST).map(([k,v])=>`<button class="btn s" data-s="${k}" style="color:${v[2]};${c.s===k?'outline:2px solid '+v[2]:''}">${v[0]} ${v[1]}</button>`).join('')}</div>
       <label>Giờ tăng ca</label><input type="number" step="0.5" min="0" max="16" id="pOt" value="${Number(c.ot)||''}" placeholder="0">
@@ -1951,8 +2033,22 @@ async function tsGrid(h){
       ${p.daily[d]?`<p class="sub">Lương ngày này: <b>${fmtN(p.daily[d])} đ</b></p>`:''}
       <div class="row"><button class="btn p" id="pSave">Lưu</button>${c.s?'<button class="btn" id="pDel">Xóa ô</button>':''}</div>`);
     let st=c.s||'co_mat';pp.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{st=b.dataset.s;pp.querySelectorAll('[data-s]').forEach(x=>x.style.outline=x===b?'2px solid '+TS_ST[x.dataset.s][2]:'')});
-    pp.querySelector('#pSave').onclick=async()=>{const ot=pp.querySelector('#pOt').value;if(await set([pid],[d],st,ot===''?0:ot,pp.querySelector('#pNt').value))pp.remove()};
-    const dl=pp.querySelector('#pDel');if(dl)dl.onclick=async()=>{if(await set([pid],[d],null))pp.remove()}};
+    pp.querySelector('#pSave').onclick=async()=>{const ot=pp.querySelector('#pOt').value;if(await set([pid],[d],st,ot===''?0:ot,pp.querySelector('#pNt').value)){pp.remove();after&&after()}};
+    const dl=pp.querySelector('#pDel');if(dl)dl.onclick=async()=>{if(await set([pid],[d],null)){pp.remove();after&&after()}}};
+  const dayDetail=async pid=>{const p=D.people.find(x=>x.id===pid);if(!p)return;const {data:pd,error}=await sb.rpc('khg_pay_daily',{p_from:D.from,p_to:D.to,p_person:pid});if(error)return toast(error.message);
+    const PD=Object.fromEntries((Array.isArray(pd)?pd:[]).map(x=>[x.d,x]));const ds=D.days.filter(d=>p.cells[d.d]||PD[d.d]);const T=k=>sum(Object.values(PD),x=>x[k]);
+    modal(`<h3>📋 Data chi tiết từng ngày · ${esc(p.full_name)} ${p.emp_code?'· '+esc(p.emp_code):''} · tháng ${TS.month.split('-').reverse().join('/')}</h3>
+      <p class="sub">Sửa ngày chấm sai, thêm giờ tăng ca, ghi chú, hoặc bỏ hẳn ngày công đó – lương tự tính lại ngay. Tiền chuyến lấy từ đơn tài xế đã giao: sửa ở “Đơn tính tiền chuyến”.</p>
+      <div class="tw" style="max-height:56vh"><table style="min-width:0"><thead><tr><th>Ngày</th><th>Loại ngày</th><th>Chấm công</th><th class="n">Giờ TC</th><th>Ghi chú</th><th>Vào – ra</th><th class="n">Lương công</th><th class="n">Tăng ca</th><th class="n">Phụ cấp</th><th class="n">Tiền chuyến</th><th class="n">Cộng ngày</th>${canEdit?'<th></th>':''}</tr></thead><tbody>
+      ${ds.map(d=>{const c=p.cells[d.d]||{};const x=PD[d.d]||{};const stt=TS_ST[c.s];const dd=new Date(d.d+'T00:00');return `<tr><td>${dd.getDate()}/${dd.getMonth()+1} · ${TS_DOW[dd.getDay()]}</td><td>${d.t==='le'?'Lễ'+(d.h?' · '+esc(d.h):''):d.t==='cuoi_tuan'?'Chủ nhật':'Thường'}</td>
+        <td>${stt?`<b style="color:${stt[2]}">${stt[0]} ${stt[1]}</b>`:'—'}${c.ap==='cho_duyet'?' <span class="pill amber">chờ duyệt</span>':''}</td><td class="n">${Number(c.ot)||''}</td><td>${esc(c.n||'')}</td><td>${c.in||c.out?esc((c.in||'—')+' – '+(c.out||'—')):''}</td>
+        <td class="n">${fmtN(x.base_pay)}</td><td class="n">${fmtN(x.ot_pay)}</td><td class="n">${fmtN(x.allow_pay)}</td><td class="n">${x.trip_pay?fmtN(x.trip_pay)+' <span class="sub">('+x.trips+')</span>':''}</td><td class="n"><b>${fmtN(x.total)}</b></td>
+        ${canEdit?`<td style="white-space:nowrap"><button class="btn s" data-de="${d.d}">✎ Sửa</button> ${c.s?`<button class="btn s" data-dx="${d.d}" style="color:var(--red)">Bỏ ngày</button>`:''}</td>`:''}</tr>`}).join('')||`<tr><td colspan="12" class="empty">Chưa có ngày công nào trong tháng.</td></tr>`}</tbody>
+      <tfoot><tr class="tot"><td colspan="6">Cộng tháng (chưa gồm chuyên cần ${fmtN(p.bon)})</td><td class="n">${fmtN(T('base_pay'))}</td><td class="n">${fmtN(T('ot_pay'))}</td><td class="n">${fmtN(T('allow_pay'))}</td><td class="n">${fmtN(T('trip_pay'))}</td><td class="n">${fmtN(T('total'))}</td>${canEdit?'<td></td>':''}</tr></tfoot></table></div>
+      <div class="acts"><button class="btn" ${dgAttr('attendance',{eq:{person_id:pid},from:D.from,to:D.to,title:'Chấm công gốc · '+p.full_name})}>📋 Bảng chấm công gốc</button><button class="btn" ${dgAttr('orders',{eq:{driver_id:pid},from:D.from,to:D.to,title:'Đơn tính tiền chuyến · '+p.full_name})}>🚚 Đơn tính tiền chuyến</button><button class="btn" ${dgAttr('pay_items',{eq:{person_id:pid},from:D.from,to:D.to,title:'Thưởng, phạt, phụ cấp · '+p.full_name})}>Thưởng / phạt</button><span class="sp"></span><button class="btn" id="ddX">Đóng</button></div>`,true);
+    $('#ddX').onclick=closeModal;const box=$('#modal-box');
+    box.querySelectorAll('[data-de]').forEach(b=>b.onclick=e=>cellPop(e,pid,b.dataset.de,()=>dayDetail(pid)));
+    box.querySelectorAll('[data-dx]').forEach(b=>b.onclick=async()=>{const dd=b.dataset.dx;if(!confirm('Bỏ ngày công '+dd.split('-').reverse().join('/')+' của '+p.full_name+'?\nLương ngày này sẽ trừ khỏi tháng. Dữ liệu chuyển vào lưu trữ, khôi phục được.'))return;if(await set([pid],[dd],null))dayDetail(pid)})};
   const bind=()=>{const B=h.querySelector('#tsB');
     B.querySelectorAll('td.c').forEach(td=>{td.onclick=async e=>{const [pid,d]=td.dataset.c.split('|');if(!canEdit){return}
         if(TS.brush==='ot')return cellPop(e,pid,d);const p=D.people.find(x=>x.id===pid);const c=p.cells[d];
@@ -1973,7 +2069,8 @@ async function tsGrid(h){
       const pp=tsPop(e.clientX+8,e.clientY,`<h4>${esc(p.full_name)} · ${esc(p.emp_code||'')}</h4><p class="sub">Lương ${p.salary_type==='thang'?'tháng':p.salary_type==='ngay'?'ngày':p.salary_type==='khoan'?'khoán':'chuyến'}: <b>${fmtN(p.base)}</b> · phụ cấp tháng ${fmtN(p.allw)} · chuyên cần ${fmtN(p.bonus)}</p>
         <div class="row"><button class="btn p" id="rEmpty">✓ Chấm đủ công ${empty.length} ngày còn trống (đến hôm nay, trừ CN, lễ)</button></div>
         <div class="row"><button class="btn" id="rAll">${TS_ST[b][0]} Chấm “${TS_ST[b][1]}” tất cả ${work.length} ngày làm việc</button></div>
-        <div class="row"><button class="btn" id="rEdit">✎ Sửa mức lương, phụ cấp</button></div>`);
+        <div class="row"><button class="btn" id="rDet">📋 Data chi tiết từng ngày</button><button class="btn" id="rEdit">✎ Sửa mức lương, phụ cấp</button></div>`);
+      pp.querySelector('#rDet').onclick=()=>{pp.remove();dayDetail(pid)};
       pp.querySelector('#rEmpty').onclick=async()=>{if(!empty.length)return toast('Không còn ngày trống');if(await set([pid],empty,'co_mat'))pp.remove()};
       pp.querySelector('#rAll').onclick=async()=>{if(await set([pid],work,b))pp.remove()};
       pp.querySelector('#rEdit').onclick=async()=>{pp.remove();const {data:row}=await sb.from('khg_people').select('*').eq('id',pid).single();openForm('people',row,load)}})};
@@ -3743,7 +3840,7 @@ VIEWS.exec=async m=>{
         $('#exTop').innerHTML=`<h3>Top dịch vụ theo ${nm.toLowerCase()}</h3>`+(R.some(r=>r.v)?CH.hbar(R.filter(r=>r.v),fm):'<div class="empty">Chưa có số liệu trong kỳ.</div>');
         const S2=LX.slice().sort((a,b)=>f(b)-f(a));const mr=Math.max(...LX.map(l=>l.rev)),mc=Math.max(...LX.map(l=>l.cost)),mg=Math.max(...LX.map(l=>l.gp));
         $('#exMx').innerHTML=`<table class="mx"><thead><tr><th>Sản phẩm / dịch vụ</th><th class="n">Doanh thu</th><th class="n">Chi phí</th><th class="n">Lãi gộp</th><th class="n">Biên</th><th class="n">Khối lượng</th><th class="n">± CT</th><th class="n">Dự báo</th><th class="n">Tỷ trọng</th></tr></thead><tbody>
-          ${S2.map(l=>`<tr><td title="${esc(l.name)}${l.note?' · '+esc(l.note):''}"><span class="gd" style="background:${{van_hanh:'#4A90D9',kho_bai:'#2B6F77',thuong_mai:'#B5651D',nen_tang:'#6A3FA0'}[l.group]||'#999'}"></span>${esc(l.sh)}</td>
+          ${S2.map(l=>`<tr ${dgExec(l.key,p)}><td title="${esc(l.name)}${l.note?' · '+esc(l.note):''}"><span class="gd" style="background:${{van_hanh:'#4A90D9',kho_bai:'#2B6F77',thuong_mai:'#B5651D',nen_tang:'#6A3FA0'}[l.group]||'#999'}"></span>${esc(l.sh)}</td>
             <td class="n" style="${heat(l.rev,mr,'74,144,217')}">${fmtTr(l.rev)}</td><td class="n" style="${heat(l.cost,mc,'31,59,99')}">${l.cost?fmtTr(l.cost):'—'}</td><td class="n" style="${heat(l.gp,mg,'30,122,76')}">${fmtTr(l.gp)}</td>
             <td class="n">${l.margin==null?'—':l.margin.toFixed(1).replace('.',',')+'%'}</td><td class="n">${fmtN(l.qty)} <small>${esc(l.unit||'')}</small></td>
             <td class="n">${l.pv==null?'<small class="sub">—</small>':`<b class="${l.pv>=0?'up':'dn'}">${pc(l.pv)}</b>`}</td><td class="n">${fmtTr(l.f)}</td><td class="n">${l.share.toFixed(1).replace('.',',')}%</td></tr>`).join('')}
@@ -3765,7 +3862,7 @@ VIEWS.exec=async m=>{
           <div class="it">🚚 ${fmtN(FN.fleet)} xe · ${fmtN(FN.equip)} xe nâng, cẩu · ${fmtN(FN.partners)} đối tác xe</div><div class="it">🏬 Kho ${fmtN(FN.warehouse_m2)} m² · cho thuê ${fmtN(FN.leased_m2)} m² (${FN.warehouse_m2?Math.round(FN.leased_m2*100/FN.warehouse_m2):0}% lấp đầy)</div>
           <div class="it">🪪 ${fmtN(FN.fd_drivers)} tài xế Fast Driver · 🏪 ${fmtN(FN.outlets)} điểm bán · 👥 ${fmtN(FN.customers)} khách</div>
           <div class="it">${FN.leads_late?'<span class="pill red">'+FN.leads_late+' lead quá hạn</span>':'<span class="pill green">Lead đúng hạn</span>'} ${FN.tasks_late?'<span class="pill red">'+FN.tasks_late+' việc quá hạn</span>':'<span class="pill green">Việc đúng hạn</span>'} · ${fmtN(FN.leads_open)} lead đang xử lý</div></div></div></div>`+(()=>{const PR=FN.payroll||[];const t=PR.reduce((a,r)=>a+Number(r.gross||0),0),pd=PR.reduce((a,r)=>a+Number(r.paid||0),0);
-        return `<div class="card" style="margin-bottom:12px"><h3>👥 Chi phí lương nhân sự theo vị trí <span class="sub" style="font-weight:400">· từ bảng chấm công · tổng ${fmtM(t)} · đã trả ${fmtM(pd)}</span></h3>${PR.some(r=>Number(r.gross))?CH.hbar(PR.filter(r=>Number(r.gross)).map(r=>({name:(O.role[r.role]||r.role)+' ('+r.n+' người)',v:Number(r.gross)}))):'<div class="empty">Chưa có ngày công nào trong kỳ. Chấm công ở mục Chấm công & lương → Bảng chấm công tháng.</div>'}</div>`})();
+        return `<div class="card" style="margin-bottom:12px"><h3 ${dgAttr('attendance',{from:p.from,to:p.to,title:'Chấm công trong kỳ (gốc của chi phí lương)'})}>👥 Chi phí lương nhân sự theo vị trí <span class="sub" style="font-weight:400">· từ bảng chấm công · tổng ${fmtM(t)} · đã trả ${fmtM(pd)}</span></h3>${PR.some(r=>Number(r.gross))?CH.hbar(PR.filter(r=>Number(r.gross)).map(r=>({name:(O.role[r.role]||r.role)+' ('+r.n+' người)',v:Number(r.gross)}))):'<div class="empty">Chưa có ngày công nào trong kỳ. Chấm công ở mục Chấm công & lương → Bảng chấm công tháng.</div>'}</div>`})();
       $('#exb').innerHTML=TOP+`<details class="card" id="exDt"><summary style="cursor:pointer;font-weight:700">Chi tiết vận tải & phân phối: chỉ tiêu, lũy kế, miền, tỉnh, kênh, sản phẩm, nhân viên</summary><div style="margin-top:12px"><div class="kpis">${K.slice(1).map(([l,v,id,t,f,h2],i)=>{const pv=vpct(v,t),pf=vpct(fc(v),t);return `<div class="kpi ${pv!=null&&pv<-10?'hot':''}"><div class="l">${l}</div><div class="v">${f(v)}</div><div class="h">${vtag(pv,'So chỉ tiêu')}${t!=null?` · CT ${f(t)}`:''}</div><div class="h">Dự báo ${f(fc(v))} · ${pf==null?'':vtag(pf,'vs CT')}</div>${h2?`<div class="h">${h2}</div>`:''}</div>`}).join('')}</div>
        <div class="grid3"><div class="card" style="grid-column:span 2"><h3>Doanh thu lũy kế so với đường chỉ tiêu</h3>${CH.line(days_.map(d=>d.slice(8,10)+'/'+d.slice(5,7)),lineS)}</div>
         <div class="card"><h3>Theo miền</h3>${CH.hbar(Object.entries(byReg).map(([name,v])=>({name,v})).sort((a,b)=>b.v-a.v))}</div>
@@ -3786,6 +3883,9 @@ VIEWS.exec=async m=>{
 };
 TABS.push(['exec','Bảng điều hành CEO',['admin','ke_toan']]);
 TABS.push(['excel','Nhập/xuất Excel & báo cáo',['admin','ke_toan','dieu_phoi']]);VIEWS.excel=viewExcel;
+TABS.push(['data','Data chi tiết (sửa trực tiếp)',['admin','ke_toan']]);VIEWS.data=viewData;
+{const g=NAV_GROUPS.find(x=>x[0]==='Điều hành');if(g)g[1].splice(1,0,'data');}
+ICONS.data=IC('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/>');
 {const g=NAV_GROUPS.find(x=>x[0]==='Tài chính');if(g)g[1].push('excel');}
 ICONS.excel=IC('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8l3 4-3 4M16 8l-3 4 3 4"/>');
 {const g=NAV_GROUPS.find(x=>x[0]==='Điều hành');if(g)g[1].unshift('exec');}
