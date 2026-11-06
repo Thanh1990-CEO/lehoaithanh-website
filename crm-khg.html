@@ -985,13 +985,13 @@ async function renderList(name,host,opts={}){
     if(!host.querySelector('[data-cnt]'))return;host.querySelector('[data-cnt]').textContent=rows.length+' dòng'+(opts.sumKey?` · Tổng ${((fields(cfg).find(f=>f.k===opts.sumKey))||{l:''}).l.toLowerCase()}: ${fmtM(sum(rows,r=>r[opts.sumKey]))}`:'')+(rows.length>=1000?' (hiện 1.000 dòng đầu, Excel xuất đến 10.000)':'');
     if(!rows.length){tw.innerHTML='<div class="empty">Chưa có dữ liệu.</div>';return}
     tw.innerHTML=`<table><thead><tr>${canSel?'<th class="ck"><input type="checkbox" data-all title="Chọn tất cả"></th>':''}${cols.map(c=>`<th class="${['money','num'].includes(c.t)?'n':''}" title="${esc(c.l)}">${esc(shortL(c.l))}</th>`).join('')}<th></th></tr></thead><tbody>${
-      rows.map(r=>`<tr class="rw ${docRowCls(r)}" data-id="${r.id}">${canSel?`<td class="ck"><input type="checkbox" data-sel="${r.id}"></td>`:''}${cols.map(c=>`<td class="${['money','num'].includes(c.t)?'n':''} t-${c.t} k-${c.k}">${cell(c,r[c.k],r,cfg)}</td>`).join('')}<td class="ra">${opts.rowActions?opts.rowActions(r):''}${RO?'':`<button class="ib" data-ed="${r.id}" title="Sửa">✎</button>`}<button class="ib" data-ln="${r.id}" title="Sao chép link gửi người khác">🔗</button>${cfg.files?`<button class="ib" data-files="${r.id}" title="Chứng từ">📎</button>`:''}${RO||opts.noArchive?'':`<button class="ib" data-ar="${r.id}" title="Chuyển vào lưu trữ">🗂</button>`}</td></tr>`).join('')}</tbody></table>`;
+      rows.map(r=>`<tr class="rw ${docRowCls(r)}" data-id="${r.id}">${canSel?`<td class="ck"><input type="checkbox" data-sel="${r.id}"></td>`:''}${cols.map(c=>`<td class="${['money','num'].includes(c.t)?'n':''} t-${c.t} k-${c.k}">${cell(c,r[c.k],r,cfg)}</td>`).join('')}<td class="ra">${opts.rowActions?opts.rowActions(r):''}${RO?'':`<button class="ib" data-ed="${r.id}" title="Sửa">✎</button>`}<button class="ib" data-ln="${r.id}" title="Sao chép link gửi người khác">🔗</button>${cfg.files?`<button class="ib" data-files="${r.id}" title="Chứng từ">📎</button>`:''}${RO||opts.noArchive?'':`<button class="ib" data-ar="${r.id}" title="Xoá dòng này (hỏi lý do, ghi nhật ký)">🗑</button>`}</td></tr>`).join('')}</tbody></table>`;
     const open=r=>(opts.onOpen||((r,after)=>openForm(name,r,after)))(r,load);
     tw.querySelectorAll('tr.rw').forEach(tr=>tr.addEventListener('click',e=>{if(e.target.closest('[data-act],[data-files],input,.ib,a,button'))return;open(rows.find(r=>r.id===tr.dataset.id))}));
     tw.querySelectorAll('[data-ed]').forEach(b=>b.onclick=e=>{e.stopPropagation();openForm(name,rows.find(r=>r.id===b.dataset.ed),load)});
     tw.querySelectorAll('[data-ln]').forEach(b=>b.onclick=e=>{e.stopPropagation();const r=rows.find(x=>x.id===b.dataset.ln);copyText(`${cfg.title} ${r.code||r.full_name||r.name||r.plate||r.party||''}: ${recLink(name,r.id)}`,'Đã sao chép link – gửi cho người có quyền xem')});
-    tw.querySelectorAll('[data-ar]').forEach(b=>b.onclick=async e=>{e.stopPropagation();const r=rows.find(x=>x.id===b.dataset.ar);if(!confirm(`Chuyển "${r.code||r.full_name||r.name||r.plate||r.party||'dòng này'}" vào lưu trữ?\nDữ liệu không bị xóa – quản trị khôi phục được trong mục Thùng lưu trữ.`))return;
-      const {error}=await sb.rpc('khg_archive',{p_table:cfg.table,p_id:r.id});if(error)return toast(error.message);toast('Đã chuyển vào lưu trữ');if(cfg.label)delete REF[name];load()});
+    tw.querySelectorAll('[data-ar]').forEach(b=>b.onclick=async e=>{e.stopPropagation();const r=rows.find(x=>x.id===b.dataset.ar);const RZ=await askDel(1,`"${r.code||r.full_name||r.name||r.plate||r.party||'dòng này'}"`,cfg.title);if(!RZ)return;
+      const {error}=await sb.rpc('khg_archive_r',{p_table:cfg.table,p_ids:[r.id],p_reason:RZ});if(error)return toast(error.message);toast('Đã xoá (đưa vào thùng lưu trữ) – đã ghi nhật ký');if(cfg.label)delete REF[name];load()});
     // gợi ý tìm kiếm từ dữ liệu đang có
     const dl=host.querySelector('#dl-'+name);if(dl&&cfg.search){const vals=new Set();rows.forEach(r=>cfg.search.forEach(k=>{const v=r[k];if(v&&String(v).length<80)vals.add(String(v))}));dl.innerHTML=[...vals].slice(0,300).map(v=>`<option value="${esc(v)}">`).join('')}
     // chọn nhiều
@@ -1019,7 +1019,7 @@ async function renderList(name,host,opts={}){
     sb_.innerHTML=`<b>Đã chọn ${sel.size}/${rows.length}</b>${sel.size<rows.length?'<button class="btn s" data-x="all">Chọn tất cả '+rows.length+'</button>':''}
       ${RO?'':'<button class="btn s" data-x="edit">✎ Sửa hàng loạt</button>'}${sel.size===1?'<button class="btn s" data-x="one">✎ Sửa dòng này</button>':''}${!RO&&stF?`${okV?`<button class="btn s" data-x="st:${okV}" style="background:#065F46">✓ ${esc(stO[okV])} hàng loạt</button>`:''}${cxV?`<button class="btn s" data-x="st:${cxV}" style="background:#7F1D1D">✕ ${esc(stO[cxV])} hàng loạt</button>`:''}<select data-stsel style="background:#1F2937;color:#fff;border:1px solid #374151;border-radius:8px;padding:5px"><option value="">Đổi ${esc(stF.l.toLowerCase())}…</option>${Object.entries(stO).map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('')}</select>`:''}
       <button class="btn s" data-x="xls">⬇ Excel đã chọn</button><button class="btn s" data-x="doc">⬇ Word</button><button class="btn s" data-x="pdf">⬇ PDF</button><button class="btn s" data-x="link">🔗 Sao chép link</button>${opts.bulkExtra?opts.bulkExtra():''}
-      ${RO||opts.noArchive?'':'<button class="btn s dg" data-x="arch">🗂 Chuyển vào lưu trữ</button>'}<span style="flex:1"></span><button class="btn s" data-x="none">✕ Bỏ chọn</button>`;
+      ${RO||opts.noArchive?'':'<button class="btn s dg" data-x="arch">🗑 Xoá dòng đã chọn</button>'}<span style="flex:1"></span><button class="btn s" data-x="none">✕ Bỏ chọn</button>`;
     const picked=()=>rows.filter(r=>sel.has(r.id));
     const ss=sb_.querySelector('[data-stsel]');if(ss)ss.onchange=()=>{if(ss.value)bulkStatus(ss.value,ss)};
     sb_.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{const x=b.dataset.x;if(x.startsWith('st:'))return bulkStatus(x.slice(3),b);
@@ -1030,9 +1030,9 @@ async function renderList(name,host,opts={}){
       if(x==='doc'||x==='pdf')return listExport(x,cfg,picked(),opts.exportExtra);
       if(x==='link')return copyText(picked().map(r=>`${r.code||r.full_name||r.name||r.plate||r.party||''} ${recLink(name,r.id)}`).join('\n'),'Đã sao chép '+sel.size+' link');
       if(x==='edit')return bulkEdit(name,picked(),()=>{sel.clear();load()});
-      if(x==='arch'){if(!confirm(`Chuyển ${sel.size} dòng vào lưu trữ?\nKhông xóa vĩnh viễn – quản trị khôi phục được.`))return;b.disabled=true;let ok=0,err='';
-        for(const r of picked()){const {error}=await sb.rpc('khg_archive',{p_table:cfg.table,p_id:r.id});if(error)err=error.message;else ok++}
-        toast(`Đã lưu trữ ${ok}/${sel.size}`+(err?' · '+err:''));if(cfg.label)delete REF[name];sel.clear();load()}
+      if(x==='arch'){const RZ=await askDel(sel.size,'',cfg.title);if(!RZ)return;b.disabled=true;let ok=0,err='';
+        {const {data:rr,error}=await sb.rpc('khg_archive_r',{p_table:cfg.table,p_ids:picked().map(r=>r.id),p_reason:RZ});if(error)err=error.message;else{ok=rr.ok;err=rr.error||''}}
+        toast(`Đã xoá ${ok}/${sel.size} dòng (đưa vào thùng lưu trữ)`+(err?' · '+err:''));if(cfg.label)delete REF[name];sel.clear();load()}
       if(opts.onBulk)await opts.onBulk(x,picked(),()=>{sel.clear();load()});
     });
   };
@@ -1311,7 +1311,7 @@ async function dataGrid(host,name,opt={}){
     <input type="search" data-q placeholder="Lọc nhanh trong bảng…" style="flex:1 1 200px;height:36px;border:1px solid var(--line);border-radius:9px;padding:0 10px">
     ${dk?`<label class="sub" style="margin:0">Từ <input type="date" data-from value="${st.from}"></label><label class="sub" style="margin:0">đến <input type="date" data-to value="${st.to}"></label>`:''}
     ${Object.entries(st.eq).map(([k,v])=>{const f=fields(cfg).find(x=>x.k===k);return `<span class="chip">${esc(f?shortL(f.l):k)}: ${esc(f?plain(f,v):v)} <a href="#" data-unq="${k}" style="text-decoration:none">✕</a></span>`}).join('')}
-    <span style="flex:1"></span>${(opt.actions||[]).map((a,i)=>`<button class="btn ${a.always?'':'p'}" data-dga="${i}" ${a.always?'':'disabled'}>${esc(a.label)}</button>`).join('')}<button class="btn" data-bulk disabled>✎ Sửa hàng loạt</button><button class="btn" data-arch disabled style="color:var(--red)">🗂 Bỏ (lưu trữ) dòng đã chọn</button><button class="btn" data-xls>⬇ Excel</button>${cfg.noNew||RO?'':'<button class="btn p" data-new>+ Thêm</button>'}</div>
+    <span style="flex:1"></span>${(opt.actions||[]).map((a,i)=>`<button class="btn ${a.always?'':'p'}" data-dga="${i}" ${a.always?'':'disabled'}>${esc(a.label)}</button>`).join('')}<button class="btn" data-bulk disabled>✎ Sửa hàng loạt</button><button class="btn" data-arch disabled style="color:var(--red)">🗑 Xoá dòng đã chọn</button><button class="btn" data-xls>⬇ Excel</button>${cfg.noNew||RO?'':'<button class="btn p" data-new>+ Thêm</button>'}</div>
     <div class="dgw"><div class="empty">Đang tải…</div></div><p class="sub" data-cnt style="margin-top:6px"></p>`;
   const W=host.querySelector('.dgw');let rows=[];
   const load=async()=>{let q=sb.from(cfg.table).select('*').order(cfg.order?cfg.order[0]:'created_at',{ascending:cfg.order?cfg.order[1]:false,nullsFirst:false}).limit(3000);
@@ -1323,7 +1323,7 @@ async function dataGrid(host,name,opt={}){
     W.innerHTML=R.length?`<table class="dg"><thead><tr><th class="ck"><input type="checkbox" data-all></th>${fs.map(f=>`<th title="${esc(f.l)}">${esc(shortL(f.l))}${dgCanEdit(f)?'':' 🔒'}</th>`).join('')}<th class="ac"></th></tr></thead><tbody>${R.map(r=>row(r)).join('')}</tbody>
       ${sums.length?`<tfoot><tr><td class="ck"></td>${fs.map(f=>`<td class="${f.t==='money'?'n':''}">${f.t==='money'?fmtN(sum(R,r=>r[f.k])):''}</td>`).join('')}<td class="ac"></td></tr></tfoot>`:''}</table>`:'<div class="empty">Không có dữ liệu trong phạm vi này.</div>';
     host.querySelector('[data-cnt]').textContent=`${R.length} dòng${R.length<rows.length?' (lọc từ '+rows.length+')':''}${rows.length>=3000?' · hiện 3.000 dòng đầu, thu hẹp ngày để xem hết':''} · Bấm vào ô để sửa trực tiếp (Enter lưu, Esc hủy). Ô 🔒 là số tự tính.`;bind()};
-  const row=r=>`<tr data-id="${r.id}" class="${st.sel.has(r.id)?'sel':''} ${docRowCls(r)}"><td class="ck"><input type="checkbox" data-s="${r.id}" ${st.sel.has(r.id)?'checked':''}></td>${fs.map(f=>`<td class="${dgCanEdit(f)?'ed':'ro'} ${['money','num'].includes(f.t)?'n':''}" data-k="${f.k}" title="${esc(String(plain(f,r[f.k],r,cfg)??''))}">${cell(f,r[f.k],r,cfg)}</td>`).join('')}<td class="ac"><button class="ib" data-open="${r.id}" title="Mở biểu mẫu đầy đủ">✎</button>${RO?'':`<button class="ib" data-ar="${r.id}" title="Bỏ dòng này (chuyển vào lưu trữ)">🗂</button>`}</td></tr>`;
+  const row=r=>`<tr data-id="${r.id}" class="${st.sel.has(r.id)?'sel':''} ${docRowCls(r)}"><td class="ck"><input type="checkbox" data-s="${r.id}" ${st.sel.has(r.id)?'checked':''}></td>${fs.map(f=>`<td class="${dgCanEdit(f)?'ed':'ro'} ${['money','num'].includes(f.t)?'n':''}" data-k="${f.k}" title="${esc(String(plain(f,r[f.k],r,cfg)??''))}">${cell(f,r[f.k],r,cfg)}</td>`).join('')}<td class="ac"><button class="ib" data-open="${r.id}" title="Mở biểu mẫu đầy đủ">✎</button>${RO?'':`<button class="ib" data-ar="${r.id}" title="Xoá dòng này (hỏi lý do, ghi nhật ký)">🗑</button>`}</td></tr>`;
   const edit=td=>{if(td.classList.contains('editing'))return;const tr=td.closest('tr');const r=rows.find(x=>x.id===tr.dataset.id);const f=fs.find(x=>x.k===td.dataset.k);if(!r||!f)return;
     const sub={table:cfg.table,f:[{...f,ro:false,req:false,hint:''}]};td.classList.add('editing');
     td.innerHTML=`<form class="dged"><div class="form">${formHTML(sub,r)}</div><button class="btn s p" data-ok title="Lưu">✓</button><button class="btn s" type="button" data-no title="Hủy">✕</button></form>`;
@@ -1338,8 +1338,8 @@ async function dataGrid(host,name,opt={}){
   const bindRow=tr=>{tr.querySelectorAll('td.ed').forEach(td=>td.onclick=e=>{if(e.target.closest('form'))return;edit(td)});
     const cb=tr.querySelector('[data-s]');if(cb)cb.onchange=()=>{cb.checked?st.sel.add(cb.dataset.s):st.sel.delete(cb.dataset.s);tr.classList.toggle('sel',cb.checked);selUpd()};
     const o=tr.querySelector('[data-open]');if(o)o.onclick=()=>{const r=rows.find(x=>x.id===o.dataset.open);const back=opt.inModal?()=>drill(name,opt):load;(name==='orders'?openOrder:(rr,a)=>openForm(name,rr,a))(r,back)};
-    const a=tr.querySelector('[data-ar]');if(a)a.onclick=async()=>{if(!confirm('Bỏ dòng này?\nDòng được chuyển vào Thùng lưu trữ (không xóa vĩnh viễn), số liệu liên quan tự tính lại. Quản trị khôi phục được khi cần.'))return;
-      const {error}=await sb.rpc('khg_archive',{p_table:cfg.table,p_id:a.dataset.ar});if(error)return toast('Lỗi: '+error.message);rows=rows.filter(x=>x.id!==a.dataset.ar);if(cfg.label)delete REF[name];draw();toast('Đã bỏ dòng (lưu trữ)');opt.onChange&&opt.onChange()}};
+    const a=tr.querySelector('[data-ar]');if(a)a.onclick=async()=>{const RZ=await askDel(1,'',cfg.title);if(!RZ)return;
+      const {error}=await sb.rpc('khg_archive_r',{p_table:cfg.table,p_ids:[a.dataset.ar],p_reason:RZ});if(error)return toast('Lỗi: '+error.message);rows=rows.filter(x=>x.id!==a.dataset.ar);if(cfg.label)delete REF[name];draw();toast('Đã xoá dòng – đã ghi nhật ký');opt.onChange&&opt.onChange()}};
   const selUpd=()=>{const n=st.sel.size;host.querySelectorAll('[data-dga]').forEach(b=>{const a=opt.actions[+b.dataset.dga];if(!a.always)b.disabled=!n||RO;if(!a.always)b.textContent=a.label+(n?` (${n})`:'')});const b=host.querySelector('[data-bulk]'),ar=host.querySelector('[data-arch]');b.disabled=ar.disabled=!n||RO;b.textContent=n?`✎ Sửa hàng loạt (${n})`:'✎ Sửa hàng loạt';ar.textContent=n?`🗂 Bỏ ${n} dòng đã chọn`:'🗂 Bỏ (lưu trữ) dòng đã chọn'};
   const bind=()=>{W.querySelectorAll('tbody tr').forEach(bindRow);const all=W.querySelector('[data-all]');if(all)all.onchange=()=>{vis().forEach(r=>all.checked?st.sel.add(r.id):st.sel.delete(r.id));draw();selUpd()};selUpd()};
   host.querySelector('[data-q]').oninput=e=>{st.q=e.target.value;draw()};
@@ -1349,8 +1349,8 @@ async function dataGrid(host,name,opt={}){
   host.querySelector('[data-xls]').onclick=()=>xlsx(cfg.title+'_chi_tiet',{[cfg.title]:rowsForExport(cfg,vis())});
   host.querySelectorAll('[data-dga]').forEach(b=>b.onclick=async()=>{const a=opt.actions[+b.dataset.dga];const ids=[...st.sel];const r=await a.fn(ids,rows.filter(x=>st.sel.has(x.id)),vis());if(r){await load();opt.onChange&&opt.onChange()}});
   host.querySelector('[data-bulk]').onclick=()=>bulkEdit(name,rows.filter(r=>st.sel.has(r.id)),opt.inModal?()=>drill(name,opt):load);
-  host.querySelector('[data-arch]').onclick=async()=>{const ids=[...st.sel];if(!ids.length||!confirm(`Bỏ ${ids.length} dòng đã chọn?\nCác dòng chuyển vào Thùng lưu trữ, không xóa vĩnh viễn.`))return;let ok=0,er='';
-    for(const id of ids){const {error}=await sb.rpc('khg_archive',{p_table:cfg.table,p_id:id});if(error)er=error.message;else ok++}toast(er?`Bỏ ${ok} dòng · lỗi: ${er}`:`Đã bỏ ${ok} dòng (lưu trữ)`);if(cfg.label)delete REF[name];load();opt.onChange&&opt.onChange()};
+  host.querySelector('[data-arch]').onclick=async()=>{const ids=[...st.sel];if(!ids.length)return;const RZ=await askDel(ids.length,'',cfg.title);if(!RZ)return;let ok=0,er='';
+    {const {data:rr,error}=await sb.rpc('khg_archive_r',{p_table:cfg.table,p_ids:ids,p_reason:RZ});if(error)er=error.message;else{ok=rr.ok;er=rr.error||''}}toast(er?`Đã xoá ${ok} dòng · lỗi: ${er}`:`Đã xoá ${ok} dòng – đã ghi nhật ký`);if(cfg.label)delete REF[name];load();opt.onChange&&opt.onChange()};
   const nb=host.querySelector('[data-new]');if(nb)nb.onclick=()=>openForm(name,null,opt.inModal?()=>drill(name,opt):load,{...st.eq});
   await load();
 }
@@ -1575,7 +1575,7 @@ async function openForm(name,row,after,defaults={},extraHTML=''){
   // quản trị sửa được mọi trường (trừ mã và số liệu tự tính)
   const cfg=isAdmin()&&row?{...base,f:base.f.map(f=>f.ro&&!LOCK.includes(f.k)?{...f,ro:false,hint:(f.hint?f.hint+' · ':'')+'Quản trị sửa trực tiếp'}:f)}:base;
   modal(`<h3>${row?(RO?'Xem':'Sửa'):'Thêm'} · ${esc(cfg.title)}${row&&row.code?' · '+esc(row.code):''}</h3><form class="form" id="frm">${formHTML(cfg,row,defaults)}</form>${extraHTML}
-   <div class="acts">${row&&!RO?'<button class="btn" id="arc" style="color:var(--red)">🗂 Lưu trữ</button>':''}${row?'<button class="btn" id="lnk">🔗 Sao chép link</button>':''}${row&&cfg.files?'<button class="btn" id="fil">📎 Chứng từ</button>':''}<span class="sp"></span><button class="btn" id="cancel">Đóng</button>${RO?'':'<button class="btn p" id="save">Lưu</button>'}</div>`);
+   <div class="acts">${row&&!RO?'<button class="btn" id="arc" style="color:var(--red)">🗑 Xoá</button>':''}${row?'<button class="btn" id="lnk">🔗 Sao chép link</button>':''}${row&&cfg.files?'<button class="btn" id="fil">📎 Chứng từ</button>':''}<span class="sp"></span><button class="btn" id="cancel">Đóng</button>${RO?'':'<button class="btn p" id="save">Lưu</button>'}</div>`);
   fkmInit($('#frm'));try{fleetHook($('#frm'))}catch(e){}
   if(RO)$('#frm').querySelectorAll('input,select,textarea').forEach(x=>x.disabled=true);
   if(cfg.onForm)try{cfg.onForm($('#frm'),row)}catch(e){console.warn(e)}
@@ -1595,7 +1595,7 @@ async function openForm(name,row,after,defaults={},extraHTML=''){
     if(cfg.label||['orders','leases','advances'].includes(name)) delete REF[name];
     closeModal();toast('Đã lưu');after&&after();try{odoAfterSave(name,res.data)}catch(e){}
   };
-  if(row&&!RO) $('#arc').onclick=async()=>{if(!confirm('Chuyển bản ghi này vào lưu trữ?\nKhông xóa vĩnh viễn – quản trị khôi phục được trong mục Thùng lưu trữ.'))return;const {error}=await sb.rpc('khg_archive',{p_table:cfg.table,p_id:row.id});if(error){toast('Lỗi: '+error.message);return}delete REF[name];closeModal();toast('Đã chuyển vào lưu trữ');after&&after()};
+  if(row&&!RO) $('#arc').onclick=async()=>{const RZ=await askDel(1,'',cfg.title);if(!RZ)return;const {error}=await sb.rpc('khg_archive_r',{p_table:cfg.table,p_ids:[row.id],p_reason:RZ});if(error){toast('Lỗi: '+error.message);return}delete REF[name];closeModal();toast('Đã xoá – đã ghi nhật ký');after&&after()};
 }
 // Sửa hàng loạt: chọn 1 trường, gán 1 giá trị cho mọi dòng đã chọn
 function bulkEdit(name,list,after){
@@ -1732,7 +1732,7 @@ async function openFiles(entity,id,title){const EK=entity;entity=String(entity).
     $('#flist').innerHTML=extra+`<div class="files">${data.map((f,i)=>`<div class="fi">${/^image/.test(f.mime||'')?`<a href="${urls[i]}" target="_blank" rel="noopener"><img src="${urls[i]}" alt=""></a>`:`<a href="${urls[i]}" target="_blank" rel="noopener" class="ic">${esc((f.file_name.split('.').pop()||'FILE').toUpperCase())}</a>`}
       <b>${esc(O.doc_type[f.doc_type]||f.doc_type)}</b><span style="word-break:break-all">${esc(f.file_name)}</span><span style="color:var(--muted)">${fmtDT(f.created_at)}${f.note?' · '+esc(f.note):''}</span>
       <span><a href="${urls[i]}" target="_blank" rel="noopener">Mở</a>${has(['admin','ke_toan','dieu_phoi','kinh_doanh'])?` · <a href="#" data-del="${f.id}" style="color:var(--red)">Lưu trữ</a>`:''}</span></div>`).join('')}</div>`;
-    $('#flist').querySelectorAll('[data-del]').forEach(a=>a.onclick=async e=>{e.preventDefault();if(!confirm('Chuyển chứng từ này vào lưu trữ? (không xóa file)'))return;const {error}=await sb.rpc('khg_archive',{p_table:'khg_files',p_id:a.dataset.del});if(error)return toast(error.message);list()});
+    $('#flist').querySelectorAll('[data-del]').forEach(a=>a.onclick=async e=>{e.preventDefault();const RZ=await askDel(1,'chứng từ này','Chứng từ');if(!RZ)return;const {error}=await sb.rpc('khg_archive_r',{p_table:'khg_files',p_ids:[a.dataset.del],p_reason:RZ});if(error)return toast(error.message);list()});
   };
   $('#fup').onclick=async()=>{
     const files=[...$('#ffile').files];if(!files.length)return toast('Chọn file trước');
@@ -4830,7 +4830,7 @@ async function fleetInto(el){if(!el)return;const to=today(),from=to.slice(0,8)+'
   const all=el.querySelector('#flNudgeAll');if(all)all.onclick=()=>nudge(idle);
 }
 // ----- Nhật ký thao tác (quản trị)
-const AU_ACT={tao:['Tạo mới','#16A34A'],sua:['Sửa','#1D4ED8'],luu_tru:['Lưu trữ','#B45309'],khoi_phuc:['Khôi phục','#7C3AED'],xoa:['Xoá','#B91C1C']};
+const AU_ACT={tao:['Tạo mới','#16A34A'],sua:['Sửa','#1D4ED8'],luu_tru:['Xoá (lưu trữ)','#B91C1C'],khoi_phuc:['Khôi phục','#7C3AED'],xoa:['Xoá','#B91C1C']};
 const auUA=u=>{u=String(u||'');if(!u)return '';const os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac OS/.test(u)?'Mac':/Linux/.test(u)?'Linux':'';
   const br=/Zalo/i.test(u)?'Zalo':/FBAN|FBAV/.test(u)?'Facebook':/Edg\//.test(u)?'Edge':/CriOS|Chrome\//.test(u)?'Chrome':/Firefox\//.test(u)?'Firefox':/Safari\//.test(u)?'Safari':/node|Deno|python|curl/i.test(u)?'Hệ thống':'';
   return [br,os].filter(Boolean).join(' · ')||u.slice(0,40)};
@@ -4859,13 +4859,13 @@ VIEWS.audit=async m=>{const T=auTblLbl();
     if(AU.q){const s=AU.q.toLowerCase();rows=rows.filter(r=>[r.person_name,r.row_label,r.ip,r.role,r.ua].some(x=>String(x||'').toLowerCase().includes(s)))}
     const who={};rows.forEach(r=>{const k=r.person_name||'Hệ thống';who[k]=(who[k]||0)+1});
     B.innerHTML=`<div class="sub" style="margin-bottom:6px">${rows.length} thao tác${rows.length>=1000?' (hiển thị 1.000 gần nhất — thu hẹp ngày để xem thêm)':''} · ${Object.entries(who).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,n])=>`${esc(k)}: <b>${n}</b>`).join(' · ')}</div>
-    <div class="tw"><table class="t"><thead><tr><th>Thời gian</th><th>Người thao tác</th><th>Thao tác</th><th>Mục</th><th>Đối tượng</th><th>Nội dung thay đổi</th><th>Thiết bị</th><th>IP</th><th>Nơi</th></tr></thead><tbody>
-    ${rows.map((r,i)=>{const a=AU_ACT[r.action]||[r.action,'#334155'];const n=r.changes?Object.keys(r.changes).length:0;return `<tr><td>${fmtDT(r.at)}</td><td>${esc(r.person_name||'Hệ thống')}<div class="sub">${esc(r.role||'')}</div></td><td><b style="color:${a[1]}">${a[0]}</b></td><td>${esc(T[r.tbl]||r.tbl)}</td><td>${esc(r.row_label||'')}</td><td>${n?`<a href="#" data-auc="${i}">${n} trường ▸</a>`:''}</td><td title="${esc(r.ua||'')}">${esc(auUA(r.ua))}</td><td>${esc(r.ip||'')}</td><td>${esc(r.app||r.via||'')}</td></tr>`}).join('')||'<tr><td colspan="9" class="sub">Không có thao tác nào khớp bộ lọc.</td></tr>'}</tbody></table></div>`;
+    <div class="tw"><table class="t"><thead><tr><th>Thời gian</th><th>Người thao tác</th><th>Thao tác</th><th>Mục</th><th>Đối tượng</th><th>Lý do</th><th>Nội dung thay đổi</th><th>Thiết bị</th><th>IP</th><th>Nơi</th></tr></thead><tbody>
+    ${rows.map((r,i)=>{const a=AU_ACT[r.action]||[r.action,'#334155'];const n=r.changes?Object.keys(r.changes).length:0;return `<tr><td>${fmtDT(r.at)}</td><td>${esc(r.person_name||'Hệ thống')}<div class="sub">${esc(r.role||'')}</div></td><td><b style="color:${a[1]}">${a[0]}</b></td><td>${esc(T[r.tbl]||r.tbl)}</td><td>${esc(r.row_label||'')}</td><td>${r.reason?`<b style="color:#B91C1C">${esc(r.reason)}</b>`:''}</td><td>${n?`<a href="#" data-auc="${i}">${n} trường ▸</a>`:''}</td><td title="${esc(r.ua||'')}">${esc(auUA(r.ua))}</td><td>${esc(r.ip||'')}</td><td>${esc(r.app||r.via||'')}</td></tr>`}).join('')||'<tr><td colspan="10" class="sub">Không có thao tác nào khớp bộ lọc.</td></tr>'}</tbody></table></div>`;
     B.querySelectorAll('[data-auc]').forEach(a=>a.onclick=e=>{e.preventDefault();const r=rows[+a.dataset.auc];const x=AU_ACT[r.action]||[r.action];
       modal(`<h3>${x[0]} · ${esc(T[r.tbl]||r.tbl)} · ${esc(r.row_label||'')}</h3><div class="sub">${fmtDT(r.at)} · ${esc(r.person_name||'Hệ thống')} · ${esc(auUA(r.ua))} · IP ${esc(r.ip||'?')}</div><div style="margin:10px 0;max-height:60vh;overflow:auto;line-height:1.6">${auChg(r.changes)}</div><div class="row"><span class="sp"></span><button class="btn" id="auClose">Đóng</button></div>`);$('#auClose').onclick=closeModal})}
   $('#auGo').onclick=()=>{read();VIEWS.audit(m)};
-  $('#auX').onclick=async()=>{if(!rows.length)return toast('Không có dữ liệu');const head=AU.tab==='login'?['Thời gian','Sự kiện','Tài khoản','Nhân sự','IP']:['Thời gian','Người thao tác','Vai trò','Thao tác','Mục','Đối tượng','Thay đổi','Thiết bị','IP','Nơi'];
-    const data=AU.tab==='login'?rows.map(r=>[fmtDT(r.at),r.action,r.actor,r.person||'',r.ip||'']):rows.map(r=>[fmtDT(r.at),r.person_name||'Hệ thống',r.role||'',(AU_ACT[r.action]||[r.action])[0],T[r.tbl]||r.tbl,r.row_label||'',r.changes?Object.entries(r.changes).map(([k,v])=>k+': '+(Array.isArray(v)?v.join(' → '):typeof v==='object'?JSON.stringify(v):v)).join('\n'):'',auUA(r.ua),r.ip||'',r.app||r.via||'']);
+  $('#auX').onclick=async()=>{if(!rows.length)return toast('Không có dữ liệu');const head=AU.tab==='login'?['Thời gian','Sự kiện','Tài khoản','Nhân sự','IP']:['Thời gian','Người thao tác','Vai trò','Thao tác','Mục','Đối tượng','Lý do','Thay đổi','Thiết bị','IP','Nơi'];
+    const data=AU.tab==='login'?rows.map(r=>[fmtDT(r.at),r.action,r.actor,r.person||'',r.ip||'']):rows.map(r=>[fmtDT(r.at),r.person_name||'Hệ thống',r.role||'',(AU_ACT[r.action]||[r.action])[0],T[r.tbl]||r.tbl,r.row_label||'',r.reason||'',r.changes?Object.entries(r.changes).map(([k,v])=>k+': '+(Array.isArray(v)?v.join(' → '):typeof v==='object'?JSON.stringify(v):v)).join('\n'):'',auUA(r.ua),r.ip||'',r.app||r.via||'']);
     try{await xlsx('Nhat_ky_'+(AU.tab==='login'?'dang_nhap_':'thao_tac_')+AU.from+'_'+AU.to,{[AU.tab==='login'?'Đăng nhập':'Thao tác']:[head,...data]})}catch(e){toast(e.message)}};
 };
 TABS.push(['audit','Nhật ký thao tác',['admin']]);ICONS.audit=IC('<path d="M5 3h10l4 4v14H5z"/><path d="M9 9h6M9 13h6M9 17h3"/>');
@@ -5283,6 +5283,20 @@ async function odoAfterSave(name,row){if(!row||!['expenses','vdaily'].includes(n
     $('#oaX').onclick=closeModal;$('#oaE').onclick=async()=>{closeModal();const {data}=await sb.from(E[name].table).select('*').eq('id',row.id).single();if(data)openForm(name,data,()=>odoLoad(true))}}}
 odoLoad(true);
 
+
+// ===== v36: hỏi chắc chắn + lý do trước khi xoá (đưa vào thùng lưu trữ, ghi nhật ký người/máy/IP/giờ)
+function askDel(n,what,title){return new Promise(res=>{const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:20000;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:16px';
+  o.innerHTML=`<div style="background:#fff;border-radius:14px;max-width:460px;width:100%;padding:18px 18px 14px;box-shadow:0 20px 50px rgba(0,0,0,.25)"><h3 style="margin:0 0 6px;color:#B91C1C">🗑 Bạn chắc chắn muốn xoá ${n>1?n+' dòng':(what||'dòng này')}?</h3>
+   <div class="sub" style="margin-bottom:10px">${esc(title||'')}${title?' · ':''}Dòng được đưa vào <b>Thùng lưu trữ</b> (quản trị khôi phục được). Người xoá, máy/IP, giờ và lý do được ghi vào <b>Nhật ký thao tác</b>.</div>
+   <label style="font-weight:600;font-size:13px">Lý do xoá <span style="color:#B91C1C">*</span></label>
+   <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">${['Nhập trùng','Nhập sai số liệu','Đơn/khoản đã huỷ','Dữ liệu thử nghiệm','Khách yêu cầu huỷ'].map(x=>`<button type="button" class="btn s" data-rz="${x}">${x}</button>`).join('')}</div>
+   <textarea id="rzT" rows="3" style="width:100%;box-sizing:border-box" placeholder="Ghi rõ lý do (bắt buộc)"></textarea>
+   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn" id="rzC">Huỷ</button><button class="btn p" id="rzO" style="background:#B91C1C;border-color:#B91C1C">🗑 Xoá</button></div></div>`;
+  document.body.appendChild(o);const t=o.querySelector('#rzT');setTimeout(()=>t.focus(),50);const done=v=>{o.remove();res(v)};
+  o.querySelectorAll('[data-rz]').forEach(b=>b.onclick=()=>{t.value=t.value?t.value+'; '+b.dataset.rz:b.dataset.rz;t.focus()});
+  o.querySelector('#rzC').onclick=()=>done(null);o.onclick=e=>{if(e.target===o)done(null)};
+  o.querySelector('#rzO').onclick=()=>{const v=t.value.trim();if(v.length<3){t.style.borderColor='#DC2626';t.placeholder='Cần nhập lý do xoá (ít nhất 3 ký tự)';t.focus();return}done(v)};
+  t.addEventListener('keydown',e=>{if(e.key==='Escape')done(null)})})}
 TABS.push(['loans','Tiền vay vận hành',['admin','ke_toan']]);VIEWS.loans=async m=>{m.innerHTML='<h2>Tiền vay vận hành</h2><p class="sub">Ghi khoản vay → tiền tự vào sổ quỹ. Chi phí, tạm ứng chọn “Chi từ tiền vay” để biết đã dùng bao nhiêu. Trả nợ ở Báo cáo HĐKD KHG LOGISTICS → Tài chính & dòng tiền.</p><div id="h"></div>';await renderList('loans',$('#h'),{sumKey:'amount'})};ICONS.loans=IC('<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.2 1.3-2 3-2s3 .8 3 2-1.3 1.8-3 2-3 .8-3 2 1.3 2 3 2 3-.8 3-2"/>');
 TABS.push(['doctrack','Theo dõi chứng từ',['admin','ke_toan','dieu_phoi','kinh_doanh']]);VIEWS.doctrack=viewDocs;
 {const g=NAV_GROUPS.find(x=>x[0]==='Vận hành');if(g)g[1].splice(2,0,'doctrack');}
