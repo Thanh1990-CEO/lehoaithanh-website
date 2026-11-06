@@ -168,6 +168,21 @@ main{max-width:640px;padding:14px 14px 30px}
 .rec{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center}.rec .ic{font-size:22px}.rec .m{flex:1;min-width:0}.rec .m b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rec .m small{color:var(--muted)}.rec .v{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
 .apr{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}.apr.gap{border-color:#FCD34D;background:#FFFBEB}.apr.hoa_toc{border-color:#FCA5A5;background:#FEF2F2}.apr .t{display:flex;justify-content:space-between;gap:8px}.apr .a{display:flex;gap:8px;margin-top:10px}.apr .a .btn{flex:1}
 .lowfuel{background:#FEF2F2;border:1px solid #FCA5A5;border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:13.5px;color:#991B1B}
+
+.sec{background:#fff;border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:visible}.sec>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;font-size:15px}.sec>summary::-webkit-details-marker{display:none}
+.sec>summary small{margin-left:auto;color:var(--muted);font-size:12px;max-width:48%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sec>summary::after{content:'▾';color:var(--muted);margin-left:6px}.sec[open]>summary::after{content:'▴'}.sec[open]>summary{border-bottom:1px solid var(--line)}.sec .sb{padding:4px 14px 14px}
+.row>*,.row3>*{min-width:0}.i{min-width:0;max-width:100%;box-sizing:border-box}input[type=datetime-local].i,input[type=date].i{-webkit-appearance:none;appearance:none}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.row3 .f,.row .f{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ta{position:absolute;left:0;right:0;top:100%;z-index:9998;background:#fff;border:1px solid #E3D9D7;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.16);margin-top:4px;max-height:320px;overflow:auto}
+.tai{padding:10px 12px;border-bottom:1px solid #F1ECEA;cursor:pointer;line-height:1.35}.tai:last-child{border:0}.tai b{display:block;font-size:14.5px}.tai small{color:var(--muted);font-size:12px}.tai.on,.tai:active{background:var(--soft)}.tai.add b{color:var(--acc)}
+.cust{display:flex;gap:10px;align-items:center;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:10px 12px;margin-top:8px}.cust>div{flex:1;min-width:0}.cust small{color:#3F6B4F}
+.newc{background:var(--soft);border-radius:12px;padding:10px 12px;margin:10px 0 2px;font-size:13.5px}
+.stop{border:1px solid var(--line);border-left:4px solid #0EA5E9;border-radius:12px;padding:10px;margin:10px 0;background:#FBFDFF}.stop.g{border-left-color:#16A34A;background:#FBFEFC}.stop .sh{display:flex;align-items:center;gap:8px;margin-bottom:6px}.stop .row,.stop .row3{margin-top:6px}
+.stop .no{font-weight:800;border-radius:8px;padding:4px 8px;font-size:12.5px;background:#E0F2FE;color:#075985}.stop.g .no{background:#DCFCE7;color:#166534}.stop select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff;font-weight:600}.stop .x{border:0;background:#FEF2F2;color:#B91C1C;border-radius:8px;width:34px;height:34px;font-size:15px}
+.addst{display:flex;gap:8px;margin-top:4px}.addst .btn{flex:1}
+.chips2{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center}.chips2 small{color:var(--muted);width:100%}.chips2 button{border:1px dashed #9CA3AF;background:#fff;border-radius:999px;padding:6px 10px;font-size:12.5px;text-align:left}
+.revbox{background:#F2FAF5;border:1px solid #CFE8DA;border-radius:12px;padding:10px 12px;margin-top:10px}.revbox b span{font-size:19px;color:#1E7A4C}.revbox small{display:block;color:var(--muted);margin-top:2px}
+.chk{display:flex;gap:8px;align-items:center;margin:12px 0 0;font-weight:600}.chk input{width:20px;height:20px}.dim{opacity:.55}.bad{color:#B91C1C}
 </style></head><body>
 <header><div class="hd"><img src="/icons/crm-192.png" alt=""><div class="nm"><b>KHG Nhập nhanh</b><span id="hN">Nhập dữ liệu lên CRM từ điện thoại</span></div><div class="sp"></div><a class="hb" href="/crm-khg.html" id="hCrm">CRM ↗</a><button class="hb hidden" id="hOut">Thoát</button></div></header>
 <main id="main"><div class="empty">Đang tải…</div></main>
@@ -653,7 +668,7 @@ KYC.inbox=async(host,ctx)=>{const I=await rpc('khg_ext_inbox');let tab=ctx.tab||
   try{sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_IN'||ev==='INITIAL_SESSION')setTimeout(chk,400)})}catch(e){}setTimeout(chk,1200)})();
 
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const DOMAIN='@taixe.kimhoanggia.vn';let ME=null,VEH=[],DRV=[],CUS=[],TAB='home',FUELP=29000;
+const DOMAIN='@taixe.kimhoanggia.vn';let ME=null,VEH=[],DRV=[],CUS=[],PART=[],PACC=[],CONTR=[],STAFF=[],HIST={cargo:[],vreq:[],sup:[],fsup:[],fst:{},cp:[]},TAB='home',FUELP=29000;
 const ROLES=['admin','quan_ly','ke_toan','dieu_phoi','kinh_doanh'];
 const rs=()=>ME?[ME.role,...(ME.extra_roles||[])]:[];const has=a=>rs().some(r=>a.includes(r));const isAdmin=()=>has(['admin']);
 const allowed=()=>has(ROLES)||(ME&&ME.perms&&(ME.perms.nhap_nhanh||ME.perms.mobile));
@@ -688,10 +703,21 @@ async function boot(){const {data:s}=await sb.auth.getSession();if(!s?.session)r
   if(!allowed())return login('Tài khoản chưa được cấp quyền nhập nhanh. Liên hệ quản trị để được cấp quyền.');
   $('#hN').textContent=(ME.full_name||'')+' · '+({admin:'Quản trị',quan_ly:'Quản lý',ke_toan:'Kế toán',dieu_phoi:'Điều phối',kinh_doanh:'Kinh doanh'}[ME.role]||ME.role);
   $('#hOut').classList.remove('hidden');$('#hOut').onclick=async()=>{await sb.auth.signOut();location.reload()};
-  const [v,d,c]=await Promise.all([sb.from('khg_vehicles').select('id,plate,load_t,ownership,partner_id,fuel_norm_l100,odometer_km').is('archived_at',null).order('plate'),
-    sb.from('khg_people').select('id,full_name,vehicle_id,role,partner_id').is('archived_at',null).eq('active',true).eq('role','tai_xe').order('full_name'),
-    sb.from('khg_customers').select('id,name,phone,address,payment_terms_days').is('archived_at',null).order('name').limit(2000)]);
-  VEH=(v.data||[]).sort((a,b)=>(a.ownership==='so_huu'?0:1)-(b.ownership==='so_huu'?0:1)||a.plate.localeCompare(b.plate));DRV=d.data||[];CUS=c.data||[];
+  const since=new Date(Date.now()-120*864e5).toISOString();
+  const [v,d,c,pa,pc,co,ac,ho,he,pp]=await Promise.all([sb.from('khg_vehicles').select('id,plate,load_t,ownership,partner_id,partner_name,fuel_norm_l100,odometer_km').is('archived_at',null).order('plate'),
+    sb.from('khg_people').select('id,full_name,phone,vehicle_id,role,partner_id').is('archived_at',null).eq('active',true).eq('role','tai_xe').order('full_name'),
+    sb.from('khg_customers').select('id,code,name,phone,contact_name,tax_code,address,email,payment_terms_days').is('archived_at',null).order('name').limit(3000),
+    sb.from('khg_partners').select('id,name,short_name,phone,kind').is('archived_at',null).order('name').limit(1000),
+    sb.from('khg_pay_accounts').select('id,label,bank_name,account_no,owner_type,is_default').is('archived_at',null).eq('active',true),
+    sb.from('khg_contracts').select('id,contract_no,party,customer_id,end_date,status,kind').is('archived_at',null).order('created_at',{ascending:false}).limit(300),
+    sb.from('khg_people').select('id,full_name,phone,role').is('archived_at',null).eq('active',true).neq('role','tai_xe').order('full_name'),
+    sb.from('khg_orders').select('cargo,vehicle_req').is('archived_at',null).gte('created_at',since).order('created_at',{ascending:false}).limit(400),
+    sb.from('khg_expenses').select('supplier,station_address,category').is('archived_at',null).gte('created_at',since).not('supplier','is',null).order('created_at',{ascending:false}).limit(600),
+    sb.from('khg_cash').select('counterparty').is('archived_at',null).gte('created_at',since).not('counterparty','is',null).order('created_at',{ascending:false}).limit(400)]);
+  VEH=(v.data||[]).sort((a,b)=>(a.ownership==='so_huu'?0:1)-(b.ownership==='so_huu'?0:1)||a.plate.localeCompare(b.plate));DRV=d.data||[];CUS=c.data||[];PART=pa.data||[];PACC=pc.data||[];CONTR=(co.data||[]).filter(x=>x.status!=='huy');STAFF=ac.data||[];
+  VEH.forEach(x=>{if(!x.partner_name&&x.partner_id){const p=PART.find(y=>y.id===x.partner_id);if(p)x.partner_name=p.short_name||p.name}});
+  HIST={cargo:uniq((ho.data||[]).map(x=>x.cargo)),vreq:uniq((ho.data||[]).map(x=>x.vehicle_req)),sup:uniq((he.data||[]).filter(x=>x.category!=='nhien_lieu').map(x=>x.supplier)),fsup:uniq((he.data||[]).filter(x=>x.category==='nhien_lieu').map(x=>x.supplier)),
+    fst:Object.fromEntries((he.data||[]).filter(x=>x.station_address).map(x=>[x.supplier,x.station_address])),cp:uniq((pp.data||[]).map(x=>x.counterparty))};
   try{const {data:p}=await sb.rpc('khg_fuel_market',{p_date:new Date(Date.now()+7*3600e3).toISOString().slice(0,10),p_type:'dau_diesel'});if(+p>1000)FUELP=Math.round(+p)}catch(e){}
   nav();route()}
 function nav(){const N=[['home','🏠','Trang chủ'],['new','➕','Nhập mới'],['apr','✅','Duyệt'],['recent','🕘','Gần đây']].filter(x=>x[0]!=='apr'||FORMS.find(f=>f.k==='apr'&&ok(f)));
@@ -720,71 +746,281 @@ async function home(){const F=FORMS.filter(ok);
 function menu(){const F=FORMS.filter(ok);$('#main').innerHTML=`<h1 class="pg">Nhập mới</h1><div class="tiles">${F.map(f=>`<button class="tile ${f.big?'big':''}" data-o="${f.k}"><span class="ic">${f.ic}</span><span><b>${f.t}</b><br><small>${f.s}</small></span></button>`).join('')}</div>`;$$('[data-o]').forEach(b=>b.onclick=()=>open(b.dataset.o))}
 
 // ---------- Đơn hàng ----------
-function order(){const dt=new Date(Date.now()+7*3600e3+3600e3);dt.setUTCMinutes(0,0,0);
-  $('#main').innerHTML=head('🚚 Đơn hàng mới')+`<form class="card" onsubmit="return false">
-   <label class="f">Khách hàng *</label><input class="i" id="oC" list="oCL" placeholder="Gõ tên khách / số điện thoại" autocomplete="off"><datalist id="oCL">${CUS.map(c=>`<option value="${esc(c.name)}">${esc(c.phone||'')}</option>`).join('')}</datalist><div class="hint" id="oCH"></div>
-   <label class="f">Điện thoại liên hệ</label><input class="i" id="oP" inputmode="tel" placeholder="0xxx">
-   <label class="f">Dịch vụ</label>${seg('svc',SVC,'van_chuyen')}
-   <label class="f">Điểm lấy hàng *</label><input class="i" name="pickup" id="oA" data-addr placeholder="Gõ địa chỉ, KCN, kho…"><input type="hidden" name="pickup_province"><input type="hidden" name="pickup_district">
-   <label class="f">Điểm giao hàng *</label><input class="i" name="dropoff" id="oB" data-addr placeholder="Gõ địa chỉ giao"><input type="hidden" name="drop_province"><input type="hidden" name="drop_district">
-   <div class="hint" id="oKmH"></div>
-   <div class="row"><div><label class="f">Ngày giờ lấy hàng</label><input class="i" id="oT" type="datetime-local" value="${dt.toISOString().slice(0,16)}"></div><div><label class="f">Km (1 chiều)</label><input class="i" id="oK" inputmode="decimal" placeholder="tự tính"></div></div>
-   <div class="row"><div><label class="f">Hàng hoá</label><input class="i" id="oG" placeholder="VD: thùng carton"></div><div><label class="f">Trọng lượng (tấn)</label><input class="i" id="oW" inputmode="decimal" placeholder="VD 1,5"></div></div>
-   <label class="f">Cước thu khách (đ) *</label><input class="i money" id="oR" data-money inputmode="numeric" placeholder="VD 1tr5 hoặc 1500000">
-   <label class="f">Xe chạy</label><select class="i" id="oV">${vehOpts()}</select><div class="hint" id="oVH"></div>
-   <div id="oPC" class="hidden"><label class="f">Cước trả xe liên kết / xe ngoài (đ)</label><input class="i money" id="oX" data-money inputmode="numeric" placeholder="VD 1tr2"></div>
-   <label class="f">Tài xế</label><select class="i" id="oD">${drvOpts()}</select>
-   <label class="f">Thanh toán</label>${seg('pt',{cong_no:'🧾 Công nợ',thanh_toan_ngay:'💵 Thu ngay',tra_truoc:'💳 Trả trước'},'cong_no')}
-   <label class="f">Ghi chú</label><textarea class="i" id="oN" rows="2" placeholder="Yêu cầu bốc xếp, giờ cổng, người nhận…"></textarea></form>
-   <div class="savebar"><button class="btn p" id="oS">💾 Lưu đơn hàng</button></div><div id="oRes"></div>`;
-  KMONEY.attach&&$$('[data-money]').forEach(i=>KMONEY.attach(i));
-  const C=$('#oC');C.oninput=()=>{const c=CUS.find(x=>x.name.toLowerCase()===C.value.trim().toLowerCase()||(x.phone&&normPhone(x.phone)===normPhone(C.value)));$('#oCH').innerHTML=c?`<span class="ok">✓ Khách có sẵn${c.phone?' · '+esc(c.phone):''}</span>`:C.value.trim()?'Khách mới – sẽ lưu theo tên đã gõ':'';$('#oCH').className='hint'+(c?' ok':'');if(c){C.dataset.id=c.id;if(c.phone&&!$('#oP').value)$('#oP').value=c.phone;if(c.address&&!$('#oA').value)$('#oA').value=c.address}else delete C.dataset.id};
-  const rt=async()=>{const a=$('#oA')._geo,b=$('#oB')._geo;if(!a||!b||a.lat==null||b.lat==null)return;$('#oKmH').textContent='Đang tính quãng đường…';try{const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=false`);const j=await r.json();const x=j.routes&&j.routes[0];if(x){$('#oK').value=Math.ceil(x.distance/1000);$('#oKmH').textContent=`≈ ${Math.ceil(x.distance/1000)} km một chiều`}}catch(e){$('#oKmH').textContent=''}};
-  KADDR.attach($('#oA'),rt);KADDR.attach($('#oB'),rt);
-  $('#oV').onchange=async()=>{const v=VEH.find(x=>x.id===$('#oV').value);$('#oPC').classList.toggle('hidden',!(v&&v.ownership!=='so_huu'));if(!v){$('#oVH').textContent='';return}
-    const dr=DRV.find(p=>p.vehicle_id===v.id);if(dr&&!$('#oD').value)$('#oD').value=dr.id;const {data:f}=await sb.rpc('khg_fleet_of',{p_vehicle:v.id,p_plate:null});
-    $('#oVH').innerHTML=f?`✓ ${esc({so_huu:'Xe KHG sở hữu',thue_xac:'Xe thuê xác',lien_ket:'Xe liên kết'}[f.kind]||f.kind)}${f.owner&&f.kind!=='so_huu'?' · '+esc(f.owner):''}`:'';$('#oVH').className='hint ok'};
-  $('#oS').onclick=()=>busy($('#oS'),async()=>{const name=C.value.trim(),rev=num($('#oR').value);if(!name)return toast('Nhập khách hàng');if(!$('#oA').value.trim()||!$('#oB').value.trim())return toast('Nhập điểm lấy và điểm giao');if(!rev)return toast('Nhập cước thu khách');
-    const q=n=>document.querySelector(`input[name="${n}"]`).value||null;const vid=$('#oV').value||null;const v=VEH.find(x=>x.id===vid);
-    const row={service:val('svc'),customer_id:C.dataset.id||null,customer_text:C.dataset.id?null:name,customer_phone:$('#oP').value.trim()||null,pickup:$('#oA').value.trim(),dropoff:$('#oB').value.trim(),
-      pickup_province:q('pickup_province'),pickup_district:q('pickup_district'),drop_province:q('drop_province'),drop_district:q('drop_district'),
-      pickup_lat:$('#oA')._geo?.lat??null,pickup_lng:$('#oA')._geo?.lng??null,drop_lat:$('#oB')._geo?.lat??null,drop_lng:$('#oB')._geo?.lng??null,
-      scheduled_at:$('#oT').value?new Date($('#oT').value+':00+07:00').toISOString():null,distance_km:+String($('#oK').value).replace(',','.')||null,cargo:$('#oG').value.trim()||null,weight_t:+String($('#oW').value).replace(',','.')||null,
-      revenue:rev,unit_price:rev,quantity:1,trips:1,vehicle_id:vid,driver_id:$('#oD').value||null,partner_cost:num($('#oX').value),partner_id:v&&v.ownership!=='so_huu'?v.partner_id:null,
-      pay_terms:val('pt'),note:$('#oN').value.trim()||null,source:'app',status:vid?'xac_nhan':'moi'};
-    const {data,error}=await sb.from('khg_orders').insert(row).select('id,code').single();if(error)return toast('Lỗi: '+error.message);
-    $('#oRes').innerHTML=`<div class="res ok">✅ Đã tạo đơn <b>${esc(data.code||'')}</b> · ${esc(name)} · cước ${fmtN(rev)} đ${vid?' · xe '+esc(v.plate):''}<br><button class="btn g s" onclick="open('order')" style="margin-top:8px">+ Tạo đơn khác</button></div>`;
-    $('#oS').textContent='✓ Đã lưu';setTimeout(()=>$('#oRes').scrollIntoView({behavior:'smooth'}),50)})}
+// ---------- Gợi ý (typeahead) dùng chung ----------
+const fold=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'d').toLowerCase().trim();
+const plN=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const OWN={so_huu:'Xe KHG',thue_xac:'Xe thuê xác',lien_ket:'Xe liên kết'};
+// src(q) → [{t:'tiêu đề',s:'dòng phụ',v:any}] ; onPick(item) ; giữ được gõ tay
+function TA(inp,src,onPick,o={}){if(!inp||inp._ta)return;inp._ta=1;inp.setAttribute('autocomplete','off');const w=inp.parentElement;if(getComputedStyle(w).position==='static')w.style.position='relative';
+  const dd=document.createElement('div');dd.className='ta hidden';w.appendChild(dd);let L=[],hi=-1,t=0;
+  const close=()=>{dd.classList.add('hidden');hi=-1};
+  const draw=()=>{const q=fold(inp.value);L=src(q,inp.value.trim())||[];if(!L.length){close();return}
+    dd.innerHTML=L.slice(0,o.max||8).map((x,i)=>`<div class="tai${x.add?' add':''}${i===hi?' on':''}" data-i="${i}"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:''}</div>`).join('');dd.classList.remove('hidden');
+    dd.querySelectorAll('.tai').forEach(el=>el.onmousedown=el.ontouchstart=e=>{e.preventDefault();pick(L[+el.dataset.i])})};
+  const pick=x=>{if(!x)return;close();if(!x.add&&x.fill!==false)inp.value=x.val??x.t;inp._pick=x.add?null:x;onPick&&onPick(x);inp.dispatchEvent(new Event('ta'))};
+  inp.addEventListener('input',()=>{inp._pick=null;onPick&&o.typed&&o.typed(inp.value.trim());clearTimeout(t);t=setTimeout(draw,90)});
+  inp.addEventListener('focus',()=>{if(o.onFocus!==false)draw()});inp.addEventListener('blur',()=>setTimeout(close,180));
+  inp.addEventListener('keydown',e=>{if(dd.classList.contains('hidden'))return;if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();hi=Math.max(0,Math.min(L.length-1,hi+(e.key==='ArrowDown'?1:-1)));draw()}else if(e.key==='Enter'&&hi>=0){e.preventDefault();pick(L[hi])}else if(e.key==='Escape')close()});
+  return {pick,close}}
+const hit=(q,...a)=>!q||a.some(x=>fold(x).includes(q)||(/\d{3,}/.test(q)&&String(x||'').replace(/\D/g,'').includes(q.replace(/\D/g,''))));
+const uniq=a=>[...new Set(a.filter(Boolean).map(x=>String(x).trim()).filter(Boolean))];
+const srcVeh=(q)=>VEH.filter(v=>hit(q,v.plate,plN(v.plate))).map(v=>({t:v.plate,s:[v.load_t?String(v.load_t).replace('.',',')+' tấn':'',OWN[v.ownership]||'',v.partner_name||''].filter(Boolean).join(' · '),v}));
+const srcDrv=(q)=>DRV.filter(p=>hit(q,p.full_name,p.phone)).map(p=>({t:p.full_name,s:[p.phone,(VEH.find(v=>v.id===p.vehicle_id)||{}).plate].filter(Boolean).join(' · '),v:p}));
+const srcList=a=>(q,raw)=>{const r=a().filter(x=>hit(q,x)).slice(0,10).map(x=>({t:x}));return r.length===1&&r[0].t===raw?[]:r};
+// ô biển số: chọn xe có sẵn hoặc gõ tay biển số xe ngoài
+function vehBox(id,lbl,opt={}){return `<label class="f">${lbl}</label><div><input class="i" id="${id}" placeholder="${opt.ph||'Gõ biển số (VD 50H13561) – chọn xe hoặc gõ tay xe ngoài'}" autocapitalize="characters"></div><div class="hint" id="${id}H"></div>`}
+function vehBind(id,cb,opt={}){const i=$('#'+id),h=$('#'+id+'H');
+  const show=async v=>{if(!v){const s=i.value.trim();h.className='hint'+(s&&!opt.must?'':' ');h.innerHTML=s?(opt.must?'<span class="bad">Chưa có xe này trong đội xe – chọn đúng biển số trong danh sách</span>':'Xe ngoài danh sách – sẽ lưu theo biển số đã gõ'):'';cb&&cb(null);return}
+    h.className='hint ok';h.innerHTML='✓ '+esc(OWN[v.ownership]||'')+(v.load_t?' · '+esc(String(v.load_t).replace('.',','))+' tấn':'');cb&&cb(v);
+    try{const {data:f}=await sb.rpc('khg_fleet_of',{p_vehicle:v.id,p_plate:null});if(f&&i._pick&&i._pick.v===v)h.innerHTML='✓ '+esc(OWN[f.kind]||f.kind||'')+(f.owner&&f.kind!=='so_huu'?' · '+esc(f.owner):'')+(v.load_t?' · '+esc(String(v.load_t).replace('.',','))+' tấn':'')}catch(e){}};
+  TA(i,srcVeh,x=>show(x.v),{typed:()=>{}});
+  i.addEventListener('change',()=>{if(i._pick)return;const v=VEH.find(x=>plN(x.plate)===plN(i.value));if(v){i.value=v.plate;i._pick={v};show(v)}else show(null)});
+  i.addEventListener('input',()=>{const v=VEH.find(x=>plN(x.plate)===plN(i.value));if(v){i._pick={v};show(v)}else if(!i.value.trim())show(null)});
+  return {get:()=>i._pick&&i._pick.v||null,text:()=>i.value.trim(),set:v=>{i.value=v?v.plate:'';i._pick=v?{v}:null;show(v)}}}
+function drvBind(id){const i=$('#'+id);TA(i,srcDrv,()=>{});return {get:()=>i._pick&&i._pick.v||DRV.find(p=>fold(p.full_name)===fold(i.value))||null,text:()=>i.value.trim(),set:p=>{i.value=p?p.full_name:'';i._pick=p?{v:p}:null}}}
+
+// ---------- Đơn hàng (đầy đủ như CRM) ----------
+const OTYPE={chuyen:'Đơn chuyến',lo:'Đơn lô',dat_truoc:'Lịch đặt trước'};
+const UNIT={chuyen:'Chuyến',m3:'m³ (khối)',tan:'Tấn',km:'Km',gio:'Giờ',ngay:'Ngày',kien:'Kiện',tron_goi:'Trọn gói'};
+const PM2={tien_mat:'💵 Tiền mặt',chuyen_khoan:'🏦 Chuyển khoản',cod:'🧾 Tài xế thu hộ',bu_tru:'↔ Bù trừ'};
+const CFROM={ngay_giao:'Ngày giao hàng',ngay_doi_soat:'Ngày đối soát',ngay_xuat_hd:'Ngày xuất hóa đơn',cuoi_thang:'Cuối tháng giao hàng',ngay_dat:'Ngày đặt / đi hàng'};
+const SEGC={1:'1 · FMCG đang phục vụ',2:'2 · FMCG mới',3:'3 · Nhà máy 5 KCN',4:'4 · TMĐT, chuyển phát',5:'5 · Lắp đặt nhà xưởng',6:'6 · Đại lý Đông Nam Bộ',7:'7 · Chủ xe, đội xe nhỏ'};
+const STAGE={tiem_nang:'Tiềm năng',da_lien_he:'Đã liên hệ',bao_gia:'Đã báo giá',dang_phuc_vu:'Đang phục vụ',tam_dung:'Tạm dừng',mat:'Mất'};
+const SKIND={lay:'Lấy hàng',giao:'Giao hàng',tra_hang:'Trả hàng',thu_hoi:'Thu hồi'};
+const VREQ=['Xe tải 1,25 tấn','Xe tải 1,9 tấn','Xe tải 2,5 tấn','Xe tải 3,5 tấn','Xe tải 5 tấn','Xe tải 8 tấn','Xe tải 15 tấn','Xe thùng kín','Xe thùng bạt','Xe thùng lửng','Xe có bửng nâng','Container 20 feet','Container 40 feet','Xe cẩu 3 tấn','Xe cẩu 5 tấn','Xe nâng 2,5 tấn','Xe nâng 3 tấn'];
+const sel=(id,opts,v,blank)=>`<select class="i" id="${id}">${blank!=null?`<option value="">${esc(blank)}</option>`:''}${Object.entries(opts).map(([k,l])=>`<option value="${esc(k)}" ${String(v)===String(k)?'selected':''}>${esc(l)}</option>`).join('')}</select>`;
+const fnum=id=>{const e=$('#'+id);if(!e||e.value==='')return null;const x=+String(e.value).replace(/\s/g,'').replace(',','.');return isFinite(x)?x:null};
+const fmon=id=>{const e=$('#'+id);return e&&e.value?num(e.value):null};
+const ftxt=id=>{const e=$('#'+id);return e&&e.value.trim()?e.value.trim():null};
+const fdt=id=>{const v=$('#'+id)&&$('#'+id).value;return v?new Date(v+':00+07:00').toISOString():null};
+const sec=(id,ic,t,body,open=true,sub='')=>`<details class="sec" id="${id}" ${open?'open':''}><summary><span>${ic}</span><b>${t}</b><small id="${id}S">${sub}</small></summary><div class="sb">${body}</div></details>`;
+let OD=null;
+async function order(){const dt=new Date(Date.now()+7*3600e3+3600e3);dt.setUTCMinutes(0,0,0);const dts=dt.toISOString().slice(0,16);
+  OD={cust:null,stops:[{kind:'lay',main:true},{kind:'giao',main:true}],hist:[],manualFreight:false};
+  $('#main').innerHTML=head('🚚 Đơn hàng mới')+`<div class="hint" style="margin:-4px 0 10px">Nhập đầy đủ như trên CRM. Mục có * là bắt buộc. Gõ vài chữ để hiện gợi ý; không có trong danh sách thì cứ gõ tay.</div><form id="oF" onsubmit="return false">
+  ${sec('sC','👤','Khách hàng *',`
+    <div><input class="i" id="oC" placeholder="Gõ tên, SĐT, MST hoặc người liên hệ…"></div><div id="oCI"></div>
+    <div id="oNC" class="hidden"><div class="newc">➕ <b>Khách hàng mới</b> – điền đủ hồ sơ, khách sẽ được lưu vào danh sách khách hàng của CRM</div>
+      <label class="f">Tên khách / công ty *</label><input class="i" id="nName">
+      <label class="f">Mã số thuế (tra để tự điền tên, địa chỉ)</label><div style="display:flex;gap:6px"><input class="i" id="nTax" inputmode="numeric" placeholder="10 hoặc 13 số"><button type="button" class="btn s" id="nTaxB" style="white-space:nowrap">🔎 Tra MST</button></div>
+      <div class="hint" id="nTaxH"></div>
+      <div class="row"><div><label class="f">Người liên hệ</label><input class="i" id="nCt" placeholder="Anh/chị…"></div><div><label class="f">Điện thoại *</label><input class="i" id="nPh" inputmode="tel"></div></div>
+      <label class="f">Email</label><input class="i" id="nEm" type="email" inputmode="email" placeholder="để gửi báo giá, hóa đơn">
+      <label class="f">Địa chỉ (trụ sở / xuất hóa đơn)</label><div><input class="i" id="nAd" name="address" data-addr placeholder="Gõ địa chỉ – có gợi ý bản đồ"></div><input type="hidden" name="province" id="nProv"><input type="hidden" name="district"><input type="hidden" name="ward">
+      <div class="row"><div><label class="f">Nhóm khách hàng</label>${sel('nSeg',SEGC,'',' — Chọn nhóm —')}</div><div><label class="f">Giai đoạn</label>${sel('nSt',STAGE,'dang_phuc_vu')}</div></div>
+      <div class="row"><div><label class="f">Hạn thanh toán (ngày)</label><input class="i" id="nTerm" inputmode="numeric" value="30"></div><div><label class="f">Ngành hàng</label><input class="i" id="nInd" placeholder="VD FMCG, sắt thép…"></div></div>
+      <label class="f">Ghi chú về khách</label><input class="i" id="nNote" placeholder="Giờ nhận hàng, yêu cầu riêng…"></div>
+    <div class="row"><div><label class="f">Người đặt đơn này</label><input class="i" id="oCt" placeholder="Tên người đặt"></div><div><label class="f">SĐT người đặt</label><input class="i" id="oP" inputmode="tel" placeholder="0xxx"></div></div>`)}
+  ${sec('sO','📋','Thông tin đơn',`
+    <label class="f">Dịch vụ</label>${seg('svc',SVC,'van_chuyen')}
+    <label class="f">Loại đơn</label>${seg('otype',OTYPE,'chuyen')}
+    <label class="f">Thời gian có mặt lấy hàng *</label><input class="i" id="oT" type="datetime-local" value="${dts}">
+    <div class="row"><div><label class="f">Dự kiến xe đến lấy</label><input class="i" id="oEp" type="datetime-local"></div><div><label class="f">Dự kiến giao xong</label><input class="i" id="oEd" type="datetime-local"></div></div>`)}
+  ${sec('sR','📍','Lộ trình – điểm lấy, điểm giao *',`<div id="oStops"></div>
+    <div class="addst"><button type="button" class="btn" data-add="lay">＋ Thêm điểm lấy</button><button type="button" class="btn p" data-add="giao">＋ Thêm điểm giao</button></div>
+    <div class="hint" id="oKmH"></div>
+    <div class="row"><div><label class="f">Tổng quãng đường (km)</label><input class="i" id="oK" inputmode="decimal" placeholder="tự tính theo các điểm"></div><div><label class="f">Thời gian chạy (phút)</label><input class="i" id="oDu" inputmode="numeric" placeholder="tự tính"></div></div>`)}
+  ${sec('sG','📦','Hàng hóa & xe',`
+    <label class="f">Hàng hóa</label><div><input class="i" id="oG" placeholder="VD thùng carton, sắt thép, máy móc…"></div>
+    <div class="row3"><div><label class="f">Khối lượng (tấn)</label><input class="i" id="oW" inputmode="decimal"></div><div><label class="f">Số khối (m³)</label><input class="i" id="oM3" inputmode="decimal"></div><div><label class="f">Số kiện</label><input class="i" id="oPk" inputmode="numeric"></div></div>
+    <div class="row"><div><label class="f">Số chuyến</label><input class="i" id="oTr" inputmode="numeric" value="1"></div><div><label class="f">Yêu cầu xe</label><div><input class="i" id="oVR" placeholder="VD xe 5 tấn thùng kín"></div></div></div>
+    <label class="chk"><input type="checkbox" id="oLd"> Kèm bốc xếp (KHG bốc xếp hàng)</label>
+    ${vehBox('oV','Xe chạy')}
+    <label class="f">Tài xế</label><div><input class="i" id="oD" placeholder="Gõ tên / SĐT tài xế – hoặc gõ tay tài xế ngoài"></div><div class="hint" id="oDH"></div>`)}
+  ${sec('sM','💰','Cước & doanh thu *',`
+    <div class="row3"><div><label class="f">Đơn vị tính</label>${sel('oU',UNIT,'chuyen')}</div><div><label class="f">Số lượng</label><input class="i" id="oQ" inputmode="decimal" value="1"></div><div><label class="f">Đơn giá</label><input class="i" id="oUp" data-money inputmode="numeric" placeholder="VD 1tr5"></div></div>
+    <label class="f">Cước vận chuyển</label><input class="i money" id="oFF" data-money inputmode="numeric" placeholder="= số lượng × đơn giá, hoặc nhập thẳng">
+    <div class="row"><div><label class="f">Phí bốc xếp</label><input class="i" id="oF1" data-money inputmode="numeric"></div><div><label class="f">Phí giao thêm điểm</label><input class="i" id="oF2" data-money inputmode="numeric"></div></div>
+    <div class="row"><div><label class="f">Phí chờ, lưu xe</label><input class="i" id="oF3" data-money inputmode="numeric"></div><div><label class="f">Cầu đường, vé cổng thu khách</label><input class="i" id="oF4" data-money inputmode="numeric"></div></div>
+    <div class="row"><div><label class="f">Thu khác (cẩu, nâng, kho…)</label><input class="i" id="oF5" data-money inputmode="numeric"></div><div><label class="f">Phụ thu (đêm, lễ…)</label><input class="i" id="oF6" data-money inputmode="numeric"></div></div>
+    <div class="row3"><div><label class="f">Mã giảm giá</label><input class="i" id="oPr" autocapitalize="characters"></div><div><label class="f">Giảm (%)</label><input class="i" id="oDp" inputmode="decimal"></div><div><label class="f">Số tiền giảm</label><input class="i" id="oDa" data-money inputmode="numeric"></div></div>
+    <div class="revbox" id="oRev"></div>
+    <div id="oPC" class="row"><div><label class="f">Trả xe liên kết / xe ngoài</label><input class="i" id="oX" data-money inputmode="numeric"></div><div><label class="f">Tiền chuyến trả tài xế</label><input class="i" id="oDP" data-money inputmode="numeric"></div></div>
+    <div class="hint" id="oMg"></div>`)}
+  ${sec('sP','💳','Thanh toán & hợp đồng',`
+    <label class="f">Hình thức</label>${seg('pt',{cong_no:'🧾 Công nợ',thanh_toan_ngay:'💵 Thu ngay',tra_truoc:'💳 Trả trước'},'cong_no')}
+    <label class="f">Cách thanh toán</label>${seg('pm',PM2,'chuyen_khoan')}
+    <div class="row"><div><label class="f">Nhận vào tài khoản</label>${sel('oPa',{cong_ty:'Tài khoản công ty',ca_nhan:'Tài khoản cá nhân'},'cong_ty')}</div><div><label class="f">Tài khoản cụ thể</label>${sel('oPaI',Object.fromEntries(PACC.map(a=>[a.id,a.label||((a.bank_name||'')+' '+(a.account_no||''))])),'','— Mặc định —')}</div></div>
+    <div class="row"><div><label class="f">Công nợ (số ngày)</label><input class="i" id="oCd" inputmode="numeric" placeholder="theo hồ sơ khách"></div><div><label class="f">Tính công nợ từ</label>${sel('oCf',CFROM,'ngay_giao')}</div></div>
+    <div class="row"><div><label class="f">Hợp đồng áp dụng</label><select class="i" id="oCo"><option value="">— Không / chưa có —</option></select></div><div><label class="f">Hợp đồng hiệu lực đến</label><input class="i" id="oCu" type="date"></div></div>`,false)}
+  ${sec('sD','📄','Chứng từ & ghi chú',`
+    <label class="f">Chứng từ giao hàng</label>${seg('docst',{chua_thu:'Cần thu hồi',khong_can:'Không cần'},'chua_thu')}
+    <div class="row"><div><label class="f">Hạn thu hồi chứng từ</label><input class="i" id="oDd" type="date"></div><div><label class="f">Người nộp chứng từ</label><div><input class="i" id="oDs" placeholder="Mặc định tài xế"></div></div></div>
+    <label class="f">Ghi chú chứng từ</label><input class="i" id="oDn" placeholder="Biên bản giao nhận, phiếu cân, hóa đơn ký nhận…">
+    <label class="f">Ghi chú đơn</label><textarea class="i" id="oN" rows="2" placeholder="Giờ cổng, yêu cầu bốc xếp, lưu ý người nhận…"></textarea>
+    <label class="f">Ảnh / file đính kèm (đơn đặt hàng, báo giá, hình hàng)</label>${photoBox('oFl','Chụp / chọn file',false)}`,false)}
+  </form><div class="savebar"><button class="btn p" id="oS">💾 Lưu đơn hàng</button></div><div id="oRes"></div>`;
+  $$('#oF [data-money]').forEach(i=>KMONEY.attach&&KMONEY.attach(i));bindPhoto('oFl');
+  // --- khách hàng
+  const C=$('#oC');
+  TA(C,(q,raw)=>{const r=CUS.filter(c=>hit(q,c.name,c.phone,c.tax_code,c.contact_name,c.code)).slice(0,8).map(c=>({t:c.name,s:[c.phone,c.contact_name,c.tax_code?'MST '+c.tax_code:'',c.address].filter(Boolean).join(' · '),v:c}));
+    if(raw&&!CUS.some(c=>fold(c.name)===q))r.push({t:'➕ Thêm khách mới: “'+raw+'”',s:'Mở hồ sơ khách mới để điền đủ thông tin',add:true,raw});return r},x=>x.add?newCust(x.raw):pickCust(x.v),{typed:()=>{}});
+  C.addEventListener('input',()=>{if(OD.cust){OD.cust=null;$('#oCI').innerHTML=''}if(!$('#oNC').classList.contains('hidden'))$('#nName').value=C.value});
+  C.addEventListener('change',()=>{if(OD.cust||!C.value.trim())return;const c=CUS.find(x=>fold(x.name)===fold(C.value)||(x.phone&&normPhone(x.phone)===normPhone(C.value)));if(c)pickCust(c);else newCust(C.value.trim())});
+  $('#nName').addEventListener('input',()=>{C.value=$('#nName').value});
+  $('#nPh').addEventListener('input',()=>{if(!$('#oP').dataset.man)$('#oP').value=$('#nPh').value;const p=normPhone($('#nPh').value);const d=p&&p.length>=9&&CUS.find(x=>x.phone&&normPhone(x.phone)===p);$('#nTaxH').innerHTML=d?`<span class="bad">SĐT này đã có khách “${esc(d.name)}”.</span> <a href="#" id="useD">Dùng khách này</a>`:'';if(d)$('#useD').onclick=e=>{e.preventDefault();pickCust(d)}});
+  $('#nCt').addEventListener('input',()=>{if(!$('#oCt').dataset.man)$('#oCt').value=$('#nCt').value});
+  ['oP','oCt'].forEach(id=>$('#'+id).addEventListener('input',()=>$('#'+id).dataset.man=1));
+  $('#nTax').addEventListener('input',()=>{const t=$('#nTax').value.replace(/\D/g,'');const d=t.length>=10&&CUS.find(x=>String(x.tax_code||'').replace(/\D/g,'')===t);if(d){$('#nTaxH').innerHTML=`<span class="bad">MST này đã có khách “${esc(d.name)}”.</span> <a href="#" id="useT">Dùng khách này</a>`;$('#useT').onclick=e=>{e.preventDefault();pickCust(d)}}});
+  $('#nTaxB').onclick=()=>busy($('#nTaxB'),async()=>{const mst=$('#nTax').value.replace(/[^\d-]/g,'');if(!/^(\d{10}(-\d{3})?|\d{12}|\d{13})$/.test(mst))return toast('MST gồm 10 hoặc 13 số');$('#nTaxH').textContent='Đang tra mã số thuế… (10–20 giây)';
+    try{const {data:r,error}=await sb.functions.invoke('khg-ke-toan',{body:{mode:'tax',mst}});if(error||!r||r.error)throw new Error((r&&r.error)||'Không tra được');
+      if(r.name&&!$('#nName').value.trim()){$('#nName').value=r.name;C.value=r.name}else if(r.name&&confirm('Thay tên khách bằng tên đăng ký thuế?\n'+r.name)){$('#nName').value=r.name;C.value=r.name}
+      if(r.address&&!$('#nAd').value.trim())$('#nAd').value=r.address;
+      $('#nTaxH').innerHTML=`<span class="${r.status==='hoat_dong'?'ok':'bad'}">${esc({hoat_dong:'✓ Đang hoạt động',ngung:'⚠ Ngừng hoạt động',khong_tim_thay:'⚠ Không tìm thấy MST',chua_ro:'Chưa rõ trạng thái'}[r.status]||r.status||'')}</span>${r.name?' · '+esc(r.name):''}`}catch(e){$('#nTaxH').innerHTML='<span class="bad">'+esc(e.message)+'</span> – nhập tay tên, địa chỉ.'}});
+  KADDR.attach($('#nAd'));
+  // --- lộ trình
+  drawStops();$$('#sR [data-add]').forEach(b=>b.onclick=()=>addStop(b.dataset.add));
+  // --- hàng & xe
+  TA($('#oG'),srcList(()=>uniq([...OD.hist.map(h=>h.cargo),...HIST.cargo])));
+  TA($('#oVR'),srcList(()=>uniq([...HIST.vreq,...VREQ])));
+  const V=vehBind('oV',v=>{const ext=!v||v.ownership!=='so_huu';$('#oX').closest('div').classList.toggle('dim',!ext&&!!v);
+      if(v){const dr=DRV.find(p=>p.vehicle_id===v.id);if(dr&&!$('#oD').value.trim())D.set(dr)}calcRev()});
+  const D=drvBind('oD');OD.V=V;OD.D=D;
+  TA($('#oDs'),q=>srcDrv(q));
+  // --- cước
+  $('#oFF').addEventListener('input',()=>{OD.manualFreight=!!$('#oFF').value});['oQ','oUp'].forEach(id=>$('#'+id).addEventListener('input',()=>{OD.manualFreight=false}));
+  ['oQ','oUp','oFF','oF1','oF2','oF3','oF4','oF5','oF6','oDp','oDa','oX','oDP'].forEach(id=>$('#'+id).addEventListener('input',()=>calcRev(id)));
+  $('#oPr').addEventListener('change',()=>{$('#oPr').value=$('#oPr').value.trim().toUpperCase()});calcRev();
+  // --- thanh toán
+  $$('input[name="pt"]').forEach(r=>r.onchange=()=>{const v=val('pt');if(v!=='cong_no'){$('#oCd').value='0'}else if($('#oCd').value==='0')$('#oCd').value=OD.cust?.payment_terms_days??''});
+  $('#oCo').onchange=()=>{const c=CONTR.find(x=>x.id===$('#oCo').value);if(c&&c.end_date)$('#oCu').value=String(c.end_date).slice(0,10)};fillContracts();
+  $('#oS').onclick=()=>busy($('#oS'),saveOrder)}
+
+function pickCust(c){OD.cust=c;const C=$('#oC');C.value=c.name;$('#oNC').classList.add('hidden');
+  $('#oCI').innerHTML=`<div class="cust"><div><b>✓ ${esc(c.name)}</b>${c.code?` <small>${esc(c.code)}</small>`:''}<br><small>${[c.contact_name,c.phone,c.tax_code?'MST '+c.tax_code:'',c.address,c.payment_terms_days!=null?'Công nợ '+c.payment_terms_days+' ngày':''].filter(Boolean).map(esc).join(' · ')||'Chưa có thông tin liên hệ'}</small></div><button type="button" class="btn s g" id="oCx">Đổi</button></div>`;
+  $('#oCx').onclick=()=>{OD.cust=null;C.value='';$('#oCI').innerHTML='';C.focus()};
+  if(!$('#oP').dataset.man)$('#oP').value=c.phone||'';if(!$('#oCt').dataset.man)$('#oCt').value=c.contact_name||'';
+  if($('#oCd').value===''||$('#oCd').dataset.auto){$('#oCd').value=c.payment_terms_days??'';$('#oCd').dataset.auto=1}
+  $('#sCS').textContent=c.name;loadCustHist(c);fillContracts()}
+function newCust(raw){OD.cust=null;$('#oCI').innerHTML='';$('#oNC').classList.remove('hidden');const n=raw||$('#oC').value.trim();$('#oC').value=n;$('#nName').value=n;
+  if(/^\d{9,11}$/.test(n.replace(/\D/g,''))&&n.replace(/\D/g,'').length===n.replace(/\s/g,'').length){$('#nPh').value=n;$('#nName').value='';$('#oC').value=''}
+  if(!$('#oCd').value){$('#oCd').value='30';$('#oCd').dataset.auto=1}$('#sCS').textContent=n?'Khách mới: '+n:'Khách mới';setTimeout(()=>($('#nName').value?$('#nPh'):$('#nName')).focus(),50)}
+async function loadCustHist(c){OD.hist=[];try{const {data}=await sb.from('khg_orders').select('pickup,dropoff,pickup_contact,pickup_phone,cargo,unit,unit_price,vehicle_req,pickup_lat,pickup_lng,drop_lat,drop_lng,pickup_province,pickup_district,drop_province,drop_district').eq('customer_id',c.id).is('archived_at',null).order('created_at',{ascending:false}).limit(40);OD.hist=data||[];
+  drawStops(true);const h=OD.hist[0];if(h){$('#sCS').textContent=c.name+' · '+OD.hist.length+' đơn trước';if(h.unit&&!$('#oUp').value){$('#oU').value=h.unit}if(h.unit_price&&!$('#oUp').value){$('#oUp').placeholder='Lần trước '+fmtN(h.unit_price)}}}catch(e){}}
+
+// --- các điểm dừng
+function stopLabel(i){const L=OD.stops,x=L[i];const k=x.kind==='lay'?'lay':'giao';return (k==='lay'?'L':'G')+L.slice(0,i+1).filter(y=>(y.kind==='lay'?'lay':'giao')===k).length}
+function drawStops(keep){const box=$('#oStops');if(!box)return;const L=OD.stops;
+  box.innerHTML=L.map((x,i)=>{const isL=x.kind==='lay';const no=stopLabel(i);return `<div class="stop ${isL?'l':'g'}" data-i="${i}">
+    <div class="sh"><span class="no">${no}</span>${x.main?`<b>${isL?'Điểm lấy hàng đầu tiên':'Điểm giao hàng đầu tiên'}</b>`:`<select data-f="kind">${Object.entries(SKIND).map(([k,l])=>`<option value="${k}" ${x.kind===k?'selected':''}>${l}</option>`).join('')}</select>`}<span style="flex:1"></span>${x.main?'':`<button type="button" class="x" data-rm="${i}">✕</button>`}</div>
+    <div><input class="i" data-f="address" ${x.main?`name="${isL?'pickup':'dropoff'}"`:''} value="${esc(x.address||'')}" placeholder="${isL?'Địa chỉ lấy: kho, KCN, số nhà…':'Địa chỉ giao: cửa hàng, siêu thị, công trình…'}"></div>
+    ${x.main?(isL?'<input type="hidden" name="pickup_province"><input type="hidden" name="pickup_district">':'<input type="hidden" name="drop_province"><input type="hidden" name="drop_district">'):''}
+    <div class="hc" data-hc="${i}"></div>
+    <div class="row"><div><input class="i" data-f="contact_name" value="${esc(x.contact_name||'')}" placeholder="${isL?'Người giao hàng tại kho':'Người nhận hàng'}"></div><div><input class="i" data-f="phone" value="${esc(x.phone||'')}" inputmode="tel" placeholder="SĐT"></div></div>
+    <div class="row3"><div style="grid-column:span ${isL?3:2}"><input class="i" data-f="cargo" value="${esc(x.cargo||'')}" placeholder="Hàng / ghi chú tại điểm này"></div>${isL?'':`<div><input class="i" data-f="cod_amount" data-money value="${x.cod_amount?fmtN(x.cod_amount):''}" inputmode="numeric" placeholder="Thu hộ COD"></div>`}</div>
+    <div class="row"><div><input class="i" data-f="qty" value="${esc(x.qty??'')}" inputmode="decimal" placeholder="Số lượng (kiện, thùng…)"></div><div class="hint" data-geo="${i}" style="align-self:center">${x.geo?'📍 đã định vị':''}</div></div></div>`}).join('');
+  box.querySelectorAll('.stop').forEach(el=>{const i=+el.dataset.i,x=L[i];el.querySelectorAll('[data-f]').forEach(inp=>{const k=inp.dataset.f;
+      if(k==='kind'){inp.onchange=()=>{x.kind=inp.value;drawStops(true);routeKm()};return}
+      if(k==='cod_amount'&&KMONEY.attach)KMONEY.attach(inp);
+      inp.addEventListener('input',()=>{x[k]=k==='cod_amount'?num(inp.value):inp.value;if(k==='address'){x.geo=null;el.querySelector('[data-geo]').textContent=''}})});
+    const a=el.querySelector('[data-f=address]');KADDR.attach(a,g=>{if(!g)return;x.address=a.value;x.geo={lat:g.lat,lng:g.lng};x.c=g.c||null;el.querySelector('[data-geo]').textContent=g.lat!=null?'📍 đã định vị':'';routeKm()});
+    // gợi ý địa chỉ đã dùng của khách
+    const hc=el.querySelector('[data-hc]');const isL=x.kind==='lay';const H=[];OD.hist.forEach(h=>{const ad=isL?h.pickup:h.dropoff;if(ad&&!H.some(y=>y.ad===ad))H.push({ad,ct:isL?h.pickup_contact:null,ph:isL?h.pickup_phone:null,lat:isL?h.pickup_lat:h.drop_lat,lng:isL?h.pickup_lng:h.drop_lng,pv:isL?h.pickup_province:h.drop_province,ds:isL?h.pickup_district:h.drop_district})});
+    if(H.length&&!x.address)hc.innerHTML=`<div class="chips2"><small>Địa chỉ khách hay dùng:</small>${H.slice(0,4).map((h,j)=>`<button type="button" data-h="${j}">${esc(h.ad.length>48?h.ad.slice(0,46)+'…':h.ad)}</button>`).join('')}</div>`;else hc.innerHTML='';
+    hc.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{const h=H[+b.dataset.h];x.address=h.ad;a.value=h.ad;if(h.lat!=null)x.geo={lat:+h.lat,lng:+h.lng};x.c={province:h.pv,district:h.ds};
+      if(x.main){const f=$('#oF');const p=isL?'pickup_':'drop_';if(f.elements[p+'province'])f.elements[p+'province'].value=h.pv||'';if(f.elements[p+'district'])f.elements[p+'district'].value=h.ds||''}
+      if(h.ct&&!x.contact_name){x.contact_name=h.ct;el.querySelector('[data-f=contact_name]').value=h.ct}if(h.ph&&!x.phone){x.phone=h.ph;el.querySelector('[data-f=phone]').value=h.ph}hc.innerHTML='';el.querySelector('[data-geo]').textContent=x.geo?'📍 đã định vị':'';routeKm()})});
+  box.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{OD.stops.splice(+b.dataset.rm,1);drawStops(true);routeKm()});
+  const nl=L.filter(x=>x.kind==='lay').length,ng=L.length-nl,extra=L.length-2;
+  $('#sRS').textContent=`${nl} điểm lấy · ${ng} điểm giao`;
+  $('#oKmH').innerHTML=extra>0?`Có <b>${extra} điểm phát sinh</b> – nhớ tính “Phí giao thêm điểm” ở mục Cước.`:'';calcRev&&$('#oRev')&&calcRev()}
+function addStop(kind){const L=OD.stops;if(kind==='lay'){let j=-1;L.forEach((x,i)=>{if(x.kind==='lay')j=i});L.splice(j+1,0,{kind})}else L.push({kind});drawStops(true);
+  const idx=kind==='lay'?L.map(x=>x.kind).lastIndexOf('lay'):L.length-1;const el=$(`#oStops .stop[data-i="${idx}"]`);el&&(el.scrollIntoView({behavior:'smooth',block:'center'}),setTimeout(()=>el.querySelector('[data-f=address]').focus(),250))}
+let rkT=0;function routeKm(){clearTimeout(rkT);rkT=setTimeout(async()=>{const P=OD.stops.filter(x=>x.geo&&x.geo.lat!=null);if(P.length<2||P.length<OD.stops.filter(x=>String(x.address||'').trim()).length)return;
+  $('#oKmH').dataset.t=1;try{const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${P.map(x=>x.geo.lng+','+x.geo.lat).join(';')}?overview=false`);const j=await r.json();const x=j.routes&&j.routes[0];
+   if(x){const km=Math.ceil(x.distance/1000),mn=Math.round(x.duration/60);$('#oK').value=km;$('#oDu').value=mn;const ex=OD.stops.length-2;$('#oKmH').innerHTML=`≈ <b>${km} km</b> · khoảng ${mn>=60?Math.floor(mn/60)+' giờ '+(mn%60)+' phút':mn+' phút'} chạy qua ${P.length} điểm`+(ex>0?` · <b>${ex} điểm phát sinh</b> – nhớ tính “Phí giao thêm điểm”.`:'')}}catch(e){}},400)}
+
+// --- cước, doanh thu
+function calcRev(src){const q=fnum('oQ'),p=fmon('oUp');if(!OD.manualFreight&&q&&p){$('#oFF').value=fmtN(Math.round(q*p))}
+  const parts=[['Cước',fmon('oFF')],['Bốc xếp',fmon('oF1')],['Thêm điểm',fmon('oF2')],['Chờ, lưu xe',fmon('oF3')],['Cầu đường',fmon('oF4')],['Thu khác',fmon('oF5')],['Phụ thu',fmon('oF6')]].filter(x=>x[1]);
+  const sub=parts.reduce((s,x)=>s+x[1],0);if(src==='oDp'){const pc=fnum('oDp');$('#oDa').value=pc?fmtN(Math.round(sub*pc/100)):''}
+  const disc=fmon('oDa')||0,tot=sub-disc;OD.rev=tot;
+  $('#oRev').innerHTML=`<b>Doanh thu đơn: <span>${fmtN(tot)} đ</span></b><small>${parts.map(x=>x[0]+' '+fmtN(x[1])).join(' + ')||'Chưa có khoản thu nào'}${disc?' − giảm '+fmtN(disc):''}</small>`;
+  const pc=fmon('oX')||0,dp=fmon('oDP')||0;$('#oMg').innerHTML=tot&&(pc||dp)?`Lãi gộp dự kiến: <b class="${tot-pc-dp<0?'bad':''}">${fmtN(tot-pc-dp)} đ</b> (${Math.round((tot-pc-dp)/tot*100)}%)`:'';
+  $('#sMS').textContent=tot?fmtN(tot)+' đ':''}
+function fillContracts(){const s=$('#oCo');if(!s)return;const c=OD&&OD.cust;const L=CONTR.filter(x=>!c||x.customer_id===c.id||fold(x.party).includes(fold(c.name).slice(0,12)));const cur=s.value;
+  s.innerHTML='<option value="">— Không / chưa có —</option>'+(c?L:CONTR).slice(0,60).map(x=>`<option value="${x.id}">${esc([x.contract_no,x.party].filter(Boolean).join(' · '))}${x.end_date?' (đến '+fmtD(x.end_date)+')':''}</option>`).join('');s.value=cur;
+  if(c&&L.length===1&&!cur){s.value=L[0].id;s.onchange&&s.onchange()}}
+
+async function saveOrder(){if(OD.saved)return toast('Đơn này đã lưu – bấm “Tạo đơn khác” để nhập đơn mới');const C=$('#oC');let cust=OD.cust;const isNew=!cust;const name=isNew?($('#nName').value.trim()||C.value.trim()):cust.name;
+  if(!name){$('#sC').open=true;C.focus();return toast('Nhập khách hàng')}
+  if(isNew&&$('#oNC').classList.contains('hidden'))newCust(name);
+  if(isNew&&!ftxt('nPh')){$('#sC').open=true;$('#nPh').focus();return toast('Khách mới: nhập số điện thoại')}
+  const stops=OD.stops.map(x=>({...x,address:String(x.address||'').trim()}));const lay=stops.filter(x=>x.kind==='lay'&&x.address),gi=stops.filter(x=>x.kind!=='lay'&&x.address);
+  const p0=stops.find(x=>x.main&&x.kind==='lay'),g0=stops.find(x=>x.main&&x.kind!=='lay');if(!p0.address||!g0.address){$('#sR').open=true;return toast('Nhập điểm lấy và điểm giao đầu tiên')}
+  if(!$('#oT').value){$('#sO').open=true;return toast('Nhập thời gian có mặt')}
+  calcRev();if(!OD.rev||OD.rev<=0){$('#sM').open=true;$('#oUp').focus();return toast('Nhập cước / doanh thu thu khách')}
+  // 1) khách mới → lưu hồ sơ khách
+  if(isNew){const rec={name,contact_name:ftxt('nCt'),phone:ftxt('nPh'),email:ftxt('nEm'),address:ftxt('nAd'),province:$('#nProv').value||null,tax_code:ftxt('nTax'),payment_terms_days:fnum('nTerm')??30,
+      segment:$('#nSeg').value?+$('#nSeg').value:null,stage:$('#nSt').value||'dang_phuc_vu',industry:ftxt('nInd'),note:ftxt('nNote'),services:[val('svc')],source:'app',owner_id:ME.id};
+    const {data:c,error}=await sb.from('khg_customers').insert(rec).select('id,name,phone,address,payment_terms_days,contact_name,tax_code,code').single();if(error)return toast('Lỗi lưu khách: '+error.message);cust=c;CUS.push(c);OD.cust=c}
+  const v=OD.V.get(),vtxt=OD.V.text(),d=OD.D.get(),dtxt=OD.D.text();const fk={};if(!v&&vtxt)fk.vehicle_id=vtxt;if(!d&&dtxt)fk.driver_id=dtxt;
+  const sub=$('#oDs')._pick&&$('#oDs')._pick.v;if(!sub&&ftxt('oDs'))fk.doc_submitter=ftxt('oDs');
+  const f=$('#oF').elements;const pv=(n,x)=>f[n]&&f[n].value||(x&&x.c&&(n.includes('district')?x.c.district:x.c.province))||null;
+  const dropNote=[g0.contact_name||g0.phone?`Người nhận điểm giao 1: ${[g0.contact_name,g0.phone].filter(Boolean).join(' – ')}`:'',g0.cargo?`Hàng giao điểm 1: ${g0.cargo}${g0.qty?' ('+g0.qty+')':''}`:''].filter(Boolean).join('. ');
+  const extras=stops.filter(x=>!x.main&&x.address);const codAll=(g0.cod_amount||0)+extras.reduce((s,x)=>s+(x.kind!=='lay'&&x.cod_amount||0),0);
+  const q=fnum('oQ'),up=fmon('oUp');
+  const row={order_type:val('otype'),service:val('svc'),customer_id:cust.id,customer_text:null,customer_phone:ftxt('oP'),
+    pickup:p0.address,dropoff:g0.address,pickup_province:pv('pickup_province',p0),pickup_district:pv('pickup_district',p0),drop_province:pv('drop_province',g0),drop_district:pv('drop_district',g0),
+    pickup_lat:p0.geo?.lat??null,pickup_lng:p0.geo?.lng??null,drop_lat:g0.geo?.lat??null,drop_lng:g0.geo?.lng??null,pickup_contact:p0.contact_name||ftxt('oCt'),pickup_phone:p0.phone||null,
+    scheduled_at:fdt('oT'),eta_pickup_at:fdt('oEp'),eta_delivery_at:fdt('oEd'),distance_km:fnum('oK'),duration_min:fnum('oDu'),
+    cargo:ftxt('oG')||p0.cargo||null,weight_t:fnum('oW'),volume_m3:fnum('oM3'),packages:fnum('oPk'),trips:fnum('oTr')||1,vehicle_req:ftxt('oVR'),loading_included:$('#oLd').checked,need_loading:$('#oLd').checked,
+    vehicle_id:v?v.id:null,plate_text:!v&&vtxt?vtxt.toUpperCase():null,driver_id:d?d.id:null,
+    unit:$('#oU').value,quantity:OD.manualFreight?null:q,unit_price:OD.manualFreight?null:up,fee_freight:fmon('oFF'),fee_loading:fmon('oF1'),fee_extra_stops:fmon('oF2'),fee_wait:fmon('oF3'),fee_toll:fmon('oF4'),fee_other:fmon('oF5'),extra_charge:fmon('oF6'),
+    promo_code:ftxt('oPr'),discount_pct:fnum('oDp'),discount_amount:fmon('oDa'),revenue:OD.rev,partner_cost:fmon('oX'),driver_pay:fmon('oDP'),partner_id:v&&v.ownership!=='so_huu'?v.partner_id:null,
+    cod_amount:codAll||null,stops_count:1+extras.filter(x=>x.kind==='giao').length,
+    pay_terms:val('pt'),pay_method:val('pm'),pay_account:$('#oPa').value||null,pay_account_id:$('#oPaI').value||null,credit_days:fnum('oCd'),credit_from:$('#oCf').value,contract_id:$('#oCo').value||null,contract_until:$('#oCu').value||null,
+    doc_status:val('docst'),doc_due:$('#oDd').value||null,doc_submitter:sub?sub.id:(d?d.id:null),doc_note:ftxt('oDn'),
+    note:[ftxt('oN'),dropNote].filter(Boolean).join('\n')||null,fk_text:Object.keys(fk).length?fk:null,source:'app',status:(v||vtxt)?'xac_nhan':'moi'};
+  const {data,error}=await sb.from('khg_orders').insert(row).select('id,code,revenue').single();if(error)return toast('Lỗi lưu đơn: '+error.message);OD.saved=true;
+  // 2) các điểm phát sinh
+  let seq=1,errs=[];for(const x of extras){const {error:e}=await sb.from('khg_order_stops').insert({order_id:data.id,seq:seq++,kind:x.kind,address:x.address,contact_name:x.contact_name||null,phone:x.phone||null,cargo:x.cargo||null,qty:x.qty??null,cod_amount:x.cod_amount||null,lat:x.geo?.lat??null,lng:x.geo?.lng??null,status:'cho'});if(e)errs.push(e.message)}
+  await saveFiles('order',data.id,'oFl','khac');
+  const nl=lay.length,ng=gi.length;
+  $('#oRes').innerHTML=`<div class="res ok">✅ Đã tạo đơn <b>${esc(data.code||'')}</b>${isNew?' · đã thêm khách mới vào CRM':''}<br>${esc(name)} · ${nl} điểm lấy, ${ng} điểm giao · doanh thu <b>${fmtN(data.revenue??OD.rev)} đ</b>${v?' · xe '+esc(v.plate):vtxt?' · xe '+esc(vtxt):''}${errs.length?`<br><span class="bad">Lưu điểm phát sinh lỗi: ${esc(errs[0])}</span>`:''}
+    <div style="display:flex;gap:8px;margin-top:8px"><button class="btn g s" onclick="open('order')">+ Tạo đơn khác</button><a class="btn s" href="/crm-khg.html#orders" target="_blank">Mở trên CRM ↗</a></div></div>`;
+  $('#oS').textContent='✓ Đã lưu – bấm “Tạo đơn khác” để nhập tiếp';setTimeout(()=>$('#oRes').scrollIntoView({behavior:'smooth'}),50)}
 
 // ---------- Đổ dầu ----------
+const INV={hd_vat:'Hóa đơn VAT',hd_ban_le:'HĐ bán lẻ',phieu_thu:'Phiếu thu',khong_hd:'Không HĐ'};
+const todayVN=()=>new Date(Date.now()+7*3600e3).toISOString().slice(0,10);
 function fuel(){$('#main').innerHTML=head('⛽ Đổ dầu')+`<form class="card" onsubmit="return false">
-   <label class="f">Xe *</label><select class="i" id="fV">${vehOpts()}</select><div class="hint" id="fVH"></div>
-   <label class="f">Km đồng hồ lúc đổ *</label><input class="i money" id="fO" inputmode="numeric" placeholder="VD 279895">
+   ${vehBox('fV','Xe *',{ph:'Gõ biển số xe đổ dầu'})}<div class="hint" id="fVI"></div>
+   <div class="row"><div><label class="f">Ngày đổ</label><input class="i" id="fDt" type="date" value="${todayVN()}"></div><div><label class="f">Loại nhiên liệu</label>${sel('fT',{dau_diesel:'Dầu diesel',xang_ron95:'Xăng RON95',xang_e5:'Xăng E5',adblue:'AdBlue'},'dau_diesel')}</div></div>
+   <label class="f">Km đồng hồ lúc đổ *</label><input class="i money" id="fO" inputmode="numeric" placeholder="VD 279895"><div class="hint" id="fOH"></div>
    <label class="f">Số tiền đổ (đ) *</label><input class="i money" id="fA" data-money inputmode="numeric" placeholder="VD 500k / 500000">
    <div class="row"><div><label class="f">Đơn giá (đ/lít)</label><input class="i" id="fP" inputmode="numeric" value="${FUELP}"></div><div><label class="f">Số lít</label><input class="i" id="fL" inputmode="decimal" placeholder="tự tính"></div></div>
    <div class="hint" id="fCalc"></div>
-   <label style="display:flex;gap:8px;align-items:center;margin:10px 0 0;font-weight:600"><input type="checkbox" id="fFull" style="width:20px;height:20px"> Đổ đầy bình</label>
-   <label class="f">Thanh toán</label>${seg('fpay',{tien_mat:PAY.tien_mat,chuyen_khoan:PAY.chuyen_khoan,tam_ung:PAY.tam_ung},'tien_mat')}
-   <label class="f">Cây xăng</label><input class="i" id="fS" placeholder="VD Petrolimex số 12">
-   <label class="f">Tài xế</label><select class="i" id="fD">${drvOpts()}</select>
+   <label class="chk"><input type="checkbox" id="fFull"> Đổ đầy bình</label>
+   <label class="f">Thanh toán</label>${seg('fpay',{tien_mat:PAY.tien_mat,chuyen_khoan:PAY.chuyen_khoan,tam_ung:PAY.tam_ung,cong_no:PAY.cong_no},'tien_mat')}
+   <label class="f">Cây xăng / nhà cung cấp</label><div><input class="i" id="fS" placeholder="VD Petrolimex số 12 – gõ để chọn cây hay đổ"></div>
+   <label class="f">Địa chỉ cây xăng</label><div><input class="i" id="fSA" data-addr placeholder="không bắt buộc"></div>
+   <div class="row"><div><label class="f">Chứng từ</label>${sel('fIv',INV,'hd_vat')}</div><div><label class="f">Số hóa đơn / phiếu</label><input class="i" id="fNo"></div></div>
+   <label class="f">Tài xế đổ</label><div><input class="i" id="fD" placeholder="Gõ tên tài xế – tự điền theo xe"></div>
+   <label class="f">Ghi chú</label><input class="i" id="fN" placeholder="Đổ ở đâu, cho chuyến nào…">
    <label class="f">Ảnh hoá đơn / đồng hồ</label>${photoBox('fF','Chụp / chọn ảnh',true)}</form>
    <div class="savebar"><button class="btn p" id="fSv">💾 Lưu lần đổ dầu</button></div><div id="fRes"></div>`;
-  $$('[data-money]').forEach(i=>KMONEY.attach&&KMONEY.attach(i));bindPhoto('fF');
-  const calc=()=>{const a=num($('#fA').value),p=+$('#fP').value||0;if(a&&p&&!$('#fL').dataset.man)$('#fL').value=(a/p).toFixed(2).replace('.',',');const v=VEH.find(x=>x.id===$('#fV').value);const L=+String($('#fL').value).replace(',','.')||0;const nm=v&&+v.fuel_norm_l100||13;
+  $$('[data-money]').forEach(i=>KMONEY.attach&&KMONEY.attach(i));bindPhoto('fF');KADDR.attach($('#fSA'));
+  TA($('#fS'),srcList(()=>HIST.fsup),x=>{const a=HIST.fst[x.t];if(a&&!$('#fSA').value)$('#fSA').value=a});
+  const FD=drvBind('fD');
+  const calc=()=>{const a=num($('#fA').value),p=+$('#fP').value||0;if(a&&p&&!$('#fL').dataset.man)$('#fL').value=(a/p).toFixed(2).replace('.',',');const v=FV.get();const L=+String($('#fL').value).replace(',','.')||0;const nm=v&&+v.fuel_norm_l100||13;
     $('#fCalc').textContent=L?`≈ ${L.toLocaleString('vi-VN')} lít → chạy được khoảng ${Math.round(L/nm*100)} km (định mức ${String(nm).replace('.',',')} L/100km)`:''};
   ['fA','fP'].forEach(id=>$('#'+id).addEventListener('input',calc));$('#fL').addEventListener('input',()=>{$('#fL').dataset.man=1;calc()});
-  $('#fV').onchange=async()=>{const vid=$('#fV').value;calc();const dr=DRV.find(p=>p.vehicle_id===vid);if(dr)$('#fD').value=dr.id;if(!vid)return;
-    const {data:l}=await sb.from('khg_expenses').select('spent_on,odometer_km,amount').eq('vehicle_id',vid).is('archived_at',null).eq('category','nhien_lieu').not('odometer_km','is',null).order('spent_on',{ascending:false}).limit(1);
-    const {data:d}=await sb.from('khg_vehicle_daily').select('log_date,odo_km').eq('vehicle_id',vid).is('archived_at',null).order('log_date',{ascending:false}).limit(1);
-    const a=l&&l[0],b=d&&d[0];$('#fVH').innerHTML=[a?`Lần đổ trước ${fmtD(a.spent_on)}: km ${fmtN(a.odometer_km)} · ${fmtN(a.amount)} đ`:'',b?`Km cuối ngày gần nhất ${fmtD(b.log_date)}: ${fmtN(b.odo_km)}`:''].filter(Boolean).join('<br>');$('#fO').dataset.min=Math.max(a?.odometer_km||0,b?.odo_km||0)};
-  $('#fO').addEventListener('input',()=>{const o=+String($('#fO').value).replace(/\D/g,''),mn=+$('#fO').dataset.min||0;if(mn&&o&&o<mn){$('#fVH').insertAdjacentHTML('beforeend','')}});
-  $('#fSv').onclick=()=>busy($('#fSv'),async()=>{const vid=$('#fV').value,odo=+String($('#fO').value).replace(/\D/g,''),amt=num($('#fA').value),p=+$('#fP').value||null,L=+String($('#fL').value).replace(',','.')||(amt&&p?amt/p:null);
-    if(!vid)return toast('Chọn xe');if(!odo)return toast('Nhập km đồng hồ lúc đổ');if(!amt)return toast('Nhập số tiền đổ');const mn=+$('#fO').dataset.min||0;
-    if(mn&&odo<mn&&!confirm(`Km ${fmtN(odo)} nhỏ hơn km đã ghi trước đó (${fmtN(mn)}). Vẫn lưu?`))return;
-    const row={category:'nhien_lieu',item:'nhien_lieu',spent_on:new Date(Date.now()+7*3600e3).toISOString().slice(0,10),vehicle_id:vid,odometer_km:odo,amount:amt,unit_price:p,liters:L?Math.round(L*100)/100:null,full_tank:$('#fFull').checked,
-      payment_method:val('fpay'),supplier:$('#fS').value.trim()||null,person_id:$('#fD').value||null,requested_by:ME.id,status:isAdmin()?'da_duyet':'cho_duyet',source:'app',fuel_type:'dau_diesel'};
+  $('#fT').onchange=async()=>{try{const {data:p}=await sb.rpc('khg_fuel_market',{p_date:$('#fDt').value||todayVN(),p_type:$('#fT').value});if(+p>1000){$('#fP').value=Math.round(+p);calc()}}catch(e){}};
+  const FV=vehBind('fV',async v=>{calc();$('#fVI').innerHTML='';$('#fO').dataset.min='';if(!v)return;const dr=DRV.find(p=>p.vehicle_id===v.id);if(dr&&!FD.text())FD.set(dr);
+    const {data:l}=await sb.from('khg_expenses').select('spent_on,odometer_km,amount,supplier').eq('vehicle_id',v.id).is('archived_at',null).eq('category','nhien_lieu').not('odometer_km','is',null).order('spent_on',{ascending:false}).limit(1);
+    const {data:d}=await sb.from('khg_vehicle_daily').select('log_date,odo_km').eq('vehicle_id',v.id).is('archived_at',null).order('log_date',{ascending:false}).limit(1);
+    const a=l&&l[0],b=d&&d[0];$('#fVI').innerHTML=[a?`Lần đổ trước ${fmtD(a.spent_on)}: km ${fmtN(a.odometer_km)} · ${fmtN(a.amount)} đ${a.supplier?' · '+esc(a.supplier):''}`:'',b?`Km cuối ngày gần nhất ${fmtD(b.log_date)}: ${fmtN(b.odo_km)}`:''].filter(Boolean).join('<br>');$('#fO').dataset.min=Math.max(a?.odometer_km||0,b?.odo_km||0);
+    if(a&&a.supplier&&!$('#fS').value)$('#fS').placeholder='Lần trước: '+a.supplier},{must:true});
+  $('#fO').addEventListener('input',()=>{const o=+String($('#fO').value).replace(/\D/g,''),mn=+$('#fO').dataset.min||0;$('#fOH').className='hint'+(mn&&o&&o<mn?' bad':'');$('#fOH').textContent=mn&&o?(o<mn?`⚠ Nhỏ hơn km đã ghi trước đó (${fmtN(mn)}) – kiểm tra lại đồng hồ`:`Đã chạy ${fmtN(o-mn)} km kể từ lần ghi km trước`):''});
+  $('#fSv').onclick=()=>busy($('#fSv'),async()=>{const v=FV.get(),odo=+String($('#fO').value).replace(/\D/g,''),amt=num($('#fA').value),p=+$('#fP').value||null,L=+String($('#fL').value).replace(',','.')||(amt&&p?amt/p:null);
+    if(!v)return toast('Chọn đúng xe trong đội xe');if(!odo)return toast('Nhập km đồng hồ lúc đổ');if(!amt)return toast('Nhập số tiền đổ');const mn=+$('#fO').dataset.min||0;
+    if(mn&&odo<mn&&!confirm(`Km ${fmtN(odo)} nhỏ hơn km đã ghi trước đó (${fmtN(mn)}). Vẫn lưu?`))return;const dr=FD.get();
+    const row={category:'nhien_lieu',item:$('#fT').value==='adblue'?'adblue':'nhien_lieu',spent_on:$('#fDt').value||todayVN(),vehicle_id:v.id,odometer_km:odo,amount:amt,unit_price:p,liters:L?Math.round(L*100)/100:null,quantity:L?Math.round(L*100)/100:null,unit:'lit',full_tank:$('#fFull').checked,
+      payment_method:val('fpay'),supplier:ftxt('fS'),station_address:ftxt('fSA'),invoice_type:$('#fIv').value,doc_no:ftxt('fNo'),person_id:dr?dr.id:null,fk_text:!dr&&FD.text()?{person_id:FD.text()}:null,note:ftxt('fN'),
+      requested_by:ME.id,status:isAdmin()?'da_duyet':'cho_duyet',source:'app',fuel_type:$('#fT').value};
     const {data,error}=await sb.from('khg_expenses').insert(row).select('id').single();if(error)return toast('Lỗi: '+error.message);await saveFiles('expense',data.id,'fF','chung_tu_chi_phi');
-    await afterFuel(vid,data.id,'fRes');$('#fSv').textContent='✓ Đã lưu'})}
+    await afterFuel(v.id,data.id,'fRes');$('#fSv').textContent='✓ Đã lưu'})}
 async function saveFiles(ent,id,inp,dt){const fs=[...($('#'+inp)?.files||[])];for(const f of fs){try{const r=await putFile(`${ent}/${id}`,f);await sb.from('khg_files').insert({entity_type:ent,entity_id:id,doc_type:dt,file_path:r.path,file_name:r.name,mime:r.mime,size_bytes:r.size,uploaded_by:ME.id})}catch(e){toast('Lỗi tải ảnh: '+e.message)}}}
 async function afterFuel(vid,rowId,box){await new Promise(r=>setTimeout(r,700));const [{data:oa},{data:fs}]=await Promise.all([sb.rpc('khg_odo_alerts'),sb.rpc('khg_fuel_status',{p_date:new Date(Date.now()+7*3600e3).toISOString().slice(0,10)})]);
   const bad=oa&&oa.rows&&oa.rows[rowId];const v=(fs&&fs.vehicles||[]).find(x=>x.vehicle_id===vid);const n2=x=>Number(x).toLocaleString('vi-VN',{maximumFractionDigits:2});
@@ -794,56 +1030,82 @@ async function afterFuel(vid,rowId,box){await new Promise(r=>setTimeout(r,700));
 
 // ---------- Km cuối ngày ----------
 function km(){$('#main').innerHTML=head('🛞 Km cuối ngày')+`<form class="card" onsubmit="return false">
-   <label class="f">Xe *</label><select class="i" id="kV">${vehOpts()}</select><div class="hint" id="kVH"></div>
-   <label class="f">Km đồng hồ cuối ngày (đóng ca) *</label><input class="i money" id="kO" inputmode="numeric" placeholder="VD 279975">
+   ${vehBox('kV','Xe *',{ph:'Gõ biển số xe'})}<div class="hint" id="kVI"></div>
+   <label class="f">Ngày</label><input class="i" id="kDt" type="date" value="${todayVN()}">
+   <label class="f">Km đồng hồ cuối ngày (đóng ca) *</label><input class="i money" id="kO" inputmode="numeric" placeholder="VD 279975"><div class="hint" id="kOH"></div>
    <label class="f">Kim nhiên liệu (không bắt buộc)</label>${seg('kg',{'':'Bỏ qua','0':'E','25':'¼','50':'½','75':'¾','100':'F'},'')}
-   <label class="f">Tài xế bàn giao</label><select class="i" id="kD">${drvOpts()}</select>
+   <label class="f">Tài xế bàn giao</label><div><input class="i" id="kD" placeholder="Gõ tên tài xế – tự điền theo xe"></div>
    <label class="f">Ảnh đồng hồ km</label>${photoBox('kF','Chụp đồng hồ',true)}
    <label class="f">Ghi chú</label><input class="i" id="kN" placeholder="Bàn giao ca sau, xe về bãi…"></form>
    <div class="savebar"><button class="btn p" id="kS">💾 Lưu km cuối ngày</button></div><div id="kRes"></div>`;
-  bindPhoto('kF');
-  $('#kV').onchange=async()=>{const vid=$('#kV').value;const dr=DRV.find(p=>p.vehicle_id===vid);if(dr)$('#kD').value=dr.id;if(!vid)return;
-    const {data:l}=await sb.from('khg_expenses').select('spent_on,odometer_km,amount,liters').eq('vehicle_id',vid).is('archived_at',null).eq('category','nhien_lieu').not('odometer_km','is',null).order('spent_on',{ascending:false}).limit(1);
-    const a=l&&l[0];$('#kVH').innerHTML=a?`Lần đổ gần nhất ${fmtD(a.spent_on)}: km <b>${fmtN(a.odometer_km)}</b> · ${fmtN(a.amount)} đ · ${String(a.liters||'').replace('.',',')} lít`:'Chưa có lần đổ dầu ghi km';$('#kO').dataset.min=a?.odometer_km||0};
-  $('#kS').onclick=()=>busy($('#kS'),async()=>{const vid=$('#kV').value,odo=+String($('#kO').value).replace(/\D/g,'');if(!vid)return toast('Chọn xe');if(!odo)return toast('Nhập km đồng hồ');const mn=+$('#kO').dataset.min||0;
-    if(mn&&odo<mn&&!confirm(`Km ${fmtN(odo)} nhỏ hơn km lúc đổ dầu gần nhất (${fmtN(mn)}). Vẫn lưu?`))return;
-    let photo=null;const f=$('#kF').files[0];if(f){try{photo=(await putFile(`vehicle/${vid}/odo`,f)).path}catch(e){toast('Lỗi ảnh: '+e.message)}}
-    const kg=val('kg');const {data,error}=await sb.from('khg_vehicle_daily').insert({vehicle_id:vid,person_id:$('#kD').value||ME.id,odo_km:odo,fuel_level_pct:kg===''||kg==null?null:+kg,odo_photo:photo,note:$('#kN').value.trim()||null,source:'web'}).select('id').single();
-    if(error)return toast('Lỗi: '+error.message);await afterFuel(vid,data.id,'kRes');$('#kS').textContent='✓ Đã lưu'})}
+  bindPhoto('kF');const KD=drvBind('kD');
+  const KV=vehBind('kV',async v=>{$('#kVI').innerHTML='';$('#kO').dataset.min='';if(!v)return;const dr=DRV.find(p=>p.vehicle_id===v.id);if(dr&&!KD.text())KD.set(dr);
+    const [{data:l},{data:d}]=await Promise.all([sb.from('khg_expenses').select('spent_on,odometer_km,amount,liters').eq('vehicle_id',v.id).is('archived_at',null).eq('category','nhien_lieu').not('odometer_km','is',null).order('spent_on',{ascending:false}).limit(1),
+      sb.from('khg_vehicle_daily').select('log_date,odo_km').eq('vehicle_id',v.id).is('archived_at',null).order('log_date',{ascending:false}).limit(1)]);
+    const a=l&&l[0],b=d&&d[0];$('#kVI').innerHTML=[a?`Lần đổ gần nhất ${fmtD(a.spent_on)}: km <b>${fmtN(a.odometer_km)}</b> · ${fmtN(a.amount)} đ · ${String(a.liters||'').replace('.',',')} lít`:'Chưa có lần đổ dầu ghi km',b?`Km cuối ngày gần nhất ${fmtD(b.log_date)}: <b>${fmtN(b.odo_km)}</b>`:''].filter(Boolean).join('<br>');$('#kO').dataset.min=Math.max(a?.odometer_km||0,b?.odo_km||0)},{must:true});
+  $('#kO').addEventListener('input',()=>{const o=+String($('#kO').value).replace(/\D/g,''),mn=+$('#kO').dataset.min||0;$('#kOH').className='hint'+(mn&&o&&o<mn?' bad':'');$('#kOH').textContent=mn&&o?(o<mn?`⚠ Nhỏ hơn km đã ghi (${fmtN(mn)})`:`Chạy thêm ${fmtN(o-mn)} km so với lần ghi trước`):''});
+  $('#kS').onclick=()=>busy($('#kS'),async()=>{const v=KV.get(),odo=+String($('#kO').value).replace(/\D/g,'');if(!v)return toast('Chọn đúng xe trong đội xe');if(!odo)return toast('Nhập km đồng hồ');const mn=+$('#kO').dataset.min||0;
+    if(mn&&odo<mn&&!confirm(`Km ${fmtN(odo)} nhỏ hơn km đã ghi trước đó (${fmtN(mn)}). Vẫn lưu?`))return;
+    let photo=null;const f=$('#kF').files[0];if(f){try{photo=(await putFile(`vehicle/${v.id}/odo`,f)).path}catch(e){toast('Lỗi ảnh: '+e.message)}}
+    const kg=val('kg'),dr=KD.get();const rec={vehicle_id:v.id,person_id:dr?dr.id:ME.id,odo_km:odo,fuel_level_pct:kg===''||kg==null?null:+kg,odo_photo:photo,note:[ftxt('kN'),!dr&&KD.text()?'Tài xế: '+KD.text():''].filter(Boolean).join(' · ')||null,source:'web'};
+    if($('#kDt').value&&$('#kDt').value!==todayVN())rec.log_date=$('#kDt').value;
+    const {data,error}=await sb.from('khg_vehicle_daily').insert(rec).select('id').single();
+    if(error)return toast('Lỗi: '+error.message);await afterFuel(v.id,data.id,'kRes');$('#kS').textContent='✓ Đã lưu'})}
 
 // ---------- Chi phí khác ----------
+const srcOrders=q=>(RORD||[]).filter(o=>hit(q,o.code,o.customer,o.pickup,o.dropoff,o.plate)).slice(0,8).map(o=>({t:o.code||'(đơn)',s:[o.customer,fmtD(o.scheduled_at),o.plate,(o.dropoff||'').slice(0,40)].filter(Boolean).join(' · '),v:o}));
+let RORD=null;async function loadRord(){if(RORD)return;const {data}=await sb.from('khg_orders').select('id,code,customer_id,customer_text,pickup,dropoff,scheduled_at,vehicle_id,plate_text').is('archived_at',null).order('created_at',{ascending:false}).limit(300);
+  RORD=(data||[]).map(o=>({...o,customer:(CUS.find(c=>c.id===o.customer_id)||{}).name||o.customer_text||'',plate:(VEH.find(v=>v.id===o.vehicle_id)||{}).plate||o.plate_text||''}))}
 function exp(){$('#main').innerHTML=head('🧾 Chi phí khác')+`<form class="card" onsubmit="return false">
    <label class="f">Khoản chi *</label>${seg('ei',EXP_ITEMS,'cau_duong')}
-   <label class="f">Số tiền (đ) *</label><input class="i money" id="eA" data-money inputmode="numeric" placeholder="VD 150k">
-   <label class="f">Xe / sử dụng cho</label><select class="i" id="eV"><option value="">🏢 Chung công ty (không gắn xe)</option>${VEH.map(v=>`<option value="${v.id}">${esc(v.plate)}${v.ownership!=='so_huu'?' · liên kết':''}</option>`).join('')}</select><div class="hint" id="eVH"></div>
-   <label class="f">Người / nơi nhận tiền</label><input class="i" id="eS" placeholder="VD Gara Minh Phát">
+   <div class="row"><div><label class="f">Số tiền (đ) *</label><input class="i money" id="eA" data-money inputmode="numeric" placeholder="VD 150k"></div><div><label class="f">Ngày chi</label><input class="i" id="eDt" type="date" value="${todayVN()}"></div></div>
+   <div class="row"><div><label class="f">Tiền VAT (nếu có)</label><input class="i" id="eVat" data-money inputmode="numeric"></div><div><label class="f">Chứng từ</label>${sel('eIv',INV,'khong_hd')}</div></div>
+   ${vehBox('eV','Xe / sử dụng cho',{ph:'Gõ biển số – để trống nếu chi chung công ty'})}
+   <label class="f">Gắn với đơn hàng</label><div><input class="i" id="eO" placeholder="Gõ mã đơn, tên khách… (không bắt buộc)"></div><div class="hint" id="eOH"></div>
+   <label class="f">Người / nơi nhận tiền</label><div><input class="i" id="eS" placeholder="VD Gara Minh Phát – gõ để chọn nơi hay chi"></div>
+   <label class="f">Người chi / tài xế</label><div><input class="i" id="eP" placeholder="Gõ tên tài xế, nhân viên (không bắt buộc)"></div>
    <label class="f">Thanh toán</label>${seg('epay',PAY,'tien_mat')}
    <label class="f">Mức độ</label>${seg('eu',URG,'binh_thuong')}
+   <div class="row"><div><label class="f">Số hóa đơn / phiếu</label><input class="i" id="eNo"></div><div><label class="f">Cần chi trước ngày</label><input class="i" id="eNb" type="date"></div></div>
    <label class="f">Nội dung</label><input class="i" id="eN" placeholder="VD vá lốp sau phải">
    <label class="f">Ảnh hoá đơn / chứng từ</label>${photoBox('eF','Chụp / chọn ảnh',true)}</form>
    <div class="savebar"><button class="btn p" id="eSv">💾 Lưu chi phí</button></div><div id="eRes"></div>`;
   $$('[data-money]').forEach(i=>KMONEY.attach&&KMONEY.attach(i));bindPhoto('eF');
-  $('#eV').onchange=async()=>{const vid=$('#eV').value;if(!vid){$('#eVH').textContent='';return}const {data:f}=await sb.rpc('khg_fleet_of',{p_vehicle:vid,p_plate:null});$('#eVH').className='hint ok';$('#eVH').textContent=f?'✓ '+({so_huu:'Xe KHG sở hữu',thue_xac:'Xe thuê xác',lien_ket:'Xe liên kết'}[f.kind]||'')+(f.owner&&f.kind!=='so_huu'?' · '+f.owner:''):''};
-  $('#eSv').onclick=()=>busy($('#eSv'),async()=>{const it=val('ei'),amt=num($('#eA').value);if(!amt)return toast('Nhập số tiền');const vid=$('#eV').value||null;
-    const row={item:it,category:CAT[it]||'khac',spent_on:new Date(Date.now()+7*3600e3).toISOString().slice(0,10),amount:amt,vehicle_id:vid,fleet_kind:vid?null:'chung',supplier:$('#eS').value.trim()||null,payment_method:val('epay'),urgency:val('eu'),note:$('#eN').value.trim()||null,requested_by:ME.id,status:isAdmin()?'da_duyet':'cho_duyet',source:'app'};
+  const EV=vehBind('eV',v=>{if(v){const dr=DRV.find(p=>p.vehicle_id===v.id);if(dr&&!EP.text())EP.set(dr)}});
+  const EPL=()=>[...DRV,...STAFF];const EP={get:()=>$('#eP')._pick&&$('#eP')._pick.v||EPL().find(p=>fold(p.full_name)===fold($('#eP').value))||null,text:()=>$('#eP').value.trim(),set:p=>{$('#eP').value=p?p.full_name:'';$('#eP')._pick=p?{v:p}:null}};TA($('#eS'),srcList(()=>HIST.sup));
+  loadRord().then(()=>TA($('#eO'),srcOrders,x=>{$('#eOH').className='hint ok';$('#eOH').textContent='✓ '+[x.v.customer,x.v.plate].filter(Boolean).join(' · ');if(!EV.get()&&x.v.vehicle_id){const v=VEH.find(y=>y.id===x.v.vehicle_id);if(v)EV.set(v)}}));
+  TA($('#eP'),q=>EPL().filter(p=>hit(q,p.full_name,p.phone)).slice(0,8).map(p=>({t:p.full_name,s:[p.phone,p.role==='tai_xe'?'Tài xế':'Nhân viên'].filter(Boolean).join(' · '),v:p})));
+  $('#eSv').onclick=()=>busy($('#eSv'),async()=>{const it=val('ei'),amt=num($('#eA').value);if(!amt)return toast('Nhập số tiền');const v=EV.get(),vt=EV.text(),pp=EP.get(),od=$('#eO')._pick&&$('#eO')._pick.v;
+    const fk={};if(!v&&vt)fk.vehicle_id=vt.toUpperCase();if(!pp&&EP.text())fk.person_id=EP.text();if(!od&&ftxt('eO'))fk.order_id=ftxt('eO');
+    const row={item:it,category:CAT[it]||'khac',spent_on:$('#eDt').value||todayVN(),amount:amt,vat_amount:fmon('eVat'),invoice_type:$('#eIv').value,vehicle_id:v?v.id:null,fleet_kind:v||vt?null:'chung',order_id:od?od.id:null,
+      supplier:ftxt('eS'),person_id:pp?pp.id:null,payment_method:val('epay'),urgency:val('eu'),doc_no:ftxt('eNo'),need_by:$('#eNb').value||null,note:ftxt('eN'),fk_text:Object.keys(fk).length?fk:null,requested_by:ME.id,status:isAdmin()?'da_duyet':'cho_duyet',source:'app'};
     const {data,error}=await sb.from('khg_expenses').insert(row).select('id').single();if(error)return toast('Lỗi: '+error.message);await saveFiles('expense',data.id,'eF','chung_tu_chi_phi');
-    $('#eRes').innerHTML=`<div class="res ok">✅ Đã lưu ${esc(EXP_ITEMS[it]||it)} · <b>${fmtN(amt)} đ</b>${isAdmin()?'':' · đang chờ duyệt'}<br><button class="btn g s" onclick="open('exp')" style="margin-top:8px">+ Nhập tiếp</button></div>`;$('#eSv').textContent='✓ Đã lưu';setTimeout(()=>$('#eRes').scrollIntoView({behavior:'smooth'}),50)})}
+    $('#eRes').innerHTML=`<div class="res ok">✅ Đã lưu ${esc(EXP_ITEMS[it]||it)} · <b>${fmtN(amt)} đ</b>${v?' · xe '+esc(v.plate):vt?' · xe '+esc(vt):''}${isAdmin()?'':' · đang chờ duyệt'}<br><button class="btn g s" onclick="open('exp')" style="margin-top:8px">+ Nhập tiếp</button></div>`;$('#eSv').textContent='✓ Đã lưu';setTimeout(()=>$('#eRes').scrollIntoView({behavior:'smooth'}),50)})}
 
 // ---------- Thu / chi quỹ ----------
 function cash(){$('#main').innerHTML=head('💵 Thu / chi quỹ')+`<form class="card" onsubmit="return false">
    ${seg('cd',{thu:'⬇️ Thu tiền',chi:'⬆️ Chi tiền'},'thu')}
-   <label class="f">Số tiền (đ) *</label><input class="i money" id="cA" data-money inputmode="numeric">
+   <div class="row"><div><label class="f">Số tiền (đ) *</label><input class="i money" id="cA" data-money inputmode="numeric"></div><div><label class="f">Ngày</label><input class="i" id="cDt" type="date" value="${todayVN()}"></div></div>
    <label class="f">Tài khoản</label>${seg('ca',{tien_mat:'💵 Tiền mặt',ngan_hang:'🏦 Ngân hàng'},'ngan_hang')}
    <label class="f">Loại</label><div id="cCat"></div>
-   <label class="f">Đối tượng (khách / người nhận)</label><input class="i" id="cP" list="cPL" placeholder="Tên khách, nhà xe, nhân viên…"><datalist id="cPL">${CUS.map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>
-   <label class="f">Số chứng từ / nội dung CK</label><input class="i" id="cN"></form>
+   <label class="f">Đối tượng *</label><div><input class="i" id="cP" placeholder="Gõ tên khách, nhà xe / đối tác, nhân viên…"></div><div class="hint" id="cPH"></div>
+   <div id="cOW"><label class="f">Thu cho đơn hàng</label><div><input class="i" id="cO" placeholder="Gõ mã đơn, tên khách (không bắt buộc)"></div></div>
+   ${vehBox('cV','Xe liên quan',{ph:'Gõ biển số (không bắt buộc)'})}
+   <div class="row"><div><label class="f">Số chứng từ / mã giao dịch</label><input class="i" id="cNo"></div><div><label class="f">Nội dung</label><input class="i" id="cN" placeholder="Nội dung chuyển khoản…"></div></div></form>
    <div class="savebar"><button class="btn p" id="cS">💾 Lưu phiếu</button></div><div id="cRes"></div>`;
-  $$('[data-money]').forEach(i=>KMONEY.attach&&KMONEY.attach(i));
-  const cats=()=>{$('#cCat').innerHTML=val('cd')==='thu'?seg('cc',{thu_cuoc:'Thu cước',thu_thue_kho:'Thu thuê kho',thu_phan_phoi:'Thu phân phối',thu_khac:'Thu khác'},'thu_cuoc'):seg('cc',{chi_xe_lien_ket:'Trả xe liên kết',chi_nhien_lieu:'Nhiên liệu',chi_luong:'Lương',chi_thue_kho:'Thuê kho',chi_mua_hang:'Mua hàng',chi_khac:'Chi khác'},'chi_khac')};cats();
+  $$('[data-money]').forEach(i=>KMONEY.attach&&KMONEY.attach(i));const CV=vehBind('cV');
+  const cats=()=>{$('#cCat').innerHTML=val('cd')==='thu'?seg('cc',{thu_cuoc:'Thu cước',thu_thue_kho:'Thu thuê kho',thu_phan_phoi:'Thu phân phối',thu_khac:'Thu khác'},'thu_cuoc'):seg('cc',{chi_xe_lien_ket:'Trả xe liên kết',chi_nhien_lieu:'Nhiên liệu',chi_luong:'Lương',chi_thue_kho:'Thuê kho',chi_mua_hang:'Mua hàng',chi_bao_hiem:'Bảo hiểm',chi_thue:'Thuế',chi_khac:'Chi khác'},'chi_khac');$('#cOW').classList.toggle('hidden',val('cd')!=='thu')};cats();
   $$('input[name="cd"]').forEach(r=>r.onchange=cats);
-  $('#cS').onclick=()=>busy($('#cS'),async()=>{const amt=num($('#cA').value);if(!amt)return toast('Nhập số tiền');
-    const {error}=await sb.from('khg_cash').insert({direction:val('cd'),account:val('ca'),amount:amt,category:val('cc'),counterparty:$('#cP').value.trim()||null,doc_no:$('#cN').value.trim()||null,note:$('#cN').value.trim()||null,txn_date:new Date(Date.now()+7*3600e3).toISOString().slice(0,10),source:'app',requested_by:ME.id});
-    if(error)return toast('Lỗi: '+error.message);$('#cRes').innerHTML=`<div class="res ok">✅ Đã lưu phiếu ${val('cd')==='thu'?'thu':'chi'} <b>${fmtN(amt)} đ</b><br><button class="btn g s" onclick="open('cash')" style="margin-top:8px">+ Nhập tiếp</button></div>`;$('#cS').textContent='✓ Đã lưu'})}
+  const P=$('#cP');TA(P,q=>[...CUS.filter(c=>hit(q,c.name,c.phone,c.tax_code)).slice(0,5).map(c=>({t:c.name,s:'Khách hàng'+(c.phone?' · '+c.phone:''),v:{t:'c',x:c}})),
+      ...PART.filter(p=>hit(q,p.name,p.short_name,p.phone)).slice(0,4).map(p=>({t:p.short_name||p.name,s:'Đối tác / nhà xe'+(p.phone?' · '+p.phone:''),v:{t:'p',x:p}})),
+      ...[...DRV,...STAFF].filter(p=>hit(q,p.full_name,p.phone)).slice(0,4).map(p=>({t:p.full_name,s:(p.role==='tai_xe'?'Tài xế':'Nhân viên')+(p.phone?' · '+p.phone:''),v:{t:'n',x:p}})),
+      ...HIST.cp.filter(x=>hit(q,x)&&!CUS.some(c=>c.name===x)).slice(0,3).map(x=>({t:x,s:'Đã dùng trước đây'}))],x=>{$('#cPH').className='hint ok';$('#cPH').textContent=x.v?'✓ '+x.s:''});
+  loadRord().then(()=>TA($('#cO'),q=>{const c=P._pick&&P._pick.v&&P._pick.v.t==='c'?P._pick.v.x:null;return srcOrders(q).filter(o=>!c||o.v.customer_id===c.id)},x=>{if(!P.value.trim()&&x.v.customer){P.value=x.v.customer;const c=CUS.find(y=>y.id===x.v.customer_id);if(c)P._pick={v:{t:'c',x:c}}}}));
+  $('#cS').onclick=()=>busy($('#cS'),async()=>{const amt=num($('#cA').value);if(!amt)return toast('Nhập số tiền');if(!P.value.trim())return toast('Nhập đối tượng thu / chi');const pk=P._pick&&P._pick.v,v=CV.get(),od=$('#cO')._pick&&$('#cO')._pick.v;
+    const note=[ftxt('cN'),od&&val('cd')==='thu'?'Đơn '+(od.code||''):'',!v&&CV.text()?'Xe '+CV.text():''].filter(Boolean).join(' · ')||null;
+    const {error}=await sb.from('khg_cash').insert({direction:val('cd'),account:val('ca'),amount:amt,category:val('cc'),counterparty:P.value.trim(),partner_id:pk&&pk.t==='p'?pk.x.id:null,receiver_id:pk&&pk.t==='n'?pk.x.id:null,vehicle_id:v?v.id:null,
+      doc_no:ftxt('cNo'),note,txn_date:$('#cDt').value||todayVN(),source:'app',requested_by:ME.id});
+    if(error)return toast('Lỗi: '+error.message);$('#cRes').innerHTML=`<div class="res ok">✅ Đã lưu phiếu ${val('cd')==='thu'?'thu':'chi'} <b>${fmtN(amt)} đ</b> · ${esc(P.value.trim())}<br><button class="btn g s" onclick="open('cash')" style="margin-top:8px">+ Nhập tiếp</button></div>`;$('#cS').textContent='✓ Đã lưu'})}
 
 // ---------- Duyệt chi ----------
 async function apr(){$('#main').innerHTML=`<h1 class="pg">✅ Khoản chờ duyệt</h1><div id="aL" class="empty">Đang tải…</div>`;const {data,error}=await sb.rpc('khg_pending_approvals');if(error){$('#aL').textContent=error.message;return}
