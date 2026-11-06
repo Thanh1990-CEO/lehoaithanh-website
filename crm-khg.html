@@ -1593,7 +1593,7 @@ async function openForm(name,row,after,defaults={},extraHTML=''){
     if(res.error){toast('Lỗi: '+res.error.message);return}
     if(cfg.afterSave) await cfg.afterSave(res.data,row);
     if(cfg.label||['orders','leases','advances'].includes(name)) delete REF[name];
-    closeModal();toast('Đã lưu');after&&after();
+    closeModal();toast('Đã lưu');after&&after();try{odoAfterSave(name,res.data)}catch(e){}
   };
   if(row&&!RO) $('#arc').onclick=async()=>{if(!confirm('Chuyển bản ghi này vào lưu trữ?\nKhông xóa vĩnh viễn – quản trị khôi phục được trong mục Thùng lưu trữ.'))return;const {error}=await sb.rpc('khg_archive',{p_table:cfg.table,p_id:row.id});if(error){toast('Lỗi: '+error.message);return}delete REF[name];closeModal();toast('Đã chuyển vào lưu trữ');after&&after()};
 }
@@ -5250,6 +5250,38 @@ const _fleet34=VIEWS.fleet;VIEWS.fleet=async m=>{await _fleet34(m);const st=m.qu
   const open=()=>{st.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));fuelCtrlInto(m.querySelector('#h'))};b.onclick=open;
   st.querySelectorAll('button:not([data-s="fuelctl"])').forEach(x=>x.addEventListener('click',()=>{PST.fleetS=null}));
   if(PST.fleetS==='fuelctl')setTimeout(open,600)};
+
+// ===== v35: Km lúc đổ dầu & km cuối ngày – soát sai, tô đỏ biển số xe trên toàn CRM
+(()=>{const ex=E.expenses&&E.expenses.f.find(f=>f.k==='odometer_km');if(ex){ex.list=true;ex.l='Km đồng hồ lúc đổ dầu';ex.hint='Bắt buộc với nhiên liệu – dùng để tính km còn chạy được'}
+  fAdd('expenses','odometer_km',[{k:'odo_note',l:'⚠ Soát km',t:'text',ro:true,list:true}]);
+  if(E.vdaily){const F=E.vdaily.f;const want=[['last_fill_odo','Km lúc đổ dầu gần nhất'],['km_since_fill','Km đã chạy sau khi đổ'],['remain_km','Km còn chạy được'],['est_level_l','Lít còn trong bình']];
+    want.forEach(([k,l])=>{const f=F.find(x=>x.k===k);if(f){f.list=true;f.l=l}else F.push({k,l,t:'num',ro:true,list:true})});
+    const o=F.find(x=>x.k==='odo_km');if(o){o.l='Km nhập cuối ngày (đóng ca)';o.list=true}
+    if(!F.some(x=>x.k==='odo_note'))F.push({k:'odo_note',l:'⚠ Soát km',t:'text',ro:true,list:true})}})();
+const ODO={vehicles:{},vids:{},rows:{},t:0};const plN=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');let ODOP={};
+async function odoLoad(force){if(!force&&Date.now()-ODO.t<45000)return;ODO.t=Date.now();try{const {data}=await sb.rpc('khg_odo_alerts');if(data){Object.assign(ODO,data);ODOP={};Object.entries(ODO.vehicles||{}).forEach(([p,m])=>ODOP[plN(p)]={p,m});odoDeco()}}catch(e){}}
+document.head.insertAdjacentHTML('beforeend',`<style>.odo-plate{color:#B91C1C!important;font-weight:800!important;cursor:pointer}.odo-plate:not(input)::before{content:'⚠ ';}input.odo-plate{border-color:#DC2626!important;background:#FEF2F2!important}
+tr.odo-bad>td{background:#FEF2F2!important}tr.odo-bad>td:first-child{box-shadow:inset 4px 0 0 #DC2626}.odo-banner{background:#FEF2F2;border:1px solid #FCA5A5;color:#991B1B;border-radius:10px;padding:8px 12px;margin:0 0 10px;font-size:13px;line-height:1.6}</style>`);
+function odoShow(plate){const m=(ODO.vehicles||{})[plate]||'';modal(`<h3 style="color:#B91C1C">⚠ Xe ${esc(plate)}: số km nhập không khớp</h3><p class="sub">Km lúc đổ dầu và km cuối ngày phải tăng dần, và quãng đường giữa hai lần ghi không được vượt quá số km mà số dầu đã đổ cho phép. Kế toán kiểm tra lại ảnh đồng hồ / phiếu đổ dầu và sửa số km sai.</p>
+  <ul style="line-height:1.7">${m.split(' | ').map(x=>`<li>${esc(x)}</li>`).join('')}</ul><div class="acts"><button class="btn" id="odoE">⛽ Mở các lần đổ dầu của xe</button><button class="btn" id="odoD">🛞 Mở km cuối ngày</button><span class="sp"></span><button class="btn p" id="odoX">Đóng</button></div>`,true);
+  $('#odoX').onclick=closeModal;const vid=Object.entries(ODO.vids||{}).find(([id])=>(REF.vehicles||{})[id]===plate)?.[0];
+  $('#odoE').onclick=()=>{closeModal();if(vid)drill('expenses',{eq:{vehicle_id:vid,category:'nhien_lieu'},allDates:true,title:'Lần đổ dầu xe '+plate});else go('expenses')};
+  $('#odoD').onclick=()=>{closeModal();PST.fleetS='fuelctl';go('fleet')}}
+let odoQ=0;function odoDeco(){odoQ=0;if(!Object.keys(ODOP).length&&!Object.keys(ODO.rows||{}).length){document.querySelectorAll('.odo-plate').forEach(e=>e.classList.remove('odo-plate'));document.querySelectorAll('tr.odo-bad').forEach(e=>e.classList.remove('odo-bad'));return}
+  const rows=ODO.rows||{};document.querySelectorAll('tr[data-id]').forEach(tr=>{const m=rows[tr.dataset.id];tr.classList.toggle('odo-bad',!!m);if(m)tr.title='⚠ '+m});
+  document.querySelectorAll('#main td, #main .chip, #main b, #modal td, .dgw td').forEach(el=>{if(el._odo===el.textContent)return;el._odo=el.textContent;const first=(el.innerText||'').split('\n')[0].trim();const hit=first.length<=14&&ODOP[plN(first)];
+    el.classList.toggle('odo-plate',!!hit);if(hit){el.title='⚠ '+hit.m;if(!el._odoc){el._odoc=1;el.addEventListener('click',e=>{if(!el.classList.contains('odo-plate'))return;e.stopPropagation();e.preventDefault();odoShow(hit.p)},true)}}});
+  document.querySelectorAll('#main input, #modal input').forEach(i=>{if(i.type==='hidden'||i.type==='checkbox')return;const hit=i.value&&i.value.length<=14&&ODOP[plN(i.value)];i.classList.toggle('odo-plate',!!hit);if(hit)i.title='⚠ '+hit.m})}
+new MutationObserver(()=>{if(!odoQ)odoQ=requestAnimationFrame(odoDeco)}).observe(document.body,{childList:true,subtree:true,characterData:true});
+setInterval(()=>odoLoad(true),120000);
+const _go35=go;go=async t=>{odoLoad();await _go35(t);odoBanner()};
+async function odoBanner(){await odoLoad();const m=$('#main');if(!m||m.querySelector('.odo-banner'))return;const V=Object.keys(ODO.vehicles||{});if(!V.length||!['expenses','fleet','reports','accounting','orders','dispatch','tax'].includes(cur))return;
+  const d=document.createElement('div');d.className='odo-banner';d.innerHTML=`⚠ <b>${V.length} xe có số km nhập không khớp</b> (km lúc đổ dầu / km cuối ngày): ${V.map(p=>`<a href="#" data-odop="${esc(p)}" style="color:#B91C1C;font-weight:700">${esc(p)}</a>`).join(', ')} – kế toán kiểm tra và sửa ngay để số dầu còn, km còn chạy được và dự toán không bị sai.`;
+  const h=m.querySelector('h2');if(h)h.after(d);else m.prepend(d);d.querySelectorAll('[data-odop]').forEach(a=>a.onclick=e=>{e.preventDefault();odoShow(a.dataset.odop)})}
+async function odoAfterSave(name,row){if(!row||!['expenses','vdaily'].includes(name))return;await new Promise(r=>setTimeout(r,400));await odoLoad(true);const m=(ODO.rows||{})[row.id];
+  if(m){modal(`<h3 style="color:#B91C1C">⚠ Số km vừa nhập không khớp</h3><p>${esc(m)}</p><p class="sub">Dữ liệu đã lưu nhưng xe sẽ bị tô đỏ trên toàn CRM cho tới khi số km được sửa đúng.</p><div class="acts"><span class="sp"></span><button class="btn" id="oaX">Để sau</button><button class="btn p" id="oaE">✎ Sửa lại ngay</button></div>`,true);
+    $('#oaX').onclick=closeModal;$('#oaE').onclick=async()=>{closeModal();const {data}=await sb.from(E[name].table).select('*').eq('id',row.id).single();if(data)openForm(name,data,()=>odoLoad(true))}}}
+odoLoad(true);
 
 TABS.push(['loans','Tiền vay vận hành',['admin','ke_toan']]);VIEWS.loans=async m=>{m.innerHTML='<h2>Tiền vay vận hành</h2><p class="sub">Ghi khoản vay → tiền tự vào sổ quỹ. Chi phí, tạm ứng chọn “Chi từ tiền vay” để biết đã dùng bao nhiêu. Trả nợ ở Báo cáo HĐKD KHG LOGISTICS → Tài chính & dòng tiền.</p><div id="h"></div>';await renderList('loans',$('#h'),{sumKey:'amount'})};ICONS.loans=IC('<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.2 1.3-2 3-2s3 .8 3 2-1.3 1.8-3 2-3 .8-3 2 1.3 2 3 2 3-.8 3-2"/>');
 TABS.push(['doctrack','Theo dõi chứng từ',['admin','ke_toan','dieu_phoi','kinh_doanh']]);VIEWS.doctrack=viewDocs;
