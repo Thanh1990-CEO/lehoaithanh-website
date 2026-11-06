@@ -1135,7 +1135,7 @@ function expToggle(frm){const it=()=>{const e=frm.elements.namedItem('item');ret
 // ===================== KIỂM TRA ĐƠN GIÁ · THÀNH TIỀN (v21) =====================
 function chkPill(v,r){v=v||[];if(!v.length)return r&&(r.unit_price||r.calc_amount)?'<span class="pill green">✓ Khớp</span>':'';
   return v.map(x=>{let t=(O.chk||{})[x]||x;if(x==='gia_cao'&&r&&r.market_price){const e=r.unit_price||(r.liters?r.amount/r.liters:0);if(e)t+=` +${((e-r.market_price)*100/r.market_price).toFixed(1).replace('.',',')}%`}
-    if(x==='lech_thanh_tien'&&r&&r.calc_amount)t+=` ${fmtN(r.amount-r.calc_amount)}`;return `<span class="pill ${x==='thieu_so_lit'?'amber':'red'}" title="${esc(x==='gia_cao'?'Đơn giá cao hơn giá Petrolimex niêm yết ngày đổ':x==='lech_thanh_tien'?'Số tiền khác số lượng × đơn giá':'')}">⚠ ${esc(t)}</span>`}).join(' ')}
+    if(x==='lech_thanh_tien'&&r&&r.calc_amount)t+=` ${fmtN(r.amount-r.calc_amount)}`;return `<span class="pill ${(window.CHK_SOFT||['thieu_so_lit']).includes(x)?'amber':'red'}" title="${esc(x==='gia_cao'?'Đơn giá cao hơn giá Petrolimex niêm yết ngày đổ':x==='lech_thanh_tien'?'Số tiền khác số lượng × đơn giá':'')}">⚠ ${esc(t)}</span>`}).join(' ')}
 const MKT={};
 async function priceCalc(frm,o){if(!frm)return;const g=k=>{const e=frm.elements.namedItem(k);if(!e)return null;if(e.tagName)return e;return {value:e.value,closest:q=>e[0]&&e[0].closest(q),dataset:{}}};const num=k=>{const e=g(k);if(!e)return 0;return e.dataset.money!==undefined?(moneyParse(e.value)||0):(Number(e.value)||0)};
   let box=frm.querySelector('#pcBox');if(!box){box=document.createElement('div');box.id='pcBox';box.className='w';box.style.cssText='grid-column:1/-1;border-radius:10px;padding:9px 12px;font-size:13px;border:1px solid var(--line);background:#F9FAFB';
@@ -1693,9 +1693,9 @@ E.expenses.afterSave=async(r)=>{
 
 // ===================== Chứng từ / hồ sơ đính kèm =====================
 const signed=async p=>{const {data}=await sb.storage.from(BUCKET).createSignedUrl(p,900);return data?.signedUrl||''};
-async function openFiles(entity,id,title){
-  modal(`<h3>📎 Chứng từ · ${esc(O.entity[entity])} ${esc(title)}</h3>
-   <div class="bar"><select id="fdt">${DOC_BY[entity].map(k=>`<option value="${k}">${esc(O.doc_type[k])}</option>`).join('')}</select>
+async function openFiles(entity,id,title){const EK=entity;entity=String(entity).split(':')[0];
+  modal(`<h3>📎 Chứng từ · ${esc((O.entity[EK]||O.entity[entity]))} ${esc(title)}</h3>
+   <div class="bar"><select id="fdt">${(DOC_BY[EK]||DOC_BY[entity]).map(k=>`<option value="${k}">${esc(O.doc_type[k])}</option>`).join('')}</select>
    <input type="file" id="ffile" multiple accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx"><input id="fnote" placeholder="Ghi chú" style="flex:1"><button class="btn p" id="fup">Tải lên</button></div>
    <div id="flist"><div class="empty">Đang tải…</div></div><div class="acts"><span class="sp"></span><button class="btn" id="fclose">Đóng</button></div>`);
   $('#fclose').onclick=closeModal;
@@ -4745,7 +4745,7 @@ const AU={from:addDays(today(),-7),to:today(),q:'',tbl:'',act:'',app:'',tab:'log
 VIEWS.audit=async m=>{const T=auTblLbl();
   m.innerHTML=`<h2>Nhật ký thao tác</h2><p class="sub">Ai làm gì, lúc nào, từ máy nào, IP nào — trên CRM và các app (tài xế, kho, sale…). Dữ liệu nhật ký chỉ quản trị xem được và không sửa/xoá được.</p>
   <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0">
-   <button class="btn sm ${AU.tab==='log'?'pri':''}" data-aut="log">📝 Thao tác dữ liệu</button><button class="btn sm ${AU.tab==='login'?'pri':''}" data-aut="login">🔐 Đăng nhập</button>
+   <button class="btn sm ${AU.tab==='log'?'p':''}" data-aut="log">📝 Thao tác dữ liệu</button><button class="btn sm ${AU.tab==='login'?'p':''}" data-aut="login">🔐 Đăng nhập</button>
    <span class="sp"></span>Từ <input type="date" id="auF" value="${AU.from}"> đến <input type="date" id="auT" value="${AU.to}">
    ${AU.tab==='log'?`<input id="auQ" placeholder="Tìm người, đối tượng, IP…" value="${esc(AU.q)}" style="width:190px">
    <select id="auTb" style="max-width:220px"><option value="">Mọi mục</option>${Object.entries(T).sort((a,b)=>String(a[1]).localeCompare(b[1])).map(([k,v])=>`<option value="${k}" ${AU.tbl===k?'selected':''}>${esc(v)}</option>`).join('')}</select>
@@ -4774,6 +4774,256 @@ VIEWS.audit=async m=>{const T=auTblLbl();
     try{await xlsx('Nhat_ky_'+(AU.tab==='login'?'dang_nhap_':'thao_tac_')+AU.from+'_'+AU.to,{[AU.tab==='login'?'Đăng nhập':'Thao tác']:[head,...data]})}catch(e){toast(e.message)}};
 };
 TABS.push(['audit','Nhật ký thao tác',['admin']]);ICONS.audit=IC('<path d="M5 3h10l4 4v14H5z"/><path d="M9 9h6M9 13h6M9 17h3"/>');
+
+// ===== v32: Kế toán & thuế · Tuyển dụng & đánh giá nhân sự
+document.head.insertAdjacentHTML('beforeend','<style>.kpi .s{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}</style>');
+const KT=async body=>{const {data,error}=await sb.functions.invoke('khg-ke-toan',{body});if(error){let m=error.message;try{const j=await error.context.json();m=j.error||m}catch(e){}throw new Error(m)}if(data&&data.error)throw new Error(data.error);return data};
+const f2b64=file=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(file)});
+async function upFile(entity,id,file,docType){const safe=file.name.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w.\-]+/g,'_');const path=`${entity}/${id}/${Date.now()}_${safe}`;
+  const {error}=await sb.storage.from(BUCKET).upload(path,file,{contentType:file.type||'application/octet-stream'});if(error)throw error;
+  await sb.from('khg_files').insert({entity_type:entity,entity_id:id,doc_type:docType,file_path:path,file_name:file.name,mime:file.type,size_bytes:file.size,uploaded_by:ME?.id||null})}
+DOC_BY['other:invoice']=['hoa_don','bien_ban','chung_tu','khac'];O.entity['other:invoice']='Hóa đơn';
+DOC_BY['other:candidate']=['ho_so_xin_viec','cccd','chung_chi','anh_dai_dien','khac'];O.entity['other:candidate']='Ứng viên';
+window.CHK_SOFT=['thieu_so_lit','tien_mat_tu_5tr','xem_giam_8','mst_chua_tra','chua_gan_nghiep_vu'];
+Object.assign(O,{inv_dir:{vao:'Đầu vào (mua)',ra:'Đầu ra (bán)'},inv_status:{chua_kiem:'Chưa kiểm',hop_le:'Hợp lệ',canh_bao:'Cần xem',sai:'Sai / rủi ro',da_xac_minh:'Đã xác minh'},
+  vat_rate:{'0':'0%','5':'5%','8':'8%','10':'10%'},inv_pay:{tien_mat:'Tiền mặt',chuyen_khoan:'Chuyển khoản',tm_ck:'TM/CK',khac:'Khác'},
+  tax_st:{hoat_dong:'Đang hoạt động',ngung:'Ngừng / đóng MST',khong_tim_thay:'Không tìm thấy',chua_ro:'Chưa rõ'},
+  hrj_status:{nhap:'Nháp',dang_tuyen:'Đang tuyển',tam_dung:'Tạm dừng',da_tuyen_du:'Đã tuyển đủ',dong:'Đóng'},
+  cand_stage:{moi:'Mới nhận',sang_loc:'Sàng lọc',hen_pv:'Hẹn phỏng vấn',da_pv:'Đã phỏng vấn',offer:'Mời nhận việc',nhan_viec:'Đã nhận việc',tu_choi:'Không đạt',rut:'Ứng viên rút'},
+  cand_src:{facebook:'Facebook',zalo:'Zalo',tiktok:'TikTok',topcv:'TopCV',vieclam24h:'Vieclam24h',chotot:'Chợ Tốt việc làm',gioi_thieu:'Người quen giới thiệu',tu_den:'Tự đến',khac:'Khác'},
+  rev_status:{nhap:'Nháp',cho_duyet:'Chờ duyệt',da_chot:'Đã chốt'},grade:{A:'A – Xuất sắc',B:'B – Tốt',C:'C – Đạt',D:'D – Chưa đạt'}});
+Object.assign(O.chk=O.chk||{},{thieu_so_hd:'Thiếu số HĐ',mst_sai_dinh_dang:'MST sai định dạng',thue_suat_la:'Thuế suất lạ',thue_lech:'Tiền thuế lệch thuế suất',tong_lech:'Tổng tiền lệch',ngay_tuong_lai:'Ngày HĐ ở tương lai',trung_hd:'Trùng hóa đơn',
+  mst_mua_sai:'MST người mua không phải KHG',mst_ban_sai:'MST người bán không phải KHG',mst_ngung_hd:'MST đã ngừng / đóng',mst_khong_ton_tai:'MST không tồn tại',tien_mat_tu_5tr:'Tiền mặt ≥ 5 tr: không khấu trừ VAT',
+  xem_giam_8:'10%: xem diện giảm còn 8%',mst_chua_tra:'Chưa tra MST',chua_gan_nghiep_vu:'Chưa gắn chi phí/đơn/công nợ'});
+E.invoices={table:'khg_invoices',title:'Sổ hóa đơn',label:'inv_no',order:['inv_date',false],dateKey:'inv_date',files:'other:invoice',search:['inv_no','seller_name','buyer_name','seller_tax','buyer_tax','content'],
+  filters:[['direction','inv_dir'],['status','inv_status'],['vat_rate','vat_rate']],
+  f:[{h:'Hóa đơn'},{k:'direction',l:'Loại',t:'sel',o:'inv_dir',list:true,req:true,def:'vao'},{k:'inv_date',l:'Ngày hóa đơn',t:'date',list:true,req:true,def:()=>today()},{k:'inv_symbol',l:'Ký hiệu',t:'text',list:true,hint:'VD C26TAA'},{k:'inv_no',l:'Số hóa đơn',t:'text',list:true,req:true},{k:'inv_form',l:'Mẫu số',t:'text'},{k:'lookup_code',l:'Mã tra cứu / mã CQT',t:'text'},{k:'lookup_url',l:'Link tra cứu',t:'text'},
+   {h:'Bên bán · bên mua'},{k:'seller_name',l:'Người bán',t:'text',list:true},{k:'seller_tax',l:'MST người bán',t:'text',list:true},{k:'seller_address',l:'Địa chỉ người bán',t:'text'},{k:'buyer_name',l:'Người mua',t:'text',list:true},{k:'buyer_tax',l:'MST người mua',t:'text'},{k:'buyer_address',l:'Địa chỉ người mua',t:'text'},
+   {h:'Giá trị'},{k:'content',l:'Nội dung hàng hóa, dịch vụ',t:'area',list:true},{k:'amount_pre',l:'Tiền trước thuế',t:'money',list:true},{k:'vat_rate',l:'Thuế suất',t:'sel',o:'vat_rate',list:true,hint:'Bỏ trống nếu không chịu thuế'},{k:'vat_amount',l:'Tiền thuế GTGT',t:'money',list:true},{k:'total',l:'Tổng thanh toán',t:'money',list:true},
+   {k:'pay_method',l:'Hình thức thanh toán',t:'sel',o:'inv_pay',def:'chuyen_khoan'},{k:'due_on',l:'Hạn thanh toán',t:'date'},{k:'paid_on',l:'Ngày đã thanh toán',t:'date',list:true},
+   {h:'Gắn nghiệp vụ'},{k:'customer_id',l:'Khách hàng',t:'fk',ref:'customers'},{k:'partner_id',l:'Đối tác / nhà xe',t:'fk',ref:'partners'},{k:'order_id',l:'Đơn hàng',t:'fk',ref:'orders'},
+   {h:'Kiểm soát'},{k:'status',l:'Kết quả kiểm tra',t:'sel',o:'inv_status',ro:true,list:true},{k:'check_flags',l:'Cảnh báo',t:'arr',ro:true,list:true},{k:'verified',l:'Kế toán đã xác minh (bỏ qua cảnh báo)',t:'bool'},{k:'verified_note',l:'Ghi chú xác minh',t:'text'},{k:'note',l:'Ghi chú',t:'text'}]};
+E.hr_jobs={table:'khg_hr_jobs',title:'Vị trí tuyển dụng',label:'title',order:['created_at',false],search:['title','dept','code'],filters:[['status','hrj_status']],
+  f:[{h:'Vị trí'},{k:'title',l:'Chức danh',t:'text',list:true,req:true},{k:'code',l:'Mã',t:'text'},{k:'dept',l:'Bộ phận',t:'text',list:true},{k:'role_key',l:'Vai trò trên hệ thống',t:'sel',o:'role'},{k:'level',l:'Cấp bậc',t:'text'},{k:'headcount',l:'Số lượng cần tuyển',t:'num',list:true,def:1},
+   {k:'work_place',l:'Nơi làm việc',t:'text',list:true},{k:'work_time',l:'Thời gian làm việc',t:'text'},{k:'salary_min',l:'Lương từ',t:'money',list:true},{k:'salary_max',l:'Lương đến',t:'money',list:true},{k:'salary_note',l:'Ghi chú lương (chuyến, hoa hồng…)',t:'text'},{k:'reports_to',l:'Báo cáo cho',t:'text'},
+   {h:'Mô tả công việc (JD)'},{k:'duties',l:'Nhiệm vụ',t:'area'},{k:'requirements',l:'Yêu cầu',t:'area'},{k:'benefits',l:'Quyền lợi',t:'area'},{k:'kpis',l:'KPI đánh giá (Tên | chỉ tiêu | trọng số %)',t:'area'},
+   {h:'Tin tuyển dụng'},{k:'status',l:'Trạng thái',t:'sel',o:'hrj_status',def:'nhap',list:true},{k:'open_on',l:'Ngày mở',t:'date',list:true},{k:'close_on',l:'Hạn nhận hồ sơ',t:'date',list:true},{k:'post_text',l:'Nội dung tin đăng',t:'area'},{k:'post_channels',l:'Kênh đã đăng',t:'arr'},{k:'owner_id',l:'Người phụ trách',t:'fk',ref:'people'},{k:'note',l:'Ghi chú',t:'text'}]};
+E.hr_cands={table:'khg_hr_candidates',title:'Ứng viên',label:'full_name',order:['applied_on',false],dateKey:'applied_on',files:'other:candidate',search:['full_name','phone','email'],filters:[['job_id','@hr_jobs'],['stage','cand_stage'],['source','cand_src']],
+  f:[{h:'Ứng viên'},{k:'full_name',l:'Họ tên',t:'text',list:true,req:true},{k:'phone',l:'Điện thoại',t:'text',list:true},{k:'email',l:'Email',t:'text'},{k:'birth_year',l:'Năm sinh',t:'num'},{k:'address',l:'Nơi ở',t:'text'},
+   {k:'job_id',l:'Ứng tuyển vị trí',t:'fk',ref:'hr_jobs',list:true},{k:'source',l:'Nguồn',t:'sel',o:'cand_src',list:true},{k:'applied_on',l:'Ngày nộp',t:'date',list:true,def:()=>today()},{k:'expected_salary',l:'Lương mong muốn',t:'money'},
+   {h:'Quy trình'},{k:'stage',l:'Bước',t:'sel',o:'cand_stage',def:'moi',list:true},{k:'interview_at',l:'Lịch phỏng vấn',t:'dt',list:true},{k:'interviewer_id',l:'Người phỏng vấn',t:'fk',ref:'people'},{k:'score',l:'Điểm phỏng vấn (/10)',t:'num',list:true},
+   {k:'strengths',l:'Điểm mạnh',t:'area'},{k:'weaknesses',l:'Điểm cần lưu ý',t:'area'},{k:'offer_salary',l:'Lương đề nghị',t:'money'},{k:'start_on',l:'Ngày đi làm',t:'date',list:true},{k:'reject_reason',l:'Lý do không đạt / rút',t:'text'},{k:'person_id',l:'Hồ sơ nhân sự',t:'fk',ref:'people',ro:true},{k:'note',l:'Ghi chú',t:'text'}]};
+E.hr_reviews={table:'khg_hr_reviews',title:'Đánh giá nhân sự',label:'period',order:['period_to',false],dateKey:'period_to',search:['period','strengths','improve'],filters:[['person_id','@people'],['grade','grade'],['status','rev_status']],noNew:true,
+  f:[{k:'person_id',l:'Nhân sự',t:'fk',ref:'people',list:true},{k:'period',l:'Kỳ',t:'text',list:true},{k:'kpi_score',l:'Điểm KPI',t:'num',list:true},{k:'discipline_score',l:'Kỷ luật',t:'num',list:true},{k:'total_score',l:'Tổng điểm',t:'num',list:true},{k:'grade',l:'Xếp loại',t:'sel',o:'grade',list:true},{k:'bonus_amount',l:'Thưởng',t:'money',list:true},{k:'status',l:'Trạng thái',t:'sel',o:'rev_status',list:true},{k:'reviewer_id',l:'Người đánh giá',t:'fk',ref:'people',list:true}]};
+
+// ---------- Kỳ báo cáo ----------
+const ktPer=(P)=>{const t=today(),y=+t.slice(0,4),m=+t.slice(5,7),q=Math.ceil(m/3);const mm=(yy,mo)=>`${yy}-${String(mo).padStart(2,'0')}`;const last=(yy,mo)=>isoD(new Date(yy,mo,0));
+  const opt={thang:[mm(y,m)+'-01',last(y,m),'Tháng này'],thang_truoc:[m===1?mm(y-1,12)+'-01':mm(y,m-1)+'-01',m===1?last(y-1,12):last(y,m-1),'Tháng trước'],quy:[mm(y,q*3-2)+'-01',last(y,q*3),'Quý '+q],quy_truoc:[q===1?mm(y-1,10)+'-01':mm(y,q*3-5)+'-01',q===1?last(y-1,12):last(y,q*3-3),'Quý trước'],nam:[y+'-01-01',y+'-12-31','Năm '+y]};
+  if(P.kind!=='tuy_chon'){const o=opt[P.kind]||opt.thang;P.from=o[0];P.to=o[1]}
+  return `<div class="row" style="gap:6px;flex-wrap:wrap;align-items:center">${Object.entries(opt).map(([k,o])=>`<button class="btn sm ${P.kind===k?'p':''}" data-pk="${k}">${o[2]}</button>`).join('')}<span class="sub">hoặc</span><input type="date" data-pf value="${P.from}"> – <input type="date" data-pt value="${P.to}"></div>`};
+const ktPerBind=(el,P,redraw)=>{el.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{P.kind=b.dataset.pk;redraw()});
+  el.querySelectorAll('[data-pf],[data-pt]').forEach(i=>i.onchange=()=>{P.kind='tuy_chon';P.from=el.querySelector('[data-pf]').value;P.to=el.querySelector('[data-pt]').value;redraw()})};
+
+// ---------- Lịch thuế ----------
+function taxCalendar(){let per='quy';try{per=localStorage.getItem('khg_vat_per')||'quy'}catch(e){}
+  const t=today(),y=+t.slice(0,4),out=[];const L=(yy,mo)=>isoD(new Date(yy,mo,0));
+  for(let i=-1;i<=5;i++){const d=new Date(y,+t.slice(5,7)-1+i,1);const yy=d.getFullYear(),mo=d.getMonth()+1;const lab=`${String(mo).padStart(2,'0')}/${yy}`;const nx=new Date(yy,mo,1),ny=nx.getFullYear(),nm=nx.getMonth()+1;
+    if(per==='thang')out.push([`${ny}-${String(nm).padStart(2,'0')}-20`,`Khai & nộp thuế GTGT tháng ${lab} (mẫu 01/GTGT) + TNCN khấu trừ (05/KK-TNCN) nếu phát sinh`,'thue']);
+    out.push([L(yy,mo),`Đóng BHXH, BHYT, BHTN, KPCĐ tháng ${lab} (hạn cuối tháng)`,'bh']);
+    if(mo%3===0){const q=mo/3;const qd=L(ny,nm);
+      if(per==='quy')out.push([qd,`Khai & nộp thuế GTGT quý ${q}/${yy} (01/GTGT) + TNCN quý (05/KK-TNCN) nếu phát sinh`,'thue']);
+      out.push([`${ny}-${String(nm).padStart(2,'0')}-30`.replace(/-02-30$/,'-02-28'),`Tạm nộp thuế TNDN quý ${q}/${yy} (không nộp tờ khai; 4 quý tạm nộp ≥ 80% số quyết toán)`,'thue'])}}
+  [[`${y}-03-31`,`Quyết toán thuế TNDN, TNCN năm ${y-1} + nộp Báo cáo tài chính năm ${y-1}`],[`${y+1}-03-31`,`Quyết toán thuế TNDN, TNCN năm ${y} + nộp Báo cáo tài chính năm ${y}`],[`${y}-12-31`,'Hết hạn áp dụng giảm thuế GTGT 10% → 8% (NQ 204/2025/QH15, NĐ 174/2025/NĐ-CP) — từ 01/01/'+(y+1)+' kiểm tra lại thuế suất']].forEach(x=>out.push([x[0],x[1],'nam']));
+  const L2=[...new Map(out.map(x=>[x[0]+x[1],x])).values()].filter(x=>x[0]>=addDays(t,-20)&&x[0]<=addDays(t,200)).sort((a,b)=>a[0].localeCompare(b[0]));
+  const dd=s=>Math.round((new Date(s)-new Date(t))/864e5);
+  return `<div class="row" style="gap:8px;align-items:center;margin-bottom:8px"><span class="sub">Kỳ khai thuế GTGT của KHG:</span><select id="vatPer"><option value="quy" ${per==='quy'?'selected':''}>Theo quý (doanh thu năm trước ≤ 50 tỷ)</option><option value="thang" ${per==='thang'?'selected':''}>Theo tháng</option></select></div>
+   <div class="tw"><table class="t"><thead><tr><th>Hạn</th><th>Còn</th><th>Việc phải làm</th></tr></thead><tbody>${L2.map(x=>{const n=dd(x[0]);return `<tr><td><b>${fmtD(x[0])}</b></td><td><span class="pill ${n<0?'':n<=7?'red':n<=20?'amber':'green'}">${n<0?'đã qua':n===0?'hôm nay':n+' ngày'}</span></td><td>${esc(x[1])}</td></tr>`}).join('')}</tbody></table></div>
+   <div class="sub" style="margin-top:8px;line-height:1.7">Căn cứ: Luật Quản lý thuế 2019 (Điều 44 – hạn khai: ngày 20 tháng sau với kỳ tháng, ngày cuối tháng đầu quý sau với kỳ quý, ngày cuối tháng thứ 3 sau năm với quyết toán), NĐ 126/2020/NĐ-CP (tạm nộp TNDN quý). Lệ phí môn bài đã bãi bỏ từ 01/01/2026 (NQ 198/2025/QH15) nên không còn khai, nộp. Hạn rơi vào ngày nghỉ được lùi sang ngày làm việc kế tiếp. Thuế GTGT đầu vào từ 5 triệu đồng phải thanh toán không dùng tiền mặt mới được khấu trừ (Luật Thuế GTGT 2024, hiệu lực 01/7/2025).</div>`}
+
+// ---------- Tra MST ----------
+async function taxCheck(mst,cb){mst=String(mst||'').replace(/[^\d-]/g,'');if(!mst)return toast('Nhập mã số thuế');toast('Đang tra MST '+mst+'… (AI tra thêm nguồn web ~15 giây)');
+  try{const r=await KT({mode:'tax',mst});cb&&cb(r);return r}catch(e){toast(e.message)}}
+const taxCard=r=>{const c={hoat_dong:'green',ngung:'red',khong_tim_thay:'red',chua_ro:'amber'}[r.status]||'';
+  return `<div class="card" style="margin-top:10px"><h3>${esc(r.name||'(không rõ tên)')} <span class="pill ${c}">${esc(O.tax_st[r.status]||r.status)}</span></h3><div class="sub" style="line-height:1.7">MST <b>${esc(r.mst)}</b>${r.address?' · '+esc(r.address):''}<br>${r.ai_note?esc(r.ai_note)+'<br>':''}Nguồn: ${esc(r.source||'')} · tra lúc ${fmtDT(r.checked_at)}
+   ${(r.ai_sources||[]).length?'<br>Tham khảo: '+(r.ai_sources||[]).map(s=>`<a href="${esc(s.uri)}" target="_blank" rel="noopener">${esc(s.title||'nguồn')}</a>`).join(' · '):''}
+   <br>Xác nhận chính thức: <a href="https://tracuunnt.gdt.gov.vn/tcnnt/mstdn.jsp" target="_blank" rel="noopener">Tra cứu NNT – Tổng cục Thuế</a> · <a href="https://hoadondientu.gdt.gov.vn/" target="_blank" rel="noopener">Tra hóa đơn điện tử</a> · <a href="https://dangkykinhdoanh.gov.vn/" target="_blank" rel="noopener">Cổng ĐKDN quốc gia</a></div></div>`};
+
+// ---------- AI đọc hóa đơn ----------
+async function invAI(after){const inp=document.createElement('input');inp.type='file';inp.accept='image/*,application/pdf,.xml,text/xml';inp.onchange=async()=>{const file=inp.files[0];if(!file)return;
+  if(file.size>10*1024*1024)return toast('File quá 10MB');toast('AI đang đọc hóa đơn…');
+  try{const isX=/xml/i.test(file.type)||/\.xml$/i.test(file.name);const r=await KT(isX?{mode:'invoice',text:await file.text()}:{mode:'invoice',file:{b64:await f2b64(file),mime:file.type||'application/pdf'}});
+    const num=v=>v==null||v===''?null:Number(String(v).replace(/[^\d.-]/g,''))||0;
+    const row={direction:r.direction==='ra'?'ra':'vao',inv_form:r.inv_form||null,inv_symbol:r.inv_symbol||null,inv_no:r.inv_no||null,inv_date:/^\d{4}-\d{2}-\d{2}$/.test(r.inv_date||'')?r.inv_date:today(),lookup_code:r.lookup_code||null,lookup_url:r.lookup_url||null,
+      seller_name:r.seller_name||null,seller_tax:r.seller_tax||null,seller_address:r.seller_address||null,buyer_name:r.buyer_name||null,buyer_tax:r.buyer_tax||null,buyer_address:r.buyer_address||null,content:r.content||null,
+      amount_pre:num(r.amount_pre),vat_rate:r.vat_rate==null||r.vat_rate===''?null:num(r.vat_rate),vat_amount:num(r.vat_amount),total:num(r.total),pay_method:['tien_mat','chuyen_khoan','tm_ck','khac'].includes(r.pay_method)?r.pay_method:null,
+      source:'ai',ai_raw:r,note:(r.issues||[]).length?'AI lưu ý: '+(r.issues||[]).join('; '):null,created_by:ME?.id||null};
+    const {data:ins,error}=await sb.from('khg_invoices').insert(row).select().single();if(error)return toast(error.message);
+    try{await upFile('other',ins.id,file,'hoa_don')}catch(e){toast('Đã lưu HĐ nhưng chưa đính kèm được file: '+e.message)}
+    const cp=ins.direction==='vao'?ins.seller_tax:ins.buyer_tax;
+    modal(`<h3>🤖 AI đã đọc hóa đơn ${esc(ins.inv_symbol||'')} ${esc(ins.inv_no||'')}</h3><div class="sub" style="line-height:1.7">${esc(ins.seller_name||'')} → ${esc(ins.buyer_name||'')}<br>Trước thuế ${fmtM(ins.amount_pre)} · VAT ${ins.vat_rate??'KCT'}% ${fmtM(ins.vat_amount)} · Tổng <b>${fmtM(ins.total)}</b></div>
+      <p><b>Kết quả kiểm tra:</b> ${pill('inv_status',ins.status)} ${chkPill(ins.check_flags,ins)}</p>${(r.issues||[]).length?`<div class="card"><b>AI phát hiện:</b><ul style="margin:6px 0 0 18px">${r.issues.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}
+      <div class="acts"><span class="sp"></span>${cp?`<button class="btn" id="aiMst">🔎 Tra MST ${esc(cp)}</button>`:''}<button class="btn" id="aiEd">✎ Mở để sửa / gắn nghiệp vụ</button><button class="btn p" id="aiOk">Xong</button></div><div id="aiMstR"></div>`,true);
+    $('#aiOk').onclick=()=>{closeModal();after&&after()};$('#aiEd').onclick=()=>{closeModal();openForm('invoices',ins,after)};
+    const bm=$('#aiMst');if(bm)bm.onclick=async()=>{bm.disabled=true;const t=await taxCheck(cp);bm.disabled=false;if(t)$('#aiMstR').innerHTML=taxCard(t)};
+  }catch(e){toast(e.message)}};inp.click()}
+
+// ---------- Đối chiếu công nợ ----------
+async function reconView(el){await ensureRef('customers');const {data:pp}=await sb.from('khg_payables').select('party').is('archived_at',null).limit(5000);const parties=[...new Set((pp||[]).map(x=>(x.party||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));
+  const P=PST.recon2=PST.recon2||{kind:'thang',who:'customer',id:'',name:''};
+  const draw=async()=>{el.innerHTML=`<div class="card"><h3>🤝 Biên bản đối chiếu công nợ</h3><div class="row" style="gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0">
+     <select id="rcW"><option value="customer" ${P.who==='customer'?'selected':''}>Khách hàng (KHG phải thu)</option><option value="supplier" ${P.who==='supplier'?'selected':''}>Nhà cung cấp / đối tác (KHG phải trả)</option></select>
+     ${P.who==='customer'?`<select id="rcC"><option value="">— Chọn khách hàng —</option>${Object.entries(REF.customers||{}).sort((a,b)=>String(a[1]).localeCompare(String(b[1]),'vi')).map(([k,v])=>`<option value="${k}" ${P.id===k?'selected':''}>${esc(v)}</option>`).join('')}</select>`
+      :`<select id="rcC"><option value="">— Chọn đơn vị —</option>${parties.map(v=>`<option ${P.name===v?'selected':''}>${esc(v)}</option>`).join('')}</select>`}</div>${ktPer(P)}</div><div id="rcB" style="margin-top:10px"></div>`;
+    ktPerBind(el,P,draw);$('#rcW').onchange=e=>{P.who=e.target.value;P.id='';P.name='';draw()};$('#rcC').onchange=e=>{if(P.who==='customer')P.id=e.target.value;else P.name=e.target.value;draw()};
+    const B=$('#rcB');if(!(P.id||P.name)){B.innerHTML='<div class="empty">Chọn khách hàng hoặc đơn vị để lập biên bản.</div>';return}
+    const {data:R,error}=await sb.rpc('khg_recon',{p_kind:P.who,p_id:P.id||null,p_name:P.name||null,p_from:P.from,p_to:P.to});if(error){B.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
+    const rows=R.rows||[];let bal=+R.open||0;const ti=rows.reduce((s,x)=>s+(+x.inc||0),0),td=rows.reduce((s,x)=>s+(+x.dec||0),0);const close=bal+ti-td;
+    const isC=P.who==='customer';const other=R.name||P.name;
+    B.innerHTML=`<div class="card"><div class="row"><b>${esc(other)}</b><span class="sp"></span><button class="btn" id="rcX">⬇ Excel</button><button class="btn p" id="rcP">🖨 In / PDF</button></div>
+      <div class="kpis" style="margin:8px 0"><div class="kpi"><div class="l">Số dư đầu kỳ</div><div class="v">${fmtN(bal)}</div></div><div class="kpi"><div class="l">${isC?'Phát sinh phải thu':'Phát sinh phải trả'}</div><div class="v">${fmtN(ti)}</div></div><div class="kpi"><div class="l">${isC?'Khách đã thanh toán':'KHG đã thanh toán'}</div><div class="v">${fmtN(td)}</div></div><div class="kpi"><div class="l">Số dư cuối kỳ</div><div class="v" style="color:${close>0?'#B91C1C':'inherit'}">${fmtN(close)}</div></div></div>
+      <div class="tw"><table class="t"><thead><tr><th>Ngày</th><th>Số chứng từ / HĐ</th><th>Nội dung</th><th class="r">Phát sinh tăng</th><th class="r">Thanh toán</th><th class="r">Số dư</th></tr></thead><tbody>
+      <tr><td></td><td></td><td><i>Số dư đầu kỳ</i></td><td></td><td></td><td class="r">${fmtN(bal)}</td></tr>${rows.map(x=>{bal+=(+x.inc||0)-(+x.dec||0);return `<tr><td>${fmtD(x.d)}</td><td>${esc(x.ref||'')}</td><td>${esc(x.ct||'')}</td><td class="r">${x.inc?fmtN(x.inc):''}</td><td class="r">${x.dec?fmtN(x.dec):''}</td><td class="r">${fmtN(bal)}</td></tr>`}).join('')}
+      <tr><td></td><td></td><td><b>Cộng phát sinh</b></td><td class="r"><b>${fmtN(ti)}</b></td><td class="r"><b>${fmtN(td)}</b></td><td class="r"><b>${fmtN(close)}</b></td></tr></tbody></table></div></div>`;
+    const lines=[];let b2=+R.open||0;rows.forEach(x=>{b2+=(+x.inc||0)-(+x.dec||0);lines.push([fmtD(x.d),x.ref||'',x.ct||'',+x.inc||0,+x.dec||0,b2])});
+    $('#rcX').onclick=()=>xlsx('Doi_chieu_cong_no_'+String(other).replace(/[^\wÀ-ỹ]+/g,'_').slice(0,40)+'_'+P.from+'_'+P.to,{'Đối chiếu':[['Ngày','Số CT/HĐ','Nội dung','Phát sinh tăng','Thanh toán','Số dư'],['','','Số dư đầu kỳ','','',+R.open||0],...lines,['','','Cộng phát sinh',ti,td,close]]});
+    $('#rcP').onclick=()=>{const K=(typeof KHG_INFO!=='undefined'&&KHG_INFO)||{ten:'CÔNG TY TNHH KIM HOÀNG GIA',mst:'3700416538',dc:'',dd:'',cv:''};const w=window.open('','_blank');if(!w)return toast('Trình duyệt chặn cửa sổ in');
+      const A=isC?['BÊN A (BÊN BÁN)',K.ten]:['BÊN A (BÊN MUA)',K.ten],Bn=isC?['BÊN B (BÊN MUA)',other]:['BÊN B (BÊN BÁN)',other];
+      w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Biên bản đối chiếu công nợ – ${esc(other)}</title><style>body{font-family:'Times New Roman',serif;font-size:13pt;margin:24mm 18mm;color:#000}h1{font-size:15pt;text-align:center;margin:14px 0 4px}.c{text-align:center}table{border-collapse:collapse;width:100%;font-size:11.5pt}td,th{border:1px solid #000;padding:4px 6px}th{background:#eee}.r{text-align:right}.sg{border:none;text-align:center;vertical-align:top;height:110px;width:50%}@media print{button{display:none}}</style></head><body>
+       <div class="c"><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</b><br><u>Độc lập – Tự do – Hạnh phúc</u></div><h1>BIÊN BẢN ĐỐI CHIẾU CÔNG NỢ</h1><div class="c"><i>Từ ngày ${fmtD(P.from)} đến ngày ${fmtD(P.to)}</i></div>
+       <p>Hôm nay, ngày ..... tháng ..... năm ........, chúng tôi gồm:</p><p><b>${A[0]}:</b> ${esc(A[1])}${isC?` – MST ${esc(K.mst)}`:` – MST ${esc(K.mst)}`}${K.dc?`<br>Địa chỉ: ${esc(K.dc)}`:''}${K.dd?`<br>Đại diện: ${esc(K.dd)} – ${esc(K.cv||'')}`:''}</p><p><b>${Bn[0]}:</b> ${esc(Bn[1])}<br>Đại diện: ........................................ Chức vụ: ....................</p>
+       <p>Cùng đối chiếu công nợ phát sinh trong kỳ như sau:</p><table><tr><th>Ngày</th><th>Số CT/HĐ</th><th>Nội dung</th><th>Phát sinh tăng</th><th>Thanh toán</th><th>Số dư</th></tr><tr><td></td><td></td><td><i>Số dư đầu kỳ</i></td><td></td><td></td><td class="r">${fmtN(R.open||0)}</td></tr>
+       ${lines.map(l=>`<tr><td>${l[0]}</td><td>${esc(l[1])}</td><td>${esc(l[2])}</td><td class="r">${l[3]?fmtN(l[3]):''}</td><td class="r">${l[4]?fmtN(l[4]):''}</td><td class="r">${fmtN(l[5])}</td></tr>`).join('')}<tr><td></td><td></td><td><b>Cộng</b></td><td class="r"><b>${fmtN(ti)}</b></td><td class="r"><b>${fmtN(td)}</b></td><td class="r"><b>${fmtN(close)}</b></td></tr></table>
+       <p>Kết luận: tính đến ngày ${fmtD(P.to)}, <b>${esc(isC?other:K.ten)}</b> còn phải thanh toán cho <b>${esc(isC?K.ten:other)}</b> số tiền <b>${fmtN(Math.abs(close))} đồng</b>${close?` <i>(Bằng chữ: ${esc(moneyWords(Math.abs(close)))})</i>`:''}.</p>
+       <p>Biên bản lập thành 02 bản, mỗi bên giữ 01 bản có giá trị như nhau. Trong vòng 07 ngày kể từ ngày nhận, nếu Bên B không có phản hồi bằng văn bản thì số liệu trên được xem là đã xác nhận.</p>
+       <table><tr><td class="sg"><b>ĐẠI DIỆN ${A[0].replace(/ \(.*/,'')}</b><br><i>(Ký, ghi rõ họ tên, đóng dấu)</i></td><td class="sg"><b>ĐẠI DIỆN ${Bn[0].replace(/ \(.*/,'')}</b><br><i>(Ký, ghi rõ họ tên, đóng dấu)</i></td></tr></table><button onclick="print()">🖨 In</button></body></html>`);w.document.close()}};
+  draw()}
+
+// ---------- Màn hình Kế toán & thuế ----------
+VIEWS.tax=async m=>{const S=PST.taxS=PST.taxS||'ov';
+  const T=[['ov','📊 Tổng quan thuế & cảnh báo'],['inv','🧾 Sổ hóa đơn'],['mst','🔎 Tra cứu MST'],['recon','🤝 Đối chiếu công nợ'],['cal','📅 Lịch thuế']];
+  m.innerHTML=`<h2>Kế toán & thuế</h2><p class="sub">Kiểm soát hóa đơn đầu vào/đầu ra, thuế GTGT, mã số thuế đối tác, chứng từ còn thiếu và đối chiếu công nợ. Số liệu thuế là ước tính quản trị — kế toán đối chiếu với tờ khai trên eTax trước khi nộp.</p>
+   <div class="subtabs">${T.map(([k,l])=>`<button data-s="${k}" class="${S===k?'on':''}">${l}</button>`).join('')}</div><div id="txB"></div>`;
+  m.querySelectorAll('.subtabs [data-s]').forEach(b=>b.onclick=()=>{PST.taxS=b.dataset.s;VIEWS.tax(m)});const B=$('#txB');
+  if(S==='inv'){await renderList('invoices',B,{sumKey:'total',extraBtns:'<button class="btn" data-aiinv>🤖 AI đọc hóa đơn (PDF/ảnh/XML)</button>',
+     rowActions:r=>{const cp=r.direction==='vao'?r.seller_tax:r.buyer_tax;return cp?`<button class="ib" data-mst="${esc(cp)}" title="Tra MST ${esc(cp)}">🔎</button>`:''},
+     bind:(h,load)=>{const a=h.querySelector('[data-aiinv]');if(a)a.onclick=()=>invAI(load);h.addEventListener('click',async e=>{const b=e.target.closest('[data-mst]');if(!b)return;e.stopPropagation();const r=await taxCheck(b.dataset.mst);if(r){modal(taxCard(r)+'<div class="acts"><span class="sp"></span><button class="btn" id="mstX">Đóng</button></div>');$('#mstX').onclick=closeModal;load()}},true)}});return}
+  if(S==='mst'){B.innerHTML=`<div class="card"><h3>🔎 Tra cứu mã số thuế</h3><div class="row" style="gap:6px"><input id="mstQ" placeholder="Nhập MST 10 số / 10-3 số / 12 số (cá nhân)" style="flex:1"><button class="btn p" id="mstGo">Tra cứu</button><button class="btn" id="mstAll">Tra lại tất cả khách hàng & đối tác</button></div>
+     <div class="sub" style="margin-top:6px">Kết hợp dữ liệu đăng ký thuế (VietQR) + AI tìm trên nguồn Cục Thuế / Cổng ĐKDN. Kết quả lưu lại để mọi hóa đơn của MST đó tự được cảnh báo. Trước khi giao dịch lớn, mở trang Tổng cục Thuế để xác nhận chính thức (trang này có mã kiểm tra nên cần người bấm).</div><div id="mstR"></div></div><h3 style="margin:14px 0 6px">MST đã tra</h3><div id="mstL" class="sub">Đang tải…</div>`;
+    const list=async()=>{const {data}=await sb.from('khg_tax_checks').select('*').order('checked_at',{ascending:false}).limit(500);$('#mstL').innerHTML=`<div class="tw"><table class="t"><thead><tr><th>MST</th><th>Tên</th><th>Tình trạng</th><th>Ghi chú</th><th>Tra lúc</th><th></th></tr></thead><tbody>${(data||[]).map(r=>`<tr><td>${esc(r.mst)}</td><td>${esc(r.name||'')}</td><td>${pill('tax_st',r.status)}</td><td>${esc(r.ai_note||'')}</td><td>${fmtDT(r.checked_at)}</td><td><button class="ib" data-re="${esc(r.mst)}" title="Tra lại">⟳</button></td></tr>`).join('')||'<tr><td colspan="6" class="sub">Chưa tra MST nào.</td></tr>'}</tbody></table></div>`;
+      $('#mstL').querySelectorAll('[data-re]').forEach(b=>b.onclick=async()=>{const r=await taxCheck(b.dataset.re);if(r){$('#mstR').innerHTML=taxCard(r);list()}})};
+    $('#mstGo').onclick=async()=>{const r=await taxCheck($('#mstQ').value);if(r){$('#mstR').innerHTML=taxCard(r);list()}};
+    $('#mstAll').onclick=async()=>{const [{data:c},{data:p}]=await Promise.all([sb.from('khg_customers').select('tax_code').is('archived_at',null).not('tax_code','is',null),sb.from('khg_partners').select('tax_code').is('archived_at',null).not('tax_code','is',null)]);
+      const all=[...new Set([...(c||[]),...(p||[])].map(x=>String(x.tax_code||'').replace(/[^\d-]/g,'')).filter(x=>/^(\d{10}(-\d{3})?|\d{12})$/.test(x)))];if(!all.length)return toast('Chưa có khách hàng/đối tác nào ghi MST');
+      if(!confirm(`Tra lại ${all.length} mã số thuế? Mỗi mã mất khoảng 10–20 giây.`))return;let n=0;for(const x of all){try{await KT({mode:'tax',mst:x});n++;$('#mstR').innerHTML=`<p class="sub">Đã tra ${n}/${all.length}…</p>`}catch(e){}}toast('Đã tra '+n+' MST');list()};
+    list();return}
+  if(S==='recon'){await reconView(B);return}
+  if(S==='cal'){B.innerHTML=`<div class="card"><h3>📅 Lịch khai, nộp thuế & bảo hiểm</h3>${taxCalendar()}</div>`;$('#vatPer').onchange=e=>{try{localStorage.setItem('khg_vat_per',e.target.value)}catch(x){}VIEWS.tax(m)};return}
+  // tổng quan
+  const P=PST.taxP=PST.taxP||{kind:'thang'};
+  const draw=async()=>{B.innerHTML=`<div class="card">${ktPer(P)}</div><div id="txO" class="sub" style="margin-top:10px">Đang tải…</div>`;ktPerBind(B,P,draw);
+    const {data:D,error}=await sb.rpc('khg_tax_overview',{p_from:P.from,p_to:P.to});const el=$('#txO');if(error){el.textContent=error.message;return}
+    const o=D.out||{},i=D.in||{},pay=(+o.vat||0)-(+i.vat_ok||0);const st=D.status||{},fl=D.flags||{};
+    const sec=(t,n,body)=>`<div class="card" style="margin-top:10px"><h3>${t} <span class="pill ${n?'red':'green'}">${n}</span></h3>${n?body:'<div class="sub">✅ Không có.</div>'}</div>`;
+    el.innerHTML=`<div class="kpis"><div class="kpi"><div class="l">Thuế GTGT đầu ra</div><div class="v">${fmtTr(o.vat)}</div><div class="s">${o.n||0} HĐ · doanh thu chịu thuế ${fmtTr(o.pre)}</div></div>
+      <div class="kpi"><div class="l">GTGT đầu vào được khấu trừ</div><div class="v">${fmtTr(i.vat_ok)}</div><div class="s">${i.n||0} HĐ · mua vào ${fmtTr(i.pre)}</div></div>
+      <div class="kpi"><div class="l">GTGT đầu vào KHÔNG khấu trừ</div><div class="v" style="color:${+i.vat_bad?'#B91C1C':'inherit'}">${fmtTr(i.vat_bad)}</div><div class="s">HĐ sai / tiền mặt ≥ 5 tr</div></div>
+      <div class="kpi"><div class="l">${pay>=0?'Ước tính GTGT phải nộp':'GTGT còn được khấu trừ chuyển kỳ sau'}</div><div class="v" style="color:${pay>0?'#B45309':'#15803D'}">${fmtTr(Math.abs(pay))}</div><div class="s">= đầu ra − đầu vào hợp lệ</div></div>
+      <div class="kpi"><div class="l">Doanh thu đơn hàng kỳ này</div><div class="v">${fmtTr(D.rev_orders)}</div><div class="s">${+D.rev_orders>+o.pre*1.05?'⚠ cao hơn doanh thu đã xuất HĐ '+fmtTr(D.rev_orders-o.pre):'khớp tương đối với HĐ đầu ra'}</div></div></div>
+      <div class="card" style="margin-top:10px"><h3>Kết quả kiểm tra hóa đơn</h3><div class="sub" style="line-height:2">${Object.entries(st).map(([k,n])=>`${pill('inv_status',k)} ${n}`).join(' &nbsp; ')||'Chưa có hóa đơn trong kỳ. Bấm “🧾 Sổ hóa đơn” → “🤖 AI đọc hóa đơn” để nhập nhanh.'}
+        ${Object.keys(fl).length?'<br>'+Object.entries(fl).sort((a,b)=>b[1]-a[1]).map(([k,n])=>`<span class="pill ${CHK_SOFT.includes(k)?'amber':'red'}">${esc(O.chk[k]||k)}: ${n}</span>`).join(' '):''}${D.no_file?`<br>📎 ${D.no_file} hóa đơn chưa đính kèm file PDF/XML/ảnh.`:''}</div></div>
+      ${sec('🧾 Chi phí ghi “có hóa đơn VAT” nhưng chưa vào sổ hóa đơn',(D.exp_vat_no_inv||[]).length,`<div class="tw"><table class="t"><thead><tr><th>Ngày</th><th>Nội dung</th><th>Nhà cung cấp</th><th class="r">Số tiền</th><th></th></tr></thead><tbody>${(D.exp_vat_no_inv||[]).map((e,ix)=>`<tr><td>${fmtD(e.date)}</td><td>${esc(e.item||'')}</td><td>${esc(e.supplier||'')}</td><td class="r">${fmtN(e.amount)}</td><td><button class="btn sm" data-vs="${ix}">+ Vào sổ HĐ</button></td></tr>`).join('')}</tbody></table></div>`)}
+      ${sec('📎 Chi phí từ 200.000 đ chưa có chứng từ / hóa đơn đính kèm',(D.exp_no_file||[]).length,`<div class="tw"><table class="t"><thead><tr><th>Ngày</th><th>Nội dung</th><th>Xe</th><th>Nhà cung cấp</th><th>Chứng từ</th><th class="r">Số tiền</th><th></th></tr></thead><tbody>${(D.exp_no_file||[]).map(e=>`<tr><td>${fmtD(e.date)}</td><td>${esc(e.item||'')}</td><td>${esc(e.plate||'')}</td><td>${esc(e.supplier||'')}</td><td>${pill('invoice_type',e.inv)}</td><td class="r">${fmtN(e.amount)}</td><td><button class="btn sm" data-ef="${e.id}" data-et="${esc(e.item||'')}">📎 Đính kèm</button></td></tr>`).join('')}</tbody></table></div>`)}
+      ${sec('🚚 Đơn hàng của khách có MST chưa xuất hóa đơn đầu ra',(D.orders_no_inv||[]).length,`<div class="tw"><table class="t"><thead><tr><th>Đơn</th><th>Ngày</th><th>Khách hàng</th><th>MST</th><th class="r">Doanh thu</th><th></th></tr></thead><tbody>${(D.orders_no_inv||[]).map((o,ix)=>`<tr><td>${esc(o.code||'')}</td><td>${fmtD(o.date)}</td><td>${esc(o.customer||'')}</td><td>${esc(o.tax||'')}</td><td class="r">${fmtN(o.revenue)}</td><td><button class="btn sm" data-ov="${ix}">+ Ghi HĐ đã xuất</button></td></tr>`).join('')}</tbody></table></div>`)}
+      ${sec('⚠ Khách hàng / đối tác: MST chưa tra hoặc đã ngừng hoạt động',(D.bad_partners||[]).length,`<div class="tw"><table class="t"><thead><tr><th>Loại</th><th>Tên</th><th>MST</th><th>Tình trạng</th><th></th></tr></thead><tbody>${(D.bad_partners||[]).map(p=>`<tr><td>${p.kind==='customer'?'Khách hàng':'Đối tác'}</td><td>${esc(p.name)}</td><td>${esc(p.mst)}</td><td>${p.status?pill('tax_st',p.status):'<span class="pill amber">Chưa tra</span>'}</td><td><button class="btn sm" data-tm="${esc(p.mst)}">🔎 Tra</button></td></tr>`).join('')}</tbody></table></div>`)}
+      <div class="card" style="margin-top:10px"><h3>📅 Hạn thuế sắp tới</h3>${taxCalendar()}</div>`;
+    const vp=$('#vatPer');if(vp)vp.onchange=e=>{try{localStorage.setItem('khg_vat_per',e.target.value)}catch(x){}draw()};
+    el.querySelectorAll('[data-vs]').forEach(b=>b.onclick=()=>{const e=D.exp_vat_no_inv[+b.dataset.vs];openForm('invoices',null,draw,{direction:'vao',inv_date:e.date,seller_name:e.supplier,inv_no:e.doc_no,total:e.amount,vat_amount:e.vat,content:e.item,expense_id:e.id})});
+    el.querySelectorAll('[data-ef]').forEach(b=>b.onclick=()=>openFiles('expense',b.dataset.ef,b.dataset.et));
+    el.querySelectorAll('[data-ov]').forEach(b=>b.onclick=()=>{const o=D.orders_no_inv[+b.dataset.ov];openForm('invoices',null,draw,{direction:'ra',inv_date:o.date,buyer_name:o.customer,buyer_tax:o.tax,total:o.revenue,vat_rate:'8',order_id:o.id,content:'Cước vận chuyển đơn '+(o.code||'')})});
+    el.querySelectorAll('[data-tm]').forEach(b=>b.onclick=async()=>{b.disabled=true;const r=await taxCheck(b.dataset.tm);b.disabled=false;if(r){modal(taxCard(r)+'<div class="acts"><span class="sp"></span><button class="btn" id="mstX">Đóng</button></div>');$('#mstX').onclick=()=>{closeModal();draw()}}})};
+  draw()};
+TABS.push(['tax','Kế toán & thuế',['admin','ke_toan']]);ICONS.tax=IC('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>');
+
+// ---------- Tuyển dụng & đánh giá ----------
+const JOB_PRESETS={
+  tai_xe:{title:'Tài xế xe tải (bằng C/C1)',dept:'Vận tải',role_key:'tai_xe',salary_min:10000000,salary_max:15000000,salary_note:'Lương cứng + tiền chuyến + phụ cấp; số liệu gợi ý, chỉnh theo thực tế',work_place:'Kho Vĩnh Tân / Thủ Dầu Một / Chánh Hiệp',kpis:'- Chuyến hoàn thành đúng hẹn | ≥ 95% | 35\n- An toàn: không vi phạm, không sự cố | 0 lỗi | 25\n- Nhiên liệu đúng định mức (báo km cuối ngày) | lệch ≤ 5% | 20\n- Nộp chứng từ, biên bản giao nhận đúng hạn | 100% | 10\n- Chăm sóc xe, báo hư hỏng kịp thời | đạt | 10'},
+  dieu_phoi:{title:'Nhân viên điều phối vận tải',dept:'Điều hành',role_key:'dieu_phoi',salary_min:10000000,salary_max:14000000,work_place:'Văn phòng KHG',kpis:'- Tỉ lệ xe có hàng (sử dụng xe) | ≥ 80% | 30\n- Đơn giao đúng hẹn | ≥ 95% | 25\n- Chi phí vận hành/chuyến trong định mức | ≤ 100% | 20\n- Khiếu nại khách hàng | 0 | 15\n- Cập nhật dữ liệu CRM đầy đủ, đúng giờ | 100% | 10'},
+  ke_toan:{title:'Kế toán vận tải – thuế',dept:'Tài chính – kế toán',role_key:'ke_toan',salary_min:9000000,salary_max:13000000,work_place:'Văn phòng KHG',kpis:'- Hóa đơn đầu vào/ra vào sổ đúng hạn | 100% | 25\n- Công nợ quá hạn | ≤ 10% | 25\n- Nộp tờ khai, nộp thuế đúng hạn | 100% | 20\n- Chứng từ chi phí đầy đủ | ≥ 98% | 15\n- Báo cáo HĐKD gửi đúng hạn | 100% | 15'},
+  kinh_doanh:{title:'Nhân viên kinh doanh logistics',dept:'Kinh doanh',role_key:'kinh_doanh',salary_min:8000000,salary_max:12000000,salary_note:'Lương cứng + hoa hồng theo doanh thu/lãi gộp',work_place:'TP.HCM & Đông Nam Bộ',kpis:'- Doanh thu mới | theo chỉ tiêu tháng | 40\n- Khách hàng mới ký HĐ | ≥ 2/tháng | 20\n- Biên lãi gộp đơn hàng | ≥ 7% | 20\n- Thu hồi công nợ đúng hạn | ≥ 90% | 10\n- Cập nhật CRM (lead, cơ hội) | 100% | 10'},
+  kho:{title:'Thủ kho',dept:'Kho bãi',role_key:'kho',salary_min:8000000,salary_max:11000000,work_place:'Kho KHG',kpis:'- Chênh lệch kiểm kê | ≤ 0,2% | 35\n- Xuất/nhập đúng chứng từ | 100% | 25\n- Thời gian xếp dỡ một xe | ≤ 45 phút | 20\n- 5S kho, an toàn PCCC | đạt | 20'},
+  boc_xep:{title:'Công nhân bốc xếp',dept:'Kho bãi',role_key:'boc_xep',salary_min:7000000,salary_max:9000000,salary_note:'Lương + tiền bốc xếp theo tấn/ca',work_place:'Kho KHG',kpis:'- Năng suất bốc xếp | theo định mức ca | 40\n- Hư hỏng hàng hóa | 0 | 30\n- Chuyên cần | ≥ 26 công | 20\n- An toàn lao động | 0 sự cố | 10'}};
+const parseKpis=s=>String(s||'').split('\n').map(l=>l.replace(/^[-•\s]+/,'').trim()).filter(Boolean).map(l=>{const p=l.split('|').map(x=>x.trim());return {name:p[0],target:p[1]||'',weight:+(String(p[2]||'').replace(/[^\d.]/g,''))||0,score:3,actual:''}});
+async function jobAI(job,after){const prompt=`<h3>🤖 AI soạn JD & tin tuyển dụng · ${esc(job.title)}</h3><div class="sub">AI dựa trên thông tin vị trí (lương, nơi làm, ghi chú) để viết. Bổ sung yêu cầu riêng nếu có:</div><textarea id="jaN" rows="3" style="width:100%" placeholder="VD: ưu tiên ở Bình Dương, chạy tuyến Đông Nam Bộ, có bằng C, làm ngay"></textarea><div class="acts"><span class="sp"></span><button class="btn" id="jaC">Đóng</button><button class="btn p" id="jaGo">Viết</button></div><div id="jaR"></div>`;
+  modal(prompt,true);$('#jaC').onclick=closeModal;
+  $('#jaGo').onclick=async()=>{const b=$('#jaGo');b.disabled=true;$('#jaR').innerHTML='<p class="sub">AI đang viết… (~20 giây)</p>';
+    try{const r=await KT({mode:'jobpost',job:{title:job.title,dept:job.dept,level:job.level,headcount:job.headcount,place:job.work_place,time:job.work_time,salary:[job.salary_min,job.salary_max].filter(Boolean).map(fmtN).join(' – '),salary_note:job.salary_note,existing_kpis:job.kpis,notes:$('#jaN').value,reports_to:job.reports_to}});
+      const L=a=>(a||[]).map(x=>`<li>${esc(x)}</li>`).join('');
+      $('#jaR').innerHTML=`<div class="card"><h3>Tin đăng</h3><pre style="white-space:pre-wrap;font:inherit">${esc(r.post_text)}</pre><button class="btn sm" id="jaCp">📋 Sao chép tin</button>${r.post_short?` <button class="btn sm" id="jaCp2">📋 Sao chép bản ngắn (Zalo)</button>`:''}</div>
+        <div class="card"><h3>Mô tả công việc</h3><b>Nhiệm vụ</b><pre style="white-space:pre-wrap;font:inherit">${esc(r.duties)}</pre><b>Yêu cầu</b><pre style="white-space:pre-wrap;font:inherit">${esc(r.requirements)}</pre><b>Quyền lợi</b><pre style="white-space:pre-wrap;font:inherit">${esc(r.benefits)}</pre>${r.kpis?`<b>KPI</b><pre style="white-space:pre-wrap;font:inherit">${esc(r.kpis)}</pre>`:''}</div>
+        <div class="card"><b>Tiêu đề khác:</b><ul>${L(r.title_ideas)}</ul><b>Kênh nên đăng:</b><ul>${L(r.channels)}</ul><b>Câu hỏi sàng lọc / phỏng vấn:</b><ul>${L(r.screening)}</ul><b>Gợi ý:</b><ul>${L(r.tips)}</ul><b>Lưu ý pháp lý:</b><ul>${L(r.legal)}</ul></div>
+        <div class="acts"><span class="sp"></span><button class="btn p" id="jaAp">✓ Lưu vào vị trí tuyển dụng</button></div>`;
+      $('#jaCp').onclick=()=>{navigator.clipboard.writeText(r.post_text);toast('Đã sao chép tin đăng')};const c2=$('#jaCp2');if(c2)c2.onclick=()=>{navigator.clipboard.writeText(r.post_short);toast('Đã sao chép')};
+      $('#jaAp').onclick=async()=>{const {error}=await sb.from('khg_hr_jobs').update({duties:r.duties,requirements:r.requirements,benefits:r.benefits,kpis:job.kpis||r.kpis,post_text:r.post_text}).eq('id',job.id);if(error)return toast(error.message);toast('Đã lưu JD & tin đăng');closeModal();after&&after()};
+    }catch(e){$('#jaR').innerHTML=`<p class="sub">${esc(e.message)}</p>`}b.disabled=false}}
+async function hireCand(c,after){if(c.person_id)return toast('Ứng viên đã có hồ sơ nhân sự');await ensureRef('hr_jobs');const {data:j}=c.job_id?await sb.from('khg_hr_jobs').select('role_key,title,salary_min').eq('id',c.job_id).maybeSingle():{data:null};
+  if(!confirm(`Tạo hồ sơ nhân sự (thử việc) cho ${c.full_name}${j?' – '+j.title:''}?`))return;
+  const st=c.start_on||today();const {data:p,error}=await sb.from('khg_people').insert({full_name:c.full_name,phone:c.phone,email:c.email||null,role:j?.role_key||'khac',employment_status:'thu_viec',hire_date:st,probation_start:st,base_salary:c.offer_salary||j?.salary_min||null,active:true,note:'Tuyển từ ứng viên '+(j?.title||'')}).select('id').single();
+  if(error)return toast(error.message);await sb.from('khg_hr_candidates').update({person_id:p.id,stage:'nhan_viec',start_on:st}).eq('id',c.id);
+  const {data:fs}=await sb.from('khg_files').select('doc_type,file_path,file_name,mime,size_bytes').eq('entity_type','other').eq('entity_id',c.id).is('archived_at',null);
+  if(fs&&fs.length)await sb.from('khg_files').insert(fs.map(f=>({...f,entity_type:'person',entity_id:p.id,note:'Từ hồ sơ ứng tuyển',uploaded_by:ME?.id||null})));
+  delete REF.people;toast('Đã tạo hồ sơ nhân sự thử việc'+(fs&&fs.length?' và chuyển '+fs.length+' file hồ sơ':''));after&&after()}
+const DEF_KPI={tai_xe:JOB_PRESETS.tai_xe.kpis,dieu_phoi:JOB_PRESETS.dieu_phoi.kpis,ke_toan:JOB_PRESETS.ke_toan.kpis,kinh_doanh:JOB_PRESETS.kinh_doanh.kpis,kho:JOB_PRESETS.kho.kpis,boc_xep:JOB_PRESETS.boc_xep.kpis,
+  khac:'- Hoàn thành công việc được giao | 100% | 40\n- Chất lượng công việc | đạt | 30\n- Phối hợp, hỗ trợ đồng đội | tốt | 15\n- Tuân thủ quy trình, nội quy | 100% | 15'};
+async function reviewForm(rv,after){await ensureRef('people');const t=today();const pm=t.slice(0,7);
+  const st={person_id:rv?.person_id||'',period:rv?.period||pm,kpis:rv?.kpis||[],att:rv?.att||null,attitude:rv?.attitude_score??80,skill:rv?.skill_score??80,strengths:rv?.strengths||'',improve:rv?.improve||'',plan:rv?.plan||'',status:rv?.status||'nhap'};
+  const range=p=>{const [y,m]=p.split('-').map(Number);return [p+'-01',isoD(new Date(y,m,0))]};let PEOPLE={};
+  const {data:pp}=await sb.from('khg_people').select('id,full_name,role,base_salary,active').is('archived_at',null).eq('active',true).order('full_name');(pp||[]).forEach(p=>PEOPLE[p.id]=p);
+  const calc=()=>{const W=st.kpis.reduce((s,k)=>s+(+k.weight||0),0)||1;const kpi=Math.round(st.kpis.reduce((s,k)=>s+(+k.weight||0)*(+k.score||0)/5,0)*100/W);
+    const a=st.att||{};const disc=Math.max(0,100-(+a.absent||0)*10-(+a.late||0)*3-(+a.violations||0)*15);
+    const tot=Math.round(kpi*0.6+(+st.skill||0)*0.15+(+st.attitude||0)*0.15+disc*0.1);const g=tot>=90?'A':tot>=75?'B':tot>=60?'C':'D';const pct={A:20,B:10,C:0,D:0}[g];const base=+(PEOPLE[st.person_id]?.base_salary)||0;
+    return {kpi,disc,tot,g,pct,bonus:Math.round(base*pct/100/1000)*1000}};
+  const draw=()=>{const c=calc();const a=st.att;
+    modal(`<h3>⭐ Phiếu đánh giá nhân sự ${rv?'':'(mới)'}</h3><div class="row" style="gap:8px;flex-wrap:wrap"><select id="rvP" ${rv?'disabled':''}><option value="">— Chọn nhân sự —</option>${Object.values(PEOPLE).map(p=>`<option value="${p.id}" ${st.person_id===p.id?'selected':''}>${esc(p.full_name)} · ${esc(O.role[p.role]||p.role)}</option>`).join('')}</select>
+      Kỳ <input type="month" id="rvM" value="${st.period}" ${rv?'disabled':''}><span class="sp"></span>${pill('rev_status',st.status)}</div>
+      ${a?`<div class="card" style="margin-top:8px"><b>Tự động từ chấm công, tăng ca, đơn hàng (${fmtD(range(st.period)[0])} – ${fmtD(range(st.period)[1])})</b><div class="sub" style="line-height:1.8">Ngày công <b>${a.work_days}</b>/${a.std_days} · vắng ${a.absent} · nghỉ phép ${a.leave} · đi trễ (sau 8h15) ${a.late} · tăng ca ${a.ot_hours} giờ · chuyến hoàn thành ${a.trips} · doanh thu chuyến ${fmtTr(a.revenue)} · vi phạm ${a.violations}</div></div>`:''}
+      <div class="tw" style="margin-top:8px"><table class="t"><thead><tr><th>KPI</th><th>Chỉ tiêu</th><th>Thực tế</th><th class="r">Trọng số %</th><th>Điểm (1–5)</th></tr></thead><tbody>${st.kpis.map((k,i)=>`<tr><td><input data-k="${i}" data-f="name" value="${esc(k.name)}" style="width:100%"></td><td><input data-k="${i}" data-f="target" value="${esc(k.target)}" style="width:100%"></td><td><input data-k="${i}" data-f="actual" value="${esc(k.actual||'')}" style="width:100%"></td><td class="r"><input data-k="${i}" data-f="weight" type="number" value="${k.weight}" style="width:60px"></td><td><select data-k="${i}" data-f="score">${[1,2,3,4,5].map(s=>`<option ${+k.score===s?'selected':''}>${s}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div><button class="btn sm" id="rvAdd">+ Thêm KPI</button>
+      <div class="row" style="gap:12px;flex-wrap:wrap;margin-top:10px"><label>Kỹ năng chuyên môn (0–100) <input type="number" id="rvS" value="${st.skill}" style="width:70px"></label><label>Thái độ, tinh thần (0–100) <input type="number" id="rvA" value="${st.attitude}" style="width:70px"></label></div>
+      <div class="kpis" style="margin:10px 0"><div class="kpi"><div class="l">Điểm KPI (60%)</div><div class="v">${c.kpi}</div></div><div class="kpi"><div class="l">Kỷ luật – chuyên cần (10%)</div><div class="v">${c.disc}</div><div class="s">100 − vắng×10 − trễ×3 − vi phạm×15</div></div><div class="kpi"><div class="l">Tổng điểm</div><div class="v">${c.tot}</div><div class="s">Xếp loại <b>${c.g}</b></div></div><div class="kpi"><div class="l">Thưởng đề xuất</div><div class="v">${fmtTr(c.bonus)}</div><div class="s">${c.pct}% lương cơ bản</div></div></div>
+      <label>Điểm mạnh<textarea id="rv1" rows="2" style="width:100%">${esc(st.strengths)}</textarea></label><label>Cần cải thiện<textarea id="rv2" rows="2" style="width:100%">${esc(st.improve)}</textarea></label><label>Kế hoạch phát triển<textarea id="rv3" rows="2" style="width:100%">${esc(st.plan)}</textarea></label>
+      <div class="acts"><button class="btn" id="rvAI">🤖 AI viết nhận xét</button><span class="sp"></span><button class="btn" id="rvC">Đóng</button><button class="btn" id="rvSv">Lưu nháp</button><button class="btn p" id="rvOk">Chốt & ${rv?.salary_id?'lưu':'đưa thưởng vào lương'}</button></div>`,true);
+    const sync=()=>{document.querySelectorAll('#modal [data-k]').forEach(i=>{const k=st.kpis[+i.dataset.k];k[i.dataset.f]=i.dataset.f==='weight'?+i.value:i.dataset.f==='score'?+i.value:i.value});st.skill=+$('#rvS').value;st.attitude=+$('#rvA').value;st.strengths=$('#rv1').value;st.improve=$('#rv2').value;st.plan=$('#rv3').value};
+    document.querySelectorAll('#modal [data-k][data-f="score"],#modal [data-k][data-f="weight"],#rvS,#rvA').forEach(i=>i.onchange=()=>{sync();draw()});
+    $('#rvC').onclick=closeModal;$('#rvAdd').onclick=()=>{sync();st.kpis.push({name:'',target:'',weight:10,score:3});draw()};
+    const load=async()=>{if(!st.person_id)return;const [f,tt]=range(st.period);const {data}=await sb.rpc('khg_hr_stats',{p_person:st.person_id,p_from:f,p_to:tt});st.att=data;if(!st.kpis.length){const role=PEOPLE[st.person_id]?.role;st.kpis=parseKpis(DEF_KPI[role]||DEF_KPI.khac)}draw()};
+    if(!rv){$('#rvP').onchange=e=>{st.person_id=e.target.value;st.kpis=[];load()};$('#rvM').onchange=e=>{st.period=e.target.value;load()}}
+    $('#rvAI').onclick=async()=>{sync();if(!st.person_id)return toast('Chọn nhân sự');const b=$('#rvAI');b.disabled=true;b.textContent='AI đang viết…';try{const r=await KT({mode:'review',review:{name:PEOPLE[st.person_id]?.full_name,role:O.role[PEOPLE[st.person_id]?.role],period:st.period,attendance:st.att,kpis:st.kpis,score:calc()}});st.strengths=r.strengths;st.improve=r.improve;st.plan=r.plan;draw()}catch(e){toast(e.message);b.disabled=false;b.textContent='🤖 AI viết nhận xét'}};
+    const save=async fin=>{sync();if(!st.person_id)return toast('Chọn nhân sự');const c=calc();const [f,tt]=range(st.period);
+      const row={person_id:st.person_id,period:st.period.split('-').reverse().join('/'),period_from:f,period_to:tt,kpis:st.kpis,att:st.att,kpi_score:c.kpi,attitude_score:st.attitude,skill_score:st.skill,discipline_score:c.disc,total_score:c.tot,grade:c.g,bonus_pct:c.pct,bonus_amount:c.bonus,strengths:st.strengths,improve:st.improve,plan:st.plan,reviewer_id:ME?.id||null,status:fin?'da_chot':'nhap'};
+      if(rv&&rv.period)row.period=rv.period;
+      const q=rv?sb.from('khg_hr_reviews').update(row).eq('id',rv.id).select().single():sb.from('khg_hr_reviews').insert(row).select().single();const {data:sv,error}=await q;if(error)return toast(error.message);rv=sv;
+      if(fin&&c.bonus>0&&!sv.salary_id){const {data:msg,error:e2}=await sb.rpc('khg_hr_review_apply',{p_id:sv.id});toast(e2?('Đã chốt đánh giá. Thưởng chưa vào lương: '+e2.message):msg)}else toast(fin?'Đã chốt đánh giá':'Đã lưu nháp');closeModal();after&&after()};
+    $('#rvSv').onclick=()=>save(false);$('#rvOk').onclick=()=>save(true)};
+  if(rv&&!rv.att&&rv.person_id){const [f,tt]=[rv.period_from,rv.period_to];const {data}=await sb.rpc('khg_hr_stats',{p_person:rv.person_id,p_from:f,p_to:tt});st.att=data}
+  if(rv)st.period=String(rv.period_from).slice(0,7);
+  draw()}
+VIEWS.recruit=async m=>{const S=PST.hrS=PST.hrS||'jobs';const T=[['jobs','📋 Vị trí & tin tuyển dụng'],['cands','👤 Ứng viên'],['rev','⭐ Đánh giá KPI']];
+  m.innerHTML=`<h2>Tuyển dụng & đánh giá nhân sự</h2><p class="sub">Mô tả công việc → tin tuyển dụng (AI viết) → ứng viên → nhận việc tự tạo hồ sơ nhân sự → đánh giá KPI hằng tháng lấy số liệu chấm công, tăng ca, chuyến → thưởng tự vào bảng lương.</p>
+   <div class="subtabs">${T.map(([k,l])=>`<button data-s="${k}" class="${S===k?'on':''}">${l}</button>`).join('')}</div><div id="hrB"></div>`;
+  m.querySelectorAll('.subtabs [data-s]').forEach(b=>b.onclick=()=>{PST.hrS=b.dataset.s;VIEWS.recruit(m)});const B=$('#hrB');
+  if(S==='jobs'){B.innerHTML=`<div class="card" style="margin-bottom:10px"><b>Mẫu vị trí thường tuyển</b> <span class="sub">(bấm để tạo nhanh; lương là gợi ý, sửa theo thực tế)</span><div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px">${Object.entries(JOB_PRESETS).map(([k,j])=>`<button class="btn sm" data-pre="${k}">${esc(j.title)}</button>`).join('')}</div></div><div id="hrL"></div>`;
+    let reload=()=>{};
+    await renderList('hr_jobs',$('#hrL'),{rowActions:r=>`<button class="ib" data-jai="${r.id}" title="AI viết JD & tin đăng">🤖</button>${r.post_text?`<button class="ib" data-jcp="${r.id}" title="Sao chép tin đăng">📋</button>`:''}`,
+      bind:(h,load)=>{reload=load;h.addEventListener('click',async e=>{const a=e.target.closest('[data-jai],[data-jcp]');if(!a)return;e.stopPropagation();const id=a.dataset.jai||a.dataset.jcp;const {data:j}=await sb.from('khg_hr_jobs').select('*').eq('id',id).single();
+        if(a.dataset.jcp){navigator.clipboard.writeText(j.post_text||'');toast('Đã sao chép tin đăng')}else jobAI(j,load)},true)}});
+    B.querySelectorAll('[data-pre]').forEach(b=>b.onclick=()=>{const p=JOB_PRESETS[b.dataset.pre];openForm('hr_jobs',null,()=>reload(),{...p,status:'nhap',headcount:1,open_on:today()})});return}
+  if(S==='cands'){const {data:cs}=await sb.from('khg_hr_candidates').select('stage').is('archived_at',null);const cnt={};(cs||[]).forEach(c=>cnt[c.stage]=(cnt[c.stage]||0)+1);
+    B.innerHTML=`<div class="kpis" style="margin-bottom:10px">${Object.entries(O.cand_stage).map(([k,l])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${cnt[k]||0}</div></div>`).join('')}</div><div id="hrL"></div>`;
+    await renderList('hr_cands',$('#hrL'),{rowActions:r=>r.person_id?'':`<button class="ib" data-hire="${r.id}" title="Nhận việc → tạo hồ sơ nhân sự">✅</button>`,
+      bind:(h,load)=>h.addEventListener('click',async e=>{const a=e.target.closest('[data-hire]');if(!a)return;e.stopPropagation();const {data:c}=await sb.from('khg_hr_candidates').select('*').eq('id',a.dataset.hire).single();hireCand(c,load)},true)});return}
+  B.innerHTML=`<div class="row" style="margin-bottom:8px"><span class="sub">Điểm tổng = KPI 60% + kỹ năng 15% + thái độ 15% + kỷ luật 10%. Xếp loại A ≥ 90 (thưởng 20% lương cơ bản), B ≥ 75 (10%), C ≥ 60, D &lt; 60. Chốt phiếu → thưởng tự cộng vào bảng lương kỳ đó (chưa trả).</span><span class="sp"></span><button class="btn p" id="rvNew">+ Đánh giá mới</button></div><div id="hrL"></div>`;
+  let rl=()=>{};await renderList('hr_reviews',$('#hrL'),{noNew:true,onOpen:(r,after)=>reviewForm(r,after),bind:(h,load)=>{rl=load}});$('#rvNew').onclick=()=>reviewForm(null,()=>rl())};
+ICONS.recruit=ICONS.recruit||IC('<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 11l2 2 4-4"/>');
+if(!TABS.some(t=>t[0]==='recruit'))TABS.push(['recruit','Tuyển dụng & đánh giá',['admin','ke_toan']]);
 
 TABS.push(['loans','Tiền vay vận hành',['admin','ke_toan']]);VIEWS.loans=async m=>{m.innerHTML='<h2>Tiền vay vận hành</h2><p class="sub">Ghi khoản vay → tiền tự vào sổ quỹ. Chi phí, tạm ứng chọn “Chi từ tiền vay” để biết đã dùng bao nhiêu. Trả nợ ở Báo cáo HĐKD KHG LOGISTICS → Tài chính & dòng tiền.</p><div id="h"></div>';await renderList('loans',$('#h'),{sumKey:'amount'})};ICONS.loans=IC('<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.2 1.3-2 3-2s3 .8 3 2-1.3 1.8-3 2-3 .8-3 2 1.3 2 3 2 3-.8 3-2"/>');
 TABS.push(['doctrack','Theo dõi chứng từ',['admin','ke_toan','dieu_phoi','kinh_doanh']]);VIEWS.doctrack=viewDocs;
@@ -5099,7 +5349,7 @@ const allowed=()=>{const office=has(STAFF);const base=TABS.filter(t=>{const p=PE
 function navFix(){if(navFix.d)return;navFix.d=1;const RS=['overview','analytics','pnl','exec','ceo'];NAV_GROUPS.forEach(g=>g[1]=g[1].filter(k=>!RS.includes(k)));const d=NAV_GROUPS.find(x=>x[0]==='Điều hành');if(d&&!d[1].includes('reports'))d[1].unshift('reports');const tc=NAV_GROUPS.find(x=>x[0]==='Tài chính');if(tc){['recon','loans'].forEach(k=>{if(!tc[1].includes(k))tc[1].splice(1,0,k)})}}
 const NAV_STD=[['🏠 Tổng quan',['me','reports','tasks']],['💼 Kinh doanh & khách hàng',['crm','customers','requests','pricing','hunt','contracts']],
  ['🚚 Vận hành vận tải',['dispatch','orders','doctrack','fleet','partners','fastdriver','survey']],['🏭 Kho bãi & phân phối',['wh','services','dms','sales','purchases']],
- ['💰 Tài chính – kế toán',['accounting','expenses','recon','wallet','loans','data','excel']],['👥 Nhân sự',['hr','payroll','recruit']],
+ ['💰 Tài chính – kế toán',['accounting','tax','expenses','recon','wallet','loans','data','excel']],['👥 Nhân sự',['hr','payroll','recruit']],
  ['📁 Hồ sơ & văn bản',['docs','filesv','documents','policies']],['⚙️ Hệ thống',['accounts','audit','bot','botlog','backup','trash']]];
 const NAV_LBL={purchases:'Mua vật tư, phụ tùng',data:'Data chi tiết (sửa trực tiếp)',excel:'Nhập/xuất Excel'};
 function nav(){
