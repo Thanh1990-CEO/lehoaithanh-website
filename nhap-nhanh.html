@@ -1026,7 +1026,7 @@ async function saveFiles(ent,id,inp,dt){const fs=[...($('#'+inp)?.files||[])];fo
 async function afterFuel(vid,rowId,box){await new Promise(r=>setTimeout(r,700));const [{data:oa},{data:fs}]=await Promise.all([sb.rpc('khg_odo_alerts'),sb.rpc('khg_fuel_status',{p_date:new Date(Date.now()+7*3600e3).toISOString().slice(0,10)})]);
   const bad=oa&&oa.rows&&oa.rows[rowId];const v=(fs&&fs.vehicles||[]).find(x=>x.vehicle_id===vid);const n2=x=>Number(x).toLocaleString('vi-VN',{maximumFractionDigits:2});
   $('#'+box).innerHTML=(bad?`<div class="res bad">⚠ <b>Số km vừa nhập không khớp:</b> ${esc(bad)}<br>Kiểm tra lại đồng hồ km rồi sửa trên CRM.</div>`:'')+
-   `<div class="res ok">✅ Đã lưu.${v&&v.remain_km!=null?`<br>Xe <b>${esc(v.plate)}</b> còn chạy được <b>${n2(Math.max(0,v.remain_km))} km</b> · còn ~<b>${n2(v.level_l)} lít</b> · dự toán đổ tiếp ${fmtN(v.next_fill_min)} → ${fmtN(v.next_fill_max)} đ`:''}<br><button class="btn g s" onclick="open(TAB)" style="margin-top:8px">+ Nhập tiếp</button></div>`;
+   `<div class="res ok">✅ Đã lưu.${v&&v.remain_km!=null?`<br>Xe <b>${esc(v.plate)}</b> còn chạy được <b>${n2(Math.max(0,v.remain_km))} km</b> · còn ~<b>${n2(v.level_l)} lít</b>${+v.carry_l>0&&v.as_of_kind==='do_dau'?` (gồm ${n2(v.carry_l)} L dầu cũ còn trong bình + ${n2(v.last_fill_l)} L vừa đổ)`:''} · dự toán đổ tiếp ${fmtN(v.next_fill_min)} → ${fmtN(v.next_fill_max)} đ`:''}<br><button class="btn g s" onclick="open(TAB)" style="margin-top:8px">+ Nhập tiếp</button></div>`;
   setTimeout(()=>$('#'+box).scrollIntoView({behavior:'smooth'}),50)}
 
 // ---------- Km cuối ngày ----------
