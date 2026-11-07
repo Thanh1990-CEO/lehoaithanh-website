@@ -676,6 +676,7 @@ const num=v=>{const x=KMONEY.parse(v);return x==null?null:x};
 const vnT=()=>{const d=new Date(Date.now()+7*3600e3);return d.toISOString()};
 const FORMS=[
   {k:'order',ic:'🚚',t:'Đơn hàng mới',s:'Khách, tuyến, cước, xe',r:['admin','quan_ly','dieu_phoi','kinh_doanh'],big:1},
+  {k:'rent',ic:'🔑',t:'Cho thuê xe',s:'Thuê xe không tài xế, giá đề xuất',r:['admin','quan_ly','dieu_phoi','kinh_doanh','ke_toan']},
   {k:'fuel',ic:'⛽',t:'Đổ dầu',s:'Tiền, km đồng hồ, ảnh',r:['admin','quan_ly','ke_toan','dieu_phoi']},
   {k:'km',ic:'🛞',t:'Km cuối ngày',s:'Đóng ca, chụp đồng hồ',r:['admin','quan_ly','ke_toan','dieu_phoi']},
   {k:'exp',ic:'🧾',t:'Chi phí khác',s:'Cầu đường, sửa xe, bốc xếp…',r:['admin','quan_ly','ke_toan','dieu_phoi']},
@@ -724,7 +725,7 @@ function nav(){const N=[['home','🏠','Trang chủ'],['new','➕','Nhập mới
   $('#nav').classList.remove('hidden');$('#nav').innerHTML=N.map(([k,ic,l])=>`<button data-n="${k}" class="${TAB===k||(k==='new'&&FORMS.some(f=>f.k===TAB))?'on':''}"><span style="font-size:20px;line-height:1">${ic}</span>${l}<span class="dot hidden" id="dot_${k}"></span></button>`).join('');
   $$('#nav [data-n]').forEach(b=>b.onclick=()=>{TAB=b.dataset.n;history.pushState({t:TAB},'','#'+TAB);route()})}
 window.onpopstate=()=>{TAB=(location.hash||'#home').slice(1)||'home';route()};
-function route(){nav();window.scrollTo(0,0);const f={home,new:menu,apr,recent,order,fuel,km,exp,cash}[TAB]||home;f()}
+function route(){nav();window.scrollTo(0,0);const f={home,new:menu,apr,recent,order,rent,fuel,km,exp,cash}[TAB]||home;f()}
 const open=k=>{TAB=k;history.pushState({t:k},'','#'+k);route()};
 const head=t=>`<div class="fh"><button onclick="history.length>1?history.back():open('new')">←</button><h1>${t}</h1></div>`;
 
@@ -1106,6 +1107,55 @@ function cash(){$('#main').innerHTML=head('💵 Thu / chi quỹ')+`<form class="
     const {error}=await sb.from('khg_cash').insert({direction:val('cd'),account:val('ca'),amount:amt,category:val('cc'),counterparty:P.value.trim(),partner_id:pk&&pk.t==='p'?pk.x.id:null,receiver_id:pk&&pk.t==='n'?pk.x.id:null,vehicle_id:v?v.id:null,
       doc_no:ftxt('cNo'),note,txn_date:$('#cDt').value||todayVN(),source:'app',requested_by:ME.id});
     if(error)return toast('Lỗi: '+error.message);$('#cRes').innerHTML=`<div class="res ok">✅ Đã lưu phiếu ${val('cd')==='thu'?'thu':'chi'} <b>${fmtN(amt)} đ</b> · ${esc(P.value.trim())}<br><button class="btn g s" onclick="open('cash')" style="margin-top:8px">+ Nhập tiếp</button></div>`;$('#cS').textContent='✓ Đã lưu'})}
+
+// ---------- Cho thuê xe không tài xế ----------
+const RSTAT={nhu_cau:'Nhu cầu',bao_gia:'Đã báo giá',dat_coc:'Đã cọc',dang_thue:'Giao xe – đang thuê'};
+const rEnd=(st,u,q)=>{if(!st||!q)return'';const d=new Date(st+'T00:00:00');q=+q||1;if(u==='ngay')d.setDate(d.getDate()+Math.ceil(q)-1);else if(u==='tuan')d.setDate(d.getDate()+Math.ceil(q*7)-1);else{d.setMonth(d.getMonth()+Math.ceil(q));d.setDate(d.getDate()-1)}const z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())};
+function rent(){let S=null,cust=null;
+  $('#main').innerHTML=head('🔑 Cho thuê xe không tài xế')+`<div class="hint" style="margin:-4px 0 10px">Giá thuê tự đề xuất theo giá thị trường cùng tải trọng và giá KHG đã cho thuê – sửa tay được.</div><form onsubmit="return false">
+  ${sec('rC','👤','Khách thuê *',`<div><input class="i" id="rCu" placeholder="Gõ tên, SĐT khách – hoặc gõ tên khách mới"></div><div class="hint" id="rCuH"></div>
+    <div class="row"><div><label class="f">Người liên hệ / người lái</label><input class="i" id="rCt"></div><div><label class="f">Điện thoại *</label><input class="i" id="rPh" inputmode="tel"></div></div>
+    <label class="f">Số GPLX / CCCD người lái</label><input class="i" id="rId" placeholder="Bằng B2 (dưới 3,5 tấn) / C (từ 3,5 tấn)">`)}
+  ${sec('rV','🚚','Xe & thời gian thuê *',`${vehBox('rVe','Xe cho thuê',{ph:'Gõ biển số – hoặc để trống, nhập tải trọng'})}
+    <div class="row"><div><label class="f">Tải trọng (tấn)</label><input class="i" id="rLd" inputmode="decimal" value="2"></div><div><label class="f">Yêu cầu xe</label><input class="i" id="rRq" placeholder="thùng kín, bửng nâng…"></div></div>
+    <label class="f">Thuê theo</label>${seg('ru',{ngay:'Ngày',tuan:'Tuần',thang:'Tháng'},'thang')}
+    <div class="row"><div><label class="f">Số ngày / tuần / tháng</label><input class="i" id="rQ" inputmode="numeric" value="1"></div><div><label class="f">Ngày giao xe</label><input class="i" id="rSt" type="date" value="${todayVN()}"></div></div>
+    <label class="f">Ngày trả xe dự kiến</label><input class="i" id="rEn" type="date"><div class="hint" id="rOv"></div>`)}
+  ${sec('rP','💰','Giá thuê *',`<div class="revbox" id="rSug">Đang tính giá đề xuất…</div><button type="button" class="btn g s" id="rUse" style="margin-top:8px">✓ Dùng giá đề xuất</button>
+    <label class="f">Giá thuê / kỳ (đ, chưa VAT)</label><input class="i money" id="rPr" data-money inputmode="numeric">
+    <div class="row"><div><label class="f">Km bao gồm</label><input class="i" id="rKm" inputmode="numeric"></div><div><label class="f">Giá vượt km (đ/km)</label><input class="i" id="rOk" data-money inputmode="numeric"></div></div>
+    <div class="row"><div><label class="f">Tiền cọc</label><input class="i" id="rDp" data-money inputmode="numeric"></div><div><label class="f">Tình trạng cọc</label>${sel('rDs',{chua_thu:'Chưa thu',da_thu:'Đã thu'},'chua_thu')}</div></div>
+    <div class="hint" id="rAmt"></div>`)}
+  ${sec('rT','📄','Điều khoản & giao xe',`<label class="f">Trạng thái</label>${seg('rs',RSTAT,'nhu_cau')}
+    <label class="f">Nhiên liệu</label>${sel('rFu',{ben_thue_tu_do:'Bên thuê tự đổ dầu',giao_nhan_bang_nhau:'Giao – nhận cùng mức dầu',khg_cap_dau:'KHG cấp dầu (tính thêm)'},'giao_nhan_bang_nhau')}
+    <div class="row"><div><label class="f">Thanh toán</label>${sel('rPt',{tra_truoc:'Trả trước mỗi kỳ',cuoi_ky:'Trả cuối kỳ',cong_no:'Công nợ'},'tra_truoc')}</div><div><label class="f">Km đồng hồ lúc giao</label><input class="i" id="rOo" inputmode="numeric"></div></div>
+    <label class="f">Nơi giao xe</label><div><input class="i" id="rPl" data-addr placeholder="Bãi KHG / địa chỉ khách"></div>
+    <label class="f">Ghi chú</label><textarea class="i" id="rN" rows="2"></textarea>`,false)}
+  </form><div class="savebar"><button class="btn p" id="rS">💾 Lưu phiếu cho thuê xe</button></div><div id="rRes"></div>`;
+  $$('[data-money]').forEach(i=>KMONEY.attach&&KMONEY.attach(i));KADDR.attach($('#rPl'));
+  const C=$('#rCu');TA(C,(q,raw)=>{const r=CUS.filter(c=>hit(q,c.name,c.phone,c.tax_code,c.contact_name)).slice(0,8).map(c=>({t:c.name,s:[c.phone,c.contact_name].filter(Boolean).join(' · '),v:c}));if(raw&&!CUS.some(c=>fold(c.name)===q))r.push({t:'Khách mới: “'+raw+'”',s:'Lưu theo tên đã gõ',add:true,raw});return r},
+    x=>{if(x.add){cust=null;C.value=x.raw;$('#rCuH').textContent='Khách mới – lưu theo tên đã gõ';return}cust=x.v;$('#rCuH').className='hint ok';$('#rCuH').textContent='✓ Khách có sẵn';if(!$('#rPh').value)$('#rPh').value=x.v.phone||'';if(!$('#rCt').value)$('#rCt').value=x.v.contact_name||''});
+  C.addEventListener('input',()=>{cust=null;$('#rCuH').textContent=''});
+  const V=vehBind('rVe',v=>{if(v&&v.load_t)$('#rLd').value=String(v.load_t).replace('.',',');calc();ov()});
+  const amt=()=>{const p=num($('#rPr').value)||0,q=+$('#rQ').value||0;$('#rAmt').innerHTML=p&&q?`Tiền thuê cả hợp đồng: <b>${fmtN(Math.round(p*q))} đ</b> (chưa VAT)`:''};
+  const end=()=>{$('#rEn').value=rEnd($('#rSt').value,val('ru'),$('#rQ').value)};
+  let t=0;const calc=()=>{clearTimeout(t);t=setTimeout(async()=>{const v=V.get();const {data:s,error}=await sb.rpc('khg_rent_suggest',{p_load:+String($('#rLd').value).replace(',','.')||null,p_unit:val('ru'),p_qty:+$('#rQ').value||1,p_vehicle:v?v.id:null});
+    if(error){$('#rSug').textContent=error.message;return}S=s;const m=s.market||{};const U={ngay:'ngày',tuan:'tuần',thang:'tháng'}[s.unit];
+    $('#rSug').innerHTML=`<b>Đề xuất: <span>${fmtN(s.suggested)} đ/${U}</span></b><small>${m.n?`Thị trường ${m.n} mẫu: ${fmtN(m.p25)} – ${fmtN(m.p75)}`:'Ước theo công thức (chưa có mẫu cùng tải)'}${s.own&&s.own.n?` · KHG đã cho thuê ${s.own.n} HĐ, TB ${fmtN(s.own.avg)}`:''}${s.discount_pct?` · đã giảm ${s.discount_pct}%`:''}<br>Km gồm ${fmtN(s.km_limit)} · vượt ${fmtN(s.over_km_price)} đ/km · cọc ${fmtN(s.deposit)} đ</small>`;
+    $('#rPS').textContent=fmtN(s.suggested)+' đ/'+U;if(!$('#rPr').value)use()},250)};
+  const use=()=>{if(!S)return;$('#rPr').value=fmtN(S.suggested);$('#rKm').value=S.km_limit||'';$('#rOk').value=S.over_km_price?fmtN(S.over_km_price):'';if(!$('#rDp').value)$('#rDp').value=S.deposit?fmtN(S.deposit):'';amt()};
+  const ov=async()=>{const v=V.get();$('#rOv').textContent='';if(!v)return;const a=$('#rSt').value,b=$('#rEn').value||a;const {data}=await sb.from('khg_rentals').select('code,start_date,end_date').eq('vehicle_id',v.id).is('archived_at',null).in('status',['dat_coc','dang_thue']).lte('start_date',b).gte('end_date',a);
+    $('#rOv').className='hint '+((data||[]).length?'bad':'ok');$('#rOv').textContent=(data||[]).length?'⚠ Xe đã có lịch thuê trùng: '+data.map(x=>x.code).join(', '):'✓ Xe trống trong thời gian này'};
+  $('#rUse').onclick=use;$('#rPr').addEventListener('input',amt);
+  ['rLd','rQ'].forEach(id=>$('#'+id).addEventListener('input',()=>{calc();end();amt()}));$$('input[name="ru"]').forEach(r=>r.onchange=()=>{$('#rPr').value='';calc();end();ov()});
+  $('#rSt').addEventListener('change',()=>{end();ov()});$('#rEn').addEventListener('change',ov);end();calc();
+  $('#rS').onclick=()=>busy($('#rS'),async()=>{const name=C.value.trim(),pr=num($('#rPr').value);if(!name)return toast('Nhập khách thuê');if(!$('#rPh').value.trim())return toast('Nhập số điện thoại');if(!pr)return toast('Nhập giá thuê');
+    const v=V.get(),vt=V.text();const row={status:val('rs'),customer_id:cust?cust.id:null,customer_text:cust?null:name,contact_name:ftxt('rCt'),phone:ftxt('rPh'),id_doc:ftxt('rId'),
+      vehicle_id:v?v.id:null,plate_text:!v&&vt?vt.toUpperCase():null,load_t:+String($('#rLd').value).replace(',','.')||null,vehicle_req:ftxt('rRq'),unit:val('ru'),qty:+$('#rQ').value||1,
+      start_date:$('#rSt').value||null,end_date:$('#rEn').value||null,unit_price:pr,suggested_price:S?S.suggested:null,price_basis:S?{suggested:S.suggested,market_n:S.market&&S.market.n,market_median:S.market&&S.market.median,own:S.own,discount_pct:S.discount_pct}:null,
+      km_limit:fnum('rKm'),over_km_price:fmon('rOk'),deposit:fmon('rDp'),deposit_status:$('#rDs').value,fuel_policy:$('#rFu').value,pay_terms:$('#rPt').value,odo_out:fnum('rOo'),delivery_place:ftxt('rPl'),note:ftxt('rN'),source:'app'};
+    const {data,error}=await sb.from('khg_rentals').insert(row).select('code,amount').single();if(error)return toast('Lỗi: '+error.message);
+    $('#rRes').innerHTML=`<div class="res ok">✅ Đã lưu phiếu <b>${esc(data.code||'')}</b> · ${esc(name)} · ${fmtN(pr)} đ/${({ngay:'ngày',tuan:'tuần',thang:'tháng'})[row.unit]} × ${row.qty} = <b>${fmtN(data.amount)} đ</b><br><button class="btn g s" onclick="open('rent')" style="margin-top:8px">+ Phiếu khác</button></div>`;$('#rS').textContent='✓ Đã lưu';$('#rS').disabled=true;setTimeout(()=>$('#rRes').scrollIntoView({behavior:'smooth'}),50)})}
 
 // ---------- Duyệt chi ----------
 async function apr(){$('#main').innerHTML=`<h1 class="pg">✅ Khoản chờ duyệt</h1><div id="aL" class="empty">Đang tải…</div>`;const {data,error}=await sb.rpc('khg_pending_approvals');if(error){$('#aL').textContent=error.message;return}
