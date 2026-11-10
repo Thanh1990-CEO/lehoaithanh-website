@@ -625,8 +625,11 @@ function initScene(listings, textures){
     camera.rotation.y = yaw;
     camera.rotation.x = pitch;
 
-    // find nearest booth in range + roughly faced
-    let best = null, bestD = 4.2;
+    // Find nearest booth in range. Booths sit at x=±HALL_HALF_WIDTH(4.6), so a
+    // player walking straight down the center (x=0, the most natural path)
+    // is never closer than 4.6 to either one — the radius here MUST exceed
+    // that or the prompt would never trigger for a center-aisle walk.
+    let best = null, bestD = 6.3;
     for (const b of booths){
       const d = Math.hypot(camera.position.x - b.worldPos.x, camera.position.z - b.worldPos.z);
       if (d < bestD){ bestD = d; best = b; }
