@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Phòng trưng bày 3D — Lê Hoài Thanh BĐS Công Nghiệp</title>
+<meta name="description" content="Đi tham quan các kho xưởng, nhà đất công nghiệp như đang ở showroom thực tế.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<style>
+  :root{
+    --navy:#2C2C2C; --deep:#1A1A1A; --gold:#E03C31; --gold-light:#EC6459;
+    --amber:#C62F27; --paper:#FFFFFF; --muted:#999999; --border:#E2E2E2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#0a0a0a;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;}
+  #app{position:fixed;inset:0;}
+  canvas{display:block;touch-action:none;}
+
+  /* ---------- Loading screen ---------- */
+  #loading{position:fixed;inset:0;z-index:50;background:linear-gradient(135deg,var(--navy) 0%,var(--deep) 55%,#0D0D0D 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:18px;text-align:center;padding:24px;}
+  #loading[hidden]{display:none!important;}
+  .ldr-logo{width:56px;height:56px;border-radius:14px;object-fit:cover;box-shadow:0 10px 30px rgba(0,0,0,.4);}
+  .ldr-title{font-size:18px;font-weight:700;letter-spacing:.2px;}
+  .ldr-sub{font-size:13px;color:#C9C9C9;max-width:320px;line-height:1.5;}
+  .ldr-bar-track{width:220px;height:6px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;}
+  .ldr-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--amber),var(--gold),var(--gold-light));
+    border-radius:99px;transition:width .25s ease;}
+  .ldr-pct{font-size:12px;color:#999;font-variant-numeric:tabular-nums;}
+  .ldr-err{font-size:13px;color:#ffb4af;max-width:320px;line-height:1.5;}
+  .ldr-retry{margin-top:6px;background:var(--gold);color:#fff;border:0;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;}
+
+  /* ---------- Intro / controls hint (desktop) ---------- */
+  #intro{position:fixed;inset:0;z-index:40;background:rgba(10,10,10,.55);backdrop-filter:blur(2px);
+    display:flex;align-items:center;justify-content:center;padding:20px;}
+  #intro[hidden]{display:none!important;}
+  .intro-card{background:#fff;border-radius:18px;max-width:380px;width:100%;padding:26px 24px 22px;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;}
+  .intro-card h1{margin:0 0 6px;font-size:19px;color:var(--navy);}
+  .intro-card p{margin:0 0 16px;font-size:13.5px;color:#666;line-height:1.55;}
+  .intro-controls{display:flex;flex-direction:column;gap:8px;margin:0 0 18px;text-align:left;}
+  .intro-row{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--navy);}
+  .intro-key{flex:none;min-width:30px;text-align:center;background:var(--navy);color:#fff;border-radius:6px;
+    padding:4px 7px;font-size:11px;font-weight:700;font-family:monospace;}
+  .intro-start{width:100%;background:linear-gradient(135deg,var(--amber),var(--gold));color:#fff;border:0;
+    border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;}
+  .intro-start:active{transform:scale(.98);}
+
+  /* ---------- HUD ---------- */
+  #hud{position:fixed;inset:0;z-index:20;pointer-events:none;}
+  .hud-top{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;
+    padding:calc(10px + env(safe-area-inset-top)) 14px 10px;pointer-events:none;
+    background:linear-gradient(to bottom,rgba(0,0,0,.55),transparent);}
+  .hud-back{pointer-events:auto;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.45);
+    color:#fff;text-decoration:none;font-size:12.5px;font-weight:600;padding:9px 13px;border-radius:99px;
+    backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.18);}
+  .hud-counter{pointer-events:none;background:rgba(0,0,0,.45);color:#fff;font-size:12.5px;font-weight:700;
+    padding:9px 14px;border-radius:99px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.18);
+    font-variant-numeric:tabular-nums;}
+
+  #progressWrap{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);
+    width:min(260px,70vw);pointer-events:none;z-index:20;}
+  #progressTrack{height:4px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden;}
+  #progressFill{height:100%;width:0%;background:var(--gold);border-radius:99px;}
+
+  /* ---------- Prompt (near a booth) ---------- */
+  #prompt{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(14px);
+    z-index:21;background:rgba(0,0,0,.72);color:#fff;padding:11px 18px;border-radius:14px;font-size:13px;
+    font-weight:600;text-align:center;opacity:0;transition:opacity .18s ease,transform .18s ease;pointer-events:none;
+    backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.14);max-width:80vw;}
+  #prompt.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #prompt b{color:var(--gold-light);}
+
+  /* ---------- Crosshair ---------- */
+  #crosshair{position:fixed;top:50%;left:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;
+    border-radius:50%;border:1.5px solid rgba(255,255,255,.85);z-index:19;pointer-events:none;
+    box-shadow:0 0 4px rgba(0,0,0,.5);}
+
+  /* ---------- Touch controls ---------- */
+  #touchMove{position:fixed;left:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:118px;height:118px;
+    border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.28);z-index:22;
+    touch-action:none;display:none;}
+  #touchMove .knob{position:absolute;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.55);
+    top:33px;left:33px;transition:background .1s;}
+  #touchLook{position:fixed;right:0;top:0;bottom:0;width:55%;z-index:18;touch-action:none;display:none;}
+  #viewBtn{position:fixed;right:18px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:23;
+    background:linear-gradient(135deg,var(--amber),var(--gold));color:#fff;border:0;border-radius:99px;
+    padding:14px 20px;font-size:13.5px;font-weight:700;box-shadow:0 10px 24px rgba(224,60,49,.4);display:none;
+    align-items:center;gap:6px;}
+  #viewBtn.show{display:flex;}
+
+  /* ---------- Detail modal ---------- */
+  #modalWrap{position:fixed;inset:0;z-index:60;background:rgba(10,10,10,.6);display:flex;align-items:flex-end;
+    justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s ease;}
+  #modalWrap.show{opacity:1;pointer-events:auto;}
+  @media(min-width:640px){ #modalWrap{align-items:center;} }
+  #modalCard{background:#fff;width:100%;max-width:480px;max-height:86vh;overflow:auto;border-radius:22px 22px 0 0;
+    padding:0 0 22px;transform:translateY(16px);transition:transform .22s ease;}
+  @media(min-width:640px){ #modalCard{border-radius:20px;transform:translateY(0) scale(.97);} }
+  #modalWrap.show #modalCard{transform:translateY(0) scale(1);}
+  #modalImg{width:100%;aspect-ratio:4/3;object-fit:cover;background:#eee;display:block;}
+  #modalClose{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.5);
+    color:#fff;border:0;font-size:17px;cursor:pointer;line-height:1;}
+  #modalBody{padding:18px 20px 4px;}
+  #modalBadge{display:inline-block;background:#FDECE4;color:var(--amber);font-size:11px;font-weight:700;
+    padding:4px 10px;border-radius:99px;margin-bottom:8px;}
+  #modalTitle{margin:0 0 8px;font-size:17px;line-height:1.4;color:var(--navy);font-weight:700;}
+  #modalMeta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .meta-chip{background:#F2F2F2;color:var(--navy);font-size:12px;font-weight:600;padding:6px 10px;border-radius:9px;}
+  #modalDesc{font-size:13px;color:#555;line-height:1.65;white-space:pre-wrap;margin-bottom:16px;max-height:160px;overflow:auto;}
+  #modalActions{display:flex;gap:10px;padding:0 20px;}
+  .btn{flex:1;text-align:center;padding:13px;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none;
+    border:0;cursor:pointer;}
+  .btn-call{background:linear-gradient(135deg,var(--amber),var(--gold));color:#fff;}
+  .btn-site{background:#F2F2F2;color:var(--navy);}
+
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="crosshair" hidden></div>
+<div id="prompt"></div>
+<div id="touchMove"><div class="knob"></div></div>
+<div id="touchLook"></div>
+<button id="viewBtn" type="button">👁 Xem chi tiết</button>
+
+<div id="hud">
+  <div class="hud-top">
+    <a class="hud-back" href="https://lehoaithanh.org/">← Trang chủ</a>
+    <div class="hud-counter" id="counter">Gian hàng —</div>
+  </div>
+</div>
+<div id="progressWrap"><div id="progressTrack"><div id="progressFill"></div></div></div>
+
+<div id="intro" hidden>
+  <div class="intro-card">
+    <h1>Phòng trưng bày 3D</h1>
+    <p>Dạo bước qua từng gian trưng bày kho xưởng, nhà đất công nghiệp — như đang xem tận nơi.</p>
+    <div class="intro-controls" id="introControls"></div>
+    <button class="intro-start" id="startBtn">Bắt đầu tham quan</button>
+  </div>
+</div>
+
+<div id="loading">
+  <img class="ldr-logo" src="images/logo.jpg" alt="" onerror="this.style.display='none'">
+  <div class="ldr-title">Đang dựng phòng trưng bày…</div>
+  <div class="ldr-sub" id="loadingSub">Đang tải dữ liệu tin đăng từ hệ thống</div>
+  <div class="ldr-bar-track"><div class="ldr-bar-fill" id="ldrFill"></div></div>
+  <div class="ldr-pct" id="ldrPct">0%</div>
+  <div class="ldr-err" id="ldrErr" hidden></div>
+  <button class="ldr-retry" id="ldrRetry" hidden type="button">Thử lại</button>
+</div>
+
+<div id="modalWrap">
+  <div id="modalCard" style="position:relative;">
+    <button id="modalClose" type="button">✕</button>
+    <img id="modalImg" src="" alt="">
+    <div id="modalBody">
+      <span id="modalBadge"></span>
+      <h2 id="modalTitle"></h2>
+      <div id="modalMeta"></div>
+      <div id="modalDesc"></div>
+    </div>
+    <div id="modalActions">
+      <a class="btn btn-call" id="modalCall" href="#">📞 Gọi ngay</a>
+      <a class="btn btn-site" href="https://lehoaithanh.org/#bat-dong-san">Xem thêm trên web</a>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">
+import * as THREE from 'three';
+
+/* =========================================================================
+   LEHOAITHANH.ORG — DEMO: 3D walkthrough showroom for "BĐS công nghiệp"
+   Standalone page. READ-ONLY against lht_listings (collection=bds_listings,
+   status=approved — already enforced by RLS for the anon key). Does not
+   touch index.html, its schema, its insert flow, or any form/field ids.
+   ========================================================================= */
+
+const SUPABASE_URL = 'https://kbpcmifwplbtggfcnfrx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_buS_4Iky59zQlMME9dn2NQ_1FqIwlVt';
+const SUPABASE_TABLE = 'lht_listings';
+const COLLECTION = 'bds_listings';
+const MAX_BOOTHS = 20;
+
+const $ = (id) => document.getElementById(id);
+const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+
+/* ---------------------------------------------------------------------
+   1. Fetch listings
+--------------------------------------------------------------------- */
+function fmtVnd(n){
+  if (!n || n <= 0) return '';
+  if (n < 1000) return n.toLocaleString('vi-VN') + ' USD/m²';
+  return n.toLocaleString('vi-VN') + ' đ/m²';
+}
+function fmtArea(n){ return n ? n.toLocaleString('vi-VN') + ' m²' : ''; }
+
+async function fetchListings(){
+  if (!(window.supabase && typeof window.supabase.createClient === 'function')){
+    throw new Error('Không tải được thư viện kết nối dữ liệu.');
+  }
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { data, error } = await sb
+    .from(SUPABASE_TABLE)
+    .select('id,data,created_at')
+    .eq('collection', COLLECTION)
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false })
+    .limit(MAX_BOOTHS);
+  if (error) throw error;
+  const rows = (data || []).filter(r => r.data && Array.isArray(r.data.imageIds) && r.data.imageIds.length);
+  return rows.map(r => {
+    const d = r.data;
+    const priceStr = fmtVnd(d.pricePerM2);
+    const txn = d.txnType === 'ban' ? 'Bán' : (d.txnType === 'cho_thue' ? 'Cho thuê' : '');
+    return {
+      id: r.id,
+      title: d.title || 'Bất động sản công nghiệp',
+      image: d.imageIds[0],
+      images: d.imageIds,
+      location: d.location || '',
+      propertyType: d.propertyType || '',
+      area: fmtArea(d.totalArea),
+      price: priceStr,
+      txn,
+      phone: (d.phone || '').replace(/\s+/g,''),
+      description: d.description || ''
+    };
+  });
+}
+
+/* ---------------------------------------------------------------------
+   2. Boot sequence
+--------------------------------------------------------------------- */
+const loadingEl = $('loading'), ldrFill = $('ldrFill'), ldrPct = $('ldrPct'), loadingSub = $('loadingSub');
+const ldrErr = $('ldrErr'), ldrRetry = $('ldrRetry');
+
+function setProgress(p, label){
+  ldrFill.style.width = Math.round(p*100) + '%';
+  ldrPct.textContent = Math.round(p*100) + '%';
+  if (label) loadingSub.textContent = label;
+}
+
+ldrRetry.addEventListener('click', () => location.reload());
+
+boot();
+
+async function boot(){
+  try{
+    setProgress(0.05, 'Đang tải dữ liệu tin đăng từ hệ thống…');
+    const listings = await fetchListings();
+    if (!listings.length){
+      ldrErr.hidden = false;
+      ldrErr.textContent = 'Chưa có tin đăng kho xưởng nào để trưng bày. Vui lòng quay lại sau.';
+      loadingSub.textContent = '';
+      ldrRetry.hidden = false;
+      return;
+    }
+    setProgress(0.18, 'Đang tải ' + listings.length + ' hình ảnh gian hàng…');
+    const textures = await loadTextures(listings, (loaded, total) => {
+      setProgress(0.18 + 0.72 * (loaded/total), 'Đang dựng gian hàng ' + loaded + '/' + total + '…');
+    });
+    setProgress(0.95, 'Hoàn tất…');
+    initScene(listings, textures);
+    setProgress(1, '');
+    setTimeout(() => {
+      loadingEl.hidden = true;
+      $('intro').hidden = false;
+      buildIntroControls();
+    }, 220);
+  } catch(e){
+    console.error(e);
+    ldrErr.hidden = false;
+    ldrErr.textContent = 'Không tải được dữ liệu phòng trưng bày (' + (e && e.message ? e.message : 'lỗi không rõ') + ').';
+    loadingSub.textContent = '';
+    ldrRetry.hidden = false;
+  }
+}
+
+function loadTextures(listings, onProgress){
+  const loader = new THREE.TextureLoader();
+  loader.setCrossOrigin('anonymous');
+  let loaded = 0;
+  const total = listings.length;
+  return Promise.all(listings.map(l => new Promise(resolve => {
+    loader.load(
+      l.image,
+      (tex) => { tex.colorSpace = THREE.SRGBColorSpace; loaded++; onProgress(loaded, total); resolve(tex); },
+      undefined,
+      () => { loaded++; onProgress(loaded, total); resolve(null); } // tolerate broken images
+    );
+  })));
+}
+
+function buildIntroControls(){
+  const wrap = $('introControls');
+  if (isTouch){
+    wrap.innerHTML =
+      '<div class="intro-row"><span class="intro-key">⬤</span> Cần gạt trái để di chuyển</div>' +
+      '<div class="intro-row"><span class="intro-key">↔</span> Chạm & kéo bên phải để nhìn quanh</div>' +
+      '<div class="intro-row"><span class="intro-key">👁</span> Chạm nút "Xem chi tiết" khi đến gần gian hàng</div>';
+  } else {
+    wrap.innerHTML =
+      '<div class="intro-row"><span class="intro-key">W A S D</span> Di chuyển</div>' +
+      '<div class="intro-row"><span class="intro-key">kéo chuột</span> Nhìn quanh</div>' +
+      '<div class="intro-row"><span class="intro-key">E</span> Xem chi tiết gian hàng</div>';
+  }
+}
+
+/* ---------------------------------------------------------------------
+   3. Three.js scene
+--------------------------------------------------------------------- */
+function initScene(listings, textures){
+  const SPACING = 7.2;
+  const HALL_HALF_WIDTH = 4.6;
+  const WALK_HALF_WIDTH = 2.5;
+  const START_Z = 6;
+  const corridorLen = listings.length * SPACING + 16;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0d0f11);
+  scene.fog = new THREE.Fog(0x0d0f11, 10, 42);
+
+  const camera = new THREE.PerspectiveCamera(68, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera.position.set(0, 1.65, START_Z);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  $('app').appendChild(renderer.domElement);
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  /* ---- lighting ---- */
+  scene.add(new THREE.HemisphereLight(0xeef3f8, 0x24201c, 0.85));
+  const sun = new THREE.DirectionalLight(0xfff3e6, 0.35);
+  sun.position.set(4, 10, 2);
+  scene.add(sun);
+
+  /* ---- floor (polished concrete, procedural grid) ---- */
+  const floorTex = makeFloorTexture();
+  floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
+  floorTex.repeat.set(HALL_HALF_WIDTH*2/2, corridorLen/2);
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(HALL_HALF_WIDTH*2, corridorLen),
+    new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.55, metalness: 0.12, color: 0x9a9a9a })
+  );
+  floor.rotation.x = -Math.PI/2;
+  floor.position.set(0, 0, START_Z - corridorLen/2 + 6);
+  scene.add(floor);
+
+  /* ---- walls + ceiling ---- */
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x2c2c2c, roughness: 0.9 });
+  const ceilMat = new THREE.MeshStandardMaterial({ color: 0x161616, roughness: 1 });
+  const wallGeo = new THREE.PlaneGeometry(corridorLen, 6);
+  const wallL = new THREE.Mesh(wallGeo, wallMat);
+  wallL.position.set(-HALL_HALF_WIDTH, 3, floor.position.z);
+  wallL.rotation.y = Math.PI/2;
+  scene.add(wallL);
+  const wallR = new THREE.Mesh(wallGeo, wallMat);
+  wallR.position.set(HALL_HALF_WIDTH, 3, floor.position.z);
+  wallR.rotation.y = -Math.PI/2;
+  scene.add(wallR);
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(HALL_HALF_WIDTH*2, corridorLen), ceilMat);
+  ceiling.rotation.x = Math.PI/2;
+  ceiling.position.set(0, 6, floor.position.z);
+  scene.add(ceiling);
+
+  /* ---- ceiling strip lights ----
+     Visual strips are cheap unlit planes, placed densely for a convincing
+     expo-hall ceiling. Actual dynamic PointLights are placed much more
+     sparsely (every 3rd strip) — vanilla Three.js has no light culling, so
+     every active light is evaluated per-fragment scene-wide; keeping the
+     real light count low matters a lot for phone GPUs, which is the primary
+     device this page will be viewed on. */
+  const stripMat = new THREE.MeshBasicMaterial({ color: 0xfff6e8 });
+  let stripIdx = 0;
+  for (let z = START_Z; z > START_Z - corridorLen + 6; z -= 4.5){
+    const strip = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 2.6), stripMat);
+    strip.rotation.x = Math.PI/2;
+    strip.position.set(0, 5.9, z);
+    scene.add(strip);
+    if (stripIdx % 3 === 0){
+      const pl = new THREE.PointLight(0xfff0d8, 9, 14, 2);
+      pl.position.set(0, 5.4, z);
+      scene.add(pl);
+    }
+    stripIdx++;
+  }
+
+  /* ---- entrance accent (brand gold line on floor) ---- */
+  const accent = new THREE.Mesh(
+    new THREE.PlaneGeometry(HALL_HALF_WIDTH*2, 0.12),
+    new THREE.MeshBasicMaterial({ color: 0xE03C31 })
+  );
+  accent.rotation.x = -Math.PI/2;
+  accent.position.set(0, 0.01, START_Z + 2);
+  scene.add(accent);
+
+  /* ---- booths ---- */
+  const booths = []; // { group, data, pos, forward(normal into aisle) }
+  listings.forEach((item, i) => {
+    const side = (i % 2 === 0) ? -1 : 1; // alternate left/right
+    const z = START_Z - 7 - i * SPACING;
+    const x = side * HALL_HALF_WIDTH;
+    const group = new THREE.Group();
+    group.position.set(x, 0, z);
+    group.rotation.y = side === -1 ? Math.PI/2 : -Math.PI/2;
+    scene.add(group);
+
+    // frame backing
+    const tex = textures[i];
+    let w = 2.6, h = 1.9;
+    if (tex && tex.image){
+      const ar = tex.image.width / tex.image.height;
+      if (ar > 1){ w = 2.9; h = w/ar; } else { h = 2.3; w = h*ar; }
+      h = Math.min(h, 2.5); w = Math.min(w, 3.1);
+    }
+    const frameBack = new THREE.Mesh(
+      new THREE.BoxGeometry(w+0.22, h+0.22, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0x1c1c1c, roughness: 0.6 })
+    );
+    frameBack.position.set(0, 2.4, 0.02);
+    group.add(frameBack);
+
+    // Unlit ("self-lit", like a display screen) material: the photo stays
+    // crisp and evenly bright regardless of scene lighting, and this also
+    // means we don't need a dedicated PointLight per booth (20+ extra
+    // dynamic lights would be costly on phone GPUs — see ceiling-light note above).
+    const picMat = tex
+      ? new THREE.MeshBasicMaterial({ map: tex })
+      : new THREE.MeshBasicMaterial({ color: 0x555555 });
+    const pic = new THREE.Mesh(new THREE.PlaneGeometry(w, h), picMat);
+    pic.position.set(0, 2.4, 0.07);
+    group.add(pic);
+
+    // signage plate
+    const signTex = makeSignTexture(item);
+    const sign = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.9, 0.95),
+      new THREE.MeshBasicMaterial({ map: signTex, transparent: true })
+    );
+    sign.position.set(0, 1.05, 0.06);
+    group.add(sign);
+
+    // small plinth
+    const plinth = new THREE.Mesh(
+      new THREE.BoxGeometry(1.1, 0.55, 0.45),
+      new THREE.MeshStandardMaterial({ color: 0xE03C31, roughness: 0.5 })
+    );
+    plinth.position.set(0, 0.275, 0.4);
+    group.add(plinth);
+
+    const worldPos = new THREE.Vector3(x, 1.6, z);
+    const worldNormal = new THREE.Vector3(side === -1 ? 1 : -1, 0, 0); // points into aisle
+    booths.push({ item, worldPos, worldNormal, index: i });
+  });
+
+  /* ---- end wall ---- */
+  const endWall = new THREE.Mesh(
+    new THREE.PlaneGeometry(HALL_HALF_WIDTH*2, 6),
+    new THREE.MeshStandardMaterial({ color: 0x202020 })
+  );
+  endWall.position.set(0, 3, floor.position.z - corridorLen/2);
+  scene.add(endWall);
+
+  /* -----------------------------------------------------------------
+     4. Controls (keyboard + mouse-drag-look + touch joystick)
+  ----------------------------------------------------------------- */
+  let yaw = 0; // camera.rotation.y = 0 looks toward -Z, which is where the booths are (START_Z is positive, hall extends toward -Z)
+  let pitch = 0;
+  const UP_AXIS = new THREE.Vector3(0, 1, 0);
+  const FORWARD_BASE = new THREE.Vector3(0, 0, -1); // Three.js default camera forward at rotation.y=0
+  const RIGHT_BASE = new THREE.Vector3(1, 0, 0);    // default right-hand direction at rotation.y=0
+  const keys = {};
+  window.addEventListener('keydown', (e) => {
+    keys[e.code] = true;
+    if (e.code === 'KeyE') tryOpenNearestBooth();
+  });
+  window.addEventListener('keyup', (e) => { keys[e.code] = false; });
+
+  // mouse-drag look (desktop) — no pointer lock dependency, robust in all embeds
+  let dragging = false, lastX = 0, lastY = 0;
+  renderer.domElement.addEventListener('mousedown', (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+  window.addEventListener('mouseup', () => { dragging = false; });
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    yaw -= dx * 0.0032;
+    pitch -= dy * 0.0032;
+    pitch = Math.max(-0.55, Math.min(0.55, pitch));
+  });
+
+  // touch controls
+  const touchMoveEl = $('touchMove'), touchKnob = touchMoveEl.querySelector('.knob'), touchLookEl = $('touchLook');
+  let moveVec = { x: 0, y: 0 };
+  let moveTouchId = null, moveOrigin = { x: 0, y: 0 };
+  let lookTouchId = null, lookLast = { x: 0, y: 0 };
+
+  if (isTouch){
+    touchMoveEl.style.display = 'block';
+    touchLookEl.style.display = 'block';
+
+    touchMoveEl.addEventListener('touchstart', (e) => {
+      const t = e.changedTouches[0];
+      moveTouchId = t.identifier;
+      const r = touchMoveEl.getBoundingClientRect();
+      moveOrigin = { x: r.left + r.width/2, y: r.top + r.height/2 };
+      e.preventDefault();
+    }, { passive: false });
+    touchMoveEl.addEventListener('touchmove', (e) => {
+      for (const t of e.changedTouches){
+        if (t.identifier !== moveTouchId) continue;
+        let dx = t.clientX - moveOrigin.x, dy = t.clientY - moveOrigin.y;
+        const max = 42;
+        const len = Math.hypot(dx, dy) || 1;
+        if (len > max){ dx = dx/len*max; dy = dy/len*max; }
+        touchKnob.style.left = (33 + dx) + 'px';
+        touchKnob.style.top = (33 + dy) + 'px';
+        moveVec = { x: dx/max, y: dy/max };
+      }
+      e.preventDefault();
+    }, { passive: false });
+    const resetMove = (e) => {
+      for (const t of e.changedTouches){
+        if (t.identifier !== moveTouchId) continue;
+        moveTouchId = null; moveVec = { x: 0, y: 0 };
+        touchKnob.style.left = '33px'; touchKnob.style.top = '33px';
+      }
+    };
+    touchMoveEl.addEventListener('touchend', resetMove);
+    touchMoveEl.addEventListener('touchcancel', resetMove);
+
+    touchLookEl.addEventListener('touchstart', (e) => {
+      const t = e.changedTouches[0];
+      lookTouchId = t.identifier;
+      lookLast = { x: t.clientX, y: t.clientY };
+    });
+    touchLookEl.addEventListener('touchmove', (e) => {
+      for (const t of e.changedTouches){
+        if (t.identifier !== lookTouchId) continue;
+        const dx = t.clientX - lookLast.x, dy = t.clientY - lookLast.y;
+        lookLast = { x: t.clientX, y: t.clientY };
+        yaw -= dx * 0.0042;
+        pitch -= dy * 0.0042;
+        pitch = Math.max(-0.55, Math.min(0.55, pitch));
+      }
+      e.preventDefault();
+    }, { passive: false });
+    const resetLook = (e) => {
+      for (const t of e.changedTouches){ if (t.identifier === lookTouchId) lookTouchId = null; }
+    };
+    touchLookEl.addEventListener('touchend', resetLook);
+    touchLookEl.addEventListener('touchcancel', resetLook);
+  }
+
+  $('viewBtn').addEventListener('click', tryOpenNearestBooth);
+
+  /* -----------------------------------------------------------------
+     5. Animation loop
+  ----------------------------------------------------------------- */
+  const MIN_Z = floor.position.z - corridorLen/2 + 1.2;
+  const MAX_Z = START_Z + 3.2;
+  let nearestBooth = null;
+  const counterEl = $('counter'), promptEl = $('prompt'), viewBtn = $('viewBtn'), progressFill = $('progressFill');
+
+  function tryOpenNearestBooth(){
+    if (nearestBooth) openModal(nearestBooth.item);
+  }
+
+  let last = performance.now();
+  function animate(now){
+    requestAnimationFrame(animate);
+    const dt = Math.min((now - last)/1000, 0.05);
+    last = now;
+
+    // keyboard move
+    let fwd = 0, strafe = 0;
+    if (keys['KeyW'] || keys['ArrowUp']) fwd += 1;
+    if (keys['KeyS'] || keys['ArrowDown']) fwd -= 1;
+    if (keys['KeyD'] || keys['ArrowRight']) strafe += 1;
+    if (keys['KeyA'] || keys['ArrowLeft']) strafe -= 1;
+    // touch joystick overrides
+    if (isTouch && (moveVec.x || moveVec.y)){
+      fwd = -moveVec.y;
+      strafe = moveVec.x;
+    }
+
+    const speed = 3.4;
+    // Derive forward/right straight from Three.js's own axis rotation so the
+    // movement basis is guaranteed consistent with however camera.rotation.y
+    // actually orients the view (no hand-derived trig signs to get wrong).
+    const Y_AXIS = UP_AXIS;
+    const forwardV = FORWARD_BASE.clone().applyAxisAngle(Y_AXIS, yaw);
+    const rightV = RIGHT_BASE.clone().applyAxisAngle(Y_AXIS, yaw);
+
+    let nx = camera.position.x + (forwardV.x*fwd + rightV.x*strafe) * speed * dt;
+    let nz = camera.position.z + (forwardV.z*fwd + rightV.z*strafe) * speed * dt;
+    nx = Math.max(-WALK_HALF_WIDTH, Math.min(WALK_HALF_WIDTH, nx));
+    nz = Math.max(MIN_Z, Math.min(MAX_Z, nz));
+    camera.position.x = nx;
+    camera.position.z = nz;
+
+    const bobT = now * 0.006;
+    const moving = (fwd !== 0 || strafe !== 0);
+    camera.position.y = 1.65 + (moving ? Math.sin(bobT*2.2) * 0.03 : 0);
+
+    camera.rotation.order = 'YXZ';
+    camera.rotation.y = yaw;
+    camera.rotation.x = pitch;
+
+    // find nearest booth in range + roughly faced
+    let best = null, bestD = 4.2;
+    for (const b of booths){
+      const d = Math.hypot(camera.position.x - b.worldPos.x, camera.position.z - b.worldPos.z);
+      if (d < bestD){ bestD = d; best = b; }
+    }
+    if (best !== nearestBooth){
+      nearestBooth = best;
+      if (nearestBooth){
+        promptEl.innerHTML = 'Gian hàng <b>' + (nearestBooth.index+1) + '</b> — ' + escapeHtml(nearestBooth.item.title);
+        promptEl.classList.add('show');
+        viewBtn.classList.add('show');
+      } else {
+        promptEl.classList.remove('show');
+        viewBtn.classList.remove('show');
+      }
+    }
+
+    // progress + counter
+    const travelled = (START_Z - camera.position.z) / (START_Z - MIN_Z);
+    progressFill.style.width = Math.max(0, Math.min(1, travelled)) * 100 + '%';
+    const nearIdx = Math.max(0, Math.min(booths.length-1, Math.round((START_Z - 7 - camera.position.z) / SPACING)));
+    counterEl.textContent = 'Gian hàng ' + Math.min(booths.length, nearIdx+1) + '/' + booths.length;
+
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(animate);
+}
+
+/* ---------------------------------------------------------------------
+   Helpers: procedural textures
+--------------------------------------------------------------------- */
+function makeFloorTexture(){
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#9a9a9a';
+  ctx.fillRect(0,0,256,256);
+  ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(1,1,254,254);
+  for (let i=0;i<900;i++){
+    ctx.fillStyle = 'rgba(0,0,0,' + (Math.random()*0.04) + ')';
+    ctx.fillRect(Math.random()*256, Math.random()*256, 1.4, 1.4);
+  }
+  return new THREE.CanvasTexture(c);
+}
+
+function truncate(s, n){ return (s && s.length > n) ? s.slice(0, n-1) + '…' : (s||''); }
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function makeSignTexture(item){
+  const c = document.createElement('canvas');
+  c.width = 640; c.height = 320;
+  const ctx = c.getContext('2d');
+  roundRect(ctx, 4, 4, 632, 312, 22);
+  ctx.fillStyle = 'rgba(26,26,26,0.92)';
+  ctx.fill();
+  ctx.strokeStyle = '#E03C31';
+  ctx.lineWidth = 5;
+  ctx.stroke();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '700 30px -apple-system,Arial,sans-serif';
+  wrapText(ctx, truncate(item.title, 64), 28, 58, 580, 36, 2);
+
+  ctx.fillStyle = '#EC6459';
+  ctx.font = '700 24px -apple-system,Arial,sans-serif';
+  const line2 = [item.txn, item.propertyType].filter(Boolean).join(' · ');
+  ctx.fillText(truncate(line2, 40), 28, 172);
+
+  ctx.fillStyle = '#E8EEEE';
+  ctx.font = '400 22px -apple-system,Arial,sans-serif';
+  const line3 = [item.area, item.location].filter(Boolean).join('  ·  ');
+  wrapText(ctx, truncate(line3, 60), 28, 212, 580, 28, 2);
+
+  if (item.price){
+    ctx.fillStyle = '#FFD9A0';
+    ctx.font = '700 24px -apple-system,Arial,sans-serif';
+    ctx.fillText(item.price, 28, 288);
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines){
+  const words = text.split(' ');
+  let line = '', lines = [];
+  for (const w of words){
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && line){
+      lines.push(line); line = w;
+      if (lines.length === maxLines - 1){ line = line; }
+    } else line = test;
+  }
+  lines.push(line);
+  lines = lines.slice(0, maxLines);
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i*lineHeight));
+}
+
+/* ---------------------------------------------------------------------
+   Intro start / modal wiring
+--------------------------------------------------------------------- */
+$('startBtn').addEventListener('click', () => {
+  $('intro').hidden = true;
+  $('crosshair').hidden = isTouch; // hide crosshair on touch, show on desktop
+});
+
+const modalWrap = $('modalWrap');
+function openModal(item){
+  $('modalImg').src = item.image;
+  $('modalBadge').textContent = [item.txn, item.propertyType].filter(Boolean).join(' · ') || 'Bất động sản';
+  $('modalTitle').textContent = item.title;
+  const meta = $('modalMeta');
+  meta.innerHTML = '';
+  [item.area, item.location, item.price].filter(Boolean).forEach(t => {
+    const span = document.createElement('span');
+    span.className = 'meta-chip';
+    span.textContent = t;
+    meta.appendChild(span);
+  });
+  $('modalDesc').textContent = item.description || '';
+  const callBtn = $('modalCall');
+  if (item.phone){
+    callBtn.href = 'tel:' + item.phone;
+    callBtn.style.display = '';
+  } else {
+    callBtn.style.display = 'none';
+  }
+  modalWrap.classList.add('show');
+}
+$('modalClose').addEventListener('click', () => modalWrap.classList.remove('show'));
+modalWrap.addEventListener('click', (e) => { if (e.target === modalWrap) modalWrap.classList.remove('show'); });
+</script>
+</body>
+</html>
