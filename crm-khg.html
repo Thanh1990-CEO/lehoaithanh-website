@@ -6104,6 +6104,50 @@ const NAV_STD=[['🏠 Tổng quan',['me','reports','tasks']],['💼 Kinh doanh &
  ['💰 Tài chính – kế toán',['accounting','tax','expenses','recon','wallet','loans','data','excel']],['👥 Nhân sự',['hr','payroll','recruit']],
  ['📁 Hồ sơ & văn bản',['docs','filesv','documents','policies']],['⚙️ Hệ thống',['accounts','audit','bot','botlog','backup','trash']]];
 const NAV_LBL={purchases:'Mua vật tư, phụ tùng',data:'Data chi tiết (sửa trực tiếp)',excel:'Nhập/xuất Excel'};
+// ===================== v43 · SẮP XẾP MENU THEO QUY TRÌNH VẬN HÀNH · KIỂM TRA SỐ LIỆU =====================
+TABS.push(['health','Kiểm tra số liệu',['admin','quan_ly','ke_toan','dieu_phoi','kinh_doanh']]);
+ICONS.health=IC('<path d="M3 12h4l2-5 4 10 2-5h6"/>');
+const V43_GN={don_hang:'Đơn hàng & vận hành',chi_phi:'Chi phí & tạm ứng',doi_xe:'Đội xe & đối tác',cong_no:'Công nợ & khách hàng'};
+const V43_FLOW=[['ban','💼 Bán hàng',['c_tax','c_terms']],['don','📦 Nhận đơn',['o_no_cus','o_km']],['dieu','🚚 Điều xe',['o_late','o_no_veh']],['giao','📄 Giao & chứng từ',['o_doc']],
+  ['chi','💸 Chi phí chuyến',['o_partner_cost','e_no_veh','e_no_order','e_pending','e_fuel_odo','e_vat','a_due','a_no_link']],['xe','🛻 Xe & đối tác',['v_price','v_norm','v_papers','v_daily','p_settle']],
+  ['thu','💰 Đối soát & thu chi',['o_no_rev','o_no_ar','r_over','y_over']]];
+async function v43Open(ent,id,tab){try{const cfg=E[ent];if(!cfg){go(tab);return}const {data,error}=await sb.from(cfg.table).select('*').eq('id',id).maybeSingle();if(error||!data){toast(error?error.message:'Không tìm thấy');return}
+  if(ent==='orders'&&typeof openOrder==='function')openOrder(data,()=>VIEWS.health($('#main')));else openForm(ent,data,()=>VIEWS.health($('#main')))}catch(e){toast(e.message)}}
+VIEWS.health=async m=>{m.innerHTML=`<h2>🩺 Kiểm tra số liệu</h2><p class="sub">Soát toàn bộ luồng: bán hàng → nhận đơn → điều xe → giao & chứng từ → chi phí → đối soát, thu chi. Mỗi dòng thiếu sót làm báo cáo CEO, lãi lỗ chuyến/xe, công nợ bị sai – bấm từng mục để sửa ngay.</p><div id="hlB"><div class="empty">Đang kiểm tra…</div></div>`;
+  const {data:D,error}=await sb.rpc('khg_data_health');if(error){$('#hlB').innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}
+  const C=(D.checks||[]).map(c=>({...c,n:+c.n}));const by=Object.fromEntries(C.map(c=>[c.k,c]));const bad=C.filter(c=>c.n>0);const sc=s=>s>=3?'#C8102E':s===2?'#D97706':'#64748B';
+  const tot=bad.reduce((s,c)=>s+c.n,0),hi=bad.filter(c=>c.sev>=3).reduce((s,c)=>s+c.n,0);
+  const flow=V43_FLOW.map(([k,l,ks])=>{const n=ks.reduce((s,x)=>s+((by[x]||{}).n||0),0);const h=ks.some(x=>by[x]&&by[x].n&&by[x].sev>=3);
+    return `<button class="btn s" data-fl="${k}" style="flex:1 1 130px;text-align:left;border-color:${n?(h?'#F2B8B8':'#F4D7A8'):'#BFE3CC'};background:${n?(h?'#FFF4F4':'#FFF9EE'):'#F2FBF5'}"><b>${l}</b><br><small>${n?n+' chỗ cần sửa':'✓ Đủ số liệu'}</small></button>`}).join('<span style="align-self:center;color:#9AA4B2">→</span>');
+  $('#hlB').innerHTML=`<div class="xt" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:10px">
+      ${[['Chỗ cần bổ sung',fmtN(tot),bad.length+' / '+C.length+' mục kiểm tra'],['Mức nghiêm trọng',fmtN(hi),'ảnh hưởng tiền, công nợ, giao hàng'],['Đơn hàng đang theo dõi',fmtN(D.totals.orders),'không tính đơn hủy'],['Chi phí đã ghi',fmtN(D.totals.expenses),fmtN(D.totals.vehicles)+' xe · '+fmtN(D.totals.customers)+' khách']].map(t=>`<div class="card" style="margin:0;padding:10px 12px"><div class="sub" style="margin:0">${t[0]}</div><div style="font-size:22px;font-weight:800">${t[1]}</div><div class="sub" style="margin:0">${t[2]}</div></div>`).join('')}</div>
+    <div class="card"><h3>Luồng số liệu theo quy trình</h3><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:stretch">${flow}</div></div>
+    ${Object.keys(V43_GN).map(g=>{const L=C.filter(c=>c.g===g);return `<div class="card" data-g="${g}"><h3>${V43_GN[g]}</h3>${L.map(c=>`<details data-k="${c.k}" style="border-top:1px solid #EEF1F5;padding:6px 0" ${c.n&&c.sev>=3?'open':''}>
+      <summary style="cursor:pointer;display:flex;gap:8px;align-items:center;list-style:none"><span style="min-width:44px;text-align:center;border-radius:20px;padding:1px 8px;font-weight:700;color:#fff;background:${c.n?sc(c.sev):'#2E9E5B'}">${c.n?fmtN(c.n):'✓'}</span><b style="flex:1">${esc(c.l)}</b><span class="sub" style="margin:0;max-width:46%">${esc(c.w)}</span></summary>
+      ${c.n?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px 52px">${(c.rows||[]).map(r=>`<button class="btn s" data-ent="${c.ent}" data-id="${r.id}" data-tab="${c.tab}" style="text-align:left">✎ ${esc(String(r.t||'').replace(/\b[a-z][a-z_]{3,}\b/g,w=>(O.exp_sub||{})[w]||(O.exp_item||{})[w]||w).slice(0,70))}</button>`).join('')}${c.n>(c.rows||[]).length?`<span class="sub" style="align-self:center">… và ${fmtN(c.n-(c.rows||[]).length)} dòng khác</span>`:''}<button class="btn s g" data-go="${c.tab}">Mở màn hình ›</button></div>`:''}</details>`).join('')}</div>`}).join('')}
+    <p class="sub">Cập nhật lúc ${new Date(D.at).toLocaleTimeString('vi-VN')} · Sửa xong bấm lại mục <b>Kiểm tra số liệu</b> để soát lại.</p>`;
+  $('#hlB').querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>v43Open(b.dataset.ent,b.dataset.id,b.dataset.tab));
+  $('#hlB').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+  $('#hlB').querySelectorAll('[data-fl]').forEach(b=>b.onclick=()=>{const ks=(V43_FLOW.find(f=>f[0]===b.dataset.fl)||[])[2]||[];const ds=ks.map(k=>$('#hlB').querySelector(`details[data-k="${k}"]`)).filter(Boolean);ds.forEach(d=>{d.open=true;d.style.background='#FFFBEA';setTimeout(()=>d.style.background='',1500)});if(ds[0])ds[0].scrollIntoView({behavior:'smooth',block:'center'})});
+  try{const nb=document.querySelector('#tabs [data-t="health"] span');if(nb)nb.innerHTML='Kiểm tra số liệu'+(hi?` <b style="background:#C8102E;color:#fff;border-radius:9px;padding:0 6px;font-size:11px">${hi}</b>`:'')}catch(e){}};
+// ---- menu theo quy trình: Bán hàng → Vận hành → Nguồn lực xe → Kho & thương mại → Tiền → Nhân sự → Hồ sơ → Dữ liệu & hệ thống
+NAV_STD.length=0;NAV_STD.push(
+ ['🏠 Tổng quan',['me','reports','health','tasks']],
+ ['💼 Bán hàng & khách hàng',['hunt','crm','customers','requests','pricing','contracts','projects']],
+ ['🚚 Vận hành vận tải',['orders','dispatch','doctrack','rentals']],
+ ['🛻 Đội xe & đối tác',['fleet','partners','fastdriver','survey']],
+ ['🏭 Kho bãi, nâng hạ & thương mại',['wh','services','dms','sales','purchases']],
+ ['💰 Thu chi & công nợ',['expenses','recon','accounting','wallet','loans','tax']],
+ ['👥 Nhân sự & lương',['hr','payroll','recruit']],
+ ['📁 Hồ sơ & văn bản',['docs','documents','filesv','policies']],
+ ['🗄 Dữ liệu & hệ thống',['excel','data','backup','accounts','bot','audit','botlog','trash']]);
+Object.assign(NAV_LBL,{reports:'Báo cáo CEO & HĐKD',crm:'Lead & cơ hội bán hàng',customers:'Khách hàng (hồ sơ)',requests:'Nhu cầu & việc phát sinh',projects:'Dự án & mẫu nhập của khách',
+  orders:'Đơn hàng',dispatch:'Điều phối xe',doctrack:'Chứng từ đơn & hóa đơn chi phí',rentals:'Cho thuê xe không tài xế',fleet:'Đội xe, km & nhiên liệu',expenses:'Chi phí & tạm ứng',recon:'Đối soát & bảng kê khách',
+  accounting:'Sổ quỹ, phải thu, phải trả',wallet:'Ví tài xế & COD',loans:'Tiền vay vận hành',tax:'Hóa đơn & thuế',excel:'Nhập / xuất Excel hàng loạt'});
+// các màn hình đã nằm trong Báo cáo CEO & HĐKD → không hiện thêm ở nhóm "Khác"
+{const _nav=nav;const HIDE=['overview','analytics','pnl','ceo','exec'];nav=function(){const T=TABS.filter(t=>HIDE.includes(t[0]));T.forEach(t=>t.__h=t[2]);
+  const keep=TABS.slice();for(let i=TABS.length-1;i>=0;i--)if(HIDE.includes(TABS[i][0]))TABS.splice(i,1);try{return _nav.apply(this,arguments)}finally{TABS.length=0;keep.forEach(t=>TABS.push(t))}}}
+
 function nav(){
   navFix();
   const ok=Object.fromEntries(allowed().map(t=>[t[0],t[1]]));const used=new Set(NAV_STD.flatMap(g=>g[1]));const extra=Object.keys(ok).filter(k=>!used.has(k));
