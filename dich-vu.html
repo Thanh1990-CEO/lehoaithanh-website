@@ -335,7 +335,7 @@ function provInText(t){const n=' '+N(t)+' ';let best='';for(const e of KEYS){con
 const FILL={address:['province','district','ward'],address_current:['province','district','ward'],pickup:['pickup_province','pickup_district','pickup_ward'],dropoff:['drop_province','drop_district','drop_ward'],drop:['drop_province','drop_district','drop_ward'],lessor_address:['lessor_province'],station_address:['station_province']};
 function fill(inp,c){if(!c)return;const base=(inp.name||inp.dataset.k||inp.id||'').replace(/^f_/,'');const root=inp.closest('form,.modal-box,.modal,.card,.sec,section')||document;
   const keys=[inp.dataset.prov,inp.dataset.dist,inp.dataset.ward].some(Boolean)?[inp.dataset.prov,inp.dataset.dist,inp.dataset.ward]:(FILL[base]||[]);if(!keys.length)return;
-  const vals=[newProv(c.province)||c.province||'',c.district||'',c.ward||''];
+  const vals=[newProv(c.province)||c.province||'',c.district||'',c.ward||''];if(c.old&&inp.dataset)inp.dataset.old=c.old;
   keys.forEach((k,i)=>{if(!k||!vals[i])return;const el=k.startsWith('#')||k.startsWith('[')?root.querySelector(k):root.querySelector(`[name="${k}"],[data-k="${k}"],#f_${k}`);if(!el||el===inp)return;
     if(el.value&&el.dataset.auto!=='1')return;let v=vals[i];
     if(el.tagName==='SELECT'){const o=[...el.options].find(o=>N(o.value)===N(v)||N(o.textContent)===N(v)||N(o.textContent).replace(PRE,'')===N(v).replace(PRE,''));if(!o)return;v=o.value}
@@ -364,28 +364,111 @@ function injectCss(){if(document.getElementById('kadcss'))return;const s=documen
 function attach(inp,onPick){if(!inp||inp._kad)return;inp._kad=1;injectCss();inp.setAttribute('autocomplete','off');const wrap=inp.parentElement;if(getComputedStyle(wrap).position==='static')wrap.style.position='relative';
   let box=null,items=[],idx=-1,t=null,seq=0;const close=()=>{box&&box.remove();box=null;idx=-1};
   const show=(list,head)=>{close();items=list;if(!list.length)return;box=document.createElement('div');box.className='kad';
-    box.innerHTML=(head?`<div class="h">${head}</div>`:'')+list.map((x,i)=>`<div data-i="${i}"><div style="flex:1"><b>${esc(x.main)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}</div>${x.kind?`<i>${esc(x.kind)}</i>`:''}</div>`).join('')+`<div class="h">${list.some(x=>x.g)?'Dữ liệu Google Maps':'Bản đồ © OpenStreetMap'} · tự điền tỉnh/thành theo 34 tỉnh mới</div>`;
+    box.innerHTML=(head?`<div class="h">${head}</div>`:'')+list.map((x,i)=>`<div data-i="${i}"><div style="flex:1"><b>${esc(x.main)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}</div>${x.kind?`<i>${esc(x.kind)}</i>`:''}</div>`).join('')+`<div class="h">${list.some(x=>x.g)?'Dữ liệu Google Maps':'Bản đồ © OpenStreetMap'} · tự điền phường/xã, tỉnh/thành mới (34 tỉnh, 3.321 xã phường từ 01/07/2025)</div>`;
     box.onmousedown=e=>{const d=e.target.closest('[data-i]');if(!d)return;e.preventDefault();pick(+d.dataset.i)};wrap.appendChild(box)};
-  const pick=i=>{const x=items[i];if(!x)return;const old=/ \(cũ\)$/.test(x.main);
+  const pick=i=>{const x=items[i];if(!x)return;if(x.val){close();inp.value=x.val;inp._geo={lat:null,lng:null,prov:false,c:x.c};fill(inp,x.c);geocode(x.c.street?x.val:x.val).then(g=>{if(g&&inp._geo){inp._geo.lat=g.lat;inp._geo.lng=g.lng;onPick&&onPick({addr:inp.value,lat:g.lat,lng:g.lng,prov:false,kind:x.kind,c:x.c})}}).catch(()=>{});onPick&&onPick({addr:inp.value,lat:null,lng:null,prov:false,kind:x.kind,c:x.c});inp.dispatchEvent(new Event('picked'));if(x.ward&&!x.norm)setTimeout(()=>{inp.focus();inp.setSelectionRange(0,0)},30);return}const old=/ \(cũ\)$/.test(x.main);
     inp.value=old?x.main.replace(' (cũ)','')+', '+x.sub.split(' · ')[0].replace('Nay thuộc ',''):x.prov?x.main:x.main+(x.sub?', '+x.sub.replace(/ \(nay thuộc ([^)]*)\)/,', $1'):'');
     const done=(c)=>{inp._geo={lat:x.lat,lng:x.lng,prov:!!x.prov,c};if(x.lat!=null)remember(x);fill(inp,c);onPick&&onPick({addr:inp.value,lat:x.lat,lng:x.lng,prov:!!x.prov,kind:x.kind,c});inp.dispatchEvent(new Event('picked'))};
     close();if(x.gid){inp.value=x.main+(x.sub?', '+x.sub:'');gdetail(x.gid).then(d=>{if(!d)return done(null);x.lat=d.lat;x.lng=d.lng;if(d.address)inp.value=(d.name&&!d.address.startsWith(d.name)?d.name+', ':'')+d.address;done({province:d.province,district:d.district,ward:d.ward,street:d.street})}).catch(()=>done(null));return}
     done(x.c||(x.prov?{province:x.main.replace(' (cũ)','')}:{province:provInText(x.sub||'')}));
     if(x.prov)setTimeout(()=>{inp.focus();inp.setSelectionRange(0,0)},30)};
-  inp.addEventListener('focus',()=>{if(!inp.value.trim()){const h=hist();if(h.length)show(h,'Địa chỉ đã dùng gần đây')}});
+  inp.addEventListener('paste',()=>setTimeout(()=>{kvLoad().then(()=>inp.dispatchEvent(new Event('input')))},0));inp.addEventListener('focus',()=>{kvLoad();if(!inp.value.trim()){const h=hist();if(h.length)show(h,'Địa chỉ đã dùng gần đây')}});
   inp.addEventListener('input',()=>{inp._geo=null;onPick&&onPick(null);clearTimeout(t);const q=inp.value.trim();if(q.length<2){close();return}
-    const L=local(q);if(L.length)show(L);const my=++seq;
+    const NR=(q.includes(',')||q.split(' ').length>=4)?normalize(q):null;const L=[...(NR?[{main:NR.std,sub:(NR.ok?'✓ Đã chuẩn hoá theo phường/xã mới':'Đã chuẩn hoá chữ, dấu phẩy')+(NR.old?' · cũ: '+NR.old:''),kind:'Chuẩn hoá',val:NR.std,c:NR.c,norm:1}]:[]),...wardLocal(q),...local(q)].slice(0,9);if(L.length)show(L);const my=++seq;
     t=setTimeout(async()=>{if(!box&&!L.length){show([]);box=document.createElement('div');box.className='kad';box.innerHTML='<div class="ld">Đang tìm…</div>';wrap.appendChild(box)}
-      try{const R=await search(q);if(my!==seq)return;if(R.length)show(R);else{close();box=document.createElement('div');box.className='kad';box.innerHTML='<div class="ld">Chưa thấy – nhập thêm tên đường, phường/xã, tỉnh/thành</div>';wrap.appendChild(box)}}catch(e){}},180)});
+      try{const R0=await search(q);if(my!==seq)return;const R=[...L.filter(x=>x.ward||x.norm),...R0.filter(x=>!L.some(l=>l.ward&&N(l.main)===N(x.main)))].slice(0,10);if(R.length)show(R);else{close();box=document.createElement('div');box.className='kad';box.innerHTML='<div class="ld">Chưa thấy – nhập thêm tên đường, phường/xã, tỉnh/thành</div>';wrap.appendChild(box)}}catch(e){}},180)});
   inp.addEventListener('keydown',e=>{if(!box)return;const ds=[...box.querySelectorAll('[data-i]')];
     if(e.key==='ArrowDown'){idx=Math.min(ds.length-1,idx+1);e.preventDefault()}else if(e.key==='ArrowUp'){idx=Math.max(0,idx-1);e.preventDefault()}else if(e.key==='Enter'&&idx>=0){e.preventDefault();pick(idx);return}else if(e.key==='Escape'){close();return}else return;
     ds.forEach((d,j)=>d.classList.toggle('on',j===idx));ds[idx]&&ds[idx].scrollIntoView({block:'nearest'})});
   inp.addEventListener('blur',()=>{setTimeout(close,180);if(!inp._geo&&inp.value.trim().length>6){const p=provInText(inp.value);if(p)fill(inp,{province:p})}})}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 const SEL='input[data-addr],input[name="address"],input[name="pickup"],input[name="dropoff"],input[name="address_current"],input[name="address_permanent"],input[name$="_address"],#lhA,#nA,#rSite';
-document.addEventListener('focusin',e=>{const el=e.target;if(el&&el.matches&&el.matches(SEL)&&!el._kad){attach(el);}},true);
+document.addEventListener('focusin',e=>{const el=e.target;if(el&&el.matches&&el.matches(SEL)&&!el._kad){attach(el);kvLoad();}},true);
+// ===== v42 · Phường/xã mới & cũ (3.321 xã phường sau 01/07/2025 + ~10.000 phường xã cũ), chuẩn hoá địa chỉ dán vào =====
+let KV=null,KVI=null,kvP=null;const KVURL=(/lehoaithanh\.org$/.test(location.hostname)?'':'https://lehoaithanh.org')+'/kvn.js?v=42';
+function kvLoad(){if(KV)return Promise.resolve(KV);if(kvP)return kvP;kvP=new Promise(ok=>{if(window.KVN){ok(window.KVN);return}const s=document.createElement('script');s.src=KVURL;s.async=true;s.onload=()=>ok(window.KVN||null);s.onerror=()=>ok(null);document.head.appendChild(s)}).then(d=>{if(d&&!KV){KV=d;kvIndex()}return KV});return kvP}
+const TN={P:'Phường',X:'Xã',T:'Thị trấn',D:'Đặc khu'};
+function kvIndex(){const W=KV.W.map((w,i)=>({i,t:w[0],n:w[1],k:N(w[1]),p:w[2],olds:[]}));const O=KV.O.map((o,i)=>({i,t:o[0],n:o[1],k:N(o[1]),d:o[2],po:KV.D[o[2]][1],w:o.slice(3)}));
+  O.forEach(o=>o.w.slice(0,1).forEach(wi=>W[wi]&&W[wi].olds.push(o)));KVI={W,O}}
+const wFull=w=>TN[w.t]+' '+w.n,oFull=o=>TN[o.t]+' '+o.n;
+const dShort=di=>{const d=KV.D[di][0];return d.replace(/^Quận (\d+)$/,'Q.$1').replace(/^Thành phố /,'TP. ').replace(/^Thị xã /,'TX. ')};
+const poName=i=>KV.PO[i];
+const oldTxt=o=>`${oFull(o)}, ${KV.D[o.d][0]}, ${poName(o.po)}`;
+const pName=i=>KV.P[i];
+const oldPoOf=pv=>{const n=N(pv);const out=[];KV.PO.forEach((p,i)=>{const k=N(p);if(k===n||OLD2NEW[k]===newProv(pv)&&newProv(pv)||newProv(p)===newProv(pv))out.push(i)});return out};
+function wardKey(s){return N(s).replace(/^(phuong|xa|thi tran|tt|p|x)\s+/,'').replace(/^0+(\d)/,'$1')}
+// gợi ý phường/xã theo chữ gõ (mới + cũ)
+function wardLocal(q){if(!KVI)return [];let n=N(q);let pv='';const pr=provInText(q);if(pr){pv=pr}
+  const typ=/^(phuong|p)\s/.test(n)?'P':/^(xa|x)\s/.test(n)?'X':/^(thi tran|tt)\s/.test(n)?'T':'';
+  if(!pr){const lt=N(q).split(' ').pop();if(ALIAS[lt])pv=ALIAS[lt]}n=wardKey(q).replace(/\s+(tp\s*)?(hcm|tphcm|sg|sai gon|hn|ha noi|dn|ct|hp)$/,'');if(pr){const kk=N(pr).replace(/^tp\s+/,'');n=n.replace(new RegExp('\\s*(tp\\s+|thanh pho\\s+|tinh\\s+)?'+kk.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'.*$'),'').trim()}
+  if(n.length<2||/^\d$/.test(n)&&!pr)return [];const pIdx=pv?KV.P.indexOf(pv):-1;const out=[];
+  const sc=(k)=>k===n?0:k.startsWith(n)?1:(n.length>=3&&k.split(' ').some((w,i,a)=>a.slice(i).join(' ').startsWith(n)))?2:-1;
+  KVI.W.forEach(w=>{if(typ&&w.t!==typ)return;if(pIdx>=0&&w.p!==pIdx)return;const s=sc(w.k);if(s<0)return;out.push({s:s+(pIdx>=0?0:.5),x:mkW(w)})});
+  KVI.O.forEach(o=>{if(typ&&o.t!==typ)return;if(!o.w.length)return;if(pIdx>=0&&KVI.W[o.w[0]].p!==pIdx)return;const s=sc(o.k);if(s<0)return;out.push({s:s+.3+(pIdx>=0?0:.5),x:mkO(o)})});
+  return out.sort((a,b)=>a.s-b.s).map(x=>x.x).slice(0,7)}
+function mkW(w){const pv=pName(w.p),ol=w.olds.slice(0,4).map(o=>oFull(o).replace('Phường ','P. ').replace('Thị trấn ','TT. ')+' ('+dShort(o.d)+')');
+  return {main:wFull(w)+', '+pv,sub:(ol.length?'Trước 07/2025: '+ol.join(', ')+(w.olds.length>4?'…':''):'Phường/xã mới')+' · nhập thêm số nhà, đường',kind:TN[w.t]+' mới',lat:null,lng:null,ward:1,
+    c:{province:pv,ward:wFull(w),district:w.olds[0]?KV.D[w.olds[0].d][0]:'',old:w.olds[0]?oldTxt(w.olds[0]):''},val:wFull(w)+', '+pv}}
+function mkO(o){const w=KVI.W[o.w[0]],pv=pName(w.p);
+  return {main:oldTxt(o)+' (cũ)',sub:'Nay là '+wFull(w)+', '+pv+(o.w.length>1?' (một phần sang '+wFull(KVI.W[o.w[1]])+')':''),kind:TN[o.t]+' cũ',ward:1,
+    c:{province:pv,ward:wFull(w),district:KV.D[o.d][0],old:oldTxt(o)},val:wFull(w)+', '+pv+' (cũ: '+oFull(o).replace('Phường ','P. ').replace('Thị trấn ','TT. ')+', '+dShort(o.d)+')'}}
+// ---- chuẩn hoá chữ: hoa đầu từ, dấu phẩy, viết tắt
+const UPW=new Set(['kcn','ccn','kdc','kcx','khu','ql','tl','dt','dh','hl','kp','tdp','tnhh','mtv','cp','dntn','htx','vsip','sgn','hcm','tp','tx','tt','cl']);
+function titleWord(w){if(!w)return w;if(/\d/.test(w)&&/^[a-z]{1,3}\d+[a-z]?$/i.test(N(w).replace(/ /g,'')))return w.toUpperCase();const k=N(w);if(['kcn','ccn','kdc','kcx','tnhh','mtv','dntn','htx','vsip'].includes(k))return w.toUpperCase();
+  if(w===w.toUpperCase()&&w.length<=4&&/[A-Z]/.test(w))return w;return w.charAt(0).toLocaleUpperCase('vi')+w.slice(1).toLocaleLowerCase('vi')}
+const titleCase=s=>s.split(/(\s+|\/|-)/).map(x=>/^\s+$|^[\/-]$/.test(x)?x:titleWord(x)).join('');
+function cleanText(s){return String(s||'').replace(/\u00a0/g,' ').replace(/(\p{Ll})\.(?=\p{L}{2,})/gu,'$1. ').replace(/[ \t]+/g,' ').replace(/\s+([,.;:!?])/g,'$1').replace(/([,;:])(?=[^\s\d])/g,'$1 ').replace(/,{2,}/g,',').replace(/\.{4,}/g,'...').replace(/\s*\n\s*/g,'\n').trim()}
+const ABR=[[/^(phường|phuong|ph\.|p\.|p(?=[\s\d]))\s*(?=\S)/i,'P'],[/^(xã|xa|x\.|x(?=\s))\s*(?=\S)/i,'X'],[/^(thị trấn|thi tran|t\.t\.?|tt\.?(?=[\s\d]))\s*(?=\S)/i,'T'],[/^(quận|quan|q\.|q(?=[\s\d]))\s*(?=\S)/i,'Q'],[/^(huyện|huyen|h\.|h(?=\s))\s*(?=\S)/i,'H'],[/^(thị xã|thi xa|tx\.?(?=[\s\d]|\.))\s*(?=\S)/i,'TX'],[/^(thành phố|thanh pho|t\.p\.?|tp\.?(?=[\s\d]|\.|[A-ZĐ]))\s*(?=\S)/i,'TP'],[/^(tỉnh|tinh|t\.)\s*(?=\S)/i,'TI']];
+function classify(part){for(const [re,c] of ABR){if(re.test(part))return [c,part.replace(re,'').trim()]}return ['',part.trim()]}
+function normalize(text){const raw=cleanText(text).replace(/\s+-\s+/g,', ').replace(/\s*–\s*/g,', ');if(raw.length<6)return null;
+  let parts=raw.split(',').map(s=>s.trim()).filter(Boolean);if(parts.length<2&&!KVI)return null;
+  let prov='',oldPo=[],dIdx=-1,ward=null,oldW=null,used=new Set();
+  // tỉnh/thành
+  for(let i=parts.length-1;i>=Math.max(0,parts.length-3);i--){const [c,v]=classify(parts[i]);const nv=newProv(v)||newProv(parts[i]);const vv=N(v);
+    if(nv&&(c==='TI'||c==='TP'||c===''||vv.length>=4)&&(KV?!KV.D.some(d=>N(d[0]).replace(/^(quan|huyen|thanh pho|thi xa)\s+/,'')===vv&&c!=='TI'&&c!==''&&i<parts.length-1):true)){
+      prov=nv;used.add(i);if(KV){oldPo=KV.PO.map((p,j)=>[p,j]).filter(([p])=>N(p)===N(v.replace(/^tp\.?\s*/i,''))||N(p)===vv).map(x=>x[1]);if(!oldPo.length)oldPo=KV.PO.map((p,j)=>[p,j]).filter(([p])=>newProv(p)===nv).map(x=>x[1])}break}}
+  if(!KVI)return null;
+  // quận/huyện cũ
+  for(let i=parts.length-1;i>=0;i--){if(used.has(i))continue;const [c,v]=classify(parts[i]);if(!['Q','H','TX','TP',''].includes(c))continue;const k=N(v).replace(/^0+(\d)/,'$1');if(!k)continue;
+    const hit=KV.D.map((d,j)=>[d,j]).filter(([d])=>{const dk=N(d[0]).replace(/^(quan|huyen|thanh pho|thi xa)\s+/,'');return dk===k&&(!oldPo.length||oldPo.includes(d[1]))&&(c===''?/^(Quận|Huyện|Thị xã|Thành phố)/.test(d[0])&&parts.length>2:true)});
+    if(hit.length===1||hit.length&&oldPo.length){dIdx=hit[0][1];used.add(i);if(!prov)prov=newProv(KV.PO[hit[0][0][1]]);if(!oldPo.length)oldPo=[hit[0][0][1]];break}}
+  // phường/xã
+  for(let i=parts.length-1;i>=0;i--){if(used.has(i))continue;const [c,v]=classify(parts[i]);if(!['P','X','T',''].includes(c))continue;const k=N(v).replace(/^0+(\d)/,'$1');if(!k)continue;const t=c==='P'?'P':c==='X'?'X':c==='T'?'T':'';
+    if(c===''&&i<parts.length-1&&!(dIdx>=0||prov))continue;
+    let o=KVI.O.filter(o=>o.k===k&&(!t||o.t===t)&&(dIdx<0||o.d===dIdx)&&(!oldPo.length||oldPo.includes(o.po))&&o.w.length);
+    const pIdx=prov?KV.P.indexOf(prov):-1;let w=KVI.W.filter(w=>w.k===k&&(!t||w.t===t)&&(pIdx<0||w.p===pIdx));
+    if(c===''&&!o.length&&!w.length)continue;
+    if(dIdx>=0&&o.length){oldW=o[0];ward=KVI.W[o[0].w[0]];used.add(i);break}
+    if(w.length===1&&(dIdx<0||!o.length)){ward=w[0];used.add(i);if(o.length===1)oldW=o[0];break}
+    if(o.length===1){oldW=o[0];ward=KVI.W[o[0].w[0]];used.add(i);break}
+    if(w.length&&pIdx>=0){ward=w[0];used.add(i);break}}
+  if(ward&&!prov)prov=pName(ward.p);if(!prov&&!ward)return null;
+  const street=parts.filter((_,i)=>!used.has(i)).map(p=>{const [c,v]=classify(p);
+    const pre={P:'Phường ',X:'Xã ',T:'Thị trấn ',Q:'Quận ',H:'Huyện ',TX:'Thị xã ',TP:'Thành phố ',TI:'Tỉnh '}[c]||'';
+    let s=v.replace(/^(kp|khu pho|khu phố)\.?\s*/i,'KP ').replace(/^(ap|ấp)\s+/i,'Ấp ').replace(/^(d\.|đ\.|duong|đường)\s*/i,'Đường ').replace(/^(to|tổ)\s+(\d)/i,'Tổ $2');
+    return pre+titleCase(s)});
+  const wardTxt=ward?wFull(ward):'';const std=[...street,wardTxt,prov].filter(Boolean).join(', ');
+  const oldShort=oldW?oFull(oldW).replace('Phường ','P. ').replace('Thị trấn ','TT. ')+', '+dShort(oldW.d)+(OLD2NEW[N(KV.PO[oldW.po])]?', '+KV.PO[oldW.po]:''):'';
+  return {std:std+(oldShort?' (cũ: '+oldShort+')':''),base:std,old:oldW?oldTxt(oldW):'',c:{province:prov,ward:wardTxt,district:oldW?KV.D[oldW.d][0]:dIdx>=0?KV.D[dIdx][0]:'',street:street.join(', '),old:oldW?oldTxt(oldW):''},ok:!!ward}}
+// ---- KFIX: chuẩn hoá chính tả trước khi lưu (toàn hệ thống)
+const SKIPK=/(code|plate|bien_?so|phone|sdt|tel|email|mail|tax|mst|url|link|pass|token|bank|account|stk|doc_no|so_hd|invoice|serial|vin|chassis|engine|cccd|cmnd|id_?number|license|gplx|promo|ref|otp|key|hash|_id$|lat|lng|json)/i;
+const NAMEK=/(full_name|contact|customer_text|^name$|_name$|holder|rep_name|lessor_name|receiver|driver_name|nguoi|party|supplier|short_name)/i;
+const WORDFIX=[[/(^|\s)(ko|k0|hok)(?=\s|$|[,.])/gi,'$1không'],[/(^|\s)đc(?=\s|$|[,.])/gi,'$1được'],[/(^|\s)(sđt|sdt)(?=\s|$|[,.:])/gi,'$1SĐT'],[/(^|\s)cty(?=\s|$|[,.])/gi,'$1Công ty'],[/(^|\s)tnhh(?=\s|$|[,.])/gi,'$1TNHH'],[/(^|\s)mtv(?=\s|$|[,.])/gi,'$1MTV']];
+function kindOf(el){const k=(el.name||el.dataset.k||el.id||'');if(el.matches&&el.matches(SEL))return 'addr';if(/addr|address|pickup|dropoff|dia_chi|station/i.test(k))return 'addr';if(NAMEK.test(k))return 'name';return 'free'}
+function skipEl(el){if(!el||el.readOnly||el.disabled||el.dataset.nofix!=null)return true;if(el.tagName==='INPUT'&&!['text',''].includes((el.getAttribute('type')||'').toLowerCase()))return true;if(/^(tìm|gõ để tìm|lọc|search|tra cứu)/i.test(el.placeholder||'')||el.closest('.bar,.filters,.xgfm'))return true;
+  if(el.getAttribute('list')||el.dataset.money!=null||el.dataset.fk||el.dataset.fkm||/numeric|decimal|tel|email/.test(el.inputMode||''))return true;const k=(el.name||el.dataset.k||el.id||'');if(SKIPK.test(k)||/(ward|province|district|_prov|_dist)$/i.test(k)||el.dataset.auto==='1')return true;
+  const v=el.value||'';if(!v.trim()||/https?:\/\/|@|^[\d\s.,:+\-\/]+$/.test(v))return true;return false}
+function fixText(v,kind){let s=cleanText(v);if(kind==='addr'){if(/\(cũ:/.test(s))return s;const r=normalize(s);if(r&&r.ok)return r.std;return s.split(',').map(p=>{const t=p.trim();return t===t.toLowerCase()?titleCase(t):t}).join(', ')}
+  if(kind==='name'){if(s===s.toLowerCase())s=titleCase(s);WORDFIX.slice(3).forEach(([re,to])=>s=s.replace(re,to));return s}
+  WORDFIX.forEach(([re,to])=>s=s.replace(re,to));return s.replace(/(^|[.!?]\s+|\n)(\p{Ll})/gu,(m,a,b)=>a+b.toLocaleUpperCase('vi'))}
+function fixEl(el){if(skipEl(el))return false;const v=el.value,f=fixText(v,kindOf(el));if(f&&f!==v){el.value=f;el.dispatchEvent(new Event('input',{bubbles:true}));el.style.transition='background .6s';el.style.background='#FFF6D6';setTimeout(()=>el.style.background='',900);return true}return false}
+function fixForm(root){let n=0;(root||document).querySelectorAll('input,textarea').forEach(el=>{if(fixEl(el))n++});return n}
+document.addEventListener('change',e=>{const el=e.target;if(el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA')&&!el._kfx){el._kfx=1;try{if(!el._kad||!el._geo)fixEl(el)}finally{el._kfx=0}}},true);
+document.addEventListener('focusin',e=>{const el=e.target;if(el&&el.tagName==='TEXTAREA'&&!el.hasAttribute('spellcheck')){el.setAttribute('spellcheck','true');el.setAttribute('lang','vi')}},true);
+window.KFIX={text:fixText,el:fixEl,form:fixForm,clean:cleanText,title:titleCase};
+
 try{if(navigator.geolocation&&navigator.permissions)navigator.permissions.query({name:'geolocation'}).then(s=>{if(s.state==='granted')navigator.geolocation.getCurrentPosition(p=>{BIAS.lat=p.coords.latitude;BIAS.lng=p.coords.longitude},()=>{},{maximumAge:6e5,timeout:5000})}).catch(()=>{})}catch(e){}
-window.KADDR={attach,search,geocode,local,N,NEW,OLD2NEW,newProv,provInText,fill};gready();
+window.KADDR={attach,search,geocode,local,N,NEW,OLD2NEW,newProv,provInText,fill,normalize,wardLocal,kvLoad};gready();
 })();
 /*KADDR-END*/
 
