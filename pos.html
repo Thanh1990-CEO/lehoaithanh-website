@@ -439,7 +439,7 @@ const SKIPK=/(code|plate|bien_?so|phone|sdt|tel|email|mail|tax|mst|url|link|pass
 const NAMEK=/(full_name|contact|customer_text|^name$|_name$|holder|rep_name|lessor_name|receiver|driver_name|nguoi|party|supplier|short_name)/i;
 const WORDFIX=[[/(^|\s)(ko|k0|hok)(?=\s|$|[,.])/gi,'$1không'],[/(^|\s)đc(?=\s|$|[,.])/gi,'$1được'],[/(^|\s)(sđt|sdt)(?=\s|$|[,.:])/gi,'$1SĐT'],[/(^|\s)cty(?=\s|$|[,.])/gi,'$1Công ty'],[/(^|\s)tnhh(?=\s|$|[,.])/gi,'$1TNHH'],[/(^|\s)mtv(?=\s|$|[,.])/gi,'$1MTV']];
 function kindOf(el){const k=(el.name||el.dataset.k||el.id||'');if(el.matches&&el.matches(SEL))return 'addr';if(/addr|address|pickup|dropoff|dia_chi|station/i.test(k))return 'addr';if(NAMEK.test(k))return 'name';return 'free'}
-function skipEl(el){if(!el||el.readOnly||el.disabled||el.dataset.nofix!=null)return true;if(el.tagName==='INPUT'&&!['text',''].includes((el.getAttribute('type')||'').toLowerCase()))return true;if(/^(tìm|gõ để tìm|lọc|search|tra cứu)/i.test(el.placeholder||'')||el.closest('.bar,.filters,.xgfm'))return true;
+function skipEl(el){if(!el||el.readOnly||el.disabled||el.dataset.nofix!=null)return true;if(/^(match|code|ref|regex)$/.test(el.name||''))return true;if(el.tagName==='INPUT'&&!['text',''].includes((el.getAttribute('type')||'').toLowerCase()))return true;if(/^(tìm|gõ để tìm|lọc|search|tra cứu)/i.test(el.placeholder||'')||el.closest('.bar,.filters,.xgfm'))return true;
   if(el.getAttribute('list')||el.dataset.money!=null||el.dataset.fk||el.dataset.fkm||/numeric|decimal|tel|email/.test(el.inputMode||''))return true;const k=(el.name||el.dataset.k||el.id||'');if(SKIPK.test(k)||/(ward|province|district|_prov|_dist)$/i.test(k)||el.dataset.auto==='1')return true;
   const v=el.value||'';if(!v.trim()||/https?:\/\/|@|^[\d\s.,:+\-\/]+$/.test(v))return true;return false}
 function fixText(v,kind){let s=cleanText(v);if(kind==='addr'){if(/\(cũ:/.test(s))return s;const r=normalize(s);if(r&&r.ok)return r.std;return s.split(',').map(p=>{const t=p.trim();return t===t.toLowerCase()?titleCase(t):t}).join(', ')}
@@ -452,6 +452,40 @@ document.addEventListener('focusin',e=>{const el=e.target;if(el&&el.tagName==='T
 window.KFIX={text:fixText,el:fixEl,form:fixForm,clean:cleanText,title:titleCase};
 
 try{if(navigator.geolocation&&navigator.permissions)navigator.permissions.query({name:'geolocation'}).then(s=>{if(s.state==='granted')navigator.geolocation.getCurrentPosition(p=>{BIAS.lat=p.coords.latitude;BIAS.lng=p.coords.longitude},()=>{},{maximumAge:6e5,timeout:5000})}).catch(()=>{})}catch(e){}
+// ---- KPARTY: gợi ý đối tượng thu/chi, vay, nhà cung cấp đã từng nhập (khg_counterparties) ----
+const KP_F=['counterparty','supplier','party','lender','lessor_name','payee','receiver_name'];
+const KP_PH={lender:'lender_phone',lessor_name:'lessor_phone',counterparty:'counterparty_phone',supplier:'supplier_phone',party:'party_phone'};
+const KP_K={thu_chi:'Thu chi',vay:'Cho vay',chi_phi:'Chi phí',phai_tra:'Phải trả',mua_hang:'Mua hàng',thue_xe:'Cho thuê xe',hop_dong:'Hợp đồng',khach:'Khách hàng',doi_tac:'Đối tác',nhan_su:'Nhân sự'};
+let KP_D=null,KP_T=0,KP_P=null;
+const kpSb=()=>{try{return window.KHGSB||(typeof sb!=='undefined'?sb:null)}catch(e){return window.KHGSB||null}};
+function kpLoad(force){if(!force&&KP_D&&Date.now()-KP_T<90e3)return Promise.resolve(KP_D);if(KP_P)return KP_P;const c=kpSb();if(!c)return Promise.resolve(KP_D||[]);
+  KP_P=c.rpc('khg_counterparties').then(({data})=>{KP_D=(Array.isArray(data)?data:[]).map(x=>({...x,_n:N(x.n)}));KP_T=Date.now();return KP_D}).catch(()=>KP_D||[]).finally(()=>KP_P=null);return KP_P}
+const kpMoney=v=>Math.round(+v||0).toLocaleString('vi-VN');
+function kpSub(x){return [(x.k||[]).map(k=>KP_K[k]||k).join(', '),x.ph,+x.loan>0?'đang vay '+kpMoney(x.loan)+' đ':'',+x.pay>0?'còn phải trả '+kpMoney(x.pay)+' đ':'',x.u?x.u+' lần':''].filter(Boolean).join(' · ')}
+function kpMatch(q,list,lim){const qn=N(q),qt=qn.split(' ').filter(Boolean),qd=String(q||'').replace(/\D/g,'');
+  return list.map(x=>{if(!qt.length)return [x,x.u||0];const tk=x._n.split(' ');let s=0;for(const t of qt){const i=tk.findIndex(w=>w.startsWith(t));if(i>=0)s+=i===0?3:2;else if(x._n.includes(t))s+=1;else return null}
+    return [x,s*100+(x.u||0)]}).concat(qd.length>=4?list.filter(x=>String(x.ph||'').replace(/\D/g,'').includes(qd)).map(x=>[x,1e5]):[]).filter(Boolean)
+    .sort((a,b)=>b[1]-a[1]).map(a=>a[0]).filter((x,i,a)=>a.indexOf(x)===i).slice(0,lim||8)}
+const kpEsc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function kpHint(el,x){let h=el._kph;if(!h){h=document.createElement('div');h.className='kp-h';h.style.cssText='font-size:12px;margin-top:3px;color:#2E7D4F';el.insertAdjacentElement('afterend',h);el._kph=h}
+  h.textContent=x?'✓ '+x.n+(kpSub(x)?' – '+kpSub(x):''):'';}
+function kpPick(el,x){el.value=x.n;el._kpx=x;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));
+  const f=el.form||el.closest('form,.card,.modal,body');const pn=KP_PH[el.name];const pe=pn&&f&&f.querySelector(`[name="${pn}"]`);if(pe&&!pe.value&&x.ph){pe.value=x.ph;pe.dispatchEvent(new Event('change',{bubbles:true}))}
+  kpHint(el,x);try{el.dispatchEvent(new CustomEvent('kparty',{detail:x,bubbles:true}))}catch(e){}}
+function kpAttach(el,opt){if(!el||el._kp||el._ta)return;el._kp=1;opt=opt||{};el.setAttribute('autocomplete','off');if(el.getAttribute('list'))el.removeAttribute('list');
+  const box=document.createElement('div');box.className='kp-dd';box.style.cssText='position:fixed;z-index:99999;background:#fff;border:1px solid #D5DBE5;border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,.16);max-height:300px;overflow:auto;display:none;font-size:14px';document.body.appendChild(box);
+  let L=[],ix=-1;const place=()=>{const r=el.getBoundingClientRect();box.style.left=r.left+'px';box.style.top=(r.bottom+2)+'px';box.style.width=Math.max(r.width,260)+'px'};
+  const hide=()=>{box.style.display='none';ix=-1};
+  const draw=()=>{if(!L.length){hide();return}box.innerHTML='<div style="padding:5px 10px;font-size:11px;color:#7A8699;border-bottom:1px solid #EEF1F5">Đã từng nhập – bấm để chọn đúng đối tượng</div>'+L.map((x,i)=>`<div data-i="${i}" style="padding:7px 10px;cursor:pointer;border-bottom:1px solid #F3F5F8;${i===ix?'background:#EEF4FF':''}"><b>${kpEsc(x.n)}</b><div style="font-size:12px;color:#64748B">${kpEsc(kpSub(x))}</div></div>`).join('');place();box.style.display='block'};
+  const run=async()=>{const d=await kpLoad();const q=el.value;L=kpMatch(q,opt.kinds?d.filter(x=>(x.k||[]).some(k=>opt.kinds.includes(k)))||d:d);if(q&&L.length===1&&N(L[0].n)===N(q)){kpHint(el,L[0]);L=[]}ix=-1;if(document.activeElement===el)draw()};
+  box.addEventListener('mousedown',e=>{const t=e.target.closest('[data-i]');if(!t)return;e.preventDefault();kpPick(el,L[+t.dataset.i]);hide()});
+  el.addEventListener('input',()=>{el._kpx=null;if(el._kph)el._kph.textContent='';run()});el.addEventListener('focus',run);
+  el.addEventListener('keydown',e=>{if(box.style.display!=='block')return;if(e.key==='ArrowDown'){ix=Math.min(L.length-1,ix+1);draw();e.preventDefault()}else if(e.key==='ArrowUp'){ix=Math.max(0,ix-1);draw();e.preventDefault()}else if(e.key==='Enter'&&ix>=0){kpPick(el,L[ix]);hide();e.preventDefault()}else if(e.key==='Escape')hide()});
+  el.addEventListener('blur',()=>setTimeout(()=>{hide();const q=el.value.trim();if(!q||el._kpx||!KP_D)return;const ex=KP_D.find(x=>x._n===N(q));if(ex){if(ex.n!==q){el.value=ex.n;el.dispatchEvent(new Event('change',{bubbles:true}))}kpHint(el,ex);return}
+    const m=kpMatch(q,KP_D,2);if(m.length===1&&el._kph!==undefined||m.length===1){const h=el._kph||(kpHint(el,null),el._kph);h.innerHTML='Có phải <a href="#" style="font-weight:700">'+kpEsc(m[0].n)+'</a>? bấm để chọn – hoặc giữ tên mới';h.style.color='#B45309';h.querySelector('a').onclick=ev=>{ev.preventDefault();kpPick(el,m[0])}}},160));
+  window.addEventListener('scroll',()=>{if(box.style.display==='block')place()},true)}
+document.addEventListener('focusin',e=>{const el=e.target;if(!el||el.tagName!=='INPUT'||el._kp||el._ta)return;if(el.hasAttribute('data-party')||(el.name&&KP_F.includes(el.name))){kpAttach(el);if(document.activeElement===el)el.dispatchEvent(new Event('focus'))}},true);
+window.KPARTY={attach:kpAttach,load:kpLoad,match:kpMatch,sub:kpSub,pick:kpPick,labels:KP_K};
 window.KADDR={attach,search,geocode,local,N,NEW,OLD2NEW,newProv,provInText,fill,normalize,wardLocal,kvLoad};gready();
 })();
 /*KADDR-END*/
@@ -657,7 +691,7 @@ KYC.inbox=async(host,ctx)=>{const I=await rpc('khg_ext_inbox');let tab=ctx.tab||
   };await draw();
 };
 
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);window.KHGSB=sb;
 let ACC=null,SH=null,CAT=[],PL=[],LIST=null,CART=[],CUS=null,WH=[];
 const DOMAIN='@taixe.kimhoanggia.vn';
 async function loginView(msg){$('#main').innerHTML=`<div class="card" style="max-width:420px;margin:30px auto"><h2>Đăng nhập quầy</h2>${msg?`<div class="err">${esc(msg)}</div>`:''}

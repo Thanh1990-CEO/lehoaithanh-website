@@ -468,7 +468,7 @@ const SKIPK=/(code|plate|bien_?so|phone|sdt|tel|email|mail|tax|mst|url|link|pass
 const NAMEK=/(full_name|contact|customer_text|^name$|_name$|holder|rep_name|lessor_name|receiver|driver_name|nguoi|party|supplier|short_name)/i;
 const WORDFIX=[[/(^|\s)(ko|k0|hok)(?=\s|$|[,.])/gi,'$1không'],[/(^|\s)đc(?=\s|$|[,.])/gi,'$1được'],[/(^|\s)(sđt|sdt)(?=\s|$|[,.:])/gi,'$1SĐT'],[/(^|\s)cty(?=\s|$|[,.])/gi,'$1Công ty'],[/(^|\s)tnhh(?=\s|$|[,.])/gi,'$1TNHH'],[/(^|\s)mtv(?=\s|$|[,.])/gi,'$1MTV']];
 function kindOf(el){const k=(el.name||el.dataset.k||el.id||'');if(el.matches&&el.matches(SEL))return 'addr';if(/addr|address|pickup|dropoff|dia_chi|station/i.test(k))return 'addr';if(NAMEK.test(k))return 'name';return 'free'}
-function skipEl(el){if(!el||el.readOnly||el.disabled||el.dataset.nofix!=null)return true;if(el.tagName==='INPUT'&&!['text',''].includes((el.getAttribute('type')||'').toLowerCase()))return true;if(/^(tìm|gõ để tìm|lọc|search|tra cứu)/i.test(el.placeholder||'')||el.closest('.bar,.filters,.xgfm'))return true;
+function skipEl(el){if(!el||el.readOnly||el.disabled||el.dataset.nofix!=null)return true;if(/^(match|code|ref|regex)$/.test(el.name||''))return true;if(el.tagName==='INPUT'&&!['text',''].includes((el.getAttribute('type')||'').toLowerCase()))return true;if(/^(tìm|gõ để tìm|lọc|search|tra cứu)/i.test(el.placeholder||'')||el.closest('.bar,.filters,.xgfm'))return true;
   if(el.getAttribute('list')||el.dataset.money!=null||el.dataset.fk||el.dataset.fkm||/numeric|decimal|tel|email/.test(el.inputMode||''))return true;const k=(el.name||el.dataset.k||el.id||'');if(SKIPK.test(k)||/(ward|province|district|_prov|_dist)$/i.test(k)||el.dataset.auto==='1')return true;
   const v=el.value||'';if(!v.trim()||/https?:\/\/|@|^[\d\s.,:+\-\/]+$/.test(v))return true;return false}
 function fixText(v,kind){let s=cleanText(v);if(kind==='addr'){if(/\(cũ:/.test(s))return s;const r=normalize(s);if(r&&r.ok)return r.std;return s.split(',').map(p=>{const t=p.trim();return t===t.toLowerCase()?titleCase(t):t}).join(', ')}
@@ -481,6 +481,40 @@ document.addEventListener('focusin',e=>{const el=e.target;if(el&&el.tagName==='T
 window.KFIX={text:fixText,el:fixEl,form:fixForm,clean:cleanText,title:titleCase};
 
 try{if(navigator.geolocation&&navigator.permissions)navigator.permissions.query({name:'geolocation'}).then(s=>{if(s.state==='granted')navigator.geolocation.getCurrentPosition(p=>{BIAS.lat=p.coords.latitude;BIAS.lng=p.coords.longitude},()=>{},{maximumAge:6e5,timeout:5000})}).catch(()=>{})}catch(e){}
+// ---- KPARTY: gợi ý đối tượng thu/chi, vay, nhà cung cấp đã từng nhập (khg_counterparties) ----
+const KP_F=['counterparty','supplier','party','lender','lessor_name','payee','receiver_name'];
+const KP_PH={lender:'lender_phone',lessor_name:'lessor_phone',counterparty:'counterparty_phone',supplier:'supplier_phone',party:'party_phone'};
+const KP_K={thu_chi:'Thu chi',vay:'Cho vay',chi_phi:'Chi phí',phai_tra:'Phải trả',mua_hang:'Mua hàng',thue_xe:'Cho thuê xe',hop_dong:'Hợp đồng',khach:'Khách hàng',doi_tac:'Đối tác',nhan_su:'Nhân sự'};
+let KP_D=null,KP_T=0,KP_P=null;
+const kpSb=()=>{try{return window.KHGSB||(typeof sb!=='undefined'?sb:null)}catch(e){return window.KHGSB||null}};
+function kpLoad(force){if(!force&&KP_D&&Date.now()-KP_T<90e3)return Promise.resolve(KP_D);if(KP_P)return KP_P;const c=kpSb();if(!c)return Promise.resolve(KP_D||[]);
+  KP_P=c.rpc('khg_counterparties').then(({data})=>{KP_D=(Array.isArray(data)?data:[]).map(x=>({...x,_n:N(x.n)}));KP_T=Date.now();return KP_D}).catch(()=>KP_D||[]).finally(()=>KP_P=null);return KP_P}
+const kpMoney=v=>Math.round(+v||0).toLocaleString('vi-VN');
+function kpSub(x){return [(x.k||[]).map(k=>KP_K[k]||k).join(', '),x.ph,+x.loan>0?'đang vay '+kpMoney(x.loan)+' đ':'',+x.pay>0?'còn phải trả '+kpMoney(x.pay)+' đ':'',x.u?x.u+' lần':''].filter(Boolean).join(' · ')}
+function kpMatch(q,list,lim){const qn=N(q),qt=qn.split(' ').filter(Boolean),qd=String(q||'').replace(/\D/g,'');
+  return list.map(x=>{if(!qt.length)return [x,x.u||0];const tk=x._n.split(' ');let s=0;for(const t of qt){const i=tk.findIndex(w=>w.startsWith(t));if(i>=0)s+=i===0?3:2;else if(x._n.includes(t))s+=1;else return null}
+    return [x,s*100+(x.u||0)]}).concat(qd.length>=4?list.filter(x=>String(x.ph||'').replace(/\D/g,'').includes(qd)).map(x=>[x,1e5]):[]).filter(Boolean)
+    .sort((a,b)=>b[1]-a[1]).map(a=>a[0]).filter((x,i,a)=>a.indexOf(x)===i).slice(0,lim||8)}
+const kpEsc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function kpHint(el,x){let h=el._kph;if(!h){h=document.createElement('div');h.className='kp-h';h.style.cssText='font-size:12px;margin-top:3px;color:#2E7D4F';el.insertAdjacentElement('afterend',h);el._kph=h}
+  h.textContent=x?'✓ '+x.n+(kpSub(x)?' – '+kpSub(x):''):'';}
+function kpPick(el,x){el.value=x.n;el._kpx=x;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));
+  const f=el.form||el.closest('form,.card,.modal,body');const pn=KP_PH[el.name];const pe=pn&&f&&f.querySelector(`[name="${pn}"]`);if(pe&&!pe.value&&x.ph){pe.value=x.ph;pe.dispatchEvent(new Event('change',{bubbles:true}))}
+  kpHint(el,x);try{el.dispatchEvent(new CustomEvent('kparty',{detail:x,bubbles:true}))}catch(e){}}
+function kpAttach(el,opt){if(!el||el._kp||el._ta)return;el._kp=1;opt=opt||{};el.setAttribute('autocomplete','off');if(el.getAttribute('list'))el.removeAttribute('list');
+  const box=document.createElement('div');box.className='kp-dd';box.style.cssText='position:fixed;z-index:99999;background:#fff;border:1px solid #D5DBE5;border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,.16);max-height:300px;overflow:auto;display:none;font-size:14px';document.body.appendChild(box);
+  let L=[],ix=-1;const place=()=>{const r=el.getBoundingClientRect();box.style.left=r.left+'px';box.style.top=(r.bottom+2)+'px';box.style.width=Math.max(r.width,260)+'px'};
+  const hide=()=>{box.style.display='none';ix=-1};
+  const draw=()=>{if(!L.length){hide();return}box.innerHTML='<div style="padding:5px 10px;font-size:11px;color:#7A8699;border-bottom:1px solid #EEF1F5">Đã từng nhập – bấm để chọn đúng đối tượng</div>'+L.map((x,i)=>`<div data-i="${i}" style="padding:7px 10px;cursor:pointer;border-bottom:1px solid #F3F5F8;${i===ix?'background:#EEF4FF':''}"><b>${kpEsc(x.n)}</b><div style="font-size:12px;color:#64748B">${kpEsc(kpSub(x))}</div></div>`).join('');place();box.style.display='block'};
+  const run=async()=>{const d=await kpLoad();const q=el.value;L=kpMatch(q,opt.kinds?d.filter(x=>(x.k||[]).some(k=>opt.kinds.includes(k)))||d:d);if(q&&L.length===1&&N(L[0].n)===N(q)){kpHint(el,L[0]);L=[]}ix=-1;if(document.activeElement===el)draw()};
+  box.addEventListener('mousedown',e=>{const t=e.target.closest('[data-i]');if(!t)return;e.preventDefault();kpPick(el,L[+t.dataset.i]);hide()});
+  el.addEventListener('input',()=>{el._kpx=null;if(el._kph)el._kph.textContent='';run()});el.addEventListener('focus',run);
+  el.addEventListener('keydown',e=>{if(box.style.display!=='block')return;if(e.key==='ArrowDown'){ix=Math.min(L.length-1,ix+1);draw();e.preventDefault()}else if(e.key==='ArrowUp'){ix=Math.max(0,ix-1);draw();e.preventDefault()}else if(e.key==='Enter'&&ix>=0){kpPick(el,L[ix]);hide();e.preventDefault()}else if(e.key==='Escape')hide()});
+  el.addEventListener('blur',()=>setTimeout(()=>{hide();const q=el.value.trim();if(!q||el._kpx||!KP_D)return;const ex=KP_D.find(x=>x._n===N(q));if(ex){if(ex.n!==q){el.value=ex.n;el.dispatchEvent(new Event('change',{bubbles:true}))}kpHint(el,ex);return}
+    const m=kpMatch(q,KP_D,2);if(m.length===1&&el._kph!==undefined||m.length===1){const h=el._kph||(kpHint(el,null),el._kph);h.innerHTML='Có phải <a href="#" style="font-weight:700">'+kpEsc(m[0].n)+'</a>? bấm để chọn – hoặc giữ tên mới';h.style.color='#B45309';h.querySelector('a').onclick=ev=>{ev.preventDefault();kpPick(el,m[0])}}},160));
+  window.addEventListener('scroll',()=>{if(box.style.display==='block')place()},true)}
+document.addEventListener('focusin',e=>{const el=e.target;if(!el||el.tagName!=='INPUT'||el._kp||el._ta)return;if(el.hasAttribute('data-party')||(el.name&&KP_F.includes(el.name))){kpAttach(el);if(document.activeElement===el)el.dispatchEvent(new Event('focus'))}},true);
+window.KPARTY={attach:kpAttach,load:kpLoad,match:kpMatch,sub:kpSub,pick:kpPick,labels:KP_K};
 window.KADDR={attach,search,geocode,local,N,NEW,OLD2NEW,newProv,provInText,fill,normalize,wardLocal,kvLoad};gready();
 })();
 /*KADDR-END*/
@@ -750,7 +784,7 @@ KYC.inbox=async(host,ctx)=>{const I=await rpc('khg_ext_inbox');let tab=ctx.tab||
     const r=await sb.auth.updateUser({password:a,data:{must_change:false}});if(r.error)return e.textContent=r.error.message;d.remove()}})}
   try{sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_IN'||ev==='INITIAL_SESSION')setTimeout(chk,400)})}catch(e){}setTimeout(chk,1200)})();
 
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);window.KHGSB=sb;
 const DOMAIN='@taixe.kimhoanggia.vn';let ME=null,VEH=[],DRV=[],CUS=[],PART=[],PACC=[],CONTR=[],STAFF=[],HIST={cargo:[],vreq:[],sup:[],fsup:[],fst:{},cp:[]},TAB='home',FUELP=29000;
 const ROLES=['admin','quan_ly','ke_toan','dieu_phoi','kinh_doanh'];
 const rs=()=>ME?[ME.role,...(ME.extra_roles||[])]:[];const has=a=>rs().some(r=>a.includes(r));const isAdmin=()=>has(['admin']);
@@ -803,6 +837,7 @@ async function boot(){const {data:s}=await sb.auth.getSession();if(!s?.session)r
   VEH.forEach(x=>{if(!x.partner_name&&x.partner_id){const p=PART.find(y=>y.id===x.partner_id);if(p)x.partner_name=p.short_name||p.name}});
   HIST={cargo:uniq((ho.data||[]).map(x=>x.cargo)),vreq:uniq((ho.data||[]).map(x=>x.vehicle_req)),sup:uniq((he.data||[]).filter(x=>x.category!=='nhien_lieu').map(x=>x.supplier)),fsup:uniq((he.data||[]).filter(x=>x.category==='nhien_lieu').map(x=>x.supplier)),
     fst:Object.fromEntries((he.data||[]).filter(x=>x.station_address).map(x=>[x.supplier,x.station_address])),cp:uniq((pp.data||[]).map(x=>x.counterparty))};
+  try{const {data:cx}=await sb.rpc('khg_counterparties');CPX=Array.isArray(cx)?cx:[]}catch(e){CPX=[]}
   try{const {data:p}=await sb.rpc('khg_fuel_market',{p_date:new Date(Date.now()+7*3600e3).toISOString().slice(0,10),p_type:'dau_diesel'});if(+p>1000)FUELP=Math.round(+p)}catch(e){}
   nav();route()}
 function nav(){const N=[['home','🏠','Trang chủ'],['new','➕','Nhập mới'],['apr','✅','Duyệt'],['recent','🕘','Gần đây']].filter(x=>x[0]!=='apr'||FORMS.find(f=>f.k==='apr'&&ok(f)));
@@ -836,6 +871,7 @@ const fold=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/
 const plN=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 const OWN={so_huu:'Xe KHG',thue_xac:'Xe thuê xác',lien_ket:'Xe liên kết'};
 // src(q) → [{t:'tiêu đề',s:'dòng phụ',v:any}] ; onPick(item) ; giữ được gõ tay
+let CPX=[];const cpSub=x=>window.KPARTY?KPARTY.sub(x):'';const cpSrc=(q,kinds,excl)=>(window.KPARTY?KPARTY.match(q||'',CPX.filter(x=>x._n||(x._n=KADDR.N(x.n))).filter(x=>(!kinds||(x.k||[]).some(k=>kinds.includes(k)))&&!(excl&&excl(x))),6):[]);
 function TA(inp,src,onPick,o={}){if(!inp||inp._ta)return;inp._ta=1;inp.setAttribute('autocomplete','off');const w=inp.parentElement;if(getComputedStyle(w).position==='static')w.style.position='relative';
   const dd=document.createElement('div');dd.className='ta hidden';w.appendChild(dd);let L=[],hi=-1,t=0;
   const close=()=>{dd.classList.add('hidden');hi=-1};
@@ -1159,7 +1195,7 @@ function exp(){$('#main').innerHTML=head('🧾 Chi phí khác')+`<form class="ca
    <div class="savebar"><button class="btn p" id="eSv">💾 Lưu chi phí</button></div><div id="eRes"></div>`;
   $$('[data-money]').forEach(i=>KMONEY.attach&&KMONEY.attach(i));bindPhoto('eF');
   const EV=vehBind('eV',v=>{if(v){const dr=DRV.find(p=>p.vehicle_id===v.id);if(dr&&!EP.text())EP.set(dr)}setTimeout(()=>typeof sugO==='function'&&sugO(),0)});
-  const EPL=()=>[...DRV,...STAFF];const EP={get:()=>$('#eP')._pick&&$('#eP')._pick.v||EPL().find(p=>fold(p.full_name)===fold($('#eP').value))||null,text:()=>$('#eP').value.trim(),set:p=>{$('#eP').value=p?p.full_name:'';$('#eP')._pick=p?{v:p}:null}};TA($('#eS'),srcList(()=>HIST.sup));
+  const EPL=()=>[...DRV,...STAFF];const EP={get:()=>$('#eP')._pick&&$('#eP')._pick.v||EPL().find(p=>fold(p.full_name)===fold($('#eP').value))||null,text:()=>$('#eP').value.trim(),set:p=>{$('#eP').value=p?p.full_name:'';$('#eP')._pick=p?{v:p}:null}};TA($('#eS'),q=>{const a=cpSrc(q,['chi_phi','mua_hang','phai_tra','doi_tac','thu_chi']).map(x=>({t:x.n,s:cpSub(x)}));const n=new Set(a.map(x=>fold(x.t)));return [...a,...srcList(()=>HIST.sup)(q).filter(x=>!n.has(fold(x.t)))].slice(0,8)});
   const pickO=o=>{$('#eO').value=o.code||'';$('#eO')._pick={v:o};$('#eOH').className='hint ok';$('#eOH').textContent='✓ Khách '+[o.customer,o.cust_code?'mã khách '+o.cust_code:'',o.plate,o.route].filter(Boolean).join(' · ');if(o.cust_code&&!$('#eCC').value)$('#eCC').value=o.cust_code;
     if(!EV.get()&&o.vehicle_id){const v=VEH.find(y=>y.id===o.vehicle_id);if(v)EV.set(v)}drawO()};let OL=[];
   const drawO=()=>{const cur=$('#eO')._pick&&$('#eO')._pick.v;$('#eOC').innerHTML=OL.map((o,i)=>`<button type="button" class="btn s ${cur&&cur.id===o.id?'p':'g'}" data-oi="${i}" style="text-align:left;line-height:1.25;font-size:12.5px"><b>${esc(o.code)}</b>${o.cust_code?' · '+esc(o.cust_code):''}<br><small>${esc((o.customer||'').slice(0,28))}${o.same_day?'':' · '+fmtD(o.day)}</small></button>`).join('');$$('[data-oi]').forEach(b=>b.onclick=()=>pickO(OL[+b.dataset.oi]))};
@@ -1195,7 +1231,8 @@ function cash(){$('#main').innerHTML=head('💵 Thu / chi quỹ')+`<form class="
   const P=$('#cP');TA(P,q=>[...CUS.filter(c=>hit(q,c.name,c.phone,c.tax_code)).slice(0,5).map(c=>({t:c.name,s:'Khách hàng'+(c.phone?' · '+c.phone:''),v:{t:'c',x:c}})),
       ...PART.filter(p=>hit(q,p.name,p.short_name,p.phone)).slice(0,4).map(p=>({t:p.short_name||p.name,s:'Đối tác / nhà xe'+(p.phone?' · '+p.phone:''),v:{t:'p',x:p}})),
       ...[...DRV,...STAFF].filter(p=>hit(q,p.full_name,p.phone)).slice(0,4).map(p=>({t:p.full_name,s:(p.role==='tai_xe'?'Tài xế':'Nhân viên')+(p.phone?' · '+p.phone:''),v:{t:'n',x:p}})),
-      ...HIST.cp.filter(x=>hit(q,x)&&!CUS.some(c=>c.name===x)).slice(0,3).map(x=>({t:x,s:'Đã dùng trước đây'}))],x=>{$('#cPH').className='hint ok';$('#cPH').textContent=x.v?'✓ '+x.s:''});
+      ...cpSrc(q,null,x=>CUS.some(c=>c.name===x.n)||PART.some(p=>(p.short_name||p.name)===x.n)||[...DRV,...STAFF].some(p=>p.full_name===x.n)).map(x=>({t:x.n,s:'Đã từng ghi · '+cpSub(x),v:{t:'x',x}}))],x=>{$('#cPH').className='hint ok';$('#cPH').textContent=x.v?'✓ '+x.t+' – '+x.s:''});
+  P.addEventListener('blur',()=>setTimeout(()=>{if(P._pick)return;const q=P.value.trim();if(!q)return;const ex=CPX.find(x=>fold(x.n)===fold(q));if(ex){P.value=ex.n;P._pick={v:{t:'x',x:ex}};$('#cPH').className='hint ok';$('#cPH').textContent='✓ '+ex.n+' – '+cpSub(ex)}},200));
   loadRord().then(()=>TA($('#cO'),q=>{const c=P._pick&&P._pick.v&&P._pick.v.t==='c'?P._pick.v.x:null;return srcOrders(q).filter(o=>!c||o.v.customer_id===c.id)},x=>{if(!P.value.trim()&&x.v.customer){P.value=x.v.customer;const c=CUS.find(y=>y.id===x.v.customer_id);if(c)P._pick={v:{t:'c',x:c}}}}));
   $('#cS').onclick=()=>busy($('#cS'),async()=>{const amt=num($('#cA').value);if(!amt)return toast('Nhập số tiền');if(!P.value.trim())return toast('Nhập đối tượng thu / chi');const pk=P._pick&&P._pick.v,v=CV.get(),od=$('#cO')._pick&&$('#cO')._pick.v;
     const note=[ftxt('cN'),od&&val('cd')==='thu'?'Đơn '+(od.code||''):'',!v&&CV.text()?'Xe '+CV.text():''].filter(Boolean).join(' · ')||null;
