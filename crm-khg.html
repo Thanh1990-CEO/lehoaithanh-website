@@ -432,6 +432,9 @@ function gready(){if(GOOGLE!==null)return Promise.resolve(GOOGLE);let c=null;try
   return gpost({a:'status'}).then(j=>{GOOGLE=!!(j&&j.google);try{sessionStorage.setItem('khg_gpl',GOOGLE?'1':'0')}catch(e){}return GOOGLE}).catch(()=>{GOOGLE=false;return false})}
 async function gac(q,signal){if(!await gready())return [];if(!GST)GST=Math.random().toString(36).slice(2)+Date.now().toString(36);
   const j=await gpost({a:'ac',q,st:GST,lat:BIAS.lat,lng:BIAS.lng},signal);return (j.items||[]).map(x=>({main:x.main,sub:x.sub,gid:x.id,kind:(x.types||[]).includes('street_address')||(x.types||[]).includes('premise')?'Địa chỉ':(x.types||[]).includes('route')?'Đường':(x.types||[]).some(t=>/administrative|locality|sublocality/.test(t))?'Khu vực':'Google Maps',g:1}))}
+const GLK=/^(https?:\/\/)?((maps\.app\.goo\.gl|goo\.gl)\/|((www|maps)\.)?google\.[a-z.]{2,8}\/maps)/i,GXY=/^\s*(-?\d{1,2}\.\d{3,})\s*[,;\s]\s*(-?\d{2,3}\.\d{3,})\s*$/;
+const GMH=q=>`<div class="h gmh" style="color:#555">Không thấy đúng chỗ? <a data-gm style="color:#1a73e8;cursor:pointer;font-weight:600">🔎 Mở Google Maps tìm “${esc(String(q||'').slice(0,40))}”</a> → bấm <b>Chia sẻ</b> → <b>Sao chép đường liên kết</b> → dán vào ô này (hoặc dán tọa độ 10.77, 106.70)</div>`;
+const GMO=q=>{try{window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(String(q||'').trim()),'_blank','noopener')}catch(e){}};
 async function gdetail(id){const j=await gpost({a:'detail',id,st:GST,lat:BIAS.lat,lng:BIAS.lng});GST='';return j&&!j.error?j:null}
 // tỉnh/thành mới từ tên bất kỳ (mới, cũ, có/không dấu, có tiền tố)
 function newProv(name){const n=N(name).replace(PRE,'').replace(/^(thanh pho|tinh)\s+/,'');if(!n)return '';if(/^(ho chi minh|hcm|sai gon)/.test(n))return 'TP. Hồ Chí Minh';
@@ -469,8 +472,8 @@ function injectCss(){if(document.getElementById('kadcss'))return;const s=documen
 function attach(inp,onPick){if(!inp||inp._kad)return;inp._kad=1;injectCss();inp.setAttribute('autocomplete','off');const wrap=inp.parentElement;if(getComputedStyle(wrap).position==='static')wrap.style.position='relative';
   let box=null,items=[],idx=-1,t=null,seq=0;const close=()=>{box&&box.remove();box=null;idx=-1};
   const show=(list,head)=>{close();items=list;if(!list.length)return;box=document.createElement('div');box.className='kad';
-    box.innerHTML=(head?`<div class="h">${head}</div>`:'')+list.map((x,i)=>`<div data-i="${i}"><div style="flex:1"><b>${esc(x.main)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}</div>${x.kind?`<i>${esc(x.kind)}</i>`:''}</div>`).join('')+`<div class="h">${list.some(x=>x.g)?'Dữ liệu Google Maps':'Bản đồ © OpenStreetMap'} · tự điền phường/xã, tỉnh/thành mới (34 tỉnh, 3.321 xã phường từ 01/07/2025)</div>`;
-    box.onmousedown=e=>{const d=e.target.closest('[data-i]');if(!d)return;e.preventDefault();pick(+d.dataset.i)};wrap.appendChild(box)};
+    box.innerHTML=(head?`<div class="h">${head}</div>`:'')+list.map((x,i)=>`<div data-i="${i}"><div style="flex:1"><b>${esc(x.main)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}</div>${x.kind?`<i>${esc(x.kind)}</i>`:''}</div>`).join('')+`<div class="h">${list.some(x=>x.g)?'Dữ liệu Google Maps':'Bản đồ © OpenStreetMap'} · tự điền phường/xã, tỉnh/thành mới (34 tỉnh, 3.321 xã phường từ 01/07/2025)</div>${GMH(inp.value)}`;
+    box.onmousedown=e=>{if(e.target.closest('[data-gm]')){e.preventDefault();GMO(inp.value);return}const d=e.target.closest('[data-i]');if(!d)return;e.preventDefault();pick(+d.dataset.i)};wrap.appendChild(box)};
   const pick=i=>{const x=items[i];if(!x)return;if(x.val){close();inp.value=x.val;inp._geo={lat:null,lng:null,prov:false,c:x.c};fill(inp,x.c);geocode(x.c.street?x.val:x.val).then(g=>{if(g&&inp._geo){inp._geo.lat=g.lat;inp._geo.lng=g.lng;onPick&&onPick({addr:inp.value,lat:g.lat,lng:g.lng,prov:false,kind:x.kind,c:x.c})}}).catch(()=>{});onPick&&onPick({addr:inp.value,lat:null,lng:null,prov:false,kind:x.kind,c:x.c});inp.dispatchEvent(new Event('picked'));if(x.ward&&!x.norm)setTimeout(()=>{inp.focus();inp.setSelectionRange(0,0)},30);return}const old=/ \(cũ\)$/.test(x.main);
     inp.value=old?x.main.replace(' (cũ)','')+', '+x.sub.split(' · ')[0].replace('Nay thuộc ',''):x.prov?x.main:x.main+(x.sub?', '+x.sub.replace(/ \(nay thuộc ([^)]*)\)/,', $1'):'');
     const done=(c)=>{inp._geo={lat:x.lat,lng:x.lng,prov:!!x.prov,c};if(x.lat!=null)remember(x);fill(inp,c);onPick&&onPick({addr:inp.value,lat:x.lat,lng:x.lng,prov:!!x.prov,kind:x.kind,c});inp.dispatchEvent(new Event('picked'))};
@@ -479,9 +482,13 @@ function attach(inp,onPick){if(!inp||inp._kad)return;inp._kad=1;injectCss();inp.
     if(x.prov)setTimeout(()=>{inp.focus();inp.setSelectionRange(0,0)},30)};
   inp.addEventListener('paste',()=>setTimeout(()=>{kvLoad().then(()=>inp.dispatchEvent(new Event('input')))},0));inp.addEventListener('focus',()=>{kvLoad();if(!inp.value.trim()){const h=hist();if(h.length)show(h,'Địa chỉ đã dùng gần đây')}});
   inp.addEventListener('input',()=>{inp._geo=null;onPick&&onPick(null);clearTimeout(t);const q=inp.value.trim();if(q.length<2){close();return}
+    if(GLK.test(q)||GXY.test(q)){const my=++seq;close();box=document.createElement('div');box.className='kad';box.innerHTML='<div class="ld">📍 Đang đọc vị trí từ Google Maps…</div>';wrap.appendChild(box);
+      const m=q.match(GXY);gpost(m?{a:'rev',lat:+m[1],lng:+m[2]}:{a:'link',u:q}).then(j=>{if(my!==seq)return;if(!j||j.error||j.lat==null){close();box=document.createElement('div');box.className='kad';box.innerHTML='<div class="ld">'+esc((j&&j.error)||'Không đọc được link')+(j&&j.name?' · thử gõ: '+esc(j.name):'')+'</div>';wrap.appendChild(box);if(j&&j.name){inp.value=j.name;setTimeout(()=>inp.dispatchEvent(new Event('input')),400)}return}
+        const addr=(j.address||'').replace(/, Việt Nam$/,'');const nm=j.name&&!addr.startsWith(j.name)?j.name:'';const x={main:nm||addr.split(',')[0]||(j.lat.toFixed(5)+', '+j.lng.toFixed(5)),sub:nm?addr:addr.split(',').slice(1).join(',').trim(),lat:j.lat,lng:j.lng,kind:'Google Maps',c:{province:newProv(j.province||'')||provInText(addr),district:j.district&&j.district!==j.province?j.district:'',ward:j.ward||'',street:j.street||''}};
+        show([x],'📍 Vị trí từ link/tọa độ Google Maps – bấm để chọn');pick(0)}).catch(()=>{close()});return}
     const NR=(q.includes(',')||q.split(' ').length>=4)?normalize(q):null;const L=[...(NR?[{main:NR.std,sub:(NR.ok?'✓ Đã chuẩn hoá theo phường/xã mới':'Đã chuẩn hoá chữ, dấu phẩy')+(NR.old?' · cũ: '+NR.old:''),kind:'Chuẩn hoá',val:NR.std,c:NR.c,norm:1}]:[]),...wardLocal(q),...local(q)].slice(0,9);if(L.length)show(L);const my=++seq;
     t=setTimeout(async()=>{if(!box&&!L.length){show([]);box=document.createElement('div');box.className='kad';box.innerHTML='<div class="ld">Đang tìm…</div>';wrap.appendChild(box)}
-      try{const R0=await search(q);if(my!==seq)return;const R=[...L.filter(x=>x.ward||x.norm),...R0.filter(x=>!L.some(l=>l.ward&&N(l.main)===N(x.main)))].slice(0,10);if(R.length)show(R);else{close();box=document.createElement('div');box.className='kad';box.innerHTML='<div class="ld">Chưa thấy – nhập thêm tên đường, phường/xã, tỉnh/thành</div>';wrap.appendChild(box)}}catch(e){}},180)});
+      try{const R0=await search(q);if(my!==seq)return;const R=[...L.filter(x=>x.ward||x.norm),...R0.filter(x=>!L.some(l=>l.ward&&N(l.main)===N(x.main)))].slice(0,10);if(R.length)show(R);else{close();box=document.createElement('div');box.className='kad';box.innerHTML='<div class="ld">Chưa thấy – nhập thêm tên đường, phường/xã, tỉnh/thành</div>'+GMH(q);box.onmousedown=e=>{if(e.target.closest('[data-gm]')){e.preventDefault();GMO(q)}};wrap.appendChild(box)}}catch(e){}},180)});
   inp.addEventListener('keydown',e=>{if(!box)return;const ds=[...box.querySelectorAll('[data-i]')];
     if(e.key==='ArrowDown'){idx=Math.min(ds.length-1,idx+1);e.preventDefault()}else if(e.key==='ArrowUp'){idx=Math.max(0,idx-1);e.preventDefault()}else if(e.key==='Enter'&&idx>=0){e.preventDefault();pick(idx);return}else if(e.key==='Escape'){close();return}else return;
     ds.forEach((d,j)=>d.classList.toggle('on',j===idx));ds[idx]&&ds[idx].scrollIntoView({block:'nearest'})});
@@ -5718,7 +5725,7 @@ function v42OrderBox(frm,row,kind){const g=k=>frm.elements.namedItem(k);const oh
   let t=0;const load=()=>{clearTimeout(t);t=setTimeout(async()=>{const q=$('#v42Q').value.trim();const d=(v42ElDay(frm,kind)||{}).value||null;const v=vid();const pt=(g('vehicle_id__t')||{}).value||'';
       if(!q&&!v&&!pt){L=[];$('#v42H').textContent='Chọn xe và ngày → hiện các đơn xe đó chạy hôm đó';show();return}
       const {data,error}=await sb.rpc('khg_order_suggest',{p_vehicle:q?null:v,p_day:q?null:d,p_q:q||null,p_plate:q||v?null:pt||null,p_limit:q?20:30});if(error){$('#v42H').textContent=error.message;return}
-      L=data||[];$('#v42H').textContent=q?`Kết quả tìm “${q}”`:`Đơn của ${pt||'xe'} quanh ngày ${fmtD(d)}`+(L.length&&!L.some(o=>o.same_day)?' (không có đúng ngày – hiện ngày gần nhất)':'');show();
+      L=Array.isArray(data)?data:[];$('#v42H').textContent=q?`Kết quả tìm “${q}”`:`Đơn của ${pt||'xe'} quanh ngày ${fmtD(d)}`+(L.length&&!L.some(o=>o.same_day)?' (không có đúng ngày – hiện ngày gần nhất)':'');show();
       const cur=L.find(o=>o.id===oh.value);if(cur)summ(cur)},250)};
   $('#v42Q').addEventListener('input',load);const dEl=v42ElDay(frm,kind);if(dEl)dEl.addEventListener('change',load);
   ['vehicle_id__t'].forEach(k=>{const e=g(k);if(e){e.addEventListener('change',load);e.addEventListener('input',()=>setTimeout(load,50))}});
@@ -6290,11 +6297,11 @@ Object.assign(PILL,{todo:'',doing:'blue',review:'amber',done:'green',cancel:'red
 E.mua_vt=Object.assign({},E.purchases,{title:"Mua vật tư, phụ tùng, hàng hóa"});
 Object.assign(E,{
   tasks:{table:'khg_tasks',title:'Công việc',order:['due_at',true],search:['code','title','description','related_label'],label:'title',filters:[['status','tk_status'],['priority','tk_pri'],['assignee_id','@people'],['project_id','@projects']],
-    f:[{k:'code',l:'Mã',t:'text',ro:true,list:true},{k:'title',l:'Việc cần làm',t:'text',list:true,req:true},{k:'project_id',l:'Dự án / nhóm việc',t:'fk',ref:'projects',list:true},{k:'assignee_id',l:'Người thực hiện',t:'fk',ref:'people',list:true},
+    f:[{k:'code',l:'Mã',t:'text',ro:true,list:true},{k:'title',l:'Việc cần làm',t:'text',list:true,req:true},{k:'project_id',l:'Dự án / nhóm việc',t:'fk',ref:'tprojects',list:true},{k:'assignee_id',l:'Người thực hiện',t:'fk',ref:'people',list:true},
       {k:'status',l:'Trạng thái',t:'sel',o:'tk_status',def:'todo',list:true},{k:'priority',l:'Ưu tiên',t:'sel',o:'tk_pri',def:'tb',list:true},{k:'start_date',l:'Bắt đầu',t:'date'},{k:'due_at',l:'Hạn hoàn thành',t:'dt',list:true},
       {k:'recur',l:'Lặp lại',t:'sel',o:'tk_recur',def:''},{k:'estimate_h',l:'Ước tính (giờ)',t:'num'},{k:'spent_h',l:'Đã làm (giờ)',t:'num'},{k:'description',l:'Mô tả, yêu cầu',t:'area'},
       {k:'tags',l:'Thẻ',t:'arr'},{k:'related_label',l:'Liên quan (đơn, khách, xe, hợp đồng…)',t:'text'},{k:'result',l:'Kết quả',t:'area'},{k:'done_at',l:'Hoàn thành lúc',t:'dt',ro:true}]},
-  projects:{table:'khg_task_projects',title:'Dự án / nhóm việc',order:['created_at',false],search:['name','description'],label:'name',
+  tprojects:{table:'khg_task_projects',title:'Dự án / nhóm việc',order:['created_at',false],search:['name','description'],label:'name',
     f:[{k:'name',l:'Tên dự án / nhóm việc',t:'text',list:true,req:true},{k:'owner_id',l:'Phụ trách',t:'fk',ref:'people',list:true},{k:'status',l:'Trạng thái',t:'sel',o:'pj_status',def:'dang_chay',list:true},{k:'start_date',l:'Bắt đầu',t:'date',list:true},{k:'due_date',l:'Hạn',t:'date',list:true},{k:'description',l:'Mục tiêu, phạm vi',t:'area'}]},
   price_lists:{table:'khg_dms_price_lists',title:'Bảng giá',order:['priority',true],search:['code','name'],label:'name',filters:[['kind','pl_kind']],
     f:[{k:'code',l:'Mã',t:'text',list:true,req:true},{k:'name',l:'Tên bảng giá',t:'text',list:true,req:true},{k:'kind',l:'Loại',t:'sel',o:'pl_kind',def:'le',list:true},{k:'rule',l:'Cách tính',t:'sel',o:'pl_rule',def:'bang',list:true},{k:'rule_value',l:'Tỷ lệ % (nếu tính theo %)',t:'num',list:true},
@@ -6315,7 +6322,7 @@ Object.assign(E,{
 });
 O.doc_obj={kh_van_tai:'Khách hàng vận tải',kh_kho:'Khách thuê kho, bốc xếp, xe nâng, cẩu',diem_ban:'Đại lý, điểm bán',ncc_hang:'Nhà cung cấp hàng hóa',doi_tac_xe:'Đối tác xe liên kết',tai_xe_khg:'Tài xế KHG',tai_xe_fd:'Tài xế Fast Driver',kh_thue_tx:'Khách thuê tài xế',nhan_vien:'Nhân viên',ncc_dv:'Nhà cung cấp dịch vụ'};
 const DOC_ENT={kh_van_tai:'customers',kh_kho:'customers',kh_thue_tx:'customers',diem_ban:'dms_outlets',ncc_hang:'dms_suppliers',ncc_dv:'dms_suppliers',doi_tac_xe:'partners',tai_xe_khg:'people',nhan_vien:'people',tai_xe_fd:'fd_drivers'};
-Object.assign(ENT_VIEW,{tasks:'tasks',projects:'tasks',price_lists:'sales',purchases:'sales',pos_shifts:'sales',doc_issued:'docs',doc_templates:'docs',targets:'exec'});
+Object.assign(ENT_VIEW,{tasks:'tasks',tprojects:'tasks',price_lists:'sales',purchases:'sales',pos_shifts:'sales',doc_issued:'docs',doc_templates:'docs',targets:'exec'});
 // ================= CÔNG VIỆC =================
 async function taskView(id,after){const {data:t}=await sb.from('khg_tasks').select('*').eq('id',id).maybeSingle();if(!t)return;const {data:C}=await sb.from('khg_task_comments').select('*').eq('task_id',id).order('created_at');await ensureRef('people');
   const cl=Array.isArray(t.checklist)?t.checklist:[];
@@ -6332,7 +6339,7 @@ async function taskView(id,after){const {data:t}=await sb.from('khg_tasks').sele
   $$('[data-st]').forEach(b=>b.onclick=async()=>{const {error}=await sb.from('khg_tasks').update({status:b.dataset.st}).eq('id',id);toast(error?error.message:'Đã cập nhật');closeModal();after&&after()});
   $('#tkE').onclick=()=>{closeModal();openForm('tasks',t,after)}}
 const PILLS=t=>`<span class="pill ${PILL[t.status]||''}">${O.tk_status[t.status]}</span> <span class="pill ${PILL[t.priority]||''}">${O.tk_pri[t.priority]}</span>`;
-async function taskBoard(host,mine){await ensureRef('people');await ensureRef('projects');
+async function taskBoard(host,mine){await ensureRef('people');await ensureRef('tprojects');
   let q=sb.from('khg_tasks').select('*').neq('status','cancel').order('due_at',{ascending:true,nullsFirst:false}).limit(800);if(mine&&ME)q=q.eq('assignee_id',ME.id);const {data}=await q;const rows=data||[];
   const now=Date.now(),late=rows.filter(t=>t.status!=='done'&&t.due_at&&new Date(t.due_at)<now),today=rows.filter(t=>t.status!=='done'&&t.due_at&&new Date(t.due_at).toDateString()===new Date().toDateString());
   const done30=rows.filter(t=>t.status==='done'&&t.done_at&&now-new Date(t.done_at)<30*864e5);const ontime=done30.filter(t=>!t.due_at||new Date(t.done_at)<=new Date(t.due_at)).length;
@@ -6341,7 +6348,7 @@ async function taskBoard(host,mine){await ensureRef('people');await ensureRef('p
     <div class="kpi"><div class="l">Đang làm / chờ duyệt</div><div class="v">${rows.filter(t=>t.status==='doing').length} / ${rows.filter(t=>t.status==='review').length}</div><div class="h">&nbsp;</div></div><div class="kpi"><div class="l">Hoàn thành đúng hạn (30 ngày)</div><div class="v">${done30.length?Math.round(ontime*100/done30.length):0}%</div><div class="h">${ontime}/${done30.length} việc</div></div></div>
    <div style="display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:10px;overflow-x:auto">${['todo','doing','review','done'].map(s=>{const L=rows.filter(t=>t.status===s).slice(0,60);return `<div class="card" style="padding:10px;margin:0;min-height:240px" data-col="${s}"><div style="display:flex;justify-content:space-between"><b>${O.tk_status[s]}</b><span class="pill">${rows.filter(t=>t.status===s).length}</span></div>
      ${L.map(t=>{const lt=t.status!=='done'&&t.due_at&&new Date(t.due_at)<now;const cl=Array.isArray(t.checklist)?t.checklist:[];return `<div draggable="true" data-tk="${t.id}" style="border:1px solid ${lt?'#F2B8B8':'var(--line)'};border-left:4px solid ${t.priority==='gap'?'#C8102E':t.priority==='cao'?'#B5651D':'#CBD5E1'};border-radius:10px;padding:8px;margin-top:6px;cursor:pointer;background:#fff">
-       <b style="font-size:13px">${esc(t.title)}</b><div class="sub" style="margin:2px 0 0;font-size:12px">${esc(REF.people?.[t.assignee_id]||'')}${t.due_at?` · ${lt?'⚠️ ':''}hạn ${fmtD(t.due_at)}`:''}${cl.length?` · ☑ ${cl.filter(x=>x.ok).length}/${cl.length}`:''}${t.project_id?' · '+esc(REF.projects?.[t.project_id]||''):''}${t.recur?' · 🔁':''}</div></div>`}).join('')}</div>`}).join('')}</div>
+       <b style="font-size:13px">${esc(t.title)}</b><div class="sub" style="margin:2px 0 0;font-size:12px">${esc(REF.people?.[t.assignee_id]||'')}${t.due_at?` · ${lt?'⚠️ ':''}hạn ${fmtD(t.due_at)}`:''}${cl.length?` · ☑ ${cl.filter(x=>x.ok).length}/${cl.length}`:''}${t.project_id?' · '+esc(REF.tprojects?.[t.project_id]||''):''}${t.recur?' · 🔁':''}</div></div>`}).join('')}</div>`}).join('')}</div>
    <p class="sub">Kéo thẻ để đổi trạng thái · bấm vào thẻ để xem danh mục kiểm tra và trao đổi. Việc lặp lại tự sinh việc mới khi hoàn thành. Người được giao, người giao nhận thông báo khi có thay đổi.</p>`;
   const reload=()=>taskBoard(host,mine);
   host.querySelectorAll('[data-tk]').forEach(c=>{c.ondragstart=e=>e.dataTransfer.setData('t',c.dataset.tk);c.onclick=()=>taskView(c.dataset.tk,reload)});
@@ -6351,7 +6358,7 @@ async function taskBoard(host,mine){await ensureRef('people');await ensureRef('p
 VIEWS.tasks=async m=>{m.innerHTML=`<h2>Quản lý công việc</h2><p class="sub">Giao việc, theo dõi hạn, danh mục kiểm tra, trao đổi trong từng việc, việc lặp lại hằng ngày/tuần/tháng, dự án. Thông báo tự gửi tới người được giao (CRM và bot Telegram).</p>
   <div class="subtabs" id="tkt">${[['me','Việc của tôi'],['all','Bảng việc toàn công ty'],['ls','Danh sách'],['pj','Dự án / nhóm việc'],['bc','Hiệu suất']].map(([k,l],i)=>`<button data-s="${k}" class="${i?'':'on'}">${l}</button>`).join('')}</div><div id="tkh"></div>`;
   const sw=async n=>{m.querySelectorAll('#tkt button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));const h=$('#tkh');h.innerHTML='<div class="empty">Đang tải…</div>';
-    if(n==='me')await taskBoard(h,true);if(n==='all')await taskBoard(h,false);if(n==='ls')await renderList('tasks',h,{onOpen:(r,load)=>taskView(r.id,load)});if(n==='pj')await renderList('projects',h,{});
+    if(n==='me')await taskBoard(h,true);if(n==='all')await taskBoard(h,false);if(n==='ls')await renderList('tasks',h,{onOpen:(r,load)=>taskView(r.id,load)});if(n==='pj')await renderList('tprojects',h,{});
     if(n==='bc'){await ensureRef('people');const {data}=await sb.from('khg_tasks').select('assignee_id,status,due_at,done_at,spent_h').gte('created_at',new Date(Date.now()-90*864e5).toISOString()).limit(5000);const P={};
       (data||[]).forEach(t=>{const k=t.assignee_id||'x';const p=P[k]=P[k]||{n:0,done:0,ontime:0,late:0,h:0};p.n++;if(t.status==='done'){p.done++;if(!t.due_at||new Date(t.done_at)<=new Date(t.due_at))p.ontime++}else if(t.due_at&&new Date(t.due_at)<Date.now())p.late++;p.h+=Number(t.spent_h||0)});
       h.innerHTML=`<p class="sub">90 ngày gần nhất.</p><div class="tw"><table><thead><tr><th>Nhân sự</th><th class="n">Việc</th><th class="n">Hoàn thành</th><th class="n">Đúng hạn</th><th class="n">Đang trễ</th><th class="n">Giờ làm</th></tr></thead><tbody>${Object.entries(P).sort((a,b)=>b[1].n-a[1].n).map(([k,p])=>`<tr><td>${esc(REF.people?.[k]||'Chưa giao')}</td><td class="n">${p.n}</td><td class="n">${p.done} (${Math.round(p.done*100/p.n)}%)</td><td class="n">${p.done?Math.round(p.ontime*100/p.done):0}%</td><td class="n">${p.late}</td><td class="n">${fmtN(p.h)}</td></tr>`).join('')}</tbody></table></div>`}};
@@ -6636,6 +6643,330 @@ Object.assign(NAV_LBL,{reports:'Báo cáo CEO & HĐKD',crm:'Lead & cơ hội bá
 // các màn hình đã nằm trong Báo cáo CEO & HĐKD → không hiện thêm ở nhóm "Khác"
 {const _nav=nav;const HIDE=['overview','analytics','pnl','ceo','exec'];nav=function(){const T=TABS.filter(t=>HIDE.includes(t[0]));T.forEach(t=>t.__h=t[2]);
   const keep=TABS.slice();for(let i=TABS.length-1;i>=0;i--)if(HIDE.includes(TABS[i][0]))TABS.splice(i,1);try{return _nav.apply(this,arguments)}finally{TABS.length=0;keep.forEach(t=>TABS.push(t))}}}
+
+
+// ===================== v49 · BẢNG GIÁ CHỐT THEO DỰ ÁN (KH & NCC) · ĐƠN HÀNG GỌN · LÃI LỖ DỰ ÁN · CẢNH BÁO CEO =====================
+Object.assign(O,{ps_side:{kh:'Giá bán cho khách hàng',ncc:'Giá mua của nhà xe / NCC'},ps_status:{dang_ap_dung:'Đang áp dụng',ngung:'Ngừng áp dụng',nhap:'Bản nháp'},
+  op_mode:{so_huu:'🚚 Xe sở hữu KHG',lien_ket:'🤝 Xe liên kết đối tác',khac:'📄 Khác (thuê xác / thuê ngoài)'}});
+const PSV=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[đĐ]/g,'d').toLowerCase();
+const psCls=x=>{const n=Number(String(x).replace(',','.'));return isFinite(n)?n:null};
+const psClsL=c=>String(c).replace('.',',')+'T';
+function v49Css(){if(document.getElementById('v49Css'))return;const s=document.createElement('style');s.id='v49Css';s.textContent=`
+.v49b{grid-column:1/-1;border-radius:12px;padding:10px 12px;font-size:13px;border:1px solid #D6E4F5;background:#F5F9FF}
+.v49b h4{margin:0 0 6px;font-size:14px}.v49b .sub{margin:2px 0}.v49b select,.v49b input{font-size:13px}
+.v49g{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}.v49g label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:#374151}
+.v49chips{display:flex;gap:6px;flex-wrap:wrap}.v49chips button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;cursor:pointer;font-size:12.5px}
+.v49chips button.on{background:#1D4ED8;color:#fff;border-color:#1D4ED8}
+.v49mode{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}.v49mode label{flex:1 1 200px;display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:600;background:#fff}
+.v49mode label.on{border-color:#1D4ED8;background:#EFF6FF}.v49mode input{width:auto}
+.v49warn{background:#FEF2F2;border-color:#FECACA;color:#991B1B}.v49ok{background:#F0FDF4;border-color:#BBF7D0}
+.v49pill{display:inline-block;border-radius:99px;padding:1px 8px;font-size:11.5px;font-weight:700}.v49pill.r{background:#FEE2E2;color:#B91C1C}.v49pill.g{background:#DCFCE7;color:#166534}.v49pill.a{background:#FEF3C7;color:#92400E}
+table.v49t{border-collapse:collapse;font-size:12.5px;width:100%}table.v49t th,table.v49t td{border-bottom:1px solid #EEF0F3;padding:5px 6px;white-space:nowrap;text-align:left}table.v49t td.n,table.v49t th.n{text-align:right}
+table.v49t tr.pick{cursor:pointer}table.v49t tr.pick:hover td{background:#EFF6FF}table.v49t input{width:100%;min-width:0;box-sizing:border-box;padding:4px 5px;font-size:12.5px}
+.v49w{overflow:auto;max-height:60vh;border:1px solid var(--line);border-radius:10px;background:#fff}.v49w th{position:sticky;top:0;background:#F9FAFB;z-index:1}
+
+.opp label:has(> #opOn){display:none}td.lo{background:#FEE2E2!important;color:#991B1B;font-weight:700}td.mid{background:#FEF3C7!important}td.hi{background:#ECFDF5!important}`;document.head.appendChild(s)}
+try{v49Css()}catch(e){}
+
+// ---------- tra giá theo bảng giá ----------
+function psTok(area){return String(area||'').split(/[,;+]|\s[-–]\s/).map(t=>PSV(t).replace(/\(.*?\)/g,' ').replace(/^\s*(tp|tx|tt|h|q|p|x)\s*\.\s*/,'').replace(/^\s*(quan|huyen|thi xa|thanh pho|thi tran|phuong|xa|kcn|khu cong nghiep)\s+/,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()).filter(t=>t.length>=1)}
+function psMatch(rows,addr){const A=' '+PSV(addr).replace(/[^a-z0-9]+/g,' ')+' ';let cur='';const out=[];
+  rows.forEach(r=>{if(r.province)cur=r.province;const pv=r.province||cur;let s=0,why=[];
+    const pp=PSV(pv).replace(/[^a-z0-9 -]/g,' ').split(/\s*-\s*/).map(x=>x.replace(/^(tp|tinh|thanh pho)\s+/,'').trim()).filter(x=>x.length>=3);
+    const pv2=pp.flatMap(x=>x==='ho chi minh'?[x,'hcm','sai gon','tphcm']:[x]);if(pv2.some(x=>A.includes(' '+x+' ')||A.includes(' '+x.replace(/ /g,'')+' '))){s+=3;why.push('tỉnh')}
+    const rest=/con lai/.test(PSV(r.area));let hit=0;
+    if(!rest)psTok(r.area).forEach(t=>{if(/^\d+$/.test(t)){if(new RegExp('\\b(quan|q)\\s*0?'+t+'\\b').test(A))hit++}else if(t.length>=3&&A.includes(' '+t+' '))hit++});
+    if(hit){s+=5+hit;why.push('khu vực')}else if(rest&&s)s+=1;
+    out.push({r,pv,s,why})});
+  out.sort((a,b)=>b.s-a.s);return out}
+function psPickCls(sheet,{weight,req}){const cl=(sheet.classes||[]).map(psCls).filter(x=>x!=null).sort((a,b)=>a-b);if(!cl.length)return null;
+  const w=Number(weight)||0;const rq=String(req||'').match(/(\d+(?:[.,]\d+)?)\s*(t|tấn|tan)/i);const want=rq?Number(rq[1].replace(',','.')):w;
+  if(!want)return String(cl[0]);const hit=cl.find(c=>c>=want-1e-9);return String(hit!=null?hit:cl[cl.length-1])}
+const psPrice=(row,cls)=>{if(!row)return null;const p=row.prices||{};const v=p[cls]??p[String(Number(cls))]??p[String(cls).replace('.',',')];return v==null||v===''?null:Number(v)};
+const PSC={};async function psSheets(f){const k=JSON.stringify(f);if(PSC[k]&&Date.now()-PSC[k].t<60e3)return PSC[k].v;
+  let q=sb.from('khg_price_sheets').select('*').is('archived_at',null).neq('status','ngung');Object.entries(f).forEach(([a,b])=>{q=b===null?q.is(a,null):q.eq(a,b)});
+  const {data}=await q.order('valid_from',{ascending:false,nullsFirst:false});PSC[k]={t:Date.now(),v:data||[]};return data||[]}
+const PSR={};async function psRows(id){if(PSR[id]&&Date.now()-PSR[id].t<60e3)return PSR[id].v;const {data}=await sb.from('khg_price_sheet_rows').select('*').eq('sheet_id',id).is('archived_at',null).order('sort');PSR[id]={t:Date.now(),v:data||[]};return data||[]}
+const psClear=()=>{Object.keys(PSC).forEach(k=>delete PSC[k]);Object.keys(PSR).forEach(k=>delete PSR[k])};
+async function psFor(side,{project,customer,partner}){
+  if(side==='kh'){if(project){const a=await psSheets({side:'kh',project_id:project});if(a.length)return a[0]}if(customer){const b=await psSheets({side:'kh',customer_id:customer,project_id:null});if(b.length)return b[0]}return null}
+  if(partner){if(project){const a=await psSheets({side:'ncc',partner_id:partner,project_id:project});if(a.length)return a[0]}const b=await psSheets({side:'ncc',partner_id:partner,project_id:null});if(b.length)return b[0]}return null}
+
+// ---------- đọc bảng giá dán từ Excel / file ----------
+function psParse(grid){// grid: mảng các dòng (mảng ô)
+  const clsRe=/^\s*(\d+(?:[.,]\d+)?)\s*(t|tấn|tan|tons?)\b/i;let hi=-1,cols=[];
+  for(let i=0;i<Math.min(grid.length,15);i++){const c=[];(grid[i]||[]).forEach((v,j)=>{const m=String(v??'').match(clsRe);if(m)c.push([j,String(Number(m[1].replace(',','.')))])});if(c.length>=2){hi=i;cols=c;break}}
+  if(hi<0)return {error:'Không thấy dòng tiêu đề loại xe (VD: 2,5T · 3,5T · 5T · 8T · 15T)'};
+  const cntN=j=>grid.slice(hi+1).filter(r=>isFinite(Number(String((r||[])[j]??'').replace(/[^\d.,]/g,'').replace(/[.,](?=\d{3}(\D|$))/g,'').replace(',','.')))&&Number(String((r||[])[j]??'').replace(/[^\d.,]/g,'').replace(/[.,](?=\d{3}(\D|$))/g,'').replace(',','.'))>=1000).length;
+  const best={};cols.forEach(([j,c])=>{const n=cntN(j);if(!best[c]||n>best[c][1])best[c]=[j,n]});cols=cols.filter(([j,c])=>best[c][0]===j&&best[c][1]>0);
+  const firstPrice=Math.min(...cols.map(c=>c[0]));const out=[];let prov='',region='';
+  const H=(grid[hi]||[]).map(x=>PSV(x));const hc=re=>H.findIndex((h,j)=>j<firstPrice&&re.test(h));const cP=hc(/tinh|thanh pho|province/),cA=hc(/khu vuc|quan|huyen|dia ban|tuyen|area/),cT=H.findIndex(h=>/thoi gian|lead|ngay giao|tg/.test(h));const isLT=x=>/^\s*\d+\s*(-|–|den)?\s*\d*\s*(ngay|gio|h)\b/.test(PSV(x));
+  for(let i=hi+1;i<grid.length;i++){const r=grid[i]||[];const pre=r.slice(0,firstPrice).map((x,j)=>j===cT?'':String(x??'').trim());const lt0=(cT>=0?String(r[cT]??'').trim():'')||pre.find(isLT)||'';const txt=pre.filter(x=>x&&!isLT(x));
+    const prices={};let n=0;cols.forEach(([j,c])=>{const v=Number(String(r[j]??'').replace(/[^\d.,-]/g,'').replace(/[.,](?=\d{3}(\D|$))/g,'').replace(',','.'));if(isFinite(v)&&v>=1000){prices[c]=Math.round(v/1000)*1000;n++}});
+    if(!n){if(txt.length&&/khu vuc|mien/i.test(PSV(txt.join(' '))))region=txt.join(' ');if(/ghi chu/i.test(PSV(txt.join(' '))))break;continue}
+    let area='',pv='';if(cP>=0&&cA>=0&&cP!==cA){pv=String(r[cP]??'').trim();area=pre.filter((x,j)=>j!==cP&&x&&!isLT(x)).join(', ')}else if(txt.length>=2){pv=txt[0];area=txt.slice(1).join(', ')}else area=txt[0]||'';
+    if(pv)prov=pv;const lt=lt0||r.slice(Math.max(...cols.map(c=>c[0]))+1).map(x=>String(x??'').trim()).find(x=>/ngay|gio|h\b/i.test(PSV(x)))||'';
+    out.push({region,province:pv?pv.trim():'',area:area.trim(),lead_time:lt,prices,_prov:prov})}
+  return {classes:cols.map(c=>c[1]),rows:out}}
+async function psReadFile(file){if(!window.XLSX){await new Promise((ok,er)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';s.onload=ok;s.onerror=er;document.head.appendChild(s)})}
+  const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];return XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''})}
+
+// ---------- form bảng giá ----------
+async function psOpen(sheet,dft,after){v49Css();await Promise.all(['customers','partners'].map(ensureRef).map(p=>p.catch(()=>{})));
+  const {data:PJ}=await sb.from('khg_projects').select('id,name,code,customer_id,pay_days,pay_from').is('archived_at',null).order('name');
+  const S=Object.assign({side:'kh',classes:['2.5','3.5','5','8','15'],surcharges:{},status:'dang_ap_dung',fuel_share:35,fuel_threshold:10},dft||{},sheet||{});
+  let R=sheet&&sheet.id?(await psRows(sheet.id)).map(x=>({...x})):[];const R0=R.map(x=>x.id);
+  const C=REF.customers||{},P=REF.partners||{};
+  const surK=[['stop','Rớt điểm (đ/điểm)'],['loading','Bốc xếp (đ/điểm)'],['wait','Chờ quá giờ (đ/giờ)']];
+  const draw=()=>{const cls=S.classes;const pj=(PJ||[]).filter(p=>!S.customer_id||p.customer_id===S.customer_id);
+    modal(`<h3>📑 ${sheet&&sheet.id?'Sửa':'Thêm'} bảng giá chốt</h3>
+    <div class="v49b" style="margin-bottom:10px"><div class="v49chips" id="psSide">${Object.entries(O.ps_side).map(([k,l])=>`<button type="button" data-v="${k}" class="${S.side===k?'on':''}">${l}</button>`).join('')}</div>
+      <div class="v49g" style="margin-top:8px"><label>Tên bảng giá<input id="psName" value="${esc(S.name||'')}" placeholder="VD: Nhất Tín – Bến Lức (12/11/2026)"></label>
+        <label>Khách hàng<select id="psCus"><option value="">—</option>${Object.entries(C).sort((a,b)=>String(a[1]).localeCompare(String(b[1]),'vi')).map(([k,v])=>`<option value="${k}" ${S.customer_id===k?'selected':''}>${esc(String(v).slice(0,60))}</option>`).join('')}</select></label>
+        <label>Dự án vận hành<select id="psPj"><option value="">— Áp dụng chung cho khách —</option>${pj.map(p=>`<option value="${p.id}" ${S.project_id===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}<option value="__new">+ Tạo dự án mới…</option></select></label>
+        ${S.side==='ncc'?`<label>Nhà xe / NCC<select id="psPa"><option value="">— Chọn —</option>${Object.entries(P).sort((a,b)=>String(a[1]).localeCompare(String(b[1]),'vi')).map(([k,v])=>`<option value="${k}" ${S.partner_id===k?'selected':''}>${esc(v)}</option>`).join('')}</select></label>`:''}
+        <label>Điểm xuất phát<input id="psOri" value="${esc(S.origin||'')}" placeholder="VD: Kho Bến Lức, Long An"></label>
+        <label>Áp dụng từ<input type="date" id="psFrom" value="${esc(String(S.valid_from||'').slice(0,10))}"></label>
+        <label>Giá dầu cơ sở (đ/lít)<input id="psFuel" inputmode="numeric" value="${S.fuel_base?moneyFmt(S.fuel_base):''}" placeholder="26.820"></label>
+        <label>Công nợ (ngày)<input id="psPay" type="number" value="${S.pay_days??''}" placeholder="${S.side==='kh'?'45':'30'}"></label>
+        <label>Trạng thái<select id="psSt">${Object.entries(O.ps_status).map(([k,l])=>`<option value="${k}" ${S.status===k?'selected':''}>${l}</option>`).join('')}</select></label>
+        <label>Loại xe (cột giá, tấn)<input id="psCls" value="${esc(cls.join(', '))}" placeholder="2.5, 3.5, 5, 8, 15"></label></div>
+      <div class="sub" style="margin-top:8px"><b>Phụ phí theo loại xe</b> (để trống nếu không có)</div>
+      <div style="overflow-x:auto"><table class="v49t"><thead><tr><th></th>${cls.map(c=>`<th class="n">${psClsL(c)}</th>`).join('')}</tr></thead><tbody>${surK.map(([k,l])=>`<tr><td>${l}</td>${cls.map(c=>`<td><input data-su="${k}" data-c="${c}" inputmode="numeric" value="${(S.surcharges[k]||{})[c]?moneyFmt(S.surcharges[k][c]):''}"></td>`).join('')}</tr>`).join('')}
+        <tr><td>Phụ thu đêm / lễ / Tết (%)</td><td colspan="${cls.length}"><input id="psPct" value="${esc([S.surcharges.night_pct,S.surcharges.holiday_pct,S.surcharges.tet_pct].map(x=>x??'').join(' / '))}" placeholder="10 / 20 / 30"></td></tr></tbody></table></div>
+      <label style="display:block;margin-top:6px;font-size:12px">Ghi chú điều khoản<textarea id="psNote" rows="2" style="width:100%;box-sizing:border-box">${esc(S.notes||'')}</textarea></label></div>
+    <div class="v49b"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><h4 style="margin:0">Bảng giá theo khu vực (${R.filter(x=>!x._del).length} dòng)</h4><span style="flex:1"></span>
+      <label class="btn s" style="cursor:pointer">📂 Nhập file Excel<input type="file" id="psFile" accept=".xlsx,.xls,.csv" style="display:none"></label><button type="button" class="btn s" id="psPaste">📋 Dán từ Excel</button><button type="button" class="btn s" id="psAdd">+ Dòng</button></div>
+      <div class="sub">File theo mẫu: cột Tỉnh – Khu vực – các cột giá theo loại xe (2,5T, 3,5T…) – Thời gian. Hệ thống tự nhận dòng tiêu đề loại xe.</div>
+      <div id="psPB" style="display:none;margin:6px 0"><textarea id="psPT" rows="5" style="width:100%;box-sizing:border-box" placeholder="Copy vùng bảng giá trong Excel (kể cả dòng tiêu đề 2,5T 3,5T…) rồi dán vào đây"></textarea><button type="button" class="btn s p" id="psPGo">Đọc bảng giá</button></div>
+      <div class="v49w" style="max-height:42vh"><table class="v49t"><thead><tr><th>Tỉnh/TP</th><th>Khu vực giao</th>${cls.map(c=>`<th class="n">${psClsL(c)}</th>`).join('')}<th>Thời gian</th><th></th></tr></thead>
+      <tbody>${R.map((x,i)=>x._del?'':`<tr data-i="${i}"><td><input data-f="province" value="${esc(x.province||'')}" style="min-width:90px"></td><td><input data-f="area" value="${esc(x.area||'')}" style="min-width:220px"></td>${cls.map(c=>`<td><input data-p="${c}" inputmode="numeric" value="${psPrice(x,c)!=null?moneyFmt(psPrice(x,c)):''}" style="min-width:84px;text-align:right"></td>`).join('')}<td><input data-f="lead_time" value="${esc(x.lead_time||'')}" style="min-width:70px"></td><td><button type="button" class="ib" data-rm="${i}" title="Bỏ dòng (lưu trữ)">✕</button></td></tr>`).join('')}</tbody></table></div></div>
+    <div class="bar" style="justify-content:flex-end;margin-top:10px">${sheet&&sheet.id?'<button class="btn" id="psCmp">📊 So sánh với bảng giá còn lại</button>':''}<button class="btn" id="psX">Đóng</button><button class="btn p" id="psSave">Lưu bảng giá</button></div>`,{wide:true});
+    const md=document.querySelector('#modal .modal-box')||document.querySelector('#modal>div');if(md)md.style.maxWidth='1100px';
+    const rd=()=>{S.name=$('#psName').value;S.customer_id=$('#psCus').value||null;const pjv=$('#psPj').value;S.project_id=pjv&&pjv!=='__new'?pjv:null;if($('#psPa'))S.partner_id=$('#psPa').value||null;
+      S.origin=$('#psOri').value;S.valid_from=$('#psFrom').value||null;S.fuel_base=moneyParse($('#psFuel').value)||null;S.pay_days=$('#psPay').value===''?null:+$('#psPay').value;S.status=$('#psSt').value;S.notes=$('#psNote').value;
+      const su={};document.querySelectorAll('#modal [data-su]').forEach(i=>{const v=moneyParse(i.value);if(v){(su[i.dataset.su]=su[i.dataset.su]||{})[i.dataset.c]=v}});const pc=$('#psPct').value.split('/').map(x=>x.trim()===''?null:Number(x.replace(',','.')));
+      [['night_pct',0],['holiday_pct',1],['tet_pct',2]].forEach(([k,j])=>{if(pc[j]!=null&&isFinite(pc[j]))su[k]=pc[j]});S.surcharges=su;
+      document.querySelectorAll('#modal tr[data-i]').forEach(tr=>{const x=R[+tr.dataset.i];tr.querySelectorAll('[data-f]').forEach(i=>x[i.dataset.f]=i.value);const p={};tr.querySelectorAll('[data-p]').forEach(i=>{const v=moneyParse(i.value);if(v)p[i.dataset.p]=v});x.prices=p})};
+    $('#psSide').querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{rd();S.side=b.dataset.v;draw()});
+    $('#psCus').onchange=()=>{rd();draw()};
+    $('#psPj').onchange=async()=>{if($('#psPj').value!=='__new')return;const nm=prompt('Tên dự án mới (VD: Nhất Tín – Bến Lức, Long An):');if(!nm){$('#psPj').value='';return}rd();
+      const {data:np,error}=await sb.from('khg_projects').insert({name:nm.trim(),customer_id:S.customer_id,status:'dang_chay',pay_days:45,pay_from:'ngay_doi_soat',origin:S.origin||null}).select('id,name,code,customer_id').single();if(error)return toast(error.message);
+      PJ.push(np);S.project_id=np.id;delete REF.projects;draw();toast('Đã tạo dự án '+nm)};
+    $('#psCls').onchange=()=>{rd();S.classes=$('#psCls').value.split(/[,;\s]+/).map(psCls).filter(x=>x!=null).map(String);draw()};
+    $('#psAdd').onclick=()=>{rd();R.push({province:'',area:'',prices:{},lead_time:''});draw()};
+    document.querySelectorAll('#modal [data-rm]').forEach(b=>b.onclick=()=>{rd();R[+b.dataset.rm]._del=true;draw()});
+    $('#psPaste').onclick=()=>{const p=$('#psPB');p.style.display=p.style.display==='none'?'':'none'};
+    const take=g=>{const r=psParse(g);if(r.error)return toast(r.error);rd();S.classes=r.classes;R.forEach(x=>x._del=true);R.push(...r.rows.map((x,i)=>({province:x.province,area:x.area,lead_time:x.lead_time,prices:x.prices,sort:i,region:x.region})));draw();toast(`Đã đọc ${r.rows.length} dòng giá · ${r.classes.length} loại xe – kiểm tra rồi bấm Lưu`)};
+    $('#psPGo').onclick=()=>take($('#psPT').value.split(/\r?\n/).map(l=>l.split('\t')));
+    $('#psFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{take(await psReadFile(f))}catch(x){toast('Không đọc được file: '+x.message)}};
+    $('#psX').onclick=closeModal;
+    const cmp=$('#psCmp');if(cmp)cmp.onclick=()=>{closeModal();psCompareOpen(sheet)};
+    $('#psSave').onclick=async()=>{rd();if(!S.name)return toast('Nhập tên bảng giá');if(S.side==='ncc'&&!S.partner_id)return toast('Chọn nhà xe / NCC');if(S.side==='kh'&&!S.customer_id)return toast('Chọn khách hàng');
+      const rec={side:S.side,name:S.name,customer_id:S.customer_id,project_id:S.project_id,partner_id:S.side==='ncc'?S.partner_id:null,origin:S.origin||null,classes:S.classes,valid_from:S.valid_from,fuel_base:S.fuel_base,pay_days:S.pay_days,status:S.status,surcharges:S.surcharges,notes:S.notes||null,updated_at:new Date().toISOString()};
+      const r=S.id?await sb.from('khg_price_sheets').update(rec).eq('id',S.id).select('id').single():await sb.from('khg_price_sheets').insert(rec).select('id').single();if(r.error)return toast(r.error.message);const sid=r.data.id;
+      const now=new Date().toISOString();const ins=[],errs=[];let k=0;
+      for(const x of R){if(x._del){if(x.id)await sb.from('khg_price_sheet_rows').update({archived_at:now}).eq('id',x.id);continue}
+        if(!String(x.area||'').trim()&&!String(x.province||'').trim()&&!Object.keys(x.prices||{}).length)continue;
+        const row={sheet_id:sid,region:x.region||null,province:(x.province||'').trim()||null,area:(x.area||'').trim()||null,lead_time:x.lead_time||null,prices:x.prices||{},sort:k++};
+        if(x.id){const u=await sb.from('khg_price_sheet_rows').update(row).eq('id',x.id);if(u.error)errs.push(u.error.message)}else ins.push(row)}
+      for(let i=0;i<ins.length;i+=200){const u=await sb.from('khg_price_sheet_rows').insert(ins.slice(i,i+200));if(u.error)errs.push(u.error.message)}
+      psClear();toast(errs.length?'Lưu có lỗi: '+errs[0]:`Đã lưu bảng giá (${k} dòng)`);closeModal();after&&after()}};
+  draw()}
+
+// ---------- so sánh giá KH – NCC ----------
+async function psCompareOpen(sheet){v49Css();const all=await psSheets({});const kh=all.filter(s=>s.side==='kh'),nc=all.filter(s=>s.side==='ncc');
+  let A=sheet&&sheet.side==='kh'?sheet:kh.find(s=>sheet&&s.project_id&&s.project_id===sheet.project_id)||kh[0];let B=sheet&&sheet.side==='ncc'?sheet:nc.find(s=>A&&s.project_id&&s.project_id===A.project_id)||nc[0];
+  const P=REF.partners||{};
+  const draw=async()=>{const [ra,rb]=await Promise.all([A?psRows(A.id):[],B?psRows(B.id):[]]);const mm=5;
+    const cls=[...new Set([...(A?A.classes:[]),...(B?B.classes:[])])].filter(c=>(A?A.classes:[]).includes(c)&&(B?B.classes:[]).includes(c));
+    // ghép dòng theo tỉnh + khu vực
+    const key=(r,cur)=>PSV((r.province||cur)+'|'+r.area).replace(/[^a-z0-9|]/g,'');let cb='';const MB={};rb.forEach(r=>{if(r.province)cb=r.province;MB[key(r,cb)]=r});
+    let ca='';let n=0,low=0,sa=0,sb2=0;const rows=ra.map(r=>{if(r.province)ca=r.province;const b=MB[key(r,ca)];return {r,b,pv:r.province||''}});
+    const cell=(a,b)=>{if(a==null||b==null)return '<td class="n">–</td>';const m=(a-b)/a*100;n++;sa+=a;sb2+=b;if(m<mm)low++;return `<td class="n ${m<mm?'lo':m<8?'mid':'hi'}" title="Giá KH ${fmtN(a)} · giá NCC ${fmtN(b)} · chênh ${fmtN(a-b)}">${m.toFixed(1).replace('.',',')}%</td>`};
+    const body=rows.map(x=>`<tr><td>${esc(x.pv)}</td><td style="white-space:normal;min-width:180px">${esc(x.r.area||'')}</td>${cls.map(c=>cell(psPrice(x.r,c),psPrice(x.b,c))).join('')}</tr>`).join('');
+    modal(`<h3>📊 So sánh giá bán khách – giá trả nhà xe</h3>
+      <div class="v49g"><label>Bảng giá khách hàng<select id="cA">${kh.map(s=>`<option value="${s.id}" ${A&&s.id===A.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label>
+      <label>Bảng giá nhà xe / NCC<select id="cB">${nc.map(s=>`<option value="${s.id}" ${B&&s.id===B.id?'selected':''}>${esc(s.name)}${s.partner_id&&P[s.partner_id]?' · '+esc(P[s.partner_id]):''}</option>`).join('')}</select></label></div>
+      <div class="v49b ${low?'v49warn':'v49ok'}" style="margin:10px 0">${n?`Biên lợi nhuận gộp trên giá (chưa trừ chi phí vận hành): trung bình <b>${((sa-sb2)/sa*100).toFixed(1).replace('.',',')}%</b> · <b>${low}</b>/${n} ô dưới ${mm}% ${low?'– cần điều chỉnh giá trước khi vận hành':''}`:'Chưa ghép được dòng nào – hai bảng giá cần cùng tên tỉnh + khu vực'}</div>
+      <div class="v49w"><table class="v49t"><thead><tr><th>Tỉnh/TP</th><th>Khu vực</th>${cls.map(c=>`<th class="n">${psClsL(c)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>
+      <p class="sub">Ô đỏ: lãi gộp &lt; ${mm}% · vàng: 5–8% · xanh: ≥ 8%. Đây là chênh lệch giá; lãi thực còn trừ lương, chi phí vận hành – xem “Lãi lỗ theo dự án”.</p>
+      <div class="bar" style="justify-content:flex-end"><button class="btn" id="cX">Đóng</button></div>`);
+    const md=document.querySelector('#modal .modal-box')||document.querySelector('#modal>div');if(md)md.style.maxWidth='1100px';
+    $('#cA').onchange=()=>{A=kh.find(s=>s.id===$('#cA').value);draw()};$('#cB').onchange=()=>{B=nc.find(s=>s.id===$('#cB').value);draw()};$('#cX').onclick=closeModal};
+  if(!A||!B)return toast('Cần có ít nhất 1 bảng giá khách hàng và 1 bảng giá nhà xe để so sánh');await ensureRef('partners').catch(()=>{});draw()}
+
+// ---------- màn hình danh sách bảng giá ----------
+async function psListInto(h,filter,dft){v49Css();await Promise.all(['customers','partners'].map(r=>ensureRef(r).catch(()=>{})));
+  const {data:PJ}=await sb.from('khg_projects').select('id,name').is('archived_at',null);const PN=Object.fromEntries((PJ||[]).map(p=>[p.id,p.name]));
+  const load=async()=>{psClear();const L=await psSheets(filter||{});const cnt={};await Promise.all(L.map(async s=>{cnt[s.id]=(await psRows(s.id)).length}));
+    h.innerHTML=`<div class="bar"><button class="btn p" data-ps="new_kh">+ Bảng giá khách hàng</button><button class="btn" data-ps="new_ncc">+ Bảng giá nhà xe / NCC</button><button class="btn" data-ps="cmp">📊 So sánh KH – NCC</button></div>
+    ${L.length?`<div class="v49w" style="max-height:none"><table class="v49t"><thead><tr><th>Loại</th><th>Tên bảng giá</th><th>Khách hàng</th><th>Dự án</th><th>Nhà xe / NCC</th><th class="n">Số dòng</th><th>Loại xe</th><th>Áp dụng từ</th><th>Giá dầu</th><th>Công nợ</th><th>Trạng thái</th></tr></thead><tbody>
+    ${L.map(s=>`<tr class="pick" data-id="${s.id}"><td><span class="v49pill ${s.side==='kh'?'g':'a'}">${s.side==='kh'?'Giá KH':'Giá NCC'}</span></td><td><b>${esc(s.name)}</b></td><td>${esc(String((REF.customers||{})[s.customer_id]||'').slice(0,40))}</td><td>${esc(PN[s.project_id]||(s.project_id?'':'(chung)'))}</td><td>${esc((REF.partners||{})[s.partner_id]||'')}</td><td class="n">${cnt[s.id]}</td><td>${(s.classes||[]).map(psClsL).join(' · ')}</td><td>${s.valid_from?fmtD(s.valid_from):''}</td><td>${s.fuel_base?fmtN(s.fuel_base):''}</td><td>${s.pay_days!=null?s.pay_days+' ngày':''}</td><td>${esc(O.ps_status[s.status]||s.status)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Chưa có bảng giá. Bấm “+ Bảng giá khách hàng” rồi nhập file Excel bảng giá đã chốt.</div>'}`;
+    h.querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=()=>psOpen(L.find(s=>s.id===tr.dataset.id),null,load));
+    h.querySelectorAll('[data-ps]').forEach(b=>b.onclick=()=>{const k=b.dataset.ps;if(k==='cmp')return psCompareOpen(null);psOpen(null,Object.assign({side:k==='new_kh'?'kh':'ncc'},dft||{}),load)})};
+  await load()}
+TABS.push(['psheets','Bảng giá chốt KH & NCC',['admin','quan_ly','ke_toan','dieu_phoi','kinh_doanh']]);
+VIEWS.psheets=async m=>{m.innerHTML=`<h2>Bảng giá chốt theo dự án</h2><p class="sub">Bảng giá đã chốt với từng khách hàng / dự án và bảng giá KHG chốt riêng với từng nhà xe, NCC. Khi tạo đơn, chọn khách → dự án, CRM tự tra giá theo địa chỉ giao và loại xe; chọn xe liên kết → tự gợi ý giá trả nhà xe và cảnh báo lãi dưới 5%.</p><div id="psH"></div>`;await psListInto($('#psH'),{})};
+ICONS.psheets=IC('<path d="M4 4h16v16H4z"/><path d="M4 9h16M9 9v11M14 13h3M14 16h3"/>');
+{const g=NAV_STD.find(x=>x[1].includes('projects'));if(g&&!g[1].includes('psheets'))g[1].splice(g[1].indexOf('projects')+1,0,'psheets','projpnl')}
+NAV_LBL.psheets='Bảng giá chốt KH & NCC';NAV_LBL.projpnl='Lãi lỗ theo dự án';
+
+// ---------- dự án: thêm trường + bảng giá của dự án ----------
+{const pf=E.projects.f;if(!pf.some(x=>x.k==='pay_days')){const i=pf.findIndex(x=>x.k==='end_date');pf.splice(i+1,0,{k:'origin',l:'Điểm xuất phát / kho lấy hàng',t:'text'},{k:'pay_days',l:'Công nợ khách (ngày)',t:'num',def:45,hint:'Mặc định 45 ngày sau đối soát – tự điền vào đơn của dự án'},
+    {k:'pay_from',l:'Tính công nợ từ',t:'sel',o:'credit_from',def:'ngay_doi_soat'},{k:'margin_min',l:'Biên lợi nhuận tối thiểu (%)',t:'num',def:5,hint:'Thấp hơn mức này CRM cảnh báo CEO'})}
+ const of=E.projects.onForm;E.projects.onForm=(frm,row)=>{of&&of(frm,row);if(!row||!row.id)return;const box=document.createElement('div');box.className='v49b';box.innerHTML='<h4>📑 Bảng giá của dự án</h4><div id="pjPS">Đang tải…</div>';frm.appendChild(box);
+   psListInto(box.querySelector('#pjPS'),{project_id:row.id},{project_id:row.id,customer_id:row.customer_id})}}
+// khách hàng & nhà xe: danh sách bảng giá ngay trong hồ sơ
+{const add=(cfg,key,side)=>{const of=cfg.onForm;cfg.onForm=(frm,row)=>{of&&of(frm,row);if(!row||!row.id)return;const box=document.createElement('div');box.className='v49b';box.innerHTML=`<h4>📑 Bảng giá đã chốt ${side==='kh'?'với khách hàng này (theo từng dự án)':'với nhà xe này (theo khách hàng / dự án)'}</h4><div class="ph">Đang tải…</div>`;frm.appendChild(box);
+    psListInto(box.querySelector('.ph'),{[key]:row.id,side},{[key]:row.id,side})}};
+ add(E.customers,'customer_id','kh');add(E.partners,'partner_id','ncc')}
+// nhân sự: dự án đang vận hành (phân bổ lương vào lãi lỗ dự án)
+{const f=E.people&&E.people.f;if(f&&!f.some(x=>x.k==='cost_alloc_pct')){f.push({h:'Vận hành dự án (phân bổ chi phí lương)'},{k:'project_id',l:'Dự án đang vận hành',t:'fk',ref:'projects',hint:'Lương tháng của nhân sự được tính vào lãi lỗ của dự án này'},{k:'cost_alloc_pct',l:'% lương phân bổ cho dự án',t:'num',def:100})}}
+
+// ---------- ĐƠN HÀNG: khách → dự án → tự tính giá; loại xe vận hành; thanh toán ----------
+async function orderV49(frm,row){v49Css();const g=k=>frm.elements.namedItem(k);const lab=k=>{const e=g(k);return e?(e.closest('label')||e.closest('.w')):null};const r0=row||{};
+  const hds=[...frm.querySelectorAll(':scope > .hd')];const hd=t=>hds.find(h=>PSV(h.textContent).includes(PSV(t)));
+  const ch=hd('don hang');const cusL=frm.querySelector('label[data-fk-k="customer_id"]')||lab('customer_id__t'),pjL=frm.querySelector('label[data-fk-k="project_id"]')||lab('project_id__t');
+  if(ch&&cusL){ch.insertAdjacentElement('afterend',cusL);if(pjL)cusL.insertAdjacentElement('afterend',pjL)}
+  // hộp chọn dự án của khách
+  const pjBox=document.createElement('div');pjBox.className='v49b';pjBox.style.padding='8px 10px';(pjL||cusL||frm.firstElementChild).insertAdjacentElement('afterend',pjBox);
+  const hid=k=>frm.querySelector(`input[type=hidden][name="${k}"]`);const id=k=>{const h=hid(k);return h&&/^[0-9a-f-]{36}$/.test(h.value)?h.value:null};
+  let PJ=[],proj=null,sheetKH=null,rowsKH=[],match=[],selRow=null,cls=null,autoFee=null;
+  const loadPJ=async()=>{const c=id('customer_id');if(!c){PJ=[];pjBox.innerHTML='<span class="sub" style="margin:0">Chọn khách hàng → CRM hỏi dự án vận hành để áp đúng bảng giá đã chốt.</span>';return pricing()}
+    const {data}=await sb.from('khg_projects').select('id,name,code,customer_id,pay_days,pay_from,origin,margin_min').eq('customer_id',c).is('archived_at',null).neq('status','ket_thuc');PJ=data||[];
+    if(!id('project_id')&&PJ.length===1)v42SetFk(frm,'project_id','projects',PJ[0].id,PJ[0].name);drawPJ();await pricing()};
+  const drawPJ=()=>{const cur=id('project_id');proj=PJ.find(p=>p.id===cur)||null;
+    pjBox.innerHTML=PJ.length?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>${cur?'✓ Vận hành dự án:':'❓ Đơn này vận hành dự án nào?'}</b><div class="v49chips">${PJ.map(p=>`<button type="button" data-pj="${p.id}" class="${p.id===cur?'on':''}">${esc(p.name)}</button>`).join('')}<button type="button" data-pj="">Không theo dự án</button></div></div>`
+      :`<span class="sub" style="margin:0">Khách này chưa có dự án / bảng giá chốt. <a href="#" data-newps>+ Nhập bảng giá đã chốt với khách</a> để lần sau CRM tự tính giá.</span>`;
+    pjBox.querySelectorAll('[data-pj]').forEach(b=>b.onclick=()=>{const p=PJ.find(x=>x.id===b.dataset.pj);v42SetFk(frm,'project_id','projects',p?p.id:null,p?p.name:'');drawPJ();payDefaults();pricing()});
+    const np=pjBox.querySelector('[data-newps]');if(np)np.onclick=e=>{e.preventDefault();psOpen(null,{side:'kh',customer_id:id('customer_id')},()=>{})}};
+  ['customer_id','project_id'].forEach(k=>{const h=hid(k);if(h)h.addEventListener('change',()=>k==='customer_id'?loadPJ():(drawPJ(),payDefaults(),pricing()))});
+  const ct=g('customer_id__t');if(ct)ct.addEventListener('change',()=>setTimeout(loadPJ,60));
+  // ---- tính giá theo bảng giá dự án
+  const rh=hd('doanh thu');const pb=document.createElement('div');pb.className='v49b';if(rh)rh.insertAdjacentElement('afterend',pb);else frm.appendChild(pb);
+  const addr=()=>['dropoff','drop_ward','drop_district','drop_province'].map(k=>(g(k)||{}).value||'').join(' , ');
+  const setMoney=(k,v)=>{const e=g(k);if(!e)return;e.value=v?moneyFmt(v):'';e.dispatchEvent(new Event('input',{bubbles:true}))};
+  const apply=()=>{const p=psPrice(selRow,cls);if(!p)return toast('Chưa có giá cho loại xe này');const u=g('unit');if(u){u.value='chuyen';u.dispatchEvent(new Event('change',{bubbles:true}))}
+    const tr=Number((g('trips')||{}).value)||1;const q=g('quantity');if(q){q.value=tr;q.dispatchEvent(new Event('input',{bubbles:true}))}setMoney('unit_price',p);autoFee=p*tr;
+    const su=(sheetKH&&sheetKH.surcharges)||{};const ld=g('loading_included');if(ld&&String(ld.value)==='true'&&(su.loading||{})[cls]&&!moneyParse((g('fee_loading')||{}).value))setMoney('fee_loading',su.loading[cls]);
+    const ns=Number((g('stops_count')||{}).value)||0;if(ns>1&&(su.stop||{})[cls]&&!moneyParse((g('fee_extra_stops')||{}).value))setMoney('fee_extra_stops',su.stop[cls]*(ns-1));
+    drawPB();margin()};
+  const drawPB=()=>{if(!sheetKH){pb.innerHTML=`<b>💡 Giá theo bảng giá đã chốt</b> <span class="sub">${id('customer_id')?'Khách / dự án này chưa có bảng giá – nhập tay đơn giá, hoặc ':'Chọn khách hàng và dự án để tự tính giá · '}<a href="#" data-ps1>nhập bảng giá đã chốt</a></span>`;const a=pb.querySelector('[data-ps1]');if(a)a.onclick=e=>{e.preventDefault();psOpen(null,{side:'kh',customer_id:id('customer_id'),project_id:id('project_id')},()=>{psClear();pricing()})};return}
+    const top=match[0];const p=psPrice(selRow,cls);const cur=moneyParse((g('unit_price')||{}).value);let cp='';
+    pb.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b>💡 Bảng giá: ${esc(sheetKH.name)}</b>${sheetKH.fuel_base?`<span class="v49pill a">giá dầu cơ sở ${fmtN(sheetKH.fuel_base)}</span>`:''}</div>
+      <div class="v49g" style="margin-top:6px"><label>Khu vực giao (tự nhận theo địa chỉ)<select id="pbRow">${rowsKH.map((r,i)=>{if(r.province)cp=r.province;return `<option value="${i}" ${r===selRow?'selected':''}>${esc((r.province||cp)+' – '+(r.area||''))}</option>`}).join('')}</select></label>
+        <label>Loại xe tính giá<select id="pbCls">${(sheetKH.classes||[]).map(c=>`<option value="${c}" ${c===cls?'selected':''}>${psClsL(c)} – ${psPrice(selRow,c)!=null?fmtN(psPrice(selRow,c)):'chưa có giá'}</option>`).join('')}</select></label>
+        <div><div class="sub" style="margin:0 0 4px">Đơn giá theo bảng</div><b style="font-size:17px;color:#1D4ED8">${p!=null?fmtN(p)+' đ/chuyến':'—'}</b>${selRow&&selRow.lead_time?` <span class="sub">· ${esc(selRow.lead_time)}</span>`:''}</div>
+        <div style="align-self:end"><button type="button" class="btn s p" id="pbGo">${cur&&cur===p?'✓ Đã áp giá':'Áp giá vào đơn'}</button></div></div>
+      <div class="sub">${top&&top.s>=5?'✓ Nhận khu vực theo địa chỉ giao':top&&top.s?'≈ Nhận theo tỉnh – kiểm tra lại khu vực':'Chưa nhận được khu vực – chọn tay trong danh sách'}${cur&&p&&cur!==p?` · <b style="color:#B45309">đơn giá đang nhập ${fmtN(cur)} khác bảng giá</b>`:''}</div>`;
+    $('#pbRow').onchange=()=>{selRow=rowsKH[+$('#pbRow').value];drawPB();if(autoFee!=null)apply();margin()};$('#pbCls').onchange=()=>{cls=$('#pbCls').value;drawPB();if(autoFee!=null)apply();margin()};$('#pbGo').onclick=apply};
+  let pt=0;const pricing=()=>{clearTimeout(pt);pt=setTimeout(async()=>{sheetKH=await psFor('kh',{project:id('project_id'),customer:id('customer_id')});rowsKH=sheetKH?await psRows(sheetKH.id):[];
+    if(sheetKH){match=psMatch(rowsKH,addr());selRow=match[0]&&match[0].s?match[0].r:(selRow&&rowsKH.includes(selRow)?selRow:rowsKH[0]);cls=psPickCls(sheetKH,{weight:(g('weight_t')||{}).value,req:[(g('vehicle_req')||{}).value,r0.vehicle_class].join(' ')})}
+    drawPB();const fe=moneyParse((g('fee_freight')||{}).value);if(sheetKH&&psPrice(selRow,cls)&&(!fe||(autoFee!=null&&fe===autoFee))&&!(r0.id&&fe))apply();margin();partnerHint()},250)};
+  ['dropoff','drop_district','drop_province','drop_ward','weight_t','vehicle_req','trips'].forEach(k=>{const e=g(k);if(e){e.addEventListener('change',pricing);e.addEventListener('picked',pricing)}});
+  // ---- thanh toán theo hợp đồng
+  const payH=hd('thanh toan');const payBox=document.createElement('div');payBox.className='v49b';payBox.style.background='#F0FDF4';payBox.style.borderColor='#BBF7D0';if(payH)payH.insertAdjacentElement('afterend',payBox);
+  const payDefaults=()=>{const cd=g('credit_days'),cf=g('credit_from'),pt2=g('pay_terms');const p=proj;
+    if(cd&&cd.value===''&&!r0.id)cd.value=p&&p.pay_days!=null?p.pay_days:45;if(cf&&!r0.id&&!cf.dataset.v49){cf.value=(p&&p.pay_from)||'ngay_doi_soat';cf.dataset.v49=1}if(cf&&!r0.id&&p&&p.pay_from)cf.value=p.pay_from;if(cd&&!r0.id&&p&&p.pay_days!=null)cd.value=p.pay_days;
+    if(pt2&&pt2.tagName==='SELECT'&&!r0.id&&!pt2.value)pt2.value='cong_no';
+    const d=cd&&cd.value!==''?cd.value:'(theo hồ sơ khách)',f=cf?(O.credit_from||{})[cf.value]||'':'';
+    payBox.innerHTML=`💳 <b>Thời hạn thanh toán theo hợp đồng: ${esc(String(d))} ngày</b> kể từ <b>${esc(f.toLowerCase()||'ngày đối soát')}</b>${p?' · theo dự án '+esc(p.name):''} <span class="sub">– kế toán theo dõi công nợ đến hạn từ ngày đối soát xong</span>`};
+  ['credit_days','credit_from'].forEach(k=>{const e=g(k);if(e)e.addEventListener('change',payDefaults)});
+  // ---- XE & TÀI XẾ: đưa xuống cuối, chọn loại xe rồi mới hiện ô nhập
+  const vh=document.createElement('div');vh.className='hd';vh.textContent='XE & TÀI XẾ VẬN HÀNH';frm.appendChild(vh);
+  const modeBox=document.createElement('div');modeBox.className='v49mode';frm.appendChild(modeBox);
+  const sec=document.createElement('div');sec.style.cssText='grid-column:1/-1;display:contents';frm.appendChild(sec);
+  const opp=frm.querySelector('.opp');const pick=[lab('vehicle_id__t'),lab('fleet_kind'),opp,frm.querySelector('label[data-fk-k="partner_id"]'),lab('driver_id__t'),lab('partner_cost'),lab('driver_pay')].filter(Boolean);
+  pick.forEach(el=>frm.appendChild(el));
+  const hint=document.createElement('div');hint.className='v49b';hint.id='v49Hint';frm.appendChild(hint);
+  const mgn=document.createElement('div');mgn.className='v49b';mgn.id='v49M';frm.appendChild(mgn);
+  let mode=r0.id?(r0.partner_id||r0.fleet_kind==='lien_ket'?'lien_ket':r0.fleet_kind&&!['so_huu','chung','kho'].includes(r0.fleet_kind)?'khac':(r0.vehicle_id||r0.driver_id||r0.fleet_kind==='so_huu'?'so_huu':'')):'';
+  const show=(el,on)=>{if(el)el.style.display=on?'':'none'};
+  const setMode=(m,init)=>{mode=m;modeBox.querySelectorAll('label').forEach(l=>l.classList.toggle('on',l.dataset.m===m));
+    show(lab('vehicle_id__t'),m==='so_huu'||m==='khac');show(lab('driver_id__t'),m==='so_huu'||m==='khac');show(lab('driver_pay'),m==='so_huu');show(lab('partner_cost'),m==='khac');show(lab('fleet_kind'),false);show(opp,m==='lien_ket');
+    const pcL=lab('partner_cost');if(pcL){const s=pcL.querySelector('span,b')||pcL.firstChild;if(s&&s.nodeType===1)s.textContent='Trả xe thuê ngoài / NCC'}
+    const fk=g('fleet_kind');if(fk&&m)fk.value=m==='khac'?'thue_xac':m;
+    const on=frm.querySelector('#opOn');if(on&&((m==='lien_ket')!==on.checked)){on.checked=m==='lien_ket';on.dispatchEvent(new Event('change',{bubbles:true}))}
+    setTimeout(()=>{const o2=frm.querySelector('#opOn');if(o2){const l=o2.closest('label');if(l)l.style.display='none'}},120);
+    hint.style.display=m?'none':'';hint.innerHTML='👆 Chọn loại xe vận hành để nhập thông tin xe, tài xế và chi phí trả xe.';
+    if(!init){margin();partnerHint()}};
+  modeBox.innerHTML=Object.entries(O.op_mode).map(([k,l])=>`<label data-m="${k}"><input type="radio" name="v49mode" value="${k}" ${mode===k?'checked':''}> ${l}</label>`).join('');
+  modeBox.querySelectorAll('input').forEach(i=>i.onchange=()=>setMode(i.value));
+  // ---- gợi ý giá nhà xe + lãi dự kiến
+  const ph=document.createElement('div');ph.className='v49b';ph.style.background='#FFFBEB';ph.style.borderColor='#FDE68A';if(opp)opp.insertAdjacentElement('beforebegin',ph);else frm.appendChild(ph);
+  let nccP=null;const partnerHint=async()=>{if(mode!=='lien_ket'){ph.style.display='none';return}ph.style.display='';const st=frm._op;const pid=st&&st.pid;
+    if(!pid){ph.innerHTML='Chọn nhà xe → CRM tra bảng giá KHG đã chốt với nhà xe cho dự án này.';nccP=null;return}
+    const sh=await psFor('ncc',{project:id('project_id'),partner:pid});if(!sh){ph.innerHTML=`Nhà xe này chưa có bảng giá chốt${proj?' cho dự án '+esc(proj.name):''}. <a href="#" data-ps2>+ Nhập bảng giá nhà xe</a>`;nccP=null;
+      const a=ph.querySelector('[data-ps2]');if(a)a.onclick=e=>{e.preventDefault();psOpen(null,{side:'ncc',partner_id:pid,project_id:id('project_id'),customer_id:id('customer_id')},()=>{psClear();partnerHint()})};margin();return}
+    const rr=await psRows(sh.id);const mt=psMatch(rr,addr());const rw=mt[0]&&mt[0].s?mt[0].r:null;nccP=psPrice(rw,cls)||null;
+    ph.innerHTML=`🤝 <b>Giá trả nhà xe theo bảng “${esc(sh.name)}”:</b> ${nccP?`<b>${fmtN(nccP)} đ</b> (${psClsL(cls||'')}${rw?' · '+esc(rw.area||''):''}) <button type="button" class="btn s" id="phGo">Điền vào cước trả nhà xe</button>`:'chưa có giá cho khu vực / loại xe này'}${sh.pay_days!=null?` · công nợ nhà xe ${sh.pay_days} ngày`:''}`;
+    const go=ph.querySelector('#phGo');if(go)go.onclick=()=>{const i=frm.querySelector('[data-pl="cuoc"]');if(i){i.value=moneyFmt(nccP);i.dispatchEvent(new Event('input',{bubbles:true}))}const dy=frm.querySelector('#opDays');if(dy&&sh.pay_days!=null){dy.value=sh.pay_days;dy.dispatchEvent(new Event('input',{bubbles:true}))}margin()};
+    const ci=frm.querySelector('[data-pl="cuoc"]');if(ci&&!moneyParse(ci.value)&&nccP&&go)go.click();margin()};
+  frm.addEventListener('change',e=>{if(e.target&&(e.target.id==='opP'))setTimeout(partnerHint,400)});
+  const rev=()=>{const n=k=>moneyParse((g(k)||{}).value||'')||0;return ['fee_freight','fee_loading','fee_extra_stops','fee_wait','fee_toll','fee_other','extra_charge'].reduce((a,k)=>a+n(k),0)-n('discount_amount')};
+  const margin=()=>{const R=rev();const mm=proj&&proj.margin_min!=null?Number(proj.margin_min):5;let C=0,lbl='';
+    if(mode==='lien_ket'){C=frm._op?pclTotal(frm._op.lines):0;if(!C&&nccP)C=nccP;lbl='trả nhà xe'}else if(mode==='khac'){C=moneyParse((g('partner_cost')||{}).value)||0;lbl='trả xe thuê ngoài'}else if(mode==='so_huu'){C=moneyParse((g('driver_pay')||{}).value)||0;lbl='lương chuyến (chưa gồm dầu, cầu đường)'}
+    if(!R||!mode){mgn.style.display='none';return}mgn.style.display='';const p=R-C,m=p/R*100;mgn.className='v49b '+(m<mm?'v49warn':'v49ok');
+    mgn.innerHTML=`${m<mm?'⚠':'✓'} <b>Lãi gộp dự kiến của đơn: ${fmtN(p)} đ (${m.toFixed(1).replace('.',',')}%)</b> = doanh thu ${fmtN(R)} − ${lbl} ${fmtN(C)}${m<mm?` · <b>thấp hơn ${mm}%</b> – CEO sẽ nhận cảnh báo, nên xem lại giá`:''}`};
+  frm.addEventListener('input',e=>{if(/^(fee_|extra_charge|discount_amount|partner_cost|driver_pay)/.test(e.target.name||'')||e.target.dataset.pl)margin()});
+  setMode(mode,true);await loadPJ();drawPJ();payDefaults();margin()}
+{const of=E.orders.onForm;E.orders.onForm=(frm,row)=>{of&&of(frm,row);setTimeout(()=>{try{orderV49(frm,row)}catch(e){console.warn('orderV49',e)}},0)};
+ const b0=E.orders.beforeSave;E.orders.beforeSave=async(data,frm,row)=>{const mo=frm&&frm.querySelector('input[name="v49mode"]:checked');const m=mo?mo.value:'';
+   if(m==='so_huu'||m==='khac'){if(frm._op)frm._op.on=false}
+   if(b0){const r=await b0(data,frm,row);if(r===false)return false}
+   if(m){data.fleet_kind=m==='khac'?'thue_xac':m;if(m!=='lien_ket'){data.partner_id=null;data.partner_driver_id=null;data.partner_cost_lines=null;if(m==='so_huu')data.partner_cost=0}}}}
+
+// ---------- CHI PHÍ: chọn nhanh đơn gần đây (biển số, tài xế) ----------
+async function expRecent(frm,row){v49Css();const g=k=>frm.elements.namedItem(k);const oh=frm.querySelector('input[type=hidden][name="order_id"]');if(!oh)return;
+  const anchor=frm.querySelector('#v42C')?frm.querySelector('#v42C').closest('.w'):(oh.closest('label'));const box=document.createElement('div');box.className='v49b';
+  box.innerHTML=`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>🚚 Chọn nhanh đơn hàng đã chạy</b><span class="sub" style="margin:0">bấm 1 dòng → tự điền đơn, xe, tài xế, khách, dự án</span><span style="flex:1"></span><input id="erQ" placeholder="Lọc biển số, tài xế, mã đơn, khách…" style="flex:1 1 200px;padding:5px 8px;border:1px solid #ccd;border-radius:8px"><select id="erD"><option value="3">±3 ngày</option><option value="7" selected>7 ngày</option><option value="30">30 ngày</option></select></div><div class="v49w" style="max-height:240px;margin-top:6px"><div class="empty">Đang tải…</div></div>`;
+  if(anchor)anchor.insertAdjacentElement('beforebegin',box);else frm.prepend(box);
+  await Promise.all(['vehicles','people','customers','projects','partners'].map(r=>ensureRef(r).catch(()=>{})));let L=[];
+  const day=()=>{const e=g('spent_on')||g('advanced_on');return e&&e.value?e.value.slice(0,10):today()};
+  const load=async()=>{const d=day(),n=+$('#erD').value;const from=addDays(d,-n),to=addDays(d,2);
+    const {data}=await sb.from('khg_orders').select('id,code,cust_order_code,created_at,scheduled_at,delivered_at,vehicle_id,plate_text,driver_id,fk_text,ext_driver,customer_id,customer_text,project_id,partner_id,fleet_kind,pickup,dropoff,drop_province,status')
+      .neq('status','huy').gte('created_at',from).lte('created_at',to+'T23:59:59').order('created_at',{ascending:false}).limit(200);L=data||[];draw()};
+  const plate=o=>(REF.vehicles||{})[o.vehicle_id]||o.plate_text||'';const drv=o=>(REF.people||{})[o.driver_id]||(o.ext_driver&&o.ext_driver.name)||(o.fk_text&&o.fk_text.driver_id)||'';
+  const draw=()=>{const q=PSV($('#erQ').value.trim());const V=L.filter(o=>!q||PSV([o.code,o.cust_order_code,plate(o),drv(o),(REF.customers||{})[o.customer_id],o.customer_text,o.dropoff].join(' ')).includes(q));const cur=oh.value;
+    box.querySelector('.v49w').innerHTML=V.length?`<table class="v49t"><thead><tr><th>Ngày</th><th>Biển số</th><th>Tài xế</th><th>Mã đơn</th><th>Khách / dự án</th><th>Tuyến</th><th>Xe</th></tr></thead><tbody>${V.map(o=>`<tr class="pick" data-id="${o.id}" style="${o.id===cur?'background:#DBEAFE':''}"><td>${fmtD(orderDay(o))}</td><td><b>${esc(plate(o))}</b></td><td>${esc(drv(o))}</td><td>${esc(o.code||'')}${o.cust_order_code?'<br><span class="sub">'+esc(o.cust_order_code)+'</span>':''}</td><td>${esc(String((REF.customers||{})[o.customer_id]||o.customer_text||'').slice(0,28))}${o.project_id?'<br><span class="sub">'+esc((REF.projects||{})[o.project_id]||'')+'</span>':''}</td><td style="white-space:normal;min-width:160px;font-size:12px">${esc([o.pickup,o.dropoff].filter(Boolean).map(x=>String(x).slice(0,32)).join(' → '))}</td><td>${esc((O.fleet_kind_s||{})[o.fleet_kind]||'')}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Không có đơn trong khoảng ngày này</div>';
+    box.querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=()=>pick(L.find(o=>o.id===tr.dataset.id)))};
+  const pick=o=>{v42SetFk(frm,'order_id','orders',o.id,o.code);if(o.vehicle_id)v42SetFk(frm,'vehicle_id','vehicles',o.vehicle_id,plate(o));else{const t=g('vehicle_id__t');if(t&&o.plate_text){t.value=o.plate_text;t.dispatchEvent(new Event('input',{bubbles:true}))}}
+    if(o.driver_id&&g('person_id__t')&&!/^[0-9a-f-]{36}$/.test((frm.querySelector('input[type=hidden][name="person_id"]')||{}).value||''))v42SetFk(frm,'person_id','people',o.driver_id,drv(o));
+    if(o.customer_id)v42SetFk(frm,'customer_id','customers',o.customer_id,(REF.customers||{})[o.customer_id]||o.customer_text||'');if(o.project_id)v42SetFk(frm,'project_id','projects',o.project_id,(REF.projects||{})[o.project_id]||'');
+    if(o.partner_id&&frm.querySelector('[name="partner_id__t"]'))v42SetFk(frm,'partner_id','partners',o.partner_id,(REF.partners||{})[o.partner_id]||'');
+    const fk=g('fleet_kind');if(fk&&o.fleet_kind){fk.value=o.fleet_kind;fk.dispatchEvent(new Event('change',{bubbles:true}))}
+    const cc=g('cust_order_code');if(cc&&o.cust_order_code&&!cc.value)cc.value=o.cust_order_code;
+    toast(`Đã gắn đơn ${o.code} · ${plate(o)}${drv(o)?' · '+drv(o):''}`);draw()};
+  $('#erQ').oninput=draw;$('#erD').onchange=load;const de=g('spent_on')||g('advanced_on');if(de)de.addEventListener('change',load);oh.addEventListener('change',draw);await load()}
+['expenses','advances'].forEach(n=>{const c=E[n];if(!c)return;const of=c.onForm;c.onForm=(frm,row)=>{of&&of(frm,row);setTimeout(()=>{expRecent(frm,row).catch(e=>console.warn('expRecent',e))},0)}});
+
+// ---------- LÃI LỖ THEO DỰ ÁN + CẢNH BÁO CEO ----------
+async function projPnlData(from,to){const {data,error}=await sb.rpc('khg_project_pnl',{p_from:from,p_to:to});if(error)throw error;return data}
+TABS.push(['projpnl','Lãi lỗ theo dự án',['admin','quan_ly','ke_toan']]);ICONS.projpnl=IC('<path d="M4 19h16"/><path d="M6 16l4-5 3 3 5-7"/>');
+VIEWS.projpnl=async m=>{v49Css();await Promise.all(['customers'].map(ensureRef));const t=today();
+  m.innerHTML=`<h2>Lãi lỗ theo dự án & khách hàng</h2><p class="sub">Doanh thu đơn − trả nhà xe liên kết − lương chuyến − chi phí gắn đơn/dự án − chi phí xe (dầu, cầu đường, sửa chữa… chưa gắn đơn, phân bổ theo số chuyến của xe) − lương nhân sự gắn dự án. Dưới biên tối thiểu của dự án (mặc định 5%) sẽ báo đỏ cho CEO.</p>
+  <div class="bar"><label>Từ <input type="date" id="ppF" value="${t.slice(0,8)+'01'}"></label><label>đến <input type="date" id="ppT" value="${t}"></label><button class="btn" data-r="30">30 ngày</button><button class="btn" data-r="m">Tháng này</button><button class="btn" data-r="pm">Tháng trước</button><button class="btn" id="ppX">⬇ Excel</button></div><div id="ppB"><div class="empty">Đang tải…</div></div>`;
+  let D=null;const C=REF.customers||{};
+  const load=async()=>{$('#ppB').innerHTML='<div class="empty">Đang tải…</div>';try{D=await projPnlData($('#ppF').value,$('#ppT').value)}catch(e){$('#ppB').innerHTML='<div class="empty">'+esc(e.message)+'</div>';return}
+    const R=D.rows||[];const nm=r=>r.project?r.project:(r.customer_id?String(C[r.customer_id]||'Khách').slice(0,50)+' – chưa gắn dự án':'Đơn chưa gắn khách hàng');
+    const low=R.filter(r=>r.revenue>0&&r.margin!=null&&r.margin<r.margin_min);const nocost=R.reduce((a,r)=>a+(r.orders_partner_nocost||0),0);
+    const S=k=>R.reduce((a,r)=>a+Number(r[k]||0),0);const tm=S('revenue')?S('profit')/S('revenue')*100:0;
+    $('#ppB').innerHTML=`${low.length?`<div class="v49b v49warn" style="margin-bottom:10px">⚠ <b>${low.length} dự án/khách có biên lợi nhuận dưới mức tối thiểu:</b> ${low.map(r=>esc(nm(r))+' <b>'+String(r.margin).replace('.',',')+'%</b>').join(' · ')}</div>`:'<div class="v49b v49ok" style="margin-bottom:10px">✓ Tất cả dự án đang trên biên lợi nhuận tối thiểu trong kỳ</div>'}
+      ${nocost?`<div class="v49b" style="margin-bottom:10px;background:#FFFBEB;border-color:#FDE68A">⚠ <b>${nocost}</b> đơn chạy xe liên kết chưa nhập giá trả nhà xe – lãi đang bị tính cao hơn thực tế.</div>`:''}
+      <div class="kpis"><div class="kpi"><div class="l">Doanh thu</div><div class="v">${fmtM(S('revenue'))}</div></div><div class="kpi"><div class="l">Tổng chi phí</div><div class="v">${fmtM(S('revenue')-S('profit'))}</div></div><div class="kpi ${tm<5?'hot':''}"><div class="l">Lãi gộp</div><div class="v">${fmtM(S('profit'))}</div><div class="h">${tm.toFixed(1).replace('.',',')}%</div></div></div>
+      <div class="v49w" style="max-height:none"><table class="v49t"><thead><tr><th>Dự án / khách hàng</th><th class="n">Đơn</th><th class="n">Doanh thu</th><th class="n">Trả nhà xe</th><th class="n">Lương chuyến</th><th class="n">Chi phí đơn/dự án</th><th class="n">Chi phí xe phân bổ</th><th class="n">Lương NV dự án</th><th class="n">Lãi</th><th class="n">Biên %</th><th>Đánh giá</th></tr></thead><tbody>
+      ${R.map(r=>{const lo=r.revenue>0&&r.margin!=null&&r.margin<r.margin_min;return `<tr><td><b>${esc(nm(r))}</b>${r.project&&r.customer_id?'<br><span class="sub">'+esc(String(C[r.customer_id]||'').slice(0,40))+'</span>':''}</td><td class="n">${r.orders}${r.orders_partner?'<br><span class="sub">'+r.orders_partner+' liên kết</span>':''}</td><td class="n">${fmtN(r.revenue)}</td><td class="n">${fmtN(r.partner_cost)}</td><td class="n">${fmtN(r.driver_pay)}</td><td class="n">${fmtN(r.expenses)}</td><td class="n">${fmtN(r.vehicle_costs)}</td><td class="n">${fmtN(r.staff)}</td><td class="n"><b>${fmtN(r.profit)}</b></td><td class="n ${lo?'lo':r.margin!=null&&r.margin<8?'mid':'hi'}">${r.margin!=null?String(r.margin).replace('.',',')+'%':'–'}</td><td>${lo?`<span class="v49pill r">Dưới ${r.margin_min}% – điều chỉnh</span>`:r.orders_partner_nocost?'<span class="v49pill a">Thiếu giá nhà xe</span>':'<span class="v49pill g">Đạt</span>'}</td></tr>`}).join('')}</tbody></table></div>
+      <p class="sub">Muốn tính đúng: gắn dự án cho đơn và chi phí (vé cầu đường, dầu… chọn nhanh theo đơn trong form chi phí), gắn dự án cho nhân sự vận hành (Nhân sự → “Dự án đang vận hành”).</p>`};
+  m.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const r=b.dataset.r;const d=new Date(t);if(r==='30'){$('#ppF').value=addDays(t,-29);$('#ppT').value=t}else if(r==='m'){$('#ppF').value=t.slice(0,8)+'01';$('#ppT').value=t}else{const s=new Date(d.getFullYear(),d.getMonth()-1,1),e=new Date(d.getFullYear(),d.getMonth(),0);const f=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');$('#ppF').value=f(s);$('#ppT').value=f(e)}load()});
+  $('#ppF').onchange=load;$('#ppT').onchange=load;
+  $('#ppX').onclick=()=>{if(!D)return;xlsx('Lai_lo_du_an',{'Lãi lỗ dự án':(D.rows||[]).map(r=>({'Dự án':r.project||'','Khách hàng':C[r.customer_id]||'','Số đơn':r.orders,'Doanh thu':r.revenue,'Trả nhà xe':r.partner_cost,'Lương chuyến':r.driver_pay,'Chi phí đơn/dự án':r.expenses,'Chi phí xe phân bổ':r.vehicle_costs,'Lương NV dự án':r.staff,'Lãi':r.profit,'Biên %':r.margin,'Biên tối thiểu %':r.margin_min}))})};
+  await load()};
+// cảnh báo trên màn hình CEO
+{const v0=VIEWS.ceo;VIEWS.ceo=async m=>{await v0(m);try{const t=today();const D=await projPnlData(addDays(t,-29),t);const low=(D.rows||[]).filter(r=>r.revenue>0&&r.margin!=null&&r.margin<r.margin_min);const nc=(D.rows||[]).reduce((a,r)=>a+(r.orders_partner_nocost||0),0);
+  if(!low.length&&!nc)return;v49Css();await ensureRef('customers');const C=REF.customers||{};const d=document.createElement('div');d.className='v49b v49warn';d.style.margin='0 0 12px';
+  d.innerHTML=`⚠ <b>Cảnh báo lãi dự án (30 ngày):</b> ${low.map(r=>esc(r.project||String(C[r.customer_id]||'Đơn chưa gắn khách').slice(0,40))+' <b>'+String(r.margin).replace('.',',')+'%</b> (tối thiểu '+r.margin_min+'%)').join(' · ')||''}${nc?(low.length?' · ':'')+nc+' đơn xe liên kết chưa nhập giá trả nhà xe':''} <button class="btn s" id="ceoPP" style="margin-left:8px">Xem lãi lỗ dự án</button>`;
+  const hero=m.querySelector('.hero');(hero||m.firstElementChild).insertAdjacentElement('afterend',d);d.querySelector('#ceoPP').onclick=()=>go('projpnl')}catch(e){}}}
 
 function nav(){
   navFix();
