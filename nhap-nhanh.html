@@ -969,7 +969,8 @@ async function order(){const dt=new Date(Date.now()+7*3600e3+3600e3);dt.setUTCMi
     <label class="f">Hình thức</label>${seg('pt',{cong_no:'🧾 Công nợ',thanh_toan_ngay:'💵 Thu ngay',tra_truoc:'💳 Trả trước'},'cong_no')}
     <label class="f">Cách thanh toán</label>${seg('pm',PM2,'chuyen_khoan')}
     <div class="row"><div><label class="f">Nhận vào tài khoản</label>${sel('oPa',{cong_ty:'Tài khoản công ty',ca_nhan:'Tài khoản cá nhân'},'cong_ty')}</div><div><label class="f">Tài khoản cụ thể</label>${sel('oPaI',Object.fromEntries(PACC.map(a=>[a.id,a.label||((a.bank_name||'')+' '+(a.account_no||''))])),'','— Mặc định —')}</div></div>
-    <div class="row"><div><label class="f">Công nợ (số ngày)</label><input class="i" id="oCd" inputmode="numeric" placeholder="theo hồ sơ khách"></div><div><label class="f">Tính công nợ từ</label>${sel('oCf',CFROM,'ngay_giao')}</div></div>
+    <div class="row"><div><label class="f">Công nợ (số ngày)</label><input class="i" id="oCd" inputmode="numeric" placeholder="theo hồ sơ khách"></div><div><label class="f">Tính công nợ từ</label>${sel('oCf',CFROM,'ngay_doi_soat')}</div></div>
+    <div class="row" id="oRcR"><div><label class="f">Ngày đối soát dự kiến</label><input class="i" id="oRe" type="date"></div><div style="font-size:12px;color:#6B7280;align-self:end;padding-bottom:6px">Công nợ chỉ bắt đầu tính khi kế toán bấm “Đối soát xong” và chọn ngày đối soát thực tế trên CRM.</div></div>
     <div class="row"><div><label class="f">Hợp đồng áp dụng</label><select class="i" id="oCo"><option value="">— Không / chưa có —</option></select></div><div><label class="f">Hợp đồng hiệu lực đến</label><input class="i" id="oCu" type="date"></div></div>`,false)}
   ${sec('sD','📄','Chứng từ & ghi chú',`
     <label class="f">Chứng từ giao hàng</label>${seg('docst',{chua_thu:'Cần thu hồi',khong_can:'Không cần'},'chua_thu')}
@@ -1010,7 +1011,7 @@ async function order(){const dt=new Date(Date.now()+7*3600e3+3600e3);dt.setUTCMi
   ['oQ','oUp','oFF','oF1','oF2','oF3','oF4','oF5','oF6','oDp','oDa','oX','oDP'].forEach(id=>$('#'+id).addEventListener('input',()=>calcRev(id)));
   $('#oPr').addEventListener('change',()=>{$('#oPr').value=$('#oPr').value.trim().toUpperCase()});calcRev();
   // --- thanh toán
-  $$('input[name="pt"]').forEach(r=>r.onchange=()=>{const v=val('pt');if(v!=='cong_no'){$('#oCd').value='0'}else if($('#oCd').value==='0')$('#oCd').value=OD.cust?.payment_terms_days??''});
+  $$('input[name="pt"]').forEach(r=>r.onchange=()=>{const v=val('pt');const rr=$('#oRcR');if(rr)rr.style.display=v==='cong_no'?'':'none';if(v!=='cong_no'){$('#oCd').value='0'}else if($('#oCd').value==='0')$('#oCd').value=OD.cust?.payment_terms_days??''});
   $('#oCo').onchange=()=>{const c=CONTR.find(x=>x.id===$('#oCo').value);if(c&&c.end_date)$('#oCu').value=String(c.end_date).slice(0,10)};fillContracts();
   $('#oS').onclick=()=>busy($('#oS'),saveOrder)}
 
@@ -1097,7 +1098,7 @@ async function saveOrder(){if(OD.saved)return toast('Đơn này đã lưu – b�
     unit:$('#oU').value,quantity:OD.manualFreight?null:q,unit_price:OD.manualFreight?null:up,fee_freight:fmon('oFF'),fee_loading:fmon('oF1'),fee_extra_stops:fmon('oF2'),fee_wait:fmon('oF3'),fee_toll:fmon('oF4'),fee_other:fmon('oF5'),extra_charge:fmon('oF6'),
     promo_code:ftxt('oPr'),discount_pct:fnum('oDp'),discount_amount:fmon('oDa'),revenue:OD.rev,partner_cost:fmon('oX'),driver_pay:fmon('oDP'),partner_id:v&&v.ownership!=='so_huu'?v.partner_id:null,
     cod_amount:codAll||null,stops_count:1+extras.filter(x=>x.kind==='giao').length,
-    pay_terms:val('pt'),pay_method:val('pm'),pay_account:$('#oPa').value||null,pay_account_id:$('#oPaI').value||null,credit_days:fnum('oCd'),credit_from:$('#oCf').value,contract_id:$('#oCo').value||null,contract_until:$('#oCu').value||null,
+    pay_terms:val('pt'),pay_method:val('pm'),pay_account:$('#oPa').value||null,pay_account_id:$('#oPaI').value||null,credit_days:fnum('oCd'),credit_from:$('#oCf').value,recon_expected:$('#oRe').value||null,contract_id:$('#oCo').value||null,contract_until:$('#oCu').value||null,
     doc_status:val('docst'),doc_due:$('#oDd').value||null,doc_submitter:sub?sub.id:(d?d.id:null),doc_note:ftxt('oDn'),
     note:[ftxt('oN'),dropNote].filter(Boolean).join('\n')||null,fk_text:Object.keys(fk).length?fk:null,source:'app',status:(v||vtxt)?'xac_nhan':'moi'};
   const {data,error}=await sb.from('khg_orders').insert(row).select('id,code,revenue').single();if(error)return toast('Lỗi lưu đơn: '+error.message);OD.saved=true;

@@ -810,7 +810,7 @@ const E={
    {h:'Tình trạng'},{k:'status',l:'Trạng thái đơn',t:'sel',o:'order_status',list:true,def:'moi'},{k:'trip_status',l:'Tình trạng chuyến',t:'sel',o:'trip',list:true,ro:true},
    {k:'trip_note',l:'Ghi chú chuyến (tài xế)',t:'text',ro:true},{k:'accepted_at',l:'Lúc nhận',t:'dt',ro:true},{k:'picked_at',l:'Lúc lấy hàng',t:'dt',ro:true},{k:'unloading_at',l:'Lúc trả hàng',t:'dt',ro:true},
    {k:'delivered_at',l:'Lúc giao xong',t:'dt',ro:true},{k:'source',l:'Nguồn',t:'sel',o:'source',def:'web'},{k:'created_at',l:'Tạo lúc',t:'dt',ro:true},{k:'note',l:'Ghi chú',t:'area'},
-   {h:'Thanh toán & hợp đồng'},{k:'pay_terms',l:'Hình thức',t:'sel',o:'pay_terms',def:'cong_no',chips:true,list:true},{k:'pay_method',l:'Cách thanh toán',t:'sel',o:'pay_method2'},{k:'pay_account',l:'Nhận vào tài khoản',t:'sel',o:'pay_acc'},{k:'pay_account_id',l:'Tài khoản cụ thể',t:'fk',ref:'pay_accounts'},{k:'credit_days',l:'Công nợ (số ngày)',t:'num',hint:'Để trống = theo hồ sơ khách hàng (mặc định 30 ngày)'},{k:'credit_from',l:'Tính công nợ từ',t:'sel',o:'credit_from',def:'ngay_giao'},{k:'contract_id',l:'Hợp đồng áp dụng',t:'fk',ref:'contracts'},{k:'contract_until',l:'Hợp đồng hiệu lực đến',t:'date'},
+   {h:'Thanh toán & hợp đồng'},{k:'pay_terms',l:'Hình thức',t:'sel',o:'pay_terms',def:'cong_no',chips:true,list:true},{k:'pay_method',l:'Cách thanh toán',t:'sel',o:'pay_method2'},{k:'pay_account',l:'Nhận vào tài khoản',t:'sel',o:'pay_acc'},{k:'pay_account_id',l:'Tài khoản cụ thể',t:'fk',ref:'pay_accounts'},{k:'credit_days',l:'Công nợ (số ngày)',t:'num',hint:'Để trống = theo hồ sơ khách hàng (mặc định 30 ngày)'},{k:'credit_from',l:'Tính công nợ từ',t:'sel',o:'credit_from',def:'ngay_doi_soat'},{k:'recon_expected',l:'Ngày đối soát dự kiến',t:'date',hint:'Ngày dự kiến kế toán đối soát với khách'},{k:'recon_date',l:'Ngày đối soát thực tế',t:'date',list:true,hint:'Kế toán bấm “Đối soát xong” và chọn ngày thật → công nợ khách bắt đầu tính từ ngày này. Để trống = chưa đối soát, chưa tính hạn.'},{k:'partner_recon_date',l:'Ngày đối soát với nhà xe',t:'date',hint:'Công nợ trả đối tác tính từ ngày này – để trống sẽ lấy theo ngày đối soát với khách'},{k:'contract_id',l:'Hợp đồng áp dụng',t:'fk',ref:'contracts'},{k:'contract_until',l:'Hợp đồng hiệu lực đến',t:'date'},
    {h:'Chứng từ giao hàng (biên bản, phiếu giao, hóa đơn ký nhận)'},{k:'doc_due',l:'Hạn thu hồi chứng từ',t:'date',hint:'Tự đặt theo ngày giao/ngày chi + số ngày cài ở Theo dõi chứng từ'},{k:'doc_done_at',l:'Ngày hoàn tất chứng từ',t:'date',list:true,hint:'Tự ghi khi chuyển Đã thu / Đã trả khách'},{k:'doc_submitter',l:'Người nộp chứng từ',t:'fk',ref:'people',hint:'Mặc định tài xế / người chi'},{k:'doc_collector',l:'Người thu chứng từ',t:'fk',ref:'people',hint:'Tự ghi người bấm Đã thu'},{k:'doc_receiver',l:'Người nhận cuối',t:'fk',ref:'people',hint:'Kế toán giữ bản gốc hoặc người bên khách nhận lại – gõ tay nếu là người ngoài'},{k:'doc_note',l:'Ghi chú chứng từ',t:'text'}]},
  requests:{table:'khg_requests',title:'Nhu cầu & việc phát sinh',order:['created_at',false],search:['content'],filters:[['status','req_status'],['kind','req_kind']],
   f:[{k:'created_at',l:'Lúc',t:'dt',ro:true,list:true},{k:'kind',l:'Loại',t:'sel',o:'req_kind',list:true,def:'nhu_cau'},{k:'content',l:'Nội dung',t:'area',list:true},
@@ -1284,7 +1284,8 @@ async function viewRecon(m){await Promise.all(['customers','people','vehicles'].
     await sumDraw();
     await dataGrid($('#rcG'),'orders',{eq:{customer_id:st.cus},from:st.from,to:st.to,where:q=>SS?q.in('status',SS):q.neq('status','huy'),onChange:sumDraw,
       actions:[['→ Đối soát','doi_soat'],['→ Đã xuất HĐ','xuat_hd'],['→ Đã thu tiền','da_thu']].map(([l,s])=>({label:l,fn:async(ids,rows)=>{const miss=rows.filter(r=>!DOC_DONE.includes(r.doc_status)).length;if(miss&&!confirm(`${miss} đơn chưa thu chứng từ. Vẫn chuyển ${ids.length} đơn sang “${O.order_status[s]}”?`))return;
-        const {error}=await sb.from('khg_orders').update({status:s}).in('id',ids);toast(error?error.message:`Đã chuyển ${ids.length} đơn → ${O.order_status[s]}`);return true}})).concat([{label:'⬇ Bảng kê đối soát',always:true,fn:async(ids,rows,all)=>{const list=ids.length?rows:all;reconExport(list,L[st.cus]||'',st)}}])});};
+        const patch={status:s};if(s==='doi_soat'){const d=await reconAsk(ids.length);if(!d)return;patch.recon_date=d}
+        const {error}=await sb.from('khg_orders').update(patch).in('id',ids);toast(error?error.message:`Đã chuyển ${ids.length} đơn → ${O.order_status[s]}${patch.recon_date?' · công nợ khách & nhà xe tính từ '+fmtD(patch.recon_date):''}`);return true}})).concat([{label:'⬇ Bảng kê đối soát',always:true,fn:async(ids,rows,all)=>{const list=ids.length?rows:all;reconExport(list,L[st.cus]||'',st)}}])});};
   $('#rcGo').onclick=run;$('#rcC').onchange=run;if(st.cus)run()}
 function reconExport(list,cus,st){const P=REF.people||{},V=REF.vehicles||{};const rows=list.map((r,i)=>({'STT':i+1,'Mã đơn KHG':r.code,'Mã đơn khách':r.cust_order_code||'','Ngày':fmtD(orderDay(r)),'Điểm lấy':r.pickup||'','Điểm giao':r.dropoff||'','Hàng hóa':r.cargo||'','Số kiện':r.packages??'','Số khối (m³)':r.volume_m3??'','Tấn':r.weight_t??'','Xe':V[r.vehicle_id]||r.plate_text||'','Tài xế':P[r.driver_id]||(r.fk_text||{}).driver_id||'',
   'Cước':Number(r.fee_freight||0),'Bốc xếp':Number(r.fee_loading||0),'Thêm điểm':Number(r.fee_extra_stops||0),'Chờ, lưu xe':Number(r.fee_wait||0),'Cầu đường':Number(r.fee_toll||0),'Thu khác':Number(r.fee_other||0),'Phụ thu':Number(r.extra_charge||0),'Giảm giá':Number(r.discount_amount||0),'Thành tiền':Number(r.revenue||0),'Chứng từ':(O.docst||{})[r.doc_status]||'','Ghi chú':r.note||''}));
@@ -2767,7 +2768,8 @@ const VIEWS={
    await renderList('orders',m.querySelector('#h'),{sumKey:'revenue',onOpen:(r,after)=>openOrder(r,after),
     rowActions:r=>next[r.status]?`<button class="btn s" data-act="${next[r.status]}" data-id="${r.id}">→ ${O.order_status[next[r.status]]}</button>`:'',
     onActs:async(st,id)=>{if(['doi_soat','xuat_hd','da_thu'].includes(st)){const {data:o}=await sb.from('khg_orders').select('code,doc_status').eq('id',id).single();if(o&&!DOC_DONE.includes(o.doc_status)&&!confirm(`Đơn ${o.code} ${o.doc_status==='that_lac'?'đang THẤT LẠC chứng từ':'chưa thu chứng từ'}.\nĐối soát, xuất hóa đơn, thu tiền khi chưa có chứng từ dễ bị khách từ chối thanh toán.\nVẫn chuyển sang “${O.order_status[st]}”?`))return}
-      const {error}=await sb.from('khg_orders').update({status:st}).eq('id',id);toast(error?error.message:'Đã chuyển: '+O.order_status[st]+(st==='da_giao'?' · đã tạo công nợ':''))},
+      let patch={status:st};if(st==='doi_soat'){const d=await reconAsk(1);if(!d)return;patch.recon_date=d}
+      const {error}=await sb.from('khg_orders').update(patch).eq('id',id);toast(error?error.message:'Đã chuyển: '+O.order_status[st]+(st==='da_giao'?' · đã tạo công nợ':'')+(patch.recon_date?' · công nợ tính từ '+fmtD(patch.recon_date):''))},
     exportExtra:r=>({'Tải xe (tấn)':loadClass(r)??'','Tháng':orderDay(r).slice(0,7)})})},
  requests:async m=>{m.innerHTML='<h2>Nhu cầu & việc phát sinh</h2><p class="sub">Nhu cầu khách, báo giá, sự cố và việc gửi từ bot Telegram.</p><div id="h"></div>';await renderList('requests',m.querySelector('#h'),{
    rowActions:r=>r.status==='moi'?`<button class="btn s" data-act="dang_xu_ly" data-id="${r.id}">Nhận xử lý</button>`:r.status==='dang_xu_ly'?`<button class="btn s" data-act="xong" data-id="${r.id}">Xong</button>`:'',
@@ -6128,9 +6130,10 @@ function opPanel(frm,row){v48Css();const g=k=>frm.elements.namedItem(k);const pc
   const loadVD=async()=>{if(!st.pid){st.V=[];st.D=[];return}const [a,b]=await Promise.all([sb.from('khg_vehicles').select('id,plate,vehicle_type,load_t,box_size').eq('partner_id',st.pid).is('archived_at',null).order('plate'),sb.from('khg_partner_drivers').select('id,full_name,phone,person_id,license_class').eq('partner_id',st.pid).is('archived_at',null).order('full_name')]);st.V=a.data||[];st.D=b.data||[]};
   const tot=()=>pclTotal(st.lines);
   const sync=()=>{pc.value=st.on?moneyFmt(tot()):pc.value;const ph=g('partner_id');if(ph&&st.on){ph.value=st.pid||'';const t=g('partner_id__t');if(t){const p=st.P.find(x=>x.id===st.pid);t.value=p?p.name:''}}};
-  const due=()=>{if(st.terms!=='cong_no')return baseDay();const d=new Date(baseDay()+'T00:00');d.setDate(d.getDate()+Number(st.days||0));return d.toISOString().slice(0,10)};
+  const rcb=()=>((g('partner_recon_date')||{}).value||(g('recon_date')||{}).value||'').slice(0,10);const due=()=>{if(st.terms!=='cong_no')return baseDay();if(!rcb())return null;const d=new Date(rcb()+'T00:00');d.setDate(d.getDate()+Number(st.days||0));return d.toISOString().slice(0,10)};
   const sums=()=>{const T=tot(),R=rev(),dp=moneyParse((g('driver_pay')||{}).value||'')||0;const gp=R-T-dp;
-    const el=box.querySelector('#opTot');if(el)el.innerHTML=`<span>Tổng phải trả đối tác: <b class="big">${fmtN(T)} đ</b></span><span>Doanh thu đơn: <b>${fmtN(R)}</b></span><span>Lãi gộp: <b style="color:${gp>=0?'#15803D':'#B91C1C'}">${fmtN(gp)}</b>${R?' ('+(gp/R*100).toFixed(1).replace('.',',')+'%)':''}</span><span>Hạn trả: <b>${fmtD(due())}</b>${st.terms==='cong_no'?' ('+(st.days||0)+' ngày từ ngày giao)':''}</span>`;sync()};
+    const el=box.querySelector('#opTot');if(el)el.innerHTML=`<span>Tổng phải trả đối tác: <b class="big">${fmtN(T)} đ</b></span><span>Doanh thu đơn: <b>${fmtN(R)}</b></span><span>Lãi gộp: <b style="color:${gp>=0?'#15803D':'#B91C1C'}">${fmtN(gp)}</b>${R?' ('+(gp/R*100).toFixed(1).replace('.',',')+'%)':''}</span><span>Hạn trả: <b>${due()?fmtD(due()):'chờ đối soát'}</b>${st.terms==='cong_no'?' ('+(st.days||0)+' ngày từ ngày đối soát với nhà xe'+(rcb()?' '+fmtD(rcb()):'')+')':''}</span>`;sync()};
+  frm.addEventListener('change',e=>{if(/recon_date$/.test(e.target.name||''))sums()});
   const draw=()=>{const p=st.P.find(x=>x.id===st.pid);const vd=st.V.find(x=>x.id===st.vid);const dd=st.D.find(x=>x.id===st.did);
     box.innerHTML=`<h4>🤝 Xe đối tác liên kết</h4><label style="flex-direction:row;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="opOn" ${st.on?'checked':''}> Đơn này chạy bằng xe của đối tác liên kết (KHG trả cước cho đối tác)</label>
     <div class="${st.on?'':'off'}" id="opB" ${st.on?'':'style="display:none"'}>
@@ -6189,7 +6192,7 @@ async function partnerPayView(h){v48Css();dxCss();
   let rows=[],DR={},VV={};const sel=new Set();
   const late=r=>r.partner_pay_status!=='da_tra'&&r.partner_pay_due&&String(r.partner_pay_due).slice(0,10)<today();
   const load=async()=>{$('#ppB').innerHTML='<div class="empty">Đang tải…</div>';
-    let q=sb.from('khg_orders').select('id,code,cust_order_code,created_at,scheduled_at,delivered_at,status,customer_id,customer_text,project_id,partner_id,vehicle_id,plate_text,partner_driver_id,fk_text,ext_driver,revenue,partner_cost,partner_cost_lines,partner_pay_terms,partner_pay_days,partner_pay_due,partner_pay_status,partner_paid_at,partner_note,pickup,dropoff')
+    let q=sb.from('khg_orders').select('id,code,cust_order_code,created_at,scheduled_at,delivered_at,status,customer_id,customer_text,project_id,partner_id,vehicle_id,plate_text,partner_driver_id,fk_text,ext_driver,revenue,partner_cost,partner_cost_lines,partner_pay_terms,partner_pay_days,partner_pay_due,partner_pay_status,partner_paid_at,partner_note,pickup,dropoff,recon_date,partner_recon_date')
       .not('partner_id','is',null).neq('status','huy').gte('created_at',$('#ppF').value).lte('created_at',$('#ppT').value+'T23:59:59').order('created_at',{ascending:false}).limit(3000);
     if($('#ppP').value)q=q.eq('partner_id',$('#ppP').value);if($('#ppJ').value)q=q.eq('project_id',$('#ppJ').value);
     const {data,error}=await q;if(error){$('#ppB').innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}rows=data||[];
@@ -6211,12 +6214,12 @@ async function partnerPayView(h){v48Css();dxCss();
     $('#ppG').innerHTML=L.length?`<div class="grid2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin:10px 0"><div class="card"><h3>Theo đối tác</h3><div class="dxw" style="max-height:260px"><table class="dx"><thead><tr><th>Đối tác</th>${gh}</tr></thead><tbody>${grp(r=>r.partner_id,k=>PN[k]||'—')}</tbody></table></div></div>
       <div class="card"><h3>Theo dự án</h3><div class="dxw" style="max-height:260px"><table class="dx"><thead><tr><th>Dự án</th>${gh}</tr></thead><tbody>${grp(r=>r.project_id,k=>k==='_'?'(Không gắn dự án)':JN[k]||'—')}</tbody></table></div></div></div>`:'';
     const lines=r=>{const l=r.partner_cost_lines||{};return PCL.filter(([k])=>Number(l[k])).map(([k,n])=>`${n}: ${k==='khau_tru'?'−':''}${fmtN(l[k])}`).join('<br>')||'<span class="sub">chưa tách khoản</span>'};
-    $('#ppB').innerHTML=(sel.size&&!RO?`<div class="dbulk"><b>Đã chọn ${sel.size} đơn</b> · ${fmtN(sum(rows.filter(r=>sel.has(r.id)),r=>r.partner_cost))} đ<span style="flex:1"></span><button class="btn s g" data-pb="da_tra">✓ Đánh dấu đã trả</button><button class="btn s" data-pb="chua_tra">↺ Chưa trả</button><button class="btn s" data-px>Bỏ chọn</button></div>`:'')+
+    $('#ppB').innerHTML=(sel.size&&!RO?`<div class="dbulk"><b>Đã chọn ${sel.size} đơn</b> · ${fmtN(sum(rows.filter(r=>sel.has(r.id)),r=>r.partner_cost))} đ<span style="flex:1"></span><button class="btn s g" data-pb="da_tra">✓ Đánh dấu đã trả</button><button class="btn s" data-pb="chua_tra">↺ Chưa trả</button><button class="btn s" data-prc>📅 Đã đối soát với nhà xe</button><button class="btn s" data-px>Bỏ chọn</button></div>`:'')+
       (L.length?`<div class="dxw"><table class="dx"><thead><tr><th class="ck">${RO?'':'<input type="checkbox" id="ppAll">'}</th><th>Mã đơn</th><th>Ngày</th><th>Đối tác</th><th>Xe · tài xế</th><th>Dự án · khách</th><th class="n">Doanh thu</th><th>Các khoản trả đối tác</th><th class="n">Tổng phải trả</th><th class="n">Lãi gộp</th><th>Hình thức</th><th>Hạn trả</th><th>Tình trạng</th></tr></thead><tbody>
       ${L.map(r=>`<tr data-id="${r.id}" class="${sel.has(r.id)?'sel':''} ${late(r)?'doclate':''}"><td class="ck">${RO?'':`<input type="checkbox" data-ck ${sel.has(r.id)?'checked':''}>`}</td><td><a href="#" data-op>${esc(r.code||'')}</a>${r.cust_order_code?'<br><span class="sub">'+esc(r.cust_order_code)+'</span>':''}</td><td>${fmtD(orderDay(r))}</td><td>${esc(PN[r.partner_id]||'')}</td>
         <td>${esc(VV[r.vehicle_id]||r.plate_text||'')}<br><span class="sub">${esc(drv(r))}</span></td><td>${esc(JN[r.project_id]||'')}<br><span class="sub">${esc((REF.customers||{})[r.customer_id]||r.customer_text||'')}</span></td><td class="n">${fmtN(r.revenue)}</td><td style="white-space:normal;min-width:170px;font-size:12px">${lines(r)}</td>
         <td class="n"><b>${fmtN(r.partner_cost)}</b></td><td class="n" style="color:${(r.revenue-r.partner_cost)<0?'#B91C1C':''}">${fmtN((+r.revenue||0)-(+r.partner_cost||0))}</td><td>${esc(O.ppay_terms[r.partner_pay_terms]||'')}${r.partner_pay_terms==='cong_no'&&r.partner_pay_days!=null?' '+r.partner_pay_days+' ngày':''}</td>
-        <td>${r.partner_pay_due?fmtD(r.partner_pay_due):''}${late(r)?'<br><span class="pill red">Quá hạn</span>':''}</td><td><span class="pill ${r.partner_pay_status==='da_tra'?'green':'amber'}">${esc(O.ppay_status[r.partner_pay_status||'chua_tra'])}</span>${r.partner_paid_at?'<br><span class="sub">'+fmtD(r.partner_paid_at)+'</span>':''}</td></tr>`).join('')}</tbody>
+        <td>${r.partner_pay_due?fmtD(r.partner_pay_due):r.partner_pay_terms==='cong_no'?'<span class="pill amber">Chờ đối soát</span>':''}${r.partner_recon_date?'<br><span class="sub">ĐS '+fmtD(r.partner_recon_date)+'</span>':''}${late(r)?'<br><span class="pill red">Quá hạn</span>':''}</td><td><span class="pill ${r.partner_pay_status==='da_tra'?'green':'amber'}">${esc(O.ppay_status[r.partner_pay_status||'chua_tra'])}</span>${r.partner_paid_at?'<br><span class="sub">'+fmtD(r.partner_paid_at)+'</span>':''}</td></tr>`).join('')}</tbody>
       <tfoot><tr><td class="ck"></td><td>${L.length} đơn</td><td></td><td></td><td></td><td></td><td class="n">${fmtN(sum(L,r=>r.revenue))}</td><td></td><td class="n">${fmtN(sum(L,r=>r.partner_cost))}</td><td class="n">${fmtN(sum(L,r=>(+r.revenue||0)-(+r.partner_cost||0)))}</td><td></td><td></td><td></td></tr></tfoot></table></div>`
       :'<div class="empty">Chưa có đơn chạy xe đối tác trong mục này. Khi tạo đơn, tick “Đơn này chạy bằng xe của đối tác liên kết”.</div>');
     const a=$('#ppAll');if(a)a.onchange=()=>{L.forEach(r=>a.checked?sel.add(r.id):sel.delete(r.id));draw()};
@@ -6224,6 +6227,7 @@ async function partnerPayView(h){v48Css();dxCss();
       tr.querySelector('[data-op]').onclick=async e=>{e.preventDefault();const {data:full}=await sb.from('khg_orders').select('*').eq('id',r.id).single();openOrder(full,load)}});
     $('#ppB').querySelectorAll('[data-pb]').forEach(b=>b.onclick=async()=>{const ids=[...sel];if(b.dataset.pb==='da_tra'&&!confirm(`Xác nhận đã trả đối tác ${ids.length} đơn, tổng ${fmtN(sum(rows.filter(r=>sel.has(r.id)),r=>r.partner_cost))} đ?`))return;
       const {error}=await sb.from('khg_orders').update({partner_pay_status:b.dataset.pb}).in('id',ids);if(error)return toast('Lỗi: '+error.message);toast('Đã cập nhật '+ids.length+' đơn');await load()});
+    const prc=$('#ppB').querySelector('[data-prc]');if(prc)prc.onclick=async()=>{const ids=[...sel];const d=await reconAsk(ids.length,'nhà xe');if(!d)return;const {error}=await sb.from('khg_orders').update({partner_recon_date:d}).in('id',ids);if(error)return toast('Lỗi: '+error.message);toast(`Đã ghi ngày đối soát nhà xe ${fmtD(d)} cho ${ids.length} đơn – hạn trả tính từ ngày này`);await load()};
     const px=$('#ppB').querySelector('[data-px]');if(px)px.onclick=()=>{sel.clear();draw()}};
   ['#ppP','#ppJ','#ppF','#ppT'].forEach(s=>$(s).onchange=load);$('#ppS').onchange=draw;$('#ppQ').oninput=draw;
   $('#ppX').onclick=()=>xlsx('Tra_doi_tac_theo_don',{'Trả đối tác':view().map(r=>{const l=r.partner_cost_lines||{};const o={'Mã đơn':r.code,'Mã đơn khách':r.cust_order_code||'','Ngày':fmtD(orderDay(r)),'Đối tác':PN[r.partner_id]||'','Xe':VV[r.vehicle_id]||r.plate_text||'','Tài xế':drv(r),'Dự án':JN[r.project_id]||'','Khách hàng':(REF.customers||{})[r.customer_id]||r.customer_text||'','Doanh thu':Number(r.revenue||0)};
@@ -6871,20 +6875,27 @@ async function orderV49(frm,row){v49Css();const g=k=>frm.elements.namedItem(k);c
     if(cd&&cd.value===''&&!r0.id)cd.value=p&&p.pay_days!=null?p.pay_days:45;if(cf&&!r0.id&&!cf.dataset.v49){cf.value=(p&&p.pay_from)||'ngay_doi_soat';cf.dataset.v49=1}if(cf&&!r0.id&&p&&p.pay_from)cf.value=p.pay_from;if(cd&&!r0.id&&p&&p.pay_days!=null)cd.value=p.pay_days;
     if(pt2&&pt2.tagName==='SELECT'&&!r0.id&&!pt2.value)pt2.value='cong_no';
     const d=cd&&cd.value!==''?cd.value:'(theo hồ sơ khách)',f=cf?(O.credit_from||{})[cf.value]||'':'';
-    payBox.innerHTML=`💳 <b>Thời hạn thanh toán theo hợp đồng: ${esc(String(d))} ngày</b> kể từ <b>${esc(f.toLowerCase()||'ngày đối soát')}</b>${p?' · theo dự án '+esc(p.name):''} <span class="sub">– kế toán theo dõi công nợ đến hạn từ ngày đối soát xong</span>`};
-  ['credit_days','credit_from'].forEach(k=>{const e=g(k);if(e)e.addEventListener('change',payDefaults)});
+    const ptv=(()=>{const e=g('pay_terms');return e?(e.value||(e.length?[...e].find(x=>x.checked)?.value:'')||''):''})()||'cong_no';const cn=ptv==='cong_no';const byRc=cf&&cf.value==='ngay_doi_soat';
+    ['recon_expected','recon_date'].forEach(k=>{const l=lab(k);if(l)l.style.display=cn?'':'none'});[lab('credit_days'),lab('credit_from')].forEach(l=>{if(l)l.style.display=cn?'':'none'});
+    const rd=(g('recon_date')||{}).value||'',re=(g('recon_expected')||{}).value||'';const dn=Number(cd&&cd.value!==''?cd.value:NaN);const dueTxt=rd&&isFinite(dn)?fmtD(addDays(rd.slice(0,10),dn)):'';
+    payBox.innerHTML=!cn?`💳 <b>${esc((O.pay_terms||{})[ptv]||'Thanh toán ngay')}</b> – không theo dõi công nợ.`:
+      `💳 <b>Công nợ ${esc(String(d))} ngày</b> tính từ <b>${esc(f.toLowerCase()||'ngày đối soát')}</b>${p?' · theo dự án '+esc(p.name):''}<br>`+
+      (byRc?(rd?`✓ <b style="color:#15803D">Đã đối soát ngày ${fmtD(rd)}</b>${dueTxt?` → hạn khách thanh toán <b>${dueTxt}</b>`:''}`:`⏳ <b style="color:#B45309">Chưa đối soát</b> – chưa tính hạn công nợ${re?' · dự kiến đối soát '+fmtD(re):''}. Khi kế toán đối soát xong, bấm nút bên cạnh và chọn ngày thực tế.`)+
+      (has(['admin','ke_toan'])?` <button type="button" class="btn s ${rd?'':'p'}" id="v50Rc">${rd?'📅 Sửa ngày đối soát':'✓ Đối soát xong'}</button>`:''):'<span class="sub">Hạn tính theo mốc đã chọn.</span>');
+    const rb=payBox.querySelector('#v50Rc');if(rb)rb.onclick=async()=>{const dd=await (async()=>{const i=g('recon_date');if(!i)return null;const l=lab('recon_date');if(l)l.style.display='';i.value=i.value||today();i.focus();try{i.showPicker&&i.showPicker()}catch(e){}i.dispatchEvent(new Event('change',{bubbles:true}));return i.value})();if(dd)toast('Đã chọn ngày đối soát '+fmtD(dd)+' – sửa lại nếu khác, rồi bấm Lưu')}};
+  ['credit_days','credit_from','recon_date','recon_expected','pay_terms'].forEach(k=>{const e=g(k);if(e&&e.addEventListener)e.addEventListener('change',payDefaults)});frm.addEventListener('change',e=>{if(e.target&&e.target.name==='pay_terms')payDefaults()});
   // ---- XE & TÀI XẾ: đưa xuống cuối, chọn loại xe rồi mới hiện ô nhập
   const vh=document.createElement('div');vh.className='hd';vh.textContent='XE & TÀI XẾ VẬN HÀNH';frm.appendChild(vh);
   const modeBox=document.createElement('div');modeBox.className='v49mode';frm.appendChild(modeBox);
   const sec=document.createElement('div');sec.style.cssText='grid-column:1/-1;display:contents';frm.appendChild(sec);
-  const opp=frm.querySelector('.opp');const pick=[lab('vehicle_id__t'),lab('fleet_kind'),opp,frm.querySelector('label[data-fk-k="partner_id"]'),lab('driver_id__t'),lab('partner_cost'),lab('driver_pay')].filter(Boolean);
+  const opp=frm.querySelector('.opp');const pick=[lab('vehicle_id__t'),lab('fleet_kind'),opp,lab('partner_recon_date'),frm.querySelector('label[data-fk-k="partner_id"]'),lab('driver_id__t'),lab('partner_cost'),lab('driver_pay')].filter(Boolean);
   pick.forEach(el=>frm.appendChild(el));
   const hint=document.createElement('div');hint.className='v49b';hint.id='v49Hint';frm.appendChild(hint);
   const mgn=document.createElement('div');mgn.className='v49b';mgn.id='v49M';frm.appendChild(mgn);
   let mode=r0.id?(r0.partner_id||r0.fleet_kind==='lien_ket'?'lien_ket':r0.fleet_kind&&!['so_huu','chung','kho'].includes(r0.fleet_kind)?'khac':(r0.vehicle_id||r0.driver_id||r0.fleet_kind==='so_huu'?'so_huu':'')):'';
   const show=(el,on)=>{if(el)el.style.display=on?'':'none'};
   const setMode=(m,init)=>{mode=m;modeBox.querySelectorAll('label').forEach(l=>l.classList.toggle('on',l.dataset.m===m));
-    show(lab('vehicle_id__t'),m==='so_huu'||m==='khac');show(lab('driver_id__t'),m==='so_huu'||m==='khac');show(lab('driver_pay'),m==='so_huu');show(lab('partner_cost'),m==='khac');show(lab('fleet_kind'),false);show(opp,m==='lien_ket');
+    show(lab('vehicle_id__t'),m==='so_huu'||m==='khac');show(lab('driver_id__t'),m==='so_huu'||m==='khac');show(lab('driver_pay'),m==='so_huu');show(lab('partner_cost'),m==='khac');show(lab('fleet_kind'),false);show(opp,m==='lien_ket');show(lab('partner_recon_date'),m==='lien_ket');
     const pcL=lab('partner_cost');if(pcL){const s=pcL.querySelector('span,b')||pcL.firstChild;if(s&&s.nodeType===1)s.textContent='Trả xe thuê ngoài / NCC'}
     const fk=g('fleet_kind');if(fk&&m)fk.value=m==='khac'?'thue_xac':m;
     const on=frm.querySelector('#opOn');if(on&&((m==='lien_ket')!==on.checked)){on.checked=m==='lien_ket';on.dispatchEvent(new Event('change',{bubbles:true}))}
@@ -6967,6 +6978,83 @@ VIEWS.projpnl=async m=>{v49Css();await Promise.all(['customers'].map(ensureRef))
   if(!low.length&&!nc)return;v49Css();await ensureRef('customers');const C=REF.customers||{};const d=document.createElement('div');d.className='v49b v49warn';d.style.margin='0 0 12px';
   d.innerHTML=`⚠ <b>Cảnh báo lãi dự án (30 ngày):</b> ${low.map(r=>esc(r.project||String(C[r.customer_id]||'Đơn chưa gắn khách').slice(0,40))+' <b>'+String(r.margin).replace('.',',')+'%</b> (tối thiểu '+r.margin_min+'%)').join(' · ')||''}${nc?(low.length?' · ':'')+nc+' đơn xe liên kết chưa nhập giá trả nhà xe':''} <button class="btn s" id="ceoPP" style="margin-left:8px">Xem lãi lỗ dự án</button>`;
   const hero=m.querySelector('.hero');(hero||m.firstElementChild).insertAdjacentElement('afterend',d);d.querySelector('#ceoPP').onclick=()=>go('projpnl')}catch(e){}}}
+
+// ===================== v50: MỌI CON SỐ TRONG BÁO CÁO CEO ĐỀU BẤM ĐƯỢC → DATA CHI TIẾT (XEM + SỬA) =====================
+function rdxCss(){if(document.getElementById('rdxCss'))return;const s=document.createElement('style');s.id='rdxCss';s.textContent=`
+.rdx-host .kpi[data-dg]{cursor:pointer;transition:box-shadow .15s}.rdx-host .kpi[data-dg]:hover{box-shadow:0 0 0 2px #93C5FD}
+.rdx-host .kpi[data-dg]::after{content:'🔎 Xem & sửa data chi tiết';display:block;margin-top:6px;font-size:11px;font-weight:600;color:#1D4ED8}
+.rdx-b{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:2px 9px;border:1px solid #BFDBFE;border-radius:99px;background:#EFF6FF;color:#1D4ED8;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;vertical-align:middle}
+.rdx-b:hover{background:#DBEAFE}
+.rdx-host td[data-dg]{cursor:pointer;color:#1D4ED8}.rdx-host td[data-dg]:hover{text-decoration:underline}
+.rdx-host td[data-dg]::before{content:'🔎 ';font-size:10px}
+.rdx-host .hb[data-dg],.rdx-host .it[data-dg]{cursor:pointer;border-radius:6px}.rdx-host .hb[data-dg]:hover,.rdx-host .it[data-dg]:hover{background:#EFF6FF}`;document.head.appendChild(s)}
+const RDX_PER={fin:'fin',exec:'exec',ceo:'ceo',overview:'overview',analytics:'analytics',pnl:'pnl',fuel:'fuel'};
+function rdxPeriod(k,h){if(k==='projpnl'){const d=[...h.querySelectorAll('input[type=date]')].map(i=>i.value).filter(Boolean);if(d.length>=2)return {from:d[0],to:d[1]}}
+  const P=periodRange(PST[RDX_PER[k]]||{kind:'thang'});return {from:P.from,to:P.to}}
+// từ khoá tiêu đề / nhãn → mục dữ liệu
+function rdxRule(t,k,per){const x=PSV(t);const p={...per};const AD={allDates:true};
+  const R=[[/no vay|tien vay/,['loans',AD]],[/ton quy|so quy|dong tien|thu chi/,['cash',p]],
+    [/phai thu|cong no khach|con no/,['receivables',AD]],[/phai tra|tra doi tac|tra xe lien ket|ncc/,['payables',AD]],
+    [/tam ung/,['advances',{eq:{status:'cho_duyet'},...AD}]],[/cho duyet/,['expenses',p]],
+    [/nhien lieu|do dau|ton dau|het dau|dau cho ca|km\/lit|km da chay|don gia binh quan|vuot dinh muc|bao km|tieu hao|cap cho ca|ca sau|tung lan do/,['expenses',{...p,eq:{item:'nhien_lieu'}}]],
+    [/co mat|cham cong/,['attendance',{from:today(),to:today()}]],[/luong/,['salary',p]],
+    [/giay to|het han|dang kiem/,['vehicles',AD]],[/hop dong/,['contracts',AD]],[/nhu cau/,['requests',AD]],
+    [/xe trong|doi xe|so xe/,['vehicles',AD]],[/nguon luc|nhan su/,['people',AD]],[/viec can|cong viec/,['tasks',AD]],
+    [/du toan theo thang|so xe chay/,['fleet_plan',AD]],[/du toan|dinh muc/,['budget_rules',AD]],[/hang ton|ton kho|von nam/,['dms_products',AD]],
+    [/phan phoi|ban hang|san pham/,['dms_orders',p]],[/chung tu/,['orders',{...p,title:'Chứng từ đơn hàng'}]],
+    [/chi phi/,['expenses',p]],[/duoi nguong|thieu chi phi/,['orders',p]],
+    [/hom nay|lich chay/,['orders',{from:today(),to:today()}]],
+    [/doanh thu|lai|don|chuyen|khach|xe|tai xe|tai trong|tinh|mang|dich vu|du an|doi tac|lien ket|co cau|van tai|bien|top|dong|ma tran|luong van hanh/,['orders',p]]];
+  for(const [re,v] of R)if(re.test(x))return v;return null}
+function rdxSet(el,n,o,title){if(!E[n])return false;el.setAttribute('data-dg',JSON.stringify({n,...o,title:o.title||title}));el.title='Bấm để xem và sửa data chi tiết';return true}
+// tra ngược tên → id (khách, xe, tài xế, đối tác, dự án)
+let RDXM=null;function rdxMap(){RDXM=new Map();const add=(ref,f)=>Object.entries(REF[ref]||{}).forEach(([id,l])=>{const k=PSV(String(l||'')).replace(/\s+/g,' ').trim();if(k&&!RDXM.has(k))RDXM.set(k,[ref,id,f])});
+  add('vehicles','vehicle_id');add('customers','customer_id');add('people','driver_id');add('partners','partner_id');add('projects','project_id');return RDXM}
+function rdxLook(txt){const k=PSV(String(txt||'').replace(/^🔎\s*/,'')).replace(/\s+/g,' ').trim();if(!k)return null;const m=RDXM||rdxMap();if(m.has(k))return m.get(k);
+  const k2=k.split(/ · | – | - |\(/)[0].trim();return m.get(k2)||null}
+function rdxOpt(ent,label){const L=String(label||'').trim();for(const f of fields(E[ent]||{f:[]}))if(f.t==='sel'&&f.o&&O[f.o]){const hit=Object.entries(O[f.o]).find(([v,l])=>String(l).trim()===L);if(hit)return {[f.k]:hit[0]}}return null}
+function rdxItem(el,label,ctx,k,per){// 1 dòng dữ liệu (dòng bảng, thanh biểu đồ, mục danh sách)
+  const T=String(label||'').trim();if(!T||T.length>80)return false;const isFuel=k==='fuel'||/dau|nhien lieu/.test(PSV(ctx));
+  const NUL=[[/^chua gan xe/,'vehicle_id'],[/^chua gan tai xe/,'driver_id'],[/^chua ghi tinh/,'drop_province'],[/^chua ro tai/,'weight_t']].find(([re])=>re.test(PSV(T)));if(NUL)return rdxSet(el,'orders',{...per,eq:{[NUL[1]]:null}},'Đơn hàng · '+T);
+  if(/^KHG-|^[A-Z]{2,4}-\d{6}-\d+/.test(T))return rdxSet(el,'orders',{eq:{code:T.split(/\s/)[0]},allDates:true},'Đơn '+T.split(/\s/)[0]);
+  const hit=rdxLook(T);
+  if(hit){const [ref,id,f]=hit;if(isFuel&&(ref==='vehicles'||ref==='people'))return rdxSet(el,'expenses',{...per,eq:{item:'nhien_lieu',[ref==='vehicles'?'vehicle_id':'person_id']:id}},'Nhiên liệu · '+T);
+    if(/phai tra|doi tac|ncc/.test(PSV(ctx))&&ref==='partners')return rdxSet(el,'orders',{...per,eq:{partner_id:id}},'Đơn chạy cho đối tác '+T);
+    if(/phai thu|qua han|con no/.test(PSV(ctx))&&ref==='customers')return rdxSet(el,'receivables',{eq:{customer_id:id},allDates:true},'Công nợ phải thu · '+T);
+    if(/chi phi/.test(PSV(ctx))&&!/doanh thu/.test(PSV(ctx))&&(ref==='vehicles'||ref==='people'))return rdxSet(el,'expenses',{...per,eq:{[ref==='vehicles'?'vehicle_id':'person_id']:id}},'Chi phí · '+T);
+    return rdxSet(el,'orders',{...per,eq:{[f]:id}},'Đơn hàng · '+T)}
+  const cx=PSV(ctx);
+  if(/chi phi theo khoan|chi phi gom/.test(cx)){const e=rdxOpt('expenses',T);return rdxSet(el,'expenses',{...per,...(e?{eq:e}:{})},'Chi phí · '+T)}
+  if(/tinh|thanh pho/.test(cx)&&!/doanh thu tu dau/.test(cx))return rdxSet(el,'orders',{...per,eq:{drop_province:T}},'Đơn giao '+T);
+  if(/phai tra theo nhom/.test(cx))return rdxSet(el,'payables',{allDates:true},'Phải trả · '+T);
+  const o=rdxOpt('orders',T);if(o)return rdxSet(el,'orders',{...per,eq:o},'Đơn hàng · '+T);
+  if(/loai xe|xe lien ket|nen dung/.test(cx)){const v=Object.entries({...(O.fleet_kind||{}),...(O.fleet_kind_s||{})}).find(([a,l])=>PSV(l)===PSV(T)||PSV(T).includes(PSV(l)));if(v)return rdxSet(el,'orders',{...per,eq:{fleet_kind:v[0]}},'Đơn hàng · '+T)}
+  return false}
+function rdxApply(h,k){if(!h||!h.isConnected)return;rdxCss();h.classList.add('rdx-host');const per=rdxPeriod(k,h);rdxMap();
+  // 1) thẻ KPI
+  h.querySelectorAll('.kpi').forEach(el=>{if(el.hasAttribute('data-dg')||el.closest('[data-dg]')||el.querySelector('[data-dg]'))return;const l=(el.querySelector('.l')||el).innerText;const r=rdxRule(l,k,per);if(r)rdxSet(el,r[0],r[1],l.trim())});
+  // 2) tiêu đề từng khối
+  h.querySelectorAll('h3').forEach(el=>{if(el.dataset.rdx||el.hasAttribute('data-dg')||el.querySelector('[data-dg]'))return;el.dataset.rdx=1;const t=(el.childNodes[0]&&el.childNodes[0].textContent||el.innerText).trim();if(!t)return;const r=rdxRule(t,k,per);if(!r)return;
+    const b=document.createElement('button');b.type='button';b.className='rdx-b';b.textContent='🔎 Xem data';if(!rdxSet(b,r[0],r[1],t))return;const sp=el.querySelector('.sp');if(sp)sp.insertAdjacentElement('afterend',b);else el.appendChild(b)});
+  // 3) từng dòng bảng
+  h.querySelectorAll('table').forEach(tb=>{const card=tb.closest('.card')||tb.parentElement;const ctx=[(card&&card.querySelector('h3')||{}).innerText||'',(tb.querySelector('thead th')||{}).innerText||''].join(' ');
+    tb.querySelectorAll('tbody tr').forEach(tr=>{if(tr.dataset.rdx)return;tr.dataset.rdx=1;if(tr.querySelector('[data-dg]'))return;const td=tr.querySelector('td');if(!td||td.querySelector('button,a,input,select'))return;
+      const lab=(td.querySelector('b')||td).innerText.split('\n')[0];if(!lab.trim()||/^(tong|chua co|khong co)/.test(PSV(lab).trim())||td.colSpan>1)return;if(!rdxItem(td,lab,ctx,k,per)){const r=rdxRule(ctx,k,per);if(r)rdxSet(td,r[0],r[1],(ctx.split('\n')[0]+' · '+lab).slice(0,90))}})});
+  // 4) thanh biểu đồ & danh sách trong khối
+  h.querySelectorAll('.hb').forEach(el=>{if(el.dataset.rdx||el.hasAttribute('data-dg'))return;el.dataset.rdx=1;const card=el.closest('.card');const ctx=card&&card.querySelector('h3')?card.querySelector('h3').innerText:'';const lb=el.querySelector('.lb');if(!lb)return;
+    if(!rdxItem(el,lb.innerText,ctx,k,per)){const r=rdxRule(ctx,k,per);if(r)rdxSet(el,r[0],r[1],ctx.split('\n')[0]+' · '+lb.innerText)}});
+  h.querySelectorAll('.list .it').forEach(el=>{if(el.dataset.rdx||el.hasAttribute('data-dg')||el.querySelector('button,a,[data-dg]'))return;el.dataset.rdx=1;const b=el.querySelector('b');const card=el.closest('.card');const ctx=card&&card.querySelector('h3')?card.querySelector('h3').innerText:'';
+    if(b&&rdxItem(el,b.innerText,ctx,k,per))return;const r=rdxRule(ctx,k,per);if(r)rdxSet(el,r[0],r[1],ctx.split('\n')[0])})}
+function rdxWatch(h,k){if(!h)return;if(h._rdx)h._rdx.disconnect();let t=0;const run=()=>{clearTimeout(t);t=setTimeout(()=>{ob.disconnect();try{rdxApply(h,k)}catch(e){console.warn('rdx',e)}if(h.isConnected)ob.observe(h,{childList:true,subtree:true})},250)};
+  const ob=new MutationObserver(run);h._rdx=ob;Promise.all(['vehicles','customers','people','partners','projects'].map(r=>ensureRef(r).catch(()=>{}))).then(()=>{RDXM=null;run()});ob.observe(h,{childList:true,subtree:true})}
+// gắn vào các tab báo cáo
+{const vr=viewReports;viewReports=async m=>{await vr(m);const bindSub=()=>{const h=m.querySelector('#rpth');if(h)rdxWatch(h,RPT.sub)};bindSub();m.querySelectorAll('#rptt button').forEach(b=>b.addEventListener('click',()=>setTimeout(bindSub,0)))};VIEWS.reports=viewReports}
+['ceo','exec','overview','analytics','pnl','projpnl'].forEach(k=>{const v=VIEWS[k];if(!v)return;VIEWS[k]=async m=>{await v(m);if(!m.closest||!m.closest('#rpth'))rdxWatch(m,k)}});
+
+// ---------- v50: ngày đối soát thực tế → công nợ khách & nhà xe tính từ ngày này ----------
+function reconAsk(n,who){return new Promise(res=>{const nx=who==='nhà xe';modal(`<h3>✓ ${nx?'Đã đối soát với nhà xe':'Đối soát xong'}${n>1?' · '+n+' đơn':''}</h3><p class="sub">Chọn <b>ngày thực tế đã đối soát</b>${nx?' với nhà xe':' với khách'}. ${nx?'Hạn trả đối tác':'Công nợ khách hàng (và nhà xe, nếu đơn chạy xe liên kết và chưa có ngày đối soát riêng)'} bắt đầu tính từ ngày này theo số ngày công nợ của đơn.</p>
+  <div class="form" style="display:block"><label>Ngày đối soát thực tế<input type="date" id="rcqD" value="${today()}" max="${today()}"></label></div><div class="acts"><span class="sp"></span><button class="btn" id="rcqN">Hủy</button><button class="btn p" id="rcqY">Xác nhận</button></div>`);
+  $('#rcqN').onclick=()=>{closeModal();res(null)};$('#rcqY').onclick=()=>{const d=$('#rcqD').value;if(!d)return toast('Chọn ngày đối soát');closeModal();res(d)}})}
 
 function nav(){
   navFix();
