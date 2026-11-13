@@ -7116,12 +7116,12 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
   const draw=async p=>{const B=$('#ckB');B.innerHTML='<div class="empty">Đang tổng hợp số liệu toàn công ty…</div>';
     const len=Math.round((new Date(p.to)-new Date(p.from))/864e5)+1;const pp={from:addDays(p.from,-len),to:addDays(p.from,-1)};
     await Promise.all(['customers','vehicles','projects','partners'].map(r=>ensureRef(r).catch(()=>{})));
-    const [oR,eR,lR,fb,pj,vR,stR,stP]=await Promise.all([
+    const [oR,eR,lR,fb,pj,vR,stR,stP,exR]=await Promise.all([
       sb.from('khg_orders').select('id,code,revenue,partner_cost,driver_pay,fleet_kind,status,scheduled_at,delivered_at,created_at,customer_id,customer_text,vehicle_id,project_id,partner_id,service,trips,doc_status,recon_date').is('archived_at',null).neq('status','huy').gte('created_at',addDays(pp.from,-75)).limit(10000),
       sb.from('khg_expenses').select('id,amount,spent_on,item,vehicle_id,order_id,project_id,status').is('archived_at',null).gte('spent_on',pp.from).lte('spent_on',p.to).limit(10000),
       sb.from('khg_payables').select('amount,run_date,vehicle_id').is('archived_at',null).not('lease_id','is',null).gte('run_date',pp.from).lte('run_date',p.to).limit(5000),
       sb.rpc('khg_fin_board',{p_from:p.from,p_to:p.to}),sb.rpc('khg_project_pnl',{p_from:p.from,p_to:p.to}),
-      sb.from('khg_vehicles').select('id,plate,ownership,status,partner_id').is('archived_at',null),sb.rpc('khg_fin_statement',{p_from:p.from,p_to:p.to}),sb.rpc('khg_fin_statement',{p_from:pp.from,p_to:pp.to})]);
+      sb.from('khg_vehicles').select('id,plate,ownership,status,partner_id').is('archived_at',null),sb.rpc('khg_fin_statement',{p_from:p.from,p_to:p.to}),sb.rpc('khg_fin_statement',{p_from:pp.from,p_to:pp.to}),sb.rpc('khg_fin_extra',{p_from:p.from,p_to:p.to})]);
     const inP=(d,r)=>d>=r.from&&d<=r.to;const DONE_=['da_giao','doi_soat','xuat_hd','da_thu'];const O_=(oR.data||[]).filter(o=>orderDay(o)>=pp.from&&DONE_.includes(o.status));const OC=O_.filter(o=>inP(orderDay(o),p)),OP=O_.filter(o=>inP(orderDay(o),pp));
     const EX=(eR.data||[]).filter(e=>!['tu_choi','huy'].includes(e.status||''));const EC=EX.filter(e=>inP(e.spent_on,p)),EP=EX.filter(e=>inP(e.spent_on,pp));
     const LS=lR.data||[];const LC=LS.filter(x=>inP(x.run_date,p)),LP=LS.filter(x=>inP(x.run_date,pp));const F=fb.data||{};const PJ=(pj.data||{}).rows||[];const V=vR.data||[];
@@ -7137,7 +7137,7 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
     const BK=Object.values(BM).map(b=>({...b,label:gran==='d'?b.k.slice(8,10)+'/'+b.k.slice(5,7):gran==='w'?fmtD(b.k).slice(0,5):'T'+Number(b.k.slice(5,7)),full:gran==='d'?fmtD(b.k):gran==='w'?'Tuần '+fmtD(b.from)+' – '+fmtD(b.to):'Tháng '+b.k.slice(5,7)+'/'+b.k.slice(0,4)}));
     const spk=BK.map(b=>b.rev),spp=BK.map(b=>b.profit);
     // tiền & công nợ
-    const AR=F.ar||{},AP=F.ap||{},FU=F.fund||{},RV=F.rev||{};const apT=['vay','ncc','xe','luong','khac'].reduce((s,k)=>s+((AP[k]||{}).total||0),0),apDue=['vay','ncc','xe','luong','khac'].reduce((s,k)=>s+((AP[k]||{}).due7||0),0);
+    const AR=F.ar||{},AP=F.ap||{},FU=F.fund||{},RV=F.rev||{};const EXA=(exR&&exR.data&&exR.data.ap)||[];const apX=k=>(EXA.find(x=>x.k===k)||{});const apT=EXA.reduce((s,x)=>s+(+x.v||0),0),apDue=EXA.reduce((s,x)=>s+(+x.due7||0),0);
     // cảnh báo
     const lowPJ=PJ.filter(r=>r.revenue>0&&r.margin!=null&&r.margin<(r.margin_min??5));const nocost=OC.filter(o=>o.partner_id&&!(+o.partner_cost));
     const own=OC.filter(o=>(o.fleet_kind||'so_huu')!=='lien_ket'&&['da_giao','doi_soat','xuat_hd','da_thu'].includes(o.status)&&!(+o.driver_pay));
@@ -7176,7 +7176,7 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
     let run=0;const wfH=wf.map(([l,v,t,attr])=>{let a,b,col;if(t==='start'){a=0;b=v;run=v;col='var(--s1)'}else if(t==='end'||t==='sub'){a=Math.min(0,v);b=Math.max(0,v);col=v>=0?'var(--s3)':'var(--crit)'}else{b=run;run+=v;a=run;col='var(--s2)'}
       const L=Math.max(0,Math.min(a,b))/mxW*100,Wd=Math.abs(b-a)/mxW*100;return `<div class="wr ${t!=='neg'?'tot':''}" ${attr} data-tip="<b>${esc(l)}</b><br>${fmtN(v)} đ${C.rev?' · '+ckP(Math.abs(v)/C.rev*100)+' doanh thu':''}"><div class="wl">${t==='neg'?'− ':''}${esc(l)}</div><div class="wt"><div class="wb" style="left:${L}%;width:${Math.max(.4,Wd)}%;background:${col}"></div></div><div class="wv">${ckM(v)}</div></div>`}).join('');
     const arB=[['Chờ đối soát / chưa đến hạn',Math.max(0,(AR.total||0)-(AR.overdue||0)-(AR.due7||0)),'#9ec5f4'],['Đến hạn 7 ngày',AR.due7||0,'var(--warn)'],['Quá hạn ≤30 ngày',AR.b30||0,'var(--serious)'],['Quá hạn 31–60',AR.b60||0,'#e0603f'],['Quá hạn >60',(AR.b90||0)+(AR.b90p||0),'var(--crit)']];
-    const apB=[['Tiền vay',(AP.vay||{}).total||0,'var(--s7)'],['Nhà cung cấp',(AP.ncc||{}).total||0,'var(--s4)'],['Xe liên kết',(AP.xe||{}).total||0,'var(--s2)'],['Lương',(AP.luong||{}).total||0,'var(--s1)'],['Thuê xác & khác',(AP.khac||{}).total||0,'#898781']];
+    const apB=[['Nợ vay (gốc + lãi)',apX('vay').v||0,'var(--s7)'],['Đối tác xe liên kết',apX('xe').v||0,'var(--s2)'],['Thuê xác xe',apX('thue_xac').v||0,'#898781'],['Lương nhân viên, tài xế',apX('luong').v||0,'var(--s1)'],['Nhà cung cấp & chi phí khác',apX('ncc').v||0,'var(--s4)']];
     const stk=(rows,tot,attr)=>`<div class="st" ${attr}>${rows.filter(r=>r[1]>0).map(r=>`<div style="flex:${r[1]};background:${r[2]}" data-tip="<b>${esc(r[0])}</b><br>${fmtN(r[1])} đ · ${ckP(r[1]/(tot||1)*100)}"></div>`).join('')||'<div style="flex:1;background:#F1F1EF"></div>'}</div><div class="lg" style="margin-top:8px">${rows.filter(r=>r[1]>0).map(r=>`<span><i style="background:${r[2]}"></i>${esc(r[0])} <b>${ckM(r[1])}</b></span>`).join('')}</div>`;
     const pjR=PJ.filter(r=>r.revenue>0).slice(0,10);const mxM=Math.max(10,...pjR.map(r=>r.margin||0)),mnM=Math.min(0,...pjR.map(r=>r.margin||0));const pos=v=>(v-mnM)/(mxM-mnM)*100;
     B.innerHTML=`
@@ -7186,7 +7186,7 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
       ${tile('Tổng chi phí','var(--s2)',ckM(NET-PBT),`giá vốn ${ckM(LN(ST,'11'))} · quản lý ${ckM(LN(ST,'24'))} · lãi vay ${ckM(INT)}`,ckDelta(NET-PBT,NETp-PBTp,false),'',dgAttr('expenses',{...p,title:'Chi phí trong kỳ'}))}
       ${tile('Tiền đang có','var(--s4)',ckM(FU.total||0),`TM ${ckM(FU.tm||0)} · NH ${ckM(FU.nh||0)}${FU.loan_debt?' · nợ vay '+ckM(FU.loan_debt):''}`,'','',dgAttr('cash',{...p,title:'Sổ quỹ'}))}
       ${tile('Khách còn nợ','var(--s7)',ckM(AR.total||0),`${AR.overdue?'<b style="color:#B42318">quá hạn '+ckM(AR.overdue)+'</b>':'không có quá hạn'} · ${RV.n_open||0} đơn`,'','',dgAttr('receivables',{allDates:true,title:'Công nợ phải thu'}))}
-      ${tile('KHG phải trả','#898781',ckM(apT),`đến hạn 7 ngày ${ckM(apDue)}${accrued?' · lương tạm tính '+ckM(accrued):''}`,'','',dgAttr('payables',{allDates:true,title:'Công nợ phải trả'}))}
+      ${tile('KHG phải trả','#898781',ckM(apT),`vay ${ckM(apX('vay').v||0)} · thuê xác ${ckM(apX('thue_xac').v||0)} · lương ${ckM(apX('luong').v||0)} · nhà xe ${ckM(apX('xe').v||0)}`,'','',dgAttr('payables',{allDates:true,title:'Công nợ phải trả'}))}
     </div>
     <div class="sec"><span class="no">!</span><h2>Việc CEO cần xử lý</h2><p>${AL.length?AL.length+' việc · bấm từng dòng để xem và sửa data':'Không có cảnh báo trong kỳ'}</p></div>
     ${AL.length?`<div class="c"><div class="al">${AL.map(a=>`<div class="ai" ${a.attr}><b class="ic" style="background:${a.lv==='crit'?'var(--crit)':'#d18b00'}">${a.lv==='crit'?'!':'i'}</b><div class="t">${esc(a.t)}<small>${esc(a.sub)}</small></div><div class="n">${esc(a.n)}</div></div>`).join('')}</div></div>`:''}
@@ -7209,7 +7209,7 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
         <p class="sub2" style="margin:10px 0 0">Tiền ròng sau khi thu đủ & trả đủ: <b style="color:${(FU.total||0)+(AR.total||0)-apT<0?'#B42318':'#006300'}">${ckM((FU.total||0)+(AR.total||0)-apT)}</b></p></div>
       <div class="c s4"><h3>Khách còn nợ KHG · ${ckM(AR.total||0)}</h3><p class="sub2">Theo tình trạng hạn thanh toán</p>${stk(arB,AR.total,dgAttr('receivables',{allDates:true,title:'Công nợ phải thu'}))}
         ${(AR.top||[]).slice(0,4).map(c=>`<div class="hb2" ${dgAttr('receivables',{allDates:true,eq:{customer_id:c.id},title:'Phải thu · '+c.name})}><div class="bl">${esc(c.name)}</div><div class="bt"><div class="bf" style="width:${c.open/((AR.top||[])[0].open||1)*100}%;background:var(--s7)"></div></div><div class="bv">${ckM(c.open)}</div></div>`).join('')}</div>
-      <div class="c s4"><h3>KHG còn phải trả · ${ckM(apT)}</h3><p class="sub2">Theo nhóm đối tượng</p>${stk(apB,apT,dgAttr('payables',{allDates:true,title:'Công nợ phải trả'}))}<p class="sub2" style="margin:8px 0 0">Đến hạn 7 ngày: <b>${ckM(apDue)}</b>${accrued?' · lương nhân sự tạm tính '+ckM(accrued):''}</p></div>
+      <div class="c s4"><h3>KHG còn phải trả · ${ckM(apT)}</h3><p class="sub2">Theo nhóm đối tượng</p>${stk(apB,apT,dgAttr('payables',{allDates:true,title:'Công nợ phải trả'}))}<p class="sub2" style="margin:8px 0 0">Đến hạn 7 ngày: <b>${ckM(apDue)}</b> · gồm cả gốc vay và lương đã làm chưa trả</p></div>
     </div>
     <div class="sec"><span class="no">4</span><h2>Vận hành & đội xe</h2><p>sản lượng, mức sử dụng xe, chứng từ</p></div>
     <div class="g g12">
@@ -7238,11 +7238,11 @@ function bcCss(){if(document.getElementById('bcCss'))return;const s=document.cre
 .bc .rep{background:#fff;border:1px solid rgba(11,11,11,.08);border-radius:14px;padding:18px 20px;margin-bottom:14px}
 .bc .rh{text-align:center;margin-bottom:12px}.bc .rh .co{display:flex;justify-content:space-between;font-size:12px;color:#52514e;text-align:left;gap:12px;margin-bottom:10px}
 .bc .rh h2{margin:4px 0;font-size:17px;letter-spacing:.3px}.bc .rh p{margin:0;color:#52514e;font-size:12.5px}
-.bc table.fs{width:100%;border-collapse:collapse;font-size:13px}.bc table.fs th{background:#F7F7F5;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:#52514e;padding:8px 10px;border-bottom:1px solid #e1e0d9;text-align:left}
+.bc table.fs{width:100%;min-width:0;border-collapse:collapse;font-size:13px}.bc table.fs th{background:#F7F7F5;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:#52514e;padding:8px 10px;border-bottom:1px solid #e1e0d9;text-align:left}
 .bc table.fs td{padding:8px 10px;border-bottom:1px solid #F0EFEB;vertical-align:top}.bc table.fs td.n,.bc table.fs th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.bc table.fs td.c,.bc table.fs th.c{text-align:center;width:56px}
 .bc table.fs tr.b td{font-weight:700;background:#FBFBFA}.bc table.fs tr.i td:first-child{padding-left:28px;color:#52514e}.bc table.fs tr[data-dg]:hover td{background:#EEF4FC;cursor:pointer}
 .bc .neg{color:#B42318}.bc .pos{color:#006300}.bc .muted{color:#898781}
-.bc .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:900px){.bc .g2{grid-template-columns:1fr}}
+.bc .g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.bc .g2>*{min-width:0;overflow-x:auto}@media(max-width:900px){.bc .g2{grid-template-columns:1fr}}
 .bc .ck2{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;background:#F6F6F4;margin-bottom:6px;cursor:pointer;font-size:13px}.bc .ck2:hover{background:#EEF4FC}.bc .ck2 b.ic{width:22px;height:22px;flex:none;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:12px}
 .bc .rules{font-size:12.5px;color:#52514e;line-height:1.65;margin:0;padding-left:18px}
 .bc .sign{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;font-size:12.5px;margin-top:22px;gap:10px}.bc .sign b{display:block}.bc .sign i{display:block;color:#898781;font-size:11.5px;margin-bottom:46px}
@@ -7253,7 +7253,7 @@ async function bctcBoard(h){bcCss();const P=PST.bctc=PST.bctc||{kind:'thang'};
   h.innerHTML=`<div class="ck bc"><div class="bar" id="bcpp" style="margin-bottom:8px"></div><div id="bcB"><div class="empty">Đang lập báo cáo…</div></div></div>`;
   const draw=async p=>{const B=$('#bcB');B.innerHTML='<div class="empty">Đang lập báo cáo…</div>';
     const len=Math.round((new Date(p.to)-new Date(p.from))/864e5)+1;const pp={from:addDays(p.from,-len),to:addDays(p.from,-1)};
-    let D,Q;try{[D,Q]=await Promise.all([bcData(p.from,p.to),bcData(pp.from,pp.to)])}catch(e){B.innerHTML='<div class="empty">'+esc(e.message||e)+'</div>';return}
+    let D,Q,X;try{[D,Q,X]=await Promise.all([bcData(p.from,p.to),bcData(pp.from,pp.to),sb.rpc('khg_fin_extra',{p_from:p.from,p_to:p.to}).then(r=>{if(r.error)throw r.error;return r.data})])}catch(e){B.innerHTML='<div class="empty">'+esc(e.message||e)+'</div>';return}
     const L=D.lines||[],LP=Object.fromEntries((Q.lines||[]).map(x=>[x.ma,x.v]));const v=m=>((L.find(x=>x.ma===m)||{}).v)||0;
     const DR={'01':dgAttr('orders',{...p,title:'Doanh thu – đơn đã hoàn thành'}),'02':dgAttr('orders',{...p,title:'Đơn có giảm giá'}),'10':dgAttr('orders',{...p,title:'Doanh thu thuần'}),'11':dgAttr('expenses',{...p,title:'Chi phí giá vốn'}),
       '22':dgAttr('loans',{allDates:true,title:'Tiền vay'}),'23':dgAttr('loans',{allDates:true,title:'Tiền vay'}),'24':dgAttr('expenses',{...p,title:'Chi phí quản lý'}),'32':dgAttr('expenses',{...p,title:'Chi phí khác'})};
@@ -7309,12 +7309,32 @@ async function bctcBoard(h){bcCss();const P=PST.bctc=PST.bctc||{kind:'thang'};
         <li>Khấu hao TSCĐ theo phương pháp đường thẳng (Thông tư 45/2013/TT-BTC); lãi vay tính theo lãi suất và số ngày vay trong kỳ.</li>
         <li>BHXH, BHYT, BHTN phần doanh nghiệp 21,5% trên lương đóng bảo hiểm.</li>
         <li>Thuế TNDN tạm tính 20% trên lợi nhuận kế toán trước thuế dương.</li></ol></div>`;
-    B.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn p" id="bcX">⬇ Excel mẫu B02-DNN</button><button class="btn" id="bcP">🖨 In / lưu PDF</button></div>`+b02+tm+b01+ck;
+    const XA=X.ap||[],XC=X.cash||{},XL=X.loan_use||{};const ax=k=>XA.find(x=>x.k===k)||{v:0,detail:[]};const co_=l=>((XC.out||[]).find(x=>x.l===l)||{}).v||0;
+    const IT={nhien_lieu:'Nhiên liệu',cau_duong:'Cầu đường',boc_xep_thue:'Bốc xếp thuê',sua_chua:'Sửa chữa',mua_hang:'Mua hàng'};
+    const sumRows=[['Đối tác xe liên kết',G.partner||0,co_('Trả đối tác xe liên kết'),ax('xe').v,'Cước nhà xe của đơn đã giao',dgAttr('orders',{...p,eq:{fleet_kind:'lien_ket'},title:'Đơn xe liên kết'})],
+      ['Thuê xác xe',G.lease||0,co_('Trả thuê xác xe'),ax('thue_xac').v,(ax('thue_xac').detail||[]).map(d=>d.n+' · '+d.days+' ngày').join('; '),dgAttr('payables',{allDates:true,title:'Thuê xác xe'})],
+      ['Lương nhân viên, tài xế & BHXH',(G.labor||0)+(Qm.labor||0)+(Qm.ins||0),co_('Trả lương'),ax('luong').v,'Theo chấm công + tiền chuyến',dgAttr('attendance',{...p,title:'Chấm công'})],
+      ['Nhiên liệu, cầu đường, bốc xếp, chi phí khác',(G.expenses||0)+(Qm.expenses||0)+(O_.expenses||0),co_('Nhiên liệu')+co_('Chi phí khác (cầu đường, bốc xếp…)')+co_('Bảo hiểm, thuế')+co_('Thuê kho'),ax('ncc').v,XL.spent?'Trong đó '+fmtN(XL.spent)+' đ chi bằng tiền vay':'',dgAttr('expenses',{...p,title:'Phiếu chi trong kỳ'})],
+      ['Khấu hao xe',G.dep||0,0,0,'Không chi tiền, phân bổ giá trị xe',dgAttr('vehicles',{allDates:true,title:'Đội xe'})],
+      ['Vay: lãi vay (chi phí) / gốc vay (nợ phải trả)',v('22'),co_('Trả nợ vay'),ax('vay').v,(ax('vay').detail||[]).map(d=>d.n+' '+fmtN(d.v)+(d.due?' hạn '+fmtD(d.due):'')).join('; '),dgAttr('loans',{allDates:true,title:'Tiền vay'})]];
+    const sT=[1,2,3].map(i=>sumRows.reduce((s,r)=>s+(+r[i]||0),0));
+    const sum=`<div class="rep"><h3 style="margin:0 0 4px">Tổng hợp chi phí – đã trả – còn phải trả</h3><p class="muted" style="margin:0 0 10px;font-size:12.5px">Chi phí trong kỳ là số đưa vào tính lãi lỗ. Còn phải trả là toàn bộ nghĩa vụ KHG phải thanh toán tại ngày ${fmtD(p.to)}, gồm cả gốc vay.</p>
+      <div style="overflow:auto"><table class="fs"><thead><tr><th>Khoản</th><th class="n">Chi phí trong kỳ (tính lãi lỗ)</th><th class="n">Đã trả trong kỳ</th><th class="n">Còn phải trả cuối kỳ</th><th>Ghi chú</th></tr></thead><tbody>
+      ${sumRows.map(r=>`<tr ${r[5]}><td>${esc(r[0])}</td><td class="n">${nf(Math.round(r[1]))}</td><td class="n">${nf(Math.round(r[2]))}</td><td class="n"><b>${nf(Math.round(r[3]))}</b></td><td class="muted" style="font-size:12px">${esc(r[4]||'')}</td></tr>`).join('')}
+      <tr class="b"><td>Tổng cộng</td><td class="n">${nf(Math.round(sT[0]))}</td><td class="n">${nf(Math.round(sT[1]))}</td><td class="n">${nf(Math.round(sT[2]))}</td><td></td></tr></tbody></table></div>
+      <div class="g2" style="margin-top:14px"><div><h4 style="margin:0 0 6px">Tiền vay dùng vào đâu</h4><table class="fs"><tbody>
+        <tr><td>Tiền vay nhận trong kỳ</td><td class="n">${nf(XL.received||0)}</td></tr>${(XL.items||[]).map(i=>`<tr><td>− Chi ${esc(IT[i.l]||i.l)} (${i.n} phiếu, đã tính vào chi phí)</td><td class="n">${nf(i.v)}</td></tr>`).join('')}
+        <tr class="b"><td>Tiền vay còn lại chưa dùng</td><td class="n">${nf((XL.received||0)-(XL.spent||0))}</td></tr></tbody></table>
+        <p class="muted" style="font-size:12px;margin:6px 0 0">Tiền vay là khoản nhận về phải trả lại (nợ phải trả), không phải doanh thu. Khoản chi bằng tiền vay (dầu, cầu đường…) là chi phí, đã nằm trong giá vốn. Khi trả nợ: phần gốc giảm nợ vay, chỉ phần lãi là chi phí – nếu tính cả gốc vào chi phí thì khoản dầu sẽ bị tính 2 lần.</p></div>
+      <div><h4 style="margin:0 0 6px">Dòng tiền trong kỳ (sổ quỹ)</h4><table class="fs"><tbody><tr><td>Tiền đầu kỳ</td><td class="n">${nf(XC.open||0)}</td></tr>
+        ${(XC.in||[]).map(i=>`<tr><td>+ ${esc(i.l)}</td><td class="n pos">${fmtN(i.v)}</td></tr>`).join('')}${(XC.out||[]).map(i=>`<tr><td>− ${esc(i.l)}${i.loan?' <span class="muted">(từ tiền vay '+fmtN(i.loan)+')</span>':''}</td><td class="n neg">(${fmtN(i.v)})</td></tr>`).join('')}
+        <tr class="b"><td>Tiền cuối kỳ</td><td class="n">${nf(XC.close||0)}</td></tr></tbody></table></div></div></div>`;
+    B.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn p" id="bcX">⬇ Excel mẫu B02-DNN</button><button class="btn" id="bcP">🖨 In / lưu PDF</button></div>`+b02+sum+tm+b01+ck;
     $('#bcP').onclick=()=>window.print();
     $('#bcX').onclick=()=>{const rows=[['CÔNG TY TNHH KIM HOÀNG GIA','','','','Mẫu số B02-DNN'],['Mã số thuế: 3700416538','','','','(Ban hành theo TT 133/2016/TT-BTC)'],[],['BÁO CÁO KẾT QUẢ HOẠT ĐỘNG KINH DOANH'],[`Kỳ: ${p.label} (${fmtD(p.from)} – ${fmtD(p.to)})`,'','','','Đơn vị tính: đồng'],[],['Chỉ tiêu','Mã số','Thuyết minh','Kỳ này','Kỳ trước'],...L.map(x=>[x.t.trim(),x.ma,TM[x.ma]||'',x.v,LP[x.ma]||0]),[],['Người lập biểu','','Kế toán trưởng','','Giám đốc']];
       const tmR=[['THUYẾT MINH','',''],['IV.1 Doanh thu','',''],['Vận tải',R.van_tai||0],['Phân phối',R.phan_phoi||0],['Cho thuê kho',R.kho||0],['Cho thuê xe',R.cho_thue_xe||0],['IV.2 Giá vốn',''],['Thuê xe đối tác',G.partner||0],['Thuê xác xe',G.lease||0],['Nhân công trực tiếp',G.labor||0],...(G.exp_groups||[]).map(g=>[g.l,g.v]),['Khấu hao xe',G.dep||0],['Giá vốn hàng hóa',G.cogs_goods||0],['IV.3 Chi phí quản lý',''],['Lương quản lý',Qm.labor||0],['BH phần DN',Qm.ins||0],...(Qm.exp_groups||[]).map(g=>[g.l,g.v]),['IV.4 Lãi vay',v('22')],['IV.5 Chi phí khác',v('32')]];
       const b01R=[['TÌNH HÌNH TÀI CHÍNH TẠI NGÀY '+fmtD(p.to)],['Chỉ tiêu','Mã số','Số tiền'],['Tiền','110',b.cash||0],['Phải thu khách hàng','131',b.ar||0],['Hàng tồn kho','141',b.inv||0],['Tài sản cố định (giá trị còn lại)','150',Math.round(fa)],['TỔNG TÀI SẢN','200',Math.round(TS)],['Phải trả người bán','311',b.ap||0],['Thuế TNDN tạm tính','313',b.cit||0],['Phải trả người lao động','315',b.sal||0],['Vay','320',b.loans||0],['NỢ PHẢI TRẢ','300',Math.round(NPT)],['VỐN CHỦ SỞ HỮU','400',Math.round(TS-NPT)]];
-      xlsx('BCTC_B02-DNN_'+p.from+'_'+p.to,{'B02-DNN':rows,'Thuyết minh':tmR,'Tình hình tài chính':b01R})}};
+      xlsx('BCTC_B02-DNN_'+p.from+'_'+p.to,{'B02-DNN':rows,'Chi phí - Phải trả':[['Khoản','Chi phí trong kỳ','Đã trả trong kỳ','Còn phải trả cuối kỳ','Ghi chú'],...sumRows.map(r=>[r[0],Math.round(r[1]),Math.round(r[2]),Math.round(r[3]),r[4]||'']),['Tổng cộng',...sT.map(Math.round),'']],'Thuyết minh':tmR,'Tình hình tài chính':b01R})}};
   periodPicker($('#bcpp'),P,draw);await draw(periodRange(P))}
 VIEWS.bctc=bctcBoard;
 {const i=RSUB.findIndex(x=>x[0]==='ck');if(!RSUB.some(x=>x[0]==='bctc'))RSUB.splice(i+1,0,['bctc','📑 Báo cáo tài chính (B02-DNN)',['admin','ke_toan','quan_ly']])}
