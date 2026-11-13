@@ -7116,18 +7116,19 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
   const draw=async p=>{const B=$('#ckB');B.innerHTML='<div class="empty">Đang tổng hợp số liệu toàn công ty…</div>';
     const len=Math.round((new Date(p.to)-new Date(p.from))/864e5)+1;const pp={from:addDays(p.from,-len),to:addDays(p.from,-1)};
     await Promise.all(['customers','vehicles','projects','partners'].map(r=>ensureRef(r).catch(()=>{})));
-    const [oR,eR,lR,fb,pj,vR]=await Promise.all([
+    const [oR,eR,lR,fb,pj,vR,stR,stP]=await Promise.all([
       sb.from('khg_orders').select('id,code,revenue,partner_cost,driver_pay,fleet_kind,status,scheduled_at,delivered_at,created_at,customer_id,customer_text,vehicle_id,project_id,partner_id,service,trips,doc_status,recon_date').is('archived_at',null).neq('status','huy').gte('created_at',addDays(pp.from,-75)).limit(10000),
       sb.from('khg_expenses').select('id,amount,spent_on,item,vehicle_id,order_id,project_id,status').is('archived_at',null).gte('spent_on',pp.from).lte('spent_on',p.to).limit(10000),
       sb.from('khg_payables').select('amount,run_date,vehicle_id').is('archived_at',null).not('lease_id','is',null).gte('run_date',pp.from).lte('run_date',p.to).limit(5000),
       sb.rpc('khg_fin_board',{p_from:p.from,p_to:p.to}),sb.rpc('khg_project_pnl',{p_from:p.from,p_to:p.to}),
-      sb.from('khg_vehicles').select('id,plate,ownership,status,partner_id').is('archived_at',null)]);
-    const inP=(d,r)=>d>=r.from&&d<=r.to;const O_=(oR.data||[]).filter(o=>orderDay(o)>=pp.from);const OC=O_.filter(o=>inP(orderDay(o),p)),OP=O_.filter(o=>inP(orderDay(o),pp));
+      sb.from('khg_vehicles').select('id,plate,ownership,status,partner_id').is('archived_at',null),sb.rpc('khg_fin_statement',{p_from:p.from,p_to:p.to}),sb.rpc('khg_fin_statement',{p_from:pp.from,p_to:pp.to})]);
+    const inP=(d,r)=>d>=r.from&&d<=r.to;const DONE_=['da_giao','doi_soat','xuat_hd','da_thu'];const O_=(oR.data||[]).filter(o=>orderDay(o)>=pp.from&&DONE_.includes(o.status));const OC=O_.filter(o=>inP(orderDay(o),p)),OP=O_.filter(o=>inP(orderDay(o),pp));
     const EX=(eR.data||[]).filter(e=>!['tu_choi','huy'].includes(e.status||''));const EC=EX.filter(e=>inP(e.spent_on,p)),EP=EX.filter(e=>inP(e.spent_on,pp));
     const LS=lR.data||[];const LC=LS.filter(x=>inP(x.run_date,p)),LP=LS.filter(x=>inP(x.run_date,pp));const F=fb.data||{};const PJ=(pj.data||{}).rows||[];const V=vR.data||[];
     const S=(a,f)=>a.reduce((s,x)=>s+(Number(f(x))||0),0);
     const calc=(o,e,l)=>{const rev=S(o,x=>x.revenue),pc=S(o,x=>x.partner_cost),dp=S(o,x=>x.driver_pay),lease=S(l,x=>x.amount),ex=S(e,x=>x.amount);return {rev,pc,dp,lease,ex,cost:pc+dp+lease+ex,profit:rev-pc-dp-lease-ex,n:o.length,trips:S(o,x=>x.trips||1)}};
-    const C=calc(OC,EC,LC),Pv=calc(OP,EP,LP);const mg=C.rev?C.profit/C.rev*100:null,mgP=Pv.rev?Pv.profit/Pv.rev*100:null;
+    const C=calc(OC,EC,LC),Pv=calc(OP,EP,LP);const ST=stR.data||{},SP=stP.data||{};const LN=(s,m)=>((s.lines||[]).find(x=>x.ma===m)||{}).v||0;const NET=LN(ST,'10'),NETp=LN(SP,'10'),GP=LN(ST,'20'),PBT=LN(ST,'50'),PBTp=LN(SP,'50');
+    const mg=NET?PBT/NET*100:null,mgP=NETp?PBTp/NETp*100:null;const GV=ST.gv||{},QL=ST.ql||{},INT=LN(ST,'22'),OTH=LN(ST,'32');
     // chuỗi theo ngày / tuần / tháng
     const gran=len<=45?'d':len<=190?'w':'m';const bk=d=>gran==='d'?d:gran==='w'?addDays(d,-((new Date(d+'T00:00').getDay()+6)%7)):d.slice(0,7);
     const BM={};let cur=p.from;while(cur<=p.to){const k=bk(cur);if(!BM[k])BM[k]={k,from:gran==='m'?k+'-01':k,to:cur,rev:0,profit:0,n:0};BM[k].to=cur;cur=addDays(cur,1)}
@@ -7142,7 +7143,7 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
     const own=OC.filter(o=>(o.fleet_kind||'so_huu')!=='lien_ket'&&['da_giao','doi_soat','xuat_hd','da_thu'].includes(o.status)&&!(+o.driver_pay));
     const noRecon=OC.filter(o=>o.status==='da_giao'&&!o.recon_date);const noDoc=OC.filter(o=>['da_giao','doi_soat','xuat_hd'].includes(o.status)&&!['da_thu','tra_khach','khong_can'].includes(o.doc_status||''));
     const AL=[];const ai=(lv,t,sub,n,attr)=>AL.push({lv,t,sub,n,attr});
-    if(C.rev&&mg<5)ai('crit','Biên lãi gộp toàn công ty '+ckP(mg)+' – dưới 5%','Xem lại giá bán, giá nhà xe và chi phí vận hành',ckM(C.profit),dgAttr('orders',{...p,title:'Đơn hàng trong kỳ'}));
+    if(NET&&mg<5)ai('crit','Lợi nhuận trước thuế toàn công ty '+ckP(mg)+' doanh thu – dưới 5%','Đã trừ giá vốn, lương, thuê xác, khấu hao, lãi vay – xem Báo cáo tài chính',ckM(PBT),dgAttr('orders',{...p,title:'Đơn hàng trong kỳ'}));
     lowPJ.forEach(r=>ai('crit',`Dự án / khách “${r.project||(REF.customers||{})[r.customer_id]||'Không gắn dự án'}” lãi ${ckP(r.margin)}`,`dưới mức tối thiểu ${r.margin_min??5}% · doanh thu ${ckM(r.revenue)}`,ckM(r.profit),dgAttr('orders',{...p,eq:r.project_id?{project_id:r.project_id}:r.customer_id?{customer_id:r.customer_id}:{},title:'Đơn của '+(r.project||'khách')})));
     if(AR.overdue)ai('crit','Phải thu quá hạn','khách chưa trả đúng hạn công nợ',ckM(AR.overdue),dgAttr('receivables',{allDates:true,title:'Công nợ phải thu'}));
     if(nocost.length)ai('warn',nocost.length+' đơn xe liên kết chưa nhập giá trả nhà xe','lãi đang bị tính cao hơn thực tế',nocost.length+' đơn',dgAttr('orders',{...p,eq:{fleet_kind:'lien_ket'},title:'Đơn xe liên kết – kiểm tra giá nhà xe'}));
@@ -7158,8 +7159,10 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
     // chi phí theo nhóm
     const IG=it=>/nhien_lieu/.test(it)?'Nhiên liệu':/cau_duong|phi_cong|ve/.test(it)?'Cầu đường, phí bến bãi':/sua|bao_tri|lop|dang_kiem|rua/.test(it)?'Sửa chữa, bảo trì xe':/boc_xep/.test(it)?'Bốc xếp thuê ngoài':/an_ca/.test(it)?'Ăn ca, công tác':'Chi phí khác';
     const EG={};EC.forEach(e=>{const g=IG(e.item||'');EG[g]=(EG[g]||0)+(+e.amount||0)});
-    const wf=[['Doanh thu vận hành',C.rev,'start',dgAttr('orders',{...p,title:'Doanh thu – đơn hàng trong kỳ'})],['Trả nhà xe liên kết',-C.pc,'neg',dgAttr('payables',{allDates:true,title:'Trả đối tác xe liên kết'})],['Thuê xác xe (theo ngày chạy)',-C.lease,'neg',dgAttr('payables',{allDates:true,title:'Thuê xác xe'})],['Tiền chuyến tài xế',-C.dp,'neg',dgAttr('orders',{...p,title:'Tiền chuyến tài xế theo đơn'})],
-      ...Object.entries(EG).sort((a,b)=>b[1]-a[1]).map(([g,v])=>[g,-v,'neg',dgAttr('expenses',{...p,title:'Chi phí · '+g})]),['Lãi gộp vận hành',C.profit,'end',dgAttr('orders',{...p,title:'Đơn hàng trong kỳ'})]].filter(x=>x[2]!=='neg'||x[1]);
+    const wf=[['Doanh thu thuần',NET,'start',dgAttr('orders',{...p,title:'Doanh thu – đơn đã hoàn thành trong kỳ'})],['Trả nhà xe liên kết',-(GV.partner||0),'neg',dgAttr('orders',{...p,eq:{fleet_kind:'lien_ket'},title:'Đơn xe liên kết'})],['Thuê xác xe (theo ngày chạy)',-(GV.lease||0),'neg',dgAttr('payables',{allDates:true,title:'Thuê xác xe'})],['Nhân công trực tiếp (lương tài xế)',-(GV.labor||0),'neg',dgAttr('attendance',{...p,title:'Chấm công trong kỳ'})],
+      ...(GV.exp_groups||[]).map(g=>[g.l,-g.v,'neg',dgAttr('expenses',{...p,title:'Chi phí · '+g.l})]),['Giá vốn hàng hóa phân phối',-(GV.cogs_goods||0),'neg',dgAttr('dms_orders',{...p,title:'Đơn bán'})],['Khấu hao xe',-(GV.dep||0),'neg',dgAttr('vehicles',{allDates:true,title:'Đội xe'})],
+      ['Lợi nhuận gộp',GP,'sub',''],['Chi phí quản lý (lương VP, BHXH, chi VP)',-((QL.labor||0)+(QL.ins||0)+(QL.expenses||0)),'neg',dgAttr('expenses',{...p,title:'Chi phí quản lý'})],['Lãi vay',-INT,'neg',dgAttr('loans',{allDates:true,title:'Tiền vay'})],['Chi phí khác (phạt, bồi thường)',-OTH,'neg',dgAttr('expenses',{...p,title:'Chi phí khác'})],
+      ['Lợi nhuận trước thuế',PBT,'end',dgAttr('orders',{...p,title:'Đơn hàng trong kỳ'})]].filter(x=>x[2]!=='neg'||x[1]);
     const accrued=(AP.luong||{}).accrued||0;
     // khách hàng
     const CG={};OC.forEach(o=>{const k=o.customer_id||'_t:'+(o.customer_text||'Khách lẻ');const g=CG[k]=CG[k]||{k,id:o.customer_id,name:(REF.customers||{})[o.customer_id]||o.customer_text||'Khách lẻ',rev:0,n:0};g.rev+=+o.revenue||0;g.n++});const topC=Object.values(CG).sort((a,b)=>b.rev-a.rev);
@@ -7170,7 +7173,7 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
     // ---------- vẽ ----------
     const tile=(l,col,v,h2,delta,spark,attr)=>`<div class="k" ${attr}><div class="l"><i style="background:${col}"></i>${l}</div><div class="v">${v}</div><div class="h">${delta||''} ${h2}</div>${spark||''}</div>`;
     const mxC=Math.max(1,...topC.map(c=>c.rev)),mxV=Math.max(1,...topV.map(c=>c.rev));const mxW=Math.max(1,C.rev,...wf.map(x=>Math.abs(x[1])));
-    let run=0;const wfH=wf.map(([l,v,t,attr])=>{let a,b,col;if(t==='start'){a=0;b=v;run=v;col='var(--s1)'}else if(t==='end'){a=Math.min(0,v);b=Math.max(0,v);col=v>=0?'var(--s3)':'var(--crit)'}else{b=run;run+=v;a=run;col='var(--s2)'}
+    let run=0;const wfH=wf.map(([l,v,t,attr])=>{let a,b,col;if(t==='start'){a=0;b=v;run=v;col='var(--s1)'}else if(t==='end'||t==='sub'){a=Math.min(0,v);b=Math.max(0,v);col=v>=0?'var(--s3)':'var(--crit)'}else{b=run;run+=v;a=run;col='var(--s2)'}
       const L=Math.max(0,Math.min(a,b))/mxW*100,Wd=Math.abs(b-a)/mxW*100;return `<div class="wr ${t!=='neg'?'tot':''}" ${attr} data-tip="<b>${esc(l)}</b><br>${fmtN(v)} đ${C.rev?' · '+ckP(Math.abs(v)/C.rev*100)+' doanh thu':''}"><div class="wl">${t==='neg'?'− ':''}${esc(l)}</div><div class="wt"><div class="wb" style="left:${L}%;width:${Math.max(.4,Wd)}%;background:${col}"></div></div><div class="wv">${ckM(v)}</div></div>`}).join('');
     const arB=[['Chờ đối soát / chưa đến hạn',Math.max(0,(AR.total||0)-(AR.overdue||0)-(AR.due7||0)),'#9ec5f4'],['Đến hạn 7 ngày',AR.due7||0,'var(--warn)'],['Quá hạn ≤30 ngày',AR.b30||0,'var(--serious)'],['Quá hạn 31–60',AR.b60||0,'#e0603f'],['Quá hạn >60',(AR.b90||0)+(AR.b90p||0),'var(--crit)']];
     const apB=[['Tiền vay',(AP.vay||{}).total||0,'var(--s7)'],['Nhà cung cấp',(AP.ncc||{}).total||0,'var(--s4)'],['Xe liên kết',(AP.xe||{}).total||0,'var(--s2)'],['Lương',(AP.luong||{}).total||0,'var(--s1)'],['Thuê xác & khác',(AP.khac||{}).total||0,'#898781']];
@@ -7178,9 +7181,9 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
     const pjR=PJ.filter(r=>r.revenue>0).slice(0,10);const mxM=Math.max(10,...pjR.map(r=>r.margin||0)),mnM=Math.min(0,...pjR.map(r=>r.margin||0));const pos=v=>(v-mnM)/(mxM-mnM)*100;
     B.innerHTML=`
     <div class="kt">
-      ${tile('Doanh thu','var(--s1)',ckM(C.rev),`${C.n} đơn · ${fmtN(C.trips)} chuyến`,ckDelta(C.rev,Pv.rev),ckSpark(spk,'#2a78d6'),dgAttr('orders',{...p,title:'Doanh thu – đơn hàng trong kỳ'}))}
-      ${tile('Lãi gộp vận hành','var(--s3)',ckM(C.profit),`biên <b style="color:${mg!=null&&mg<5?'#B42318':'#006300'}">${ckP(mg)}</b>${mgP!=null?' · kỳ trước '+ckP(mgP):''}`,ckDelta(C.profit,Pv.profit),ckSpark(spp,'#1baf7a'),dgAttr('orders',{...p,title:'Đơn hàng trong kỳ'}))}
-      ${tile('Tổng chi phí vận hành','var(--s2)',ckM(C.cost),`nhà xe ${ckM(C.pc)} · thuê xác ${ckM(C.lease)} · chi ${ckM(C.ex)}`,ckDelta(C.cost,Pv.cost,false),'',dgAttr('expenses',{...p,title:'Chi phí trong kỳ'}))}
+      ${tile('Doanh thu thuần','var(--s1)',ckM(NET),`${C.n} đơn đã hoàn thành · ${fmtN(C.trips)} chuyến`,ckDelta(NET,NETp),ckSpark(spk,'#2a78d6'),dgAttr('orders',{...p,title:'Doanh thu – đơn đã hoàn thành trong kỳ'}))}
+      ${tile('Lợi nhuận trước thuế','var(--s3)',ckM(PBT),`biên <b style="color:${mg!=null&&mg<5?'#B42318':'#006300'}">${ckP(mg)}</b> · LN gộp ${ckM(GP)}${mgP!=null?' · kỳ trước '+ckP(mgP):''}`,ckDelta(PBT,PBTp),ckSpark(spp,'#1baf7a'),dgAttr('orders',{...p,title:'Đơn hàng trong kỳ'}))}
+      ${tile('Tổng chi phí','var(--s2)',ckM(NET-PBT),`giá vốn ${ckM(LN(ST,'11'))} · quản lý ${ckM(LN(ST,'24'))} · lãi vay ${ckM(INT)}`,ckDelta(NET-PBT,NETp-PBTp,false),'',dgAttr('expenses',{...p,title:'Chi phí trong kỳ'}))}
       ${tile('Tiền đang có','var(--s4)',ckM(FU.total||0),`TM ${ckM(FU.tm||0)} · NH ${ckM(FU.nh||0)}${FU.loan_debt?' · nợ vay '+ckM(FU.loan_debt):''}`,'','',dgAttr('cash',{...p,title:'Sổ quỹ'}))}
       ${tile('Khách còn nợ','var(--s7)',ckM(AR.total||0),`${AR.overdue?'<b style="color:#B42318">quá hạn '+ckM(AR.overdue)+'</b>':'không có quá hạn'} · ${RV.n_open||0} đơn`,'','',dgAttr('receivables',{allDates:true,title:'Công nợ phải thu'}))}
       ${tile('KHG phải trả','#898781',ckM(apT),`đến hạn 7 ngày ${ckM(apDue)}${accrued?' · lương tạm tính '+ckM(accrued):''}`,'','',dgAttr('payables',{allDates:true,title:'Công nợ phải trả'}))}
@@ -7189,8 +7192,8 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
     ${AL.length?`<div class="c"><div class="al">${AL.map(a=>`<div class="ai" ${a.attr}><b class="ic" style="background:${a.lv==='crit'?'var(--crit)':'#d18b00'}">${a.lv==='crit'?'!':'i'}</b><div class="t">${esc(a.t)}<small>${esc(a.sub)}</small></div><div class="n">${esc(a.n)}</div></div>`).join('')}</div></div>`:''}
     <div class="sec"><span class="no">1</span><h2>Kết quả kinh doanh</h2><p>${esc(p.label)} · so với ${fmtD(pp.from)} – ${fmtD(pp.to)}</p></div>
     <div class="g g12">
-      <div class="c s7"><h3>Doanh thu & lãi gộp theo ${gran==='d'?'ngày':gran==='w'?'tuần':'tháng'}</h3><p class="sub2">Bấm vào 1 cột để xem các đơn của ngày/tuần đó</p><div class="lg"><span><i style="background:#2a78d6"></i>Doanh thu</span><span><i class="ln" style="background:#1baf7a"></i>Lãi gộp vận hành</span></div><div id="ckTr"></div></div>
-      <div class="c s5"><h3>Doanh thu đi đâu?</h3><p class="sub2">Từ 100 đồng doanh thu trừ từng khoản chi trực tiếp còn lại lãi gộp</p><div class="wf">${wfH}</div>${accrued?`<p class="sub2" style="margin:10px 0 0">Chưa gồm lương văn phòng / nhân sự tạm tính ${ckM(accrued)} (đang ghi ở Phải trả).</p>`:''}</div>
+      <div class="c s7"><h3>Doanh thu đã hoàn thành theo ${gran==='d'?'ngày':gran==='w'?'tuần':'tháng'}</h3><p class="sub2">Bấm vào 1 cột để xem các đơn của ngày/tuần đó</p><div class="lg"><span><i style="background:#2a78d6"></i>Doanh thu</span><span><i class="ln" style="background:#1baf7a"></i>Lãi sau chi phí trực tiếp (chưa trừ lương, khấu hao, quản lý)</span></div><div id="ckTr"></div></div>
+      <div class="c s5"><h3>Doanh thu đi đâu?</h3><p class="sub2">Theo báo cáo kết quả kinh doanh (dồn tích): doanh thu thuần − giá vốn − chi phí quản lý − lãi vay = lợi nhuận trước thuế</p><div class="wf">${wfH}</div><p class="sub2" style="margin:10px 0 0"><a href="#" id="ckBc">Mở Báo cáo tài chính (mẫu B02-DNN) →</a></p></div>
     </div>
     <div class="sec"><span class="no">2</span><h2>Lợi nhuận đến từ đâu</h2><p>theo loại xe vận hành, dự án và khách hàng</p></div>
     <div class="g g12">
@@ -7221,14 +7224,100 @@ async function cockpitBoard(h){ckCss();const P=PST.ck=PST.ck||{kind:'thang'};
         <div ${dgAttr('vehicles',{allDates:true,title:'Xe sở hữu'})}><span>Xe sở hữu đang dùng</span><b>${actOwn}/${ownV.length}</b></div></div></div>
       <div class="c s7"><h3>Doanh thu theo xe</h3><p class="sub2">Số ngày chạy và doanh thu từng xe · màu theo loại xe</p><div class="lg">${Object.entries(FKL).map(([k,l])=>`<span><i style="background:${FKC[k]}"></i>${l.replace(/^\S+\s/,'')}</span>`).join('')}</div>${topV.slice(0,10).map(v=>`<div class="hb2" ${dgAttr('orders',{...p,eq:{vehicle_id:v.id},title:'Đơn xe '+v.plate})} data-tip="<b>${esc(v.plate)}</b><br>${v.n} đơn · ${v.days.size} ngày chạy<br>doanh thu ${fmtN(v.rev)} đ"><div class="bl">${esc(v.plate)} <span class="sub2" style="margin:0">· ${v.days.size} ngày</span></div><div class="bt"><div class="bf" style="width:${v.rev/mxV*100}%;background:${FKC[v.fk]||'var(--s1)'}"></div></div><div class="bv">${ckM(v.rev)}</div></div>`).join('')||'<div class="empty">Chưa có đơn gắn xe</div>'}</div>
     </div>
-    <p class="sub" style="margin:14px 0 0">Cách tính: Lãi gộp vận hành = Doanh thu − trả nhà xe liên kết − thuê xác xe (theo ngày chạy) − tiền chuyến tài xế − chi phí vận hành ghi nhận trong kỳ. Chưa gồm khấu hao xe, lương văn phòng. Mọi con số đều bấm được để xem & sửa data gốc.</p>`;
-    const tr=$('#ckTr');ckTrend(tr,BK);ckBindTips(B);const pjl=$('#ckPj');if(pjl)pjl.onclick=e=>{e.preventDefault();const b=document.querySelector('#rptt [data-r="projpnl"]');if(b)b.click()};
+    <p class="sub" style="margin:14px 0 0">Nguyên tắc: doanh thu ghi nhận khi đơn đã giao xong (dồn tích), chi phí ghi nhận theo ngày phát sinh và đã duyệt; lương theo chấm công + tiền chuyến; khấu hao xe theo đường thẳng; gốc vay, mua hàng, tạm ứng không tính là chi phí. Số liệu khớp với Báo cáo tài chính. Mọi con số đều bấm được để xem & sửa data gốc.</p>`;
+    const tr=$('#ckTr');ckTrend(tr,BK);ckBindTips(B);const bcl=$('#ckBc');if(bcl)bcl.onclick=e=>{e.preventDefault();const b=document.querySelector('#rptt [data-r="bctc"]');if(b)b.click()};const pjl=$('#ckPj');if(pjl)pjl.onclick=e=>{e.preventDefault();const b=document.querySelector('#rptt [data-r="projpnl"]');if(b)b.click()};
     if(!h._ckR){h._ckR=1;let t=0;addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(()=>{const el=$('#ckTr');if(el&&el.isConnected)ckTrend(el,BK)},200)})}};
   periodPicker($('#ckpp'),P,draw);await draw(periodRange(P))}
 // sắp xếp lại các mục báo cáo theo câu chuyện: Tổng quan → Tài chính → Lãi lỗ → Doanh thu → Đội xe → bản chi tiết cũ
 {const NEW=[['ck','📊 Tổng quan điều hành',['admin','ke_toan','quan_ly']],['fin','💰 Tài chính & dòng tiền',['admin','ke_toan']],['projpnl','📈 Lãi lỗ theo dự án',['admin','quan_ly','ke_toan']],['pnl','🚚 Lãi lỗ chuyến & xe'],['analytics','📦 Doanh thu chi tiết'],['fuel','⛽ Nhiên liệu theo xe',['admin','ke_toan','dieu_phoi']],['exec','Bảng điều hành (chi tiết)'],['ceo','Toàn cảnh mảng (chi tiết)'],['overview','Tổng quan hoạt động (chi tiết)']];
  RSUB.length=0;NEW.forEach(x=>RSUB.push(x));RPT.sub='ck';
  const vr=viewReports;viewReports=async m=>{const vck=VIEWS.ck;VIEWS.ck=cockpitBoard;await vr(m);const t=m.querySelector('#rptt');if(t&&!t.dataset.ck){t.dataset.ck=1;const b=t.querySelector('[data-r="exec"]');if(b){const sp=document.createElement('span');sp.className='sub';sp.style.cssText='margin:0 4px 0 10px;align-self:center;font-size:12px';sp.textContent='Bản chi tiết:';b.before(sp)}}};VIEWS.reports=viewReports;VIEWS.ck=cockpitBoard}
+
+// ===================== v54: BÁO CÁO TÀI CHÍNH CHUẨN (TT 133/2016/TT-BTC – mẫu B02-DNN, B01-DNN) =====================
+function bcCss(){if(document.getElementById('bcCss'))return;const s=document.createElement('style');s.id='bcCss';s.textContent=`
+.bc .rep{background:#fff;border:1px solid rgba(11,11,11,.08);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.bc .rh{text-align:center;margin-bottom:12px}.bc .rh .co{display:flex;justify-content:space-between;font-size:12px;color:#52514e;text-align:left;gap:12px;margin-bottom:10px}
+.bc .rh h2{margin:4px 0;font-size:17px;letter-spacing:.3px}.bc .rh p{margin:0;color:#52514e;font-size:12.5px}
+.bc table.fs{width:100%;border-collapse:collapse;font-size:13px}.bc table.fs th{background:#F7F7F5;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:#52514e;padding:8px 10px;border-bottom:1px solid #e1e0d9;text-align:left}
+.bc table.fs td{padding:8px 10px;border-bottom:1px solid #F0EFEB;vertical-align:top}.bc table.fs td.n,.bc table.fs th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.bc table.fs td.c,.bc table.fs th.c{text-align:center;width:56px}
+.bc table.fs tr.b td{font-weight:700;background:#FBFBFA}.bc table.fs tr.i td:first-child{padding-left:28px;color:#52514e}.bc table.fs tr[data-dg]:hover td{background:#EEF4FC;cursor:pointer}
+.bc .neg{color:#B42318}.bc .pos{color:#006300}.bc .muted{color:#898781}
+.bc .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:900px){.bc .g2{grid-template-columns:1fr}}
+.bc .ck2{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;background:#F6F6F4;margin-bottom:6px;cursor:pointer;font-size:13px}.bc .ck2:hover{background:#EEF4FC}.bc .ck2 b.ic{width:22px;height:22px;flex:none;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:12px}
+.bc .rules{font-size:12.5px;color:#52514e;line-height:1.65;margin:0;padding-left:18px}
+.bc .sign{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;font-size:12.5px;margin-top:22px;gap:10px}.bc .sign b{display:block}.bc .sign i{display:block;color:#898781;font-size:11.5px;margin-bottom:46px}
+@media print{body *{visibility:hidden}.bc-print,.bc-print *{visibility:visible}.bc-print{position:absolute;left:0;top:0;width:100%}.bc-print .noprint{display:none}}`;document.head.appendChild(s)}
+const BCQ={};
+async function bcData(from,to){const k=from+'|'+to;if(BCQ[k]&&Date.now()-BCQ[k].t<30e3)return BCQ[k].v;const {data,error}=await sb.rpc('khg_fin_statement',{p_from:from,p_to:to});if(error)throw error;BCQ[k]={t:Date.now(),v:data};return data}
+async function bctcBoard(h){bcCss();const P=PST.bctc=PST.bctc||{kind:'thang'};
+  h.innerHTML=`<div class="ck bc"><div class="bar" id="bcpp" style="margin-bottom:8px"></div><div id="bcB"><div class="empty">Đang lập báo cáo…</div></div></div>`;
+  const draw=async p=>{const B=$('#bcB');B.innerHTML='<div class="empty">Đang lập báo cáo…</div>';
+    const len=Math.round((new Date(p.to)-new Date(p.from))/864e5)+1;const pp={from:addDays(p.from,-len),to:addDays(p.from,-1)};
+    let D,Q;try{[D,Q]=await Promise.all([bcData(p.from,p.to),bcData(pp.from,pp.to)])}catch(e){B.innerHTML='<div class="empty">'+esc(e.message||e)+'</div>';return}
+    const L=D.lines||[],LP=Object.fromEntries((Q.lines||[]).map(x=>[x.ma,x.v]));const v=m=>((L.find(x=>x.ma===m)||{}).v)||0;
+    const DR={'01':dgAttr('orders',{...p,title:'Doanh thu – đơn đã hoàn thành'}),'02':dgAttr('orders',{...p,title:'Đơn có giảm giá'}),'10':dgAttr('orders',{...p,title:'Doanh thu thuần'}),'11':dgAttr('expenses',{...p,title:'Chi phí giá vốn'}),
+      '22':dgAttr('loans',{allDates:true,title:'Tiền vay'}),'23':dgAttr('loans',{allDates:true,title:'Tiền vay'}),'24':dgAttr('expenses',{...p,title:'Chi phí quản lý'}),'32':dgAttr('expenses',{...p,title:'Chi phí khác'})};
+    const TM={'01':'IV.1','11':'IV.2','22':'IV.4','24':'IV.3','32':'IV.5'};
+    const nf=x=>x<0?`<span class="neg">(${fmtN(-x)})</span>`:fmtN(x);
+    const co=`<div class="co"><div><b>CÔNG TY TNHH KIM HOÀNG GIA</b><br>Mã số thuế: 3700416538<br>Địa chỉ: DX082, Phường Chánh Hiệp, TP. Hồ Chí Minh</div><div style="text-align:right">Mẫu số B02-DNN<br><span class="muted">(Ban hành theo Thông tư số 133/2016/TT-BTC<br>ngày 26/8/2016 của Bộ Tài chính)</span></div></div>`;
+    const b02=`<div class="rep bc-print" id="bcRep">${co}<div class="rh"><h2>BÁO CÁO KẾT QUẢ HOẠT ĐỘNG KINH DOANH</h2><p>Kỳ báo cáo: ${esc(p.label)} (từ ${fmtD(p.from)} đến ${fmtD(p.to)}) · Đơn vị tính: đồng Việt Nam</p></div>
+      <div style="overflow:auto"><table class="fs"><thead><tr><th>Chỉ tiêu</th><th class="c">Mã số</th><th class="c">Thuyết minh</th><th class="n">Kỳ này</th><th class="n">Kỳ trước</th><th class="n">Chênh lệch</th></tr></thead><tbody>
+      ${L.map(x=>{const pv=LP[x.ma]||0,d=x.v-pv;return `<tr class="${x.b?'b':''} ${x.i?'i':''}" ${DR[x.ma]||''}><td>${esc(x.t)}</td><td class="c">${x.ma}</td><td class="c muted">${TM[x.ma]||''}</td><td class="n">${nf(x.v)}</td><td class="n muted">${nf(pv)}</td><td class="n ${d>0&&['11','22','23','24','32','51','02'].indexOf(x.ma)<0?'pos':d<0&&['11','22','23','24','32','51','02'].indexOf(x.ma)<0?'neg':''}">${d?(d>0?'+':'')+fmtN(d):'–'}</td></tr>`}).join('')}
+      </tbody></table></div>
+      <div class="sign"><div><b>NGƯỜI LẬP BIỂU</b><i>(Ký, họ tên)</i></div><div><b>KẾ TOÁN TRƯỞNG</b><i>(Ký, họ tên)</i></div><div><b>GIÁM ĐỐC</b><i>(Ký, họ tên, đóng dấu)</i></div></div>
+      <p class="muted noprint" style="font-size:12px;margin:12px 0 0">Số liệu lập tự động từ CRM theo nguyên tắc dồn tích; chi phí thuế TNDN là số tạm tính 20% để quản trị, số quyết toán do kế toán xác định theo Luật Thuế TNDN. Bấm 1 dòng để xem và sửa dữ liệu gốc.</p></div>`;
+    const R=D.rev||{},G=D.gv||{},Qm=D.ql||{},O_=D.other||{};
+    const tmRow=(l,x,attr,cls='')=>`<tr class="${cls}" ${attr||''}><td>${esc(l)}</td><td class="n">${nf(Math.round(x||0))}</td></tr>`;
+    const tm=`<div class="rep"><h3 style="margin:0 0 10px">IV. Thuyết minh các chỉ tiêu</h3><div class="g2">
+      <div><table class="fs"><thead><tr><th>IV.1 Doanh thu theo hoạt động</th><th class="n">Số tiền</th></tr></thead><tbody>
+        ${tmRow('Doanh thu vận tải ('+(R.n_orders||0)+' đơn đã giao)',R.van_tai,dgAttr('orders',{...p,title:'Đơn vận tải đã giao'}))}${tmRow('Doanh thu phân phối hàng hóa',R.phan_phoi,dgAttr('dms_orders',{...p,title:'Đơn bán'}))}${tmRow('Cho thuê kho, bãi',R.kho,dgAttr('leases',{allDates:true,title:'Hợp đồng cho thuê kho'}))}${tmRow('Cho thuê xe không tài xế',R.cho_thue_xe)}
+        ${tmRow('Giảm trừ: chiết khấu, giảm giá',-(R.disc||0))}${tmRow('Giảm trừ: hàng bán bị trả lại',-(R.returns||0))}${tmRow('Doanh thu thuần',v('10'),'','b')}</tbody></table>
+        <table class="fs" style="margin-top:14px"><thead><tr><th>IV.3 Chi phí quản lý kinh doanh</th><th class="n">Số tiền</th></tr></thead><tbody>
+        ${tmRow('Lương nhân viên quản lý, văn phòng',Qm.labor,dgAttr('attendance',{...p,title:'Chấm công'}))}${tmRow('BHXH, BHYT, BHTN phần doanh nghiệp (21,5%)',Qm.ins,dgAttr('people',{allDates:true,title:'Nhân sự'}))}
+        ${(Qm.exp_groups||[]).map(g=>tmRow(g.l+' ('+g.n+' phiếu)',g.v,dgAttr('expenses',{...p,title:g.l}))).join('')}${tmRow('Cộng',v('24'),'','b')}</tbody></table>
+        <table class="fs" style="margin-top:14px"><thead><tr><th>IV.4 – IV.5 Chi phí tài chính, chi phí khác</th><th class="n">Số tiền</th></tr></thead><tbody>
+        ${tmRow('Lãi vay (theo lãi suất từng khoản vay)',v('22'),dgAttr('loans',{allDates:true,title:'Tiền vay'}))}${(O_.groups||[]).map(g=>tmRow(g.l+' ('+g.n+' phiếu)',g.v,dgAttr('expenses',{...p,title:g.l}))).join('')||tmRow('Chi phí khác',0)}</tbody></table></div>
+      <div><table class="fs"><thead><tr><th>IV.2 Giá vốn hàng bán, dịch vụ</th><th class="n">Số tiền</th></tr></thead><tbody>
+        ${tmRow('Thuê xe đối tác liên kết',G.partner,dgAttr('orders',{...p,eq:{fleet_kind:'lien_ket'},title:'Đơn xe liên kết'}))}${tmRow('Thuê xác xe (theo ngày xe chạy)',G.lease,dgAttr('payables',{allDates:true,title:'Thuê xác xe'}))}
+        ${tmRow('Nhân công trực tiếp – lương, tiền chuyến tài xế',G.labor,dgAttr('attendance',{...p,title:'Chấm công tài xế'}))}${(G.exp_groups||[]).map(g=>tmRow(g.l+' ('+g.n+' phiếu)',g.v,dgAttr('expenses',{...p,title:g.l}))).join('')}
+        ${tmRow('Khấu hao xe tải (đường thẳng)',G.dep,dgAttr('vehicles',{allDates:true,title:'Đội xe'}))}${tmRow('Giá vốn hàng hóa phân phối',G.cogs_goods,dgAttr('dms_orders',{...p,title:'Đơn bán'}))}${tmRow('Cộng giá vốn',v('11'),'','b')}</tbody></table>
+        ${(D.labor_people||[]).length?`<table class="fs" style="margin-top:14px"><thead><tr><th>Chi phí nhân công theo người</th><th class="n">Số tiền</th></tr></thead><tbody>${D.labor_people.map(x=>tmRow(x.n+' · '+((O.role||{})[x.r]||x.r||''),x.v)).join('')}</tbody></table>`:''}
+        ${(D.excluded||[]).length?`<table class="fs" style="margin-top:14px"><thead><tr><th>Khoản đã chi nhưng KHÔNG tính vào chi phí kỳ này</th><th class="n">Số tiền</th></tr></thead><tbody>${D.excluded.map(g=>tmRow(g.l+' ('+g.n+' phiếu)',g.v,dgAttr('expenses',{...p,title:g.l}))).join('')}</tbody></table>`:''}</div></div></div>`;
+    const b=D.b01||{};const fa=(b.fa_cost||0)-(b.fa_dep||0);const TS=(b.cash||0)+(b.ar||0)+(b.inv||0)+fa;const NPT=(b.ap||0)+(b.loans||0)+(b.sal||0)+(b.cit||0);
+    const b01=`<div class="rep"><div class="rh"><h2 style="font-size:15px">TÌNH HÌNH TÀI CHÍNH TẠI NGÀY ${fmtD(p.to)}</h2><p>Theo cấu trúc mẫu B01b-DNN · số ước tính từ dữ liệu CRM, kế toán đối chiếu số dư đầu kỳ và vốn góp trước khi nộp</p></div>
+      <div class="g2"><table class="fs"><thead><tr><th>Tài sản</th><th class="c">Mã số</th><th class="n">Số tiền</th></tr></thead><tbody>
+        <tr ${dgAttr('cash',{allDates:true,title:'Sổ quỹ'})}><td>Tiền và các khoản tương đương tiền</td><td class="c">110</td><td class="n">${nf(b.cash||0)}</td></tr>
+        <tr ${dgAttr('receivables',{allDates:true,title:'Phải thu'})}><td>Phải thu của khách hàng</td><td class="c">131</td><td class="n">${nf(b.ar||0)}</td></tr>
+        <tr><td>Hàng tồn kho</td><td class="c">141</td><td class="n">${nf(b.inv||0)}</td></tr>
+        <tr ${dgAttr('vehicles',{allDates:true,title:'Tài sản cố định – xe'})}><td>Tài sản cố định (nguyên giá ${fmtN(b.fa_cost||0)} − hao mòn ${fmtN(Math.round(b.fa_dep||0))})</td><td class="c">150</td><td class="n">${nf(Math.round(fa))}</td></tr>
+        <tr class="b"><td>TỔNG CỘNG TÀI SẢN</td><td class="c">200</td><td class="n">${nf(Math.round(TS))}</td></tr></tbody></table>
+      <table class="fs"><thead><tr><th>Nguồn vốn</th><th class="c">Mã số</th><th class="n">Số tiền</th></tr></thead><tbody>
+        <tr ${dgAttr('payables',{allDates:true,title:'Phải trả'})}><td>Phải trả người bán (nhà xe, thuê xác, nhà cung cấp)</td><td class="c">311</td><td class="n">${nf(b.ap||0)}</td></tr>
+        <tr ${dgAttr('salary',{allDates:true,title:'Bảng lương'})}><td>Phải trả người lao động</td><td class="c">315</td><td class="n">${nf(b.sal||0)}</td></tr>
+        <tr><td>Thuế TNDN tạm tính phải nộp</td><td class="c">313</td><td class="n">${nf(b.cit||0)}</td></tr>
+        <tr ${dgAttr('loans',{allDates:true,title:'Tiền vay'})}><td>Vay và nợ thuê tài chính</td><td class="c">320</td><td class="n">${nf(b.loans||0)}</td></tr>
+        <tr class="b"><td>Nợ phải trả</td><td class="c">300</td><td class="n">${nf(Math.round(NPT))}</td></tr>
+        <tr class="b"><td>Vốn chủ sở hữu (= Tài sản − Nợ phải trả)</td><td class="c">400</td><td class="n">${nf(Math.round(TS-NPT))}</td></tr></tbody></table></div></div>`;
+    const C=D.checks||[];const ck=`<div class="rep"><h3 style="margin:0 0 4px">Kiểm tra dữ liệu trước khi chốt báo cáo</h3><p class="muted" style="margin:0 0 10px;font-size:12.5px">${C.length?C.length+' mục cần xử lý để số liệu đúng thực tế':'Không phát hiện sai sót'}</p>
+      ${C.map(c=>`<div class="ck2" ${dgAttr(c.d,{...(c.d==='orders'||c.d==='expenses'||c.d==='cash'?p:{allDates:true}),title:c.t})}><b class="ic" style="background:${c.lv==='crit'?'#d03b3b':c.lv==='warn'?'#d18b00':'#6b7280'}">${c.lv==='crit'?'!':'i'}</b><div style="flex:1">${esc(c.t)}<br><span class="muted" style="font-size:12px">${c.n} mục${c.v?' · '+fmtN(Math.round(c.v))+' đ':''}</span></div></div>`).join('')}
+      <h3 style="margin:14px 0 6px">Nguyên tắc ghi nhận áp dụng</h3><ol class="rules">
+        <li>Cơ sở dồn tích: doanh thu ghi nhận khi dịch vụ hoàn thành (đơn đã giao), không theo ngày tạo đơn hay ngày thu tiền.</li>
+        <li>Doanh thu không gồm thuế GTGT; chiết khấu, giảm giá ghi giảm trừ doanh thu (mã 02).</li>
+        <li>Giá vốn: thuê xe đối tác của đơn đã giao, thuê xác theo ngày xe chạy, lương & tiền chuyến tài xế theo chấm công, nhiên liệu, cầu đường, sửa chữa, bốc xếp, khấu hao xe.</li>
+        <li>Chi phí ghi nhận theo ngày phát sinh và đã duyệt; phiếu chờ duyệt chưa tính.</li>
+        <li>Không tính là chi phí: tiền vay nhận về, trả gốc vay, trả góp xe (phần gốc), mua hàng nhập kho, tạm ứng, trả tiền cho nhà xe đã ghi công nợ (tránh tính 2 lần).</li>
+        <li>Khấu hao TSCĐ theo phương pháp đường thẳng (Thông tư 45/2013/TT-BTC); lãi vay tính theo lãi suất và số ngày vay trong kỳ.</li>
+        <li>BHXH, BHYT, BHTN phần doanh nghiệp 21,5% trên lương đóng bảo hiểm.</li>
+        <li>Thuế TNDN tạm tính 20% trên lợi nhuận kế toán trước thuế dương.</li></ol></div>`;
+    B.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn p" id="bcX">⬇ Excel mẫu B02-DNN</button><button class="btn" id="bcP">🖨 In / lưu PDF</button></div>`+b02+tm+b01+ck;
+    $('#bcP').onclick=()=>window.print();
+    $('#bcX').onclick=()=>{const rows=[['CÔNG TY TNHH KIM HOÀNG GIA','','','','Mẫu số B02-DNN'],['Mã số thuế: 3700416538','','','','(Ban hành theo TT 133/2016/TT-BTC)'],[],['BÁO CÁO KẾT QUẢ HOẠT ĐỘNG KINH DOANH'],[`Kỳ: ${p.label} (${fmtD(p.from)} – ${fmtD(p.to)})`,'','','','Đơn vị tính: đồng'],[],['Chỉ tiêu','Mã số','Thuyết minh','Kỳ này','Kỳ trước'],...L.map(x=>[x.t.trim(),x.ma,TM[x.ma]||'',x.v,LP[x.ma]||0]),[],['Người lập biểu','','Kế toán trưởng','','Giám đốc']];
+      const tmR=[['THUYẾT MINH','',''],['IV.1 Doanh thu','',''],['Vận tải',R.van_tai||0],['Phân phối',R.phan_phoi||0],['Cho thuê kho',R.kho||0],['Cho thuê xe',R.cho_thue_xe||0],['IV.2 Giá vốn',''],['Thuê xe đối tác',G.partner||0],['Thuê xác xe',G.lease||0],['Nhân công trực tiếp',G.labor||0],...(G.exp_groups||[]).map(g=>[g.l,g.v]),['Khấu hao xe',G.dep||0],['Giá vốn hàng hóa',G.cogs_goods||0],['IV.3 Chi phí quản lý',''],['Lương quản lý',Qm.labor||0],['BH phần DN',Qm.ins||0],...(Qm.exp_groups||[]).map(g=>[g.l,g.v]),['IV.4 Lãi vay',v('22')],['IV.5 Chi phí khác',v('32')]];
+      const b01R=[['TÌNH HÌNH TÀI CHÍNH TẠI NGÀY '+fmtD(p.to)],['Chỉ tiêu','Mã số','Số tiền'],['Tiền','110',b.cash||0],['Phải thu khách hàng','131',b.ar||0],['Hàng tồn kho','141',b.inv||0],['Tài sản cố định (giá trị còn lại)','150',Math.round(fa)],['TỔNG TÀI SẢN','200',Math.round(TS)],['Phải trả người bán','311',b.ap||0],['Thuế TNDN tạm tính','313',b.cit||0],['Phải trả người lao động','315',b.sal||0],['Vay','320',b.loans||0],['NỢ PHẢI TRẢ','300',Math.round(NPT)],['VỐN CHỦ SỞ HỮU','400',Math.round(TS-NPT)]];
+      xlsx('BCTC_B02-DNN_'+p.from+'_'+p.to,{'B02-DNN':rows,'Thuyết minh':tmR,'Tình hình tài chính':b01R})}};
+  periodPicker($('#bcpp'),P,draw);await draw(periodRange(P))}
+VIEWS.bctc=bctcBoard;
+{const i=RSUB.findIndex(x=>x[0]==='ck');if(!RSUB.some(x=>x[0]==='bctc'))RSUB.splice(i+1,0,['bctc','📑 Báo cáo tài chính (B02-DNN)',['admin','ke_toan','quan_ly']])}
 
 function nav(){
   navFix();
