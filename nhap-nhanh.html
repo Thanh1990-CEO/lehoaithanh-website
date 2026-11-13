@@ -1318,6 +1318,7 @@ async function recent(){$('#main').innerHTML=`<h1 class="pg">🕘 Nhập gần �
   $('#rL').className='';$('#rL').innerHTML=L.length?L.map(x=>`<div class="rec" style="${x.bad?'border-color:#FCA5A5;background:#FEF2F2':''}"><span class="ic">${x.ic}</span><div class="m"><b>${esc(x.a)}</b><small>${fmtDT(x.t)}${x.b?' · '+esc(x.b):''}</small></div><span class="v">${esc(x.v)}</span></div>`).join(''):'<div class="empty">Chưa có dữ liệu 3 ngày qua.</div>'}
 
 
+
 // =================== v53: ĐƠN HÀNG ĐẦY ĐỦ + DANH SÁCH ĐƠN & CHI PHÍ + SỬA TRÊN ĐIỆN THOẠI ===================
 (function(){const s=document.createElement('style');s.textContent=`
 .olist{display:flex;flex-direction:column;gap:8px}.oc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 13px;cursor:pointer;transition:transform .08s}.oc:active{transform:scale(.985)}
@@ -1498,10 +1499,30 @@ async function fetchOrders({from,to,limit=200,q}={}){let qq=sb.from('khg_orders'
   await loadProj();return L}
 function renderOrderCards(host,L){if(!host)return;if(!L.length){host.innerHTML='<div class="empty2">Chưa có đơn trong khoảng này.</div>';return}
   host.innerHTML=L.map(o=>{const pj=(PROJ||[]).find(p=>p.id===o.project_id);const cost=(+o.partner_cost||0)+(+o.driver_pay||0)+(o._ex||0);const pr=(+o.revenue||0)-cost;const mg=o.revenue?pr/o.revenue*100:null;
-    return `<div class="oc" data-od="${o.id}"><div class="t"><b>${esc(o.code||'(chưa có mã)')}</b><span class="pl ${OSTC[o.status]||''}">${esc(OST[o.status]||o.status)}</span><span class="sp"></span><small style="color:var(--muted)">${fmtD(oDay(o))}</small></div>
+    return `<div class="oc" data-od="${o.id}"><div class="t"><b>${esc(o.code||'(chưa có mã)')}</b><span class="pl ${OSTC[o.status]||''} ${canEditO()?'ostb':''}" data-ost="${o.id}">${esc(OST[o.status]||o.status)}</span><span class="sp"></span><small style="color:var(--muted)">${fmtD(oDay(o))}</small></div>
       <div class="m">👤 ${esc(cName(o))}${pj?' · '+esc(pj.name):''}${o.cust_order_code?' · '+esc(o.cust_order_code):''}<br>📍 ${esc(String(o.pickup||'').split(',')[0])} → ${esc(String(o.dropoff||'').split(',').slice(0,2).join(','))}${vPlate(o)?'<br>🚚 '+esc(vPlate(o))+(dName(o)?' · '+esc(dName(o)):''):''}</div>
       <div class="n"><div><small>Doanh thu</small><b>${fmtN(o.revenue||0)}</b></div><div><small>Chi phí · ${o._nx||0} khoản</small><b>${fmtN(cost)}</b></div><div><small>Lãi gộp</small><b class="${mg!=null&&mg<5?'mgbad':'mgok'}">${mg==null?'–':Math.round(mg)+'%'}</b></div></div></div>`}).join('');
-  host.querySelectorAll('[data-od]').forEach(c=>c.onclick=()=>openOD(c.dataset.od))}
+  host.querySelectorAll('[data-od]').forEach(c=>c.onclick=()=>openOD(c.dataset.od));
+  if(canEditO())host.querySelectorAll('.ostb[data-ost]').forEach(p=>p.onclick=e=>{e.stopPropagation();const o=L.find(x=>x.id===p.dataset.ost);if(o)appOst(o.id,o.status,o.code,k=>{o.status=k;renderOrderCards(host,L)})})}
+
+// ===== v65: chạm vào trạng thái đơn để chọn trạng thái mới =====
+(function(){const c=document.createElement('style');c.textContent=`.ostb{cursor:pointer}.ostb::after{content:" ▾";font-size:10px;opacity:.7}
+.osbg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9998}.ossh{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:var(--card,#fff);border-radius:18px 18px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));max-height:85vh;overflow:auto;box-shadow:0 -8px 30px rgba(0,0,0,.2)}
+.ossh h3{margin:0 0 10px;font-size:16px}.ossh .ob{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;border:1px solid var(--line,#e5e7eb);background:none;border-radius:12px;margin-bottom:8px;padding:0 12px;font:inherit;font-size:15px;color:inherit;text-align:left}
+.ossh .ob.on{border-color:#2563EB;background:rgba(37,99,235,.06);font-weight:700}.ossh .ob .n{width:20px;color:var(--muted);font-size:12px;text-align:center}.ossh .ob .ck{margin-left:auto;color:#2563EB}
+.ossh .ex{margin:4px 0 10px;padding:10px;border-radius:12px;background:rgba(0,0,0,.03)}.ossh .ex label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+@media(min-width:700px){.ossh{left:50%;right:auto;width:420px;transform:translateX(-50%);bottom:20px;border-radius:18px}}`;document.head.appendChild(c)})();
+function appOst(id,cur,code,after){if(!canEditO())return;const steps=['moi','xac_nhan','dang_chay','da_giao','doi_soat','xuat_hd','da_thu','huy'];
+  const bg=document.createElement('div');bg.className='osbg';const sh=document.createElement('div');sh.className='ossh';const close=()=>{bg.remove();sh.remove()};bg.onclick=close;
+  sh.innerHTML=`<h3>Trạng thái đơn ${esc(code||'')}</h3>`+steps.filter(k=>OST[k]).map((k,i)=>`<button type="button" class="ob ${k===cur?'on':''}" data-k="${k}"><span class="n">${k==='huy'?'✕':i+1}</span><span class="pl ${OSTC[k]||''}">${esc(OST[k])}</span>${k===cur?'<span class="ck">✓ hiện tại</span>':''}</button><div class="ex hidden" data-x="${k}"></div>`).join('')+`<button type="button" class="btn" style="width:100%;min-height:46px" id="osC">Đóng</button>`;
+  document.body.append(bg,sh);sh.querySelector('#osC').onclick=close;
+  const save=async(k,patch,btn)=>{btn.disabled=true;if(['da_giao','doi_soat','xuat_hd','da_thu'].includes(k)&&!patch.delivered_at){const {data:o}=await sb.from('khg_orders').select('delivered_at,scheduled_at').eq('id',id).single();if(o&&!o.delivered_at)patch.delivered_at=(o.scheduled_at&&new Date(o.scheduled_at)<new Date()?o.scheduled_at:new Date().toISOString())}const {error}=await sb.from('khg_orders').update({status:k,...patch}).eq('id',id);btn.disabled=false;if(error)return toast(error.message);toast((code?code+': ':'')+'→ '+OST[k]+(patch.recon_date?' · công nợ tính từ '+fmtD(patch.recon_date):''));close();after&&after(k)};
+  sh.querySelectorAll('.ob').forEach(b=>b.onclick=async()=>{const k=b.dataset.k;if(k===cur)return close();const ex=sh.querySelector(`[data-x="${k}"]`);sh.querySelectorAll('.ex').forEach(x=>x!==ex&&x.classList.add('hidden'));
+    const si=steps.indexOf(cur),ki=steps.indexOf(k);
+    if(k==='doi_soat'){ex.classList.remove('hidden');ex.innerHTML=`<label>Ngày đối soát thực tế – công nợ tính từ ngày này</label><div style="display:flex;gap:8px"><input class="i" type="date" value="${todayVN()}" max="${todayVN()}" style="flex:1"><button class="btn k" type="button">✓ Xác nhận</button></div>`;ex.querySelector('button').onclick=e=>{const d=ex.querySelector('input').value;if(!d)return toast('Chọn ngày đối soát');save(k,{recon_date:d},e.target)};return}
+    if(k==='huy'){ex.classList.remove('hidden');ex.innerHTML=`<label>Lý do hủy</label><div style="display:flex;gap:8px"><input class="i" placeholder="VD: khách hủy chuyến" style="flex:1"><button class="btn" type="button" style="background:#B91C1C;color:#fff">Hủy đơn</button></div>`;ex.querySelector('input').focus();ex.querySelector('button').onclick=async e=>{const r=ex.querySelector('input').value.trim();if(!r)return toast('Ghi lý do hủy');const {data:o}=await sb.from('khg_orders').select('note').eq('id',id).single();save(k,{note:[o&&o.note,'Hủy: '+r].filter(Boolean).join('\n')},e.target)};return}
+    if(si>=0&&ki>=0&&ki<si&&cur!=='huy'&&!confirm(`Lùi trạng thái về “${OST[k]}”?`))return;
+    save(k,{},b)})}
 const LST={per:'7',st:'',q:''};
 async function ds(){$('#main').innerHTML=`<h1 class="pg">📋 Đơn hàng & chi phí</h1>
   <div class="srch"><input class="i" id="dsQ" placeholder="🔎 Tìm mã đơn, khách, biển số, tài xế, địa chỉ…" value="${esc(LST.q)}"></div>
@@ -1535,7 +1556,7 @@ async function od(){const id=ODID||(location.hash.match(/^#od-(.+)$/)||[])[1];if
   const next={moi:'xac_nhan',xac_nhan:'dang_chay',dang_chay:'da_giao',da_giao:'doi_soat',doi_soat:'xuat_hd',xuat_hd:'da_thu'}[o.status];
   const due=o.recon_date||o.recon_expected?(()=>{const b=new Date((o.recon_date||o.recon_expected)+'T00:00:00Z');b.setUTCDate(b.getUTCDate()+(+o.credit_days||0));return fmtD(b.toISOString().slice(0,10))})():'';
   $('#odB').className='';$('#odB').innerHTML=`
-   <div class="dc"><div style="display:flex;align-items:center;gap:8px"><span class="pl ${OSTC[o.status]||''}" style="font-size:12.5px">${esc(OST[o.status]||o.status)}</span><span class="pl ${o.doc_status==='da_thu'||o.doc_status==='khong_can'?'g':o.doc_status==='that_lac'?'r':'a'}">${esc(DOCS[o.doc_status]||'Chưa thu chứng từ')}</span><span style="flex:1"></span><small style="color:var(--muted)">${fmtD(oDay(o))}</small></div>
+   <div class="dc"><div style="display:flex;align-items:center;gap:8px"><span class="pl ${OSTC[o.status]||''} ${canEditO()?'ostb':''}" id="odSt" style="font-size:12.5px">${esc(OST[o.status]||o.status)}</span><span class="pl ${o.doc_status==='da_thu'||o.doc_status==='khong_can'?'g':o.doc_status==='that_lac'?'r':'a'}">${esc(DOCS[o.doc_status]||'Chưa thu chứng từ')}</span><span style="flex:1"></span><small style="color:var(--muted)">${fmtD(oDay(o))}</small></div>
     <div class="stp">${steps.map((s,i)=>`<i class="${i<=si?'on':''}"></i>`).join('')}</div>
     <div style="font-size:16px;font-weight:700;margin-top:8px">${esc(cName(o))}</div><div style="color:var(--muted);font-size:13px">${[pj&&'Dự án '+pj.name,o.cust_order_code&&'Mã khách '+o.cust_order_code,FM[o.fleet_kind]].filter(Boolean).map(esc).join(' · ')}</div></div>
    <div class="sum3"><div><small>Doanh thu</small><b>${fmtN(o.revenue||0)}</b></div><div><small>Chi phí</small><b>${fmtN(cost)}</b></div><div><small>Lãi gộp</small><b class="${mg!=null&&mg<5?'mgbad':'mgok'}">${fmtN(pr)}${mg!=null?'<br><small style="display:inline">'+Math.round(mg)+'%</small>':''}</b></div></div>
@@ -1554,6 +1575,7 @@ async function od(){const id=ODID||(location.hash.match(/^#od-(.+)$/)||[])[1];if
     ${canEditO()&&['da_giao','doi_soat'].includes(o.status)&&!o.recon_date?`<div style="display:flex;gap:8px;margin-top:10px;align-items:center"><input class="i" type="date" id="odRd" value="${todayVN()}" style="flex:1"><button class="btn k" id="odR">✓ Đối soát xong</button></div>`:''}</div>
    ${o.note||o.doc_note?`<div class="dc"><h3>📝 Ghi chú</h3><div style="white-space:pre-wrap;font-size:13.5px">${esc([o.note,o.doc_note].filter(Boolean).join('\n'))}</div></div>`:''}
    <a class="btn" style="display:block;text-align:center;margin:6px 0 20px" href="/crm-khg.html#orders" target="_blank">Mở trên CRM ↗</a>`;
+  const sp=$('#odSt');if(sp&&canEditO())sp.onclick=()=>appOst(id,o.status,o.code,()=>od());
   const e=$('#odE');if(e)e.onclick=()=>{EDIT_OID=id;open('order')};const x=$('#odX');if(x)x.onclick=()=>{EXP_FOR=id;open('exp')};
   const nb=$('#odN');if(nb)nb.onclick=()=>busy(nb,async()=>{const patch={status:next};if(next==='doi_soat'){const d=prompt('Ngày đối soát thực tế (dd/mm/yyyy):',fmtD(todayVN()));if(d===null)return;const m=d.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);patch.recon_date=m?`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:todayVN()}
     if(next==='da_giao'&&!o.delivered_at)patch.delivered_at=new Date().toISOString();const {error}=await sb.from('khg_orders').update(patch).eq('id',id);if(error)return toast(error.message);toast('Đã chuyển: '+OST[next]);od()});
@@ -1587,6 +1609,7 @@ nav=function(){const N=[['home','🏠','Trang chủ'],['new','➕','Nhập mới
   $$('#nav [data-n]').forEach(b=>b.onclick=()=>{TAB=b.dataset.n;history.pushState({t:TAB},'','#'+TAB);route()})};
 route=function(){nav();window.scrollTo(0,0);if(TAB.startsWith('od-')){ODID=TAB.slice(3);TAB='od'}const f={home,new:menu,apr,recent,order,rent,fuel,km,exp,cash,ds,od}[TAB]||home;f()};
 window.onpopstate=e=>{const h=(location.hash||'#home').slice(1)||'home';if(h.startsWith('od-')){ODID=h.slice(3);TAB='od'}else TAB=h;route()};
+window.open=open;window.openOD=openOD;
 // trang chủ: thêm lối tắt danh sách đơn
 const home0=home;home=async function(){await home0();const t=document.querySelector('.tiles');if(t&&!t.querySelector('[data-o="ds"]'))t.insertAdjacentHTML('afterbegin',`<button class="tile" data-o="ds" style="grid-column:1/-1;flex-direction:row;align-items:center;min-height:64px"><span class="ic">📋</span><span><b>Đơn hàng & chi phí</b><br><small>Xem chi tiết, sửa đơn, chi phí gắn từng đơn</small></span></button>`);const b=document.querySelector('[data-o="ds"]');if(b)b.onclick=()=>open('ds')};
 

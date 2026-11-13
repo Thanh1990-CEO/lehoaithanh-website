@@ -1009,7 +1009,7 @@ function cell(f,v,r,cfg){
     case 'money':case 'num':return fmtN(v);
     case 'date':return fmtD(v);
     case 'dt':return fmtDT(v);
-    case 'sel':return pill(f.o,v);
+    case 'sel':return (f.o==='order_status'&&f.k==='status'&&r&&r.id&&!r.archived_at)?ostCell(r.id,v):pill(f.o,v);
     case 'fk':return esc((REF[f.ref]||{})[v]||'—');
     case 'bool':return v?'✓':'—';
     case 'arr':return esc((v||[]).join(', '));
@@ -2332,7 +2332,7 @@ async function viewAnalytics(m){
      <div class="card" style="padding:0"><div class="tw" style="border:0"><table><thead><tr><th>${DIMS[dim].l.replace('Theo ','')}</th><th class="n">Đơn</th><th class="n">Chuyến</th><th class="n">Doanh thu</th><th class="n">Xe liên kết</th>${extraH}<th>Sản lượng</th><th class="n">Tỷ trọng</th></tr></thead><tbody>
      ${g.map(x=>`<tr><td>${esc(x.label)}</td><td class="n">${x.orders}</td><td class="n">${x.trips}</td><td class="n">${fmtN(x.revenue)}</td><td class="n">${fmtN(x.partner)}</td>${extraC(x)}<td style="font-size:12px">${Object.entries(x.qty).map(([u,q])=>fmtN(q)+' '+esc(O.unit[u]||u)).join(', ')}</td><td class="n">${tot.rev?(x.revenue*100/tot.rev).toFixed(1).replace('.',','):0}%</td></tr>`).join('')}
      <tr class="tot"><td>Tổng</td><td class="n">${tot.orders}</td><td class="n">${tot.trips}</td><td class="n">${fmtN(tot.rev)}</td><td class="n">${fmtN(tot.par)}</td>${dim==='xe'?`<td class="n">${fmtN(sum(Object.values(vcost),x=>x))}</td><td></td>`:dim==='tai_xe'?'<td></td>':''}<td></td><td class="n">100%</td></tr></tbody></table></div></div></div>
-     <h3 style="margin-top:18px">Chi tiết đơn trong kỳ</h3><div class="tw"><table><thead><tr><th>Mã</th><th>Ngày</th><th>Khách</th><th>Tuyến</th><th>Tỉnh/quận giao</th><th>Xe</th><th>Tài xế</th><th>Tải</th><th class="n">Doanh thu</th><th>Trạng thái</th></tr></thead><tbody>${pl.orders.map(o=>`<tr><td>${esc(o.code)}</td><td>${fmtD(orderDay(o))}</td><td>${esc(custName(o))}</td><td>${esc(o.pickup_province||'')}</td><td>${esc([o.drop_district,o.drop_province].filter(Boolean).join(', '))}</td><td>${esc(REF.vehicles[o.vehicle_id]||'')}</td><td>${esc(REF.people[o.driver_id]||'')}</td><td>${loadClass(o)??''}</td><td class="n">${fmtN(o.revenue)}</td><td>${pill('order_status',o.status)}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Không có đơn.</td></tr>'}</tbody></table></div>`;
+     <h3 style="margin-top:18px">Chi tiết đơn trong kỳ</h3><div class="tw"><table><thead><tr><th>Mã</th><th>Ngày</th><th>Khách</th><th>Tuyến</th><th>Tỉnh/quận giao</th><th>Xe</th><th>Tài xế</th><th>Tải</th><th class="n">Doanh thu</th><th>Trạng thái</th></tr></thead><tbody>${pl.orders.map(o=>`<tr><td>${esc(o.code)}</td><td>${fmtD(orderDay(o))}</td><td>${esc(custName(o))}</td><td>${esc(o.pickup_province||'')}</td><td>${esc([o.drop_district,o.drop_province].filter(Boolean).join(', '))}</td><td>${esc(REF.vehicles[o.vehicle_id]||'')}</td><td>${esc(REF.people[o.driver_id]||'')}</td><td>${loadClass(o)??''}</td><td class="n">${fmtN(o.revenue)}</td><td>${ostCell(o.id,o.status)}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Không có đơn.</td></tr>'}</tbody></table></div>`;
     $('#anx').onclick=()=>{const sh={};Object.entries(DIMS).forEach(([k,d])=>sh[d.l.replace('Theo ','')]=groupOrders(pl.orders,d.k,d.lab).map(gRow));
       sh['Chi tiết đơn']=pl.orders.map(o=>({'Mã đơn':o.code,'Ngày':fmtD(orderDay(o)),'Khách':custName(o),'Dịch vụ':O.service[o.service],'Tỉnh lấy':o.pickup_province||'','Quận lấy':o.pickup_district||'','Tỉnh giao':o.drop_province||'','Quận giao':o.drop_district||'','Xe':REF.vehicles[o.vehicle_id]||'','Tài xế':REF.people[o.driver_id]||'','Tải (tấn)':loadClass(o)??'','Đơn vị':O.unit[o.unit]||'','Số lượng':o.quantity??'','Số chuyến':o.trips||1,'Doanh thu':Number(o.revenue||0),'Trả xe LK':Number(o.partner_cost||0),'Trạng thái':O.order_status[o.status]}));
       xlsx('Phan_tich_doanh_thu_'+P.label,sh)};
@@ -7350,6 +7350,55 @@ async function bctcBoard(h){bcCss();const P=PST.bctc=PST.bctc||{kind:'thang'};
   periodPicker($('#bcpp'),P,draw);await draw(periodRange(P))}
 VIEWS.bctc=bctcBoard;
 {const i=RSUB.findIndex(x=>x[0]==='ck');if(!RSUB.some(x=>x[0]==='bctc'))RSUB.splice(i+1,0,['bctc','📑 Báo cáo tài chính (B02-DNN)',['admin','ke_toan','quan_ly']])}
+
+// ===== v65: NÚT ĐỔI TRẠNG THÁI ĐƠN HÀNG ở mọi danh sách / bảng chi tiết =====
+const OST_ROLES=['admin','dieu_phoi','ke_toan','quan_ly','kinh_doanh'];
+const OST_STEPS=['moi','xac_nhan','dang_chay','da_giao','doi_soat','xuat_hd','da_thu'];
+function ostOk(){try{return has(OST_ROLES)}catch(e){return false}}
+function ostCell(id,v){const p=pill('order_status',v);if(!id||!ostOk())return p;return `<span class="ost" data-ost="${esc(id)}" data-v="${esc(v||'')}" title="Bấm để đổi trạng thái đơn">${p}<b class="ost-c">▾</b></span>`}
+(function(){if(document.getElementById('ostCss'))return;const s=document.createElement('style');s.id='ostCss';s.textContent=`
+.ost{display:inline-flex;align-items:center;gap:2px;cursor:pointer;border-radius:999px;white-space:nowrap}.ost:hover .pill{box-shadow:0 0 0 2px rgba(37,99,235,.35)}.ost .ost-c{font-size:10px;color:var(--muted);font-weight:400}
+.ost.busy{opacity:.5;pointer-events:none}
+.ostm{position:fixed;z-index:10050;background:var(--card,#fff);border:1px solid var(--line,#e5e7eb);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);padding:6px;min-width:210px;max-height:70vh;overflow:auto}
+.ostm .h{font-size:11.5px;color:var(--muted);padding:4px 8px 6px;border-bottom:1px solid var(--line,#eee);margin-bottom:4px}
+.ostm button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;padding:7px 8px;border-radius:8px;font:inherit;font-size:13.5px;cursor:pointer;text-align:left;color:inherit}
+.ostm button:hover,.ostm button:focus{background:rgba(37,99,235,.08);outline:0}.ostm button.on{font-weight:700}.ostm button .ck{margin-left:auto;color:#2563EB}
+.ostm .n{width:18px;text-align:center;color:var(--muted);font-size:11px}
+.ostbg{position:fixed;inset:0;z-index:10049;background:transparent}
+@media (max-width:640px){.ostbg{background:rgba(0,0,0,.35)}.ostm{left:8px!important;right:8px;top:auto!important;bottom:8px;min-width:0;border-radius:16px;padding:10px}.ostm button{padding:12px 10px;font-size:15px}}
+@media print{.ost .ost-c{display:none}}`;document.head.appendChild(s)})();
+async function ostSet(id,st){
+  const {data:o,error:e0}=await sb.from('khg_orders').select('id,code,status,doc_status,note,recon_date,delivered_at,scheduled_at').eq('id',id).single();if(e0||!o){toast(e0?e0.message:'Không tìm thấy đơn');return null}
+  if(o.status===st)return null;const L=O.order_status;
+  const bi=OST_STEPS.indexOf(o.status),ai=OST_STEPS.indexOf(st);
+  if(bi>=0&&ai>=0&&ai<bi&&!confirm(`Đơn ${o.code}: lùi trạng thái từ “${L[o.status]}” về “${L[st]}”?`))return null;
+  if(['doi_soat','xuat_hd','da_thu'].includes(st)&&!DOC_DONE.includes(o.doc_status)&&!confirm(`Đơn ${o.code} ${o.doc_status==='that_lac'?'đang THẤT LẠC chứng từ':'chưa thu chứng từ'}.\nVẫn chuyển sang “${L[st]}”?`))return null;
+  const patch={status:st};
+  if(st==='doi_soat'&&!o.recon_date){const d=await reconAsk(1);if(!d)return null;patch.recon_date=d}
+  if(['da_giao','doi_soat','xuat_hd','da_thu'].includes(st)&&!o.delivered_at)patch.delivered_at=(o.scheduled_at&&new Date(o.scheduled_at)<new Date()?o.scheduled_at:new Date().toISOString());
+  if(st==='huy'){const r=prompt(`Lý do hủy đơn ${o.code}:`);if(!r)return null;patch.note=[o.note,'Hủy: '+r].filter(Boolean).join('\n')}
+  const {error}=await sb.from('khg_orders').update(patch).eq('id',id);
+  if(error){toast(error.message);return null}
+  toast(`${o.code}: ${L[o.status]||o.status} → ${L[st]}`+(st==='da_giao'?' · đã tạo công nợ':'')+(patch.recon_date?' · công nợ tính từ '+fmtD(patch.recon_date):''));
+  return st}
+function ostClose(){document.querySelectorAll('.ostm,.ostbg').forEach(x=>x.remove())}
+function ostOpen(el){ostClose();const id=el.dataset.ost,cur=el.dataset.v;const L=O.order_status||{};
+  const bg=document.createElement('div');bg.className='ostbg';bg.onclick=ostClose;
+  const m=document.createElement('div');m.className='ostm';m.setAttribute('role','menu');
+  const keys=OST_STEPS.concat(Object.keys(L).filter(k=>!OST_STEPS.includes(k)));
+  m.innerHTML=`<div class="h">Đổi trạng thái đơn</div>`+keys.filter(k=>L[k]).map(k=>{const i=OST_STEPS.indexOf(k);return `<button type="button" data-k="${k}" class="${k===cur?'on':''}"><span class="n">${i>=0?i+1:'✕'}</span>${pill('order_status',k)}${k===cur?'<span class="ck">✓</span>':''}</button>`}).join('');
+  document.body.append(bg,m);
+  const r=el.getBoundingClientRect(),mh=m.offsetHeight,mw=m.offsetWidth;let top=r.bottom+4;if(top+mh>innerHeight-8)top=Math.max(8,r.top-mh-4);let left=Math.min(r.left,innerWidth-mw-8);m.style.top=top+'px';m.style.left=Math.max(8,left)+'px';
+  (m.querySelector('button.on')||m.querySelector('button')).focus();
+  m.onkeydown=e=>{if(e.key==='Escape')ostClose();const b=[...m.querySelectorAll('button')],i=b.indexOf(document.activeElement);if(e.key==='ArrowDown'){e.preventDefault();b[(i+1)%b.length].focus()}if(e.key==='ArrowUp'){e.preventDefault();b[(i-1+b.length)%b.length].focus()}};
+  m.querySelectorAll('button').forEach(b=>b.onclick=async ev=>{ev.stopPropagation();const k=b.dataset.k;ostClose();if(k===cur)return;
+    const all=[...document.querySelectorAll(`.ost[data-ost="${CSS.escape(id)}"]`)];all.forEach(x=>x.classList.add('busy'));
+    let ok=null;try{ok=await ostSet(id,k)}finally{all.forEach(x=>x.classList.remove('busy'))}
+    if(ok){all.forEach(x=>{x.dataset.v=ok;x.innerHTML=pill('order_status',ok)+'<b class="ost-c">▾</b>'});
+      const fs=document.querySelector('#modal-box select[name="status"]');if(fs&&document.querySelector('#modal-box')?.dataset.oid===id)fs.value=ok;
+      window.dispatchEvent(new CustomEvent('khg-order-status',{detail:{id,status:ok}}))}})}
+document.addEventListener('click',e=>{const el=e.target.closest&&e.target.closest('.ost[data-ost]');if(!el)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();ostOpen(el)},true);
+['mousedown','dblclick'].forEach(t=>document.addEventListener(t,e=>{if(e.target.closest&&e.target.closest('.ost[data-ost]'))e.stopPropagation()},true));
 
 function nav(){
   navFix();
