@@ -1346,18 +1346,27 @@ async function stopsInit(frm,row){stopsCss();const anchor=frm.querySelector('[na
   const box=document.createElement('div');box.id='stopsBox';lab.insertAdjacentElement('afterend',box);
   const FEES=[['freight','fee_freight','Cước vận chuyển'],['loading','fee_loading','Bốc xếp'],['wait','fee_wait','Phí chờ'],['toll','fee_toll','Cầu đường, bến bãi'],['other','fee_other','Phí khác']];
   const KL={lay:'Lấy hàng',giao:'Giao hàng',rot:'Điểm rớt',tra_hang:'Trả hàng',thu_hoi:'Thu hồi'},KB={lay:'L',giao:'G',rot:'R',tra_hang:'T',thu_hoi:'H'};
-  const feeLines=()=>[{lab:'Điểm lấy đầu (ở trên)',addr:(frm.querySelector('[name="pickup"]')||{}).value||'',o:STOPS.s0.lay,s0:'lay'},{lab:'Điểm giao đầu (ở trên)',addr:(frm.querySelector('[name="dropoff"]')||{}).value||'',o:STOPS.s0.giao,s0:'giao'},
-    ...STOPS.rows.map((x,i)=>({lab:(KL[x.kind]||x.kind)+' '+KB[x.kind]+(STOPS.rows.slice(0,i+1).filter(y=>y.kind===x.kind).length+(['lay','giao'].includes(x.kind)?1:0)),addr:x.address||'',o:x,i}))];
+  const feeLines=()=>{const ad=n=>(frm.querySelector(`[name="${n}"]`)||{}).value||'';const cnt={lay:1,giao:1,rot:0,tra_hang:0,thu_hoi:0};
+    const P=[{lab:'Lấy 1',sub:'điểm lấy ở trên',addr:ad('pickup'),o:STOPS.s0.lay,s0:'lay'}];
+    STOPS.rows.forEach((x,i)=>{if(x.kind==='lay')P.push({lab:'Lấy '+(++cnt.lay),addr:x.address||'',o:x,i})});
+    P.push({lab:'Giao 1',sub:'điểm giao ở trên',addr:ad('dropoff'),o:STOPS.s0.giao,s0:'giao'});
+    STOPS.rows.forEach((x,i)=>{if(x.kind!=='lay'){const k=x.kind||'giao';cnt[k]=(cnt[k]||0)+1;P.push({lab:({giao:'Giao ',rot:'Rớt ',tra_hang:'Trả hàng ',thu_hoi:'Thu hồi '}[k]||'Điểm ')+cnt[k],addr:x.address||'',o:x,i})}});
+    P.forEach((l,k)=>{l.first=k===0;l.leg=k?P[k-1].lab+' → '+l.lab:'Điểm xuất phát'});return P};
+  const kmOf=L=>L.s0?+L.o.km||0:+L.o.leg_km||0;
   const valOf=(L,f)=>L.s0?+L.o[f[0]]||0:+L.o[f[1]]||0;
   const sumAll=()=>{const t={};FEES.forEach(f=>t[f[1]]=feeLines().reduce((s,L)=>s+valOf(L,f),0));return t};
   const lockForm=()=>{const t=STOPS.byStops?sumAll():null;['fee_freight','fee_loading','fee_wait','fee_toll','fee_other','fee_extra_stops','quantity','unit_price'].forEach(k=>{const i=frm.querySelector(`[name="${k}"]`);if(!i)return;i.readOnly=STOPS.byStops;i.style.background=STOPS.byStops?'#F3F4F6':'';i.title=STOPS.byStops?'Đang tính theo từng điểm – sửa ở bảng cước theo điểm':'';
       if(STOPS.byStops){const v=t[k]!=null?t[k]:(k==='fee_extra_stops'?0:'');i.value=v===''?'':(i.dataset.money!=null||i.hasAttribute('data-money')?moneyFmt(v):v);i.dispatchEvent(new Event('input',{bubbles:true}))}})};
   const feeTbl=()=>{if(!STOPS.byStops)return '';const L=feeLines(),t=sumAll();const tot=Object.values(t).reduce((a,b)=>a+b,0);
-    return `<div class="tw" style="margin-top:8px"><table class="stfee"><thead><tr><th>Điểm</th>${FEES.map(f=>`<th class="n">${f[2]}</th>`).join('')}<th>Ghi chú phí</th><th class="n">Cộng điểm</th></tr></thead><tbody>
-      ${L.map((l,j)=>`<tr data-fl="${j}"><td><b>${esc(l.lab)}</b><br><span class="sub">${esc(String(l.addr).slice(0,60))}</span></td>${FEES.map(f=>`<td><input data-ff="${f[0]}" value="${valOf(l,f)?moneyFmt(valOf(l,f)):''}" placeholder="0" inputmode="numeric" data-money style="width:105px;text-align:right"></td>`).join('')}
-        <td><input data-ff="note" value="${esc((l.s0?l.o.note:l.o.fee_note)||'')}" placeholder="VD: bốc tay, chờ kho" style="width:150px"></td><td class="n"><b data-lt>${moneyFmt(FEES.reduce((s,f)=>s+valOf(l,f),0))}</b></td></tr>`).join('')}
-      <tr style="background:#F0FDF4"><td><b>Tổng đơn</b></td>${FEES.map(f=>`<td class="n"><b data-tt="${f[1]}">${moneyFmt(t[f[1]])}</b></td>`).join('')}<td></td><td class="n"><b data-tg style="color:#166534">${moneyFmt(tot)}</b></td></tr></tbody></table></div>
-      <div class="sub" style="margin-top:4px">Khi lưu đơn: cước vận chuyển, bốc xếp, phí chờ, cầu đường, phí khác của đơn = tổng các điểm ở bảng này (doanh thu tự tính lại, trừ giảm giá nếu có).</div>`};
+    const km=L.reduce((a,l)=>a+kmOf(l),0);
+    return `<div class="tw" style="margin-top:8px"><table class="stfee"><thead><tr><th>Chặng (điểm trước → điểm này)</th><th class="n">Km chặng</th>${FEES.map((f,k)=>`<th class="n">${k?f[2]+' tại điểm':'Cước chặng'}</th>`).join('')}<th>Ghi chú phí</th><th class="n">Cộng</th></tr></thead><tbody>
+      ${L.map((l,j)=>`<tr data-fl="${j}"><td><b>${esc(l.leg)}</b><br><span class="sub">${esc(l.lab)}${l.sub?' ('+l.sub+')':''}: ${esc(String(l.addr).slice(0,55)||'chưa nhập địa chỉ')}</span></td>
+        <td><input data-ff="km" value="${kmOf(l)||''}" placeholder="${l.first?'—':'km'}" inputmode="decimal" style="width:64px;text-align:right" ${l.first?'disabled':''}></td>
+        ${FEES.map((f,k)=>`<td><input data-ff="${f[0]}" value="${valOf(l,f)?moneyFmt(valOf(l,f)):''}" placeholder="${!k&&l.first?'—':'0'}" inputmode="numeric" data-money style="width:100px;text-align:right" ${!k&&l.first&&!valOf(l,f)?'disabled':''}></td>`).join('')}
+        <td><input data-ff="note" value="${esc((l.s0?l.o.note:l.o.fee_note)||'')}" placeholder="VD: bốc tay, chờ kho" style="width:140px"></td><td class="n"><b data-lt>${moneyFmt(FEES.reduce((s,f)=>s+valOf(l,f),0))}</b></td></tr>`).join('')}
+      <tr style="background:#F0FDF4"><td><b>Tổng đơn</b> <span class="sub">(${L.length} điểm · ${L.length-1} chặng)</span></td><td class="n"><b data-tk>${km?n2(km):''}</b></td>${FEES.map(f=>`<td class="n"><b data-tt="${f[1]}">${moneyFmt(t[f[1]])}</b></td>`).join('')}<td></td><td class="n"><b data-tg style="color:#166534">${moneyFmt(tot)}</b></td></tr></tbody></table></div>
+      <div class="sub" style="margin-top:4px">Thứ tự chặng: điểm lấy → các điểm lấy thêm → điểm giao ở trên → các điểm giao / rớt thêm theo thứ tự đã thêm. <b>Cước chặng</b> = tiền xe chạy từ điểm trước tới điểm này; các cột còn lại là chi phí thu khách phát sinh tại điểm đó.
+      Khi lưu: cước, bốc xếp, phí chờ, cầu đường, phí khác của đơn = tổng bảng này${km?'; km của đơn = tổng km các chặng':''} (doanh thu tự tính lại, trừ giảm giá nếu có).</div>`};
   const draw=()=>{const L=STOPS.rows;const nl=L.filter(x=>x.kind==='lay').length,ng=L.filter(x=>x.kind!=='lay').length;
     box.innerHTML=`<div class="sth"><b>📍 Điểm lấy / điểm giao / điểm rớt thêm</b><span class="sub" style="margin:0">Điểm lấy, điểm giao ở trên là điểm đầu tiên. Thêm các điểm còn lại ở đây (tài xế thấy đủ trên app, cập nhật từng điểm).</span><span style="flex:1"></span>
       <button type="button" class="btn s" data-add="lay">＋ Điểm lấy</button><button type="button" class="btn s p" data-add="giao">＋ Điểm giao</button><button type="button" class="btn s" data-add="rot">＋ Điểm rớt</button></div>
@@ -1368,23 +1377,24 @@ async function stopsInit(frm,row){stopsCss();const anchor=frm.querySelector('[na
         <input data-f="cargo" value="${esc(x.cargo||x.note||'')}" placeholder="Hàng, ghi chú"><input data-f="qty" value="${esc(x.qty??'')}" placeholder="SL" inputmode="decimal"><input data-f="cod_amount" value="${x.cod_amount?moneyFmt(x.cod_amount):''}" placeholder="0" inputmode="numeric" data-money>
         <button type="button" class="x" data-rm="${i}" title="Bỏ điểm này">✕</button></div>`).join('')}
       ${L.length?`<div class="sub" style="margin:4px 0 0">Tổng: ${1+nl} điểm lấy · ${1+ng} điểm giao / rớt${(nl+ng)&&!STOPS.byStops?` · <b>${nl+ng} điểm phát sinh</b> – nhớ tính “Phí giao thêm điểm” hoặc bật nhập cước theo từng điểm`:''}</div>`:''}
-      <label style="display:flex;gap:6px;align-items:center;margin-top:8px;font-weight:600"><input type="checkbox" id="stByStops" ${STOPS.byStops?'checked':''}> 💰 Nhập cước & chi phí thu khách theo từng điểm (cước, bốc xếp, phí chờ, cầu đường, phí khác)</label>${feeTbl()}`;
+      <label style="display:flex;gap:6px;align-items:center;margin-top:8px;font-weight:600"><input type="checkbox" id="stByStops" ${STOPS.byStops?'checked':''}> 💰 Nhập cước theo từng chặng (lấy → giao 1 → giao 2…) & chi phí thu khách tại từng điểm (bốc xếp, phí chờ, cầu đường, phí khác)</label>${feeTbl()}`;
     box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{STOPS.rows.push({kind:b.dataset.add});draw();const r=box.querySelectorAll('.strow[data-i]');const last=r[r.length-1];last&&last.querySelector('[data-f=address]').focus()});
     box.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{STOPS.rows.splice(+b.dataset.rm,1);draw();lockForm()});
     box.querySelectorAll('.strow[data-i]').forEach(r=>{const x=STOPS.rows[+r.dataset.i];r.querySelectorAll('[data-f]').forEach(inp=>{const k=inp.dataset.f;inp.addEventListener('input',()=>{x[k]=k==='cod_amount'?moneyParse(inp.value):k==='qty'?(inp.value===''?null:Number(String(inp.value).replace(',','.'))):inp.value});inp.addEventListener('change',()=>{if(k==='kind'){x.kind=inp.value;draw()}else if(k==='address'&&STOPS.byStops)draw()})})});
     const cb=box.querySelector('#stByStops');cb.onchange=()=>{STOPS.byStops=cb.checked;draw();lockForm()};
     const L2=feeLines();box.querySelectorAll('tr[data-fl]').forEach(tr=>{const l=L2[+tr.dataset.fl];tr.querySelectorAll('[data-ff]').forEach(inp=>inp.addEventListener('input',()=>{const k=inp.dataset.ff;
       if(k==='note'){if(l.s0)l.o.note=inp.value;else l.o.fee_note=inp.value;return}
+      if(k==='km'){const v=Number(String(inp.value).replace(',','.'))||null;if(l.s0)l.o.km=v;else l.o.leg_km=v;const e=box.querySelector('[data-tk]');if(e){const t=feeLines().reduce((a,x)=>a+kmOf(x),0);e.textContent=t?n2(t):''}return}
       const v=moneyParse(inp.value)||0;const f=FEES.find(f=>f[0]===k);if(l.s0)l.o[f[0]]=v||null;else l.o[f[1]]=v||null;
       tr.querySelector('[data-lt]').textContent=moneyFmt(FEES.reduce((s,f)=>s+valOf(l,f),0));const t=sumAll();FEES.forEach(f=>{const e=box.querySelector(`[data-tt="${f[1]}"]`);if(e)e.textContent=moneyFmt(t[f[1]])});
       const g=box.querySelector('[data-tg]');if(g)g.textContent=moneyFmt(Object.values(t).reduce((a,b)=>a+b,0));lockForm()}))})};
   draw();if(STOPS.byStops)setTimeout(lockForm,50)}
 async function stopsSave(order){if(!order||!order.id)return;document.querySelectorAll('#stopsBox .strow[data-i]').forEach(r=>{const x=STOPS.rows[+r.dataset.i];if(!x)return;r.querySelectorAll('[data-f]').forEach(inp=>{const k=inp.dataset.f;x[k]=k==='cod_amount'?moneyParse(inp.value):k==='qty'?(inp.value===''?null:Number(String(inp.value).replace(',','.'))):inp.value})});const keep=STOPS.rows.filter(x=>String(x.address||'').trim());let seq=1;const errs=[];
   for(const x of keep){const rot=x.kind==='rot';const rec={order_id:order.id,seq:seq++,kind:rot?'giao':(x.kind||'giao'),is_drop:rot,address:x.address.trim(),contact_name:x.contact_name||null,phone:x.phone||null,cargo:x.cargo||null,qty:x.qty??null,cod_amount:x.cod_amount||null,
-      fee_freight:x.fee_freight||null,fee_loading:x.fee_loading||null,fee_wait:x.fee_wait||null,fee_toll:x.fee_toll||null,fee_other:x.fee_other||null,fee_note:x.fee_note||null};
+      fee_freight:x.fee_freight||null,fee_loading:x.fee_loading||null,fee_wait:x.fee_wait||null,fee_toll:x.fee_toll||null,fee_other:x.fee_other||null,fee_note:x.fee_note||null,leg_km:x.leg_km||null};
     const {error}=x.id?await sb.from('khg_order_stops').update(rec).eq('id',x.id):await sb.from('khg_order_stops').insert({...rec,status:'cho'});if(error)errs.push(error.message)}
   for(const o of STOPS.orig)if(!keep.find(x=>x.id===o.id)){await sb.from('khg_order_stops').update({archived_at:new Date().toISOString()}).eq('id',o.id)}
-  const clean=o=>{const r={};['freight','loading','wait','toll','other'].forEach(k=>{if(+o[k])r[k]=+o[k]});if(o.note)r.note=o.note;return r};
+  const clean=o=>{const r={};['freight','loading','wait','toll','other','km'].forEach(k=>{if(+o[k])r[k]=+o[k]});if(o.note)r.note=o.note;return r};
   const upd={stops_count:1+keep.filter(x=>(x.kind||'giao')!=='lay').length};
   if(STOPS.byStops||order.fee_by_stops){upd.fee_by_stops=!!STOPS.byStops;upd.stop0_fees=STOPS.byStops?{lay:clean(STOPS.s0.lay||{}),giao:clean(STOPS.s0.giao||{})}:null}
   if(keep.length||STOPS.orig.length||upd.fee_by_stops!=null){const {error}=await sb.from('khg_orders').update(upd).eq('id',order.id);if(error)errs.push(error.message)}
