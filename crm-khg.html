@@ -1250,7 +1250,7 @@ async function finBoard(h){const P=PST.fin=PST.fin||{kind:'thang'};
     B.querySelectorAll('[data-repayg]').forEach(b=>b.onclick=()=>loanRepayGroup(b,()=>draw(p)));
     const ln=B.querySelector('#lnNew');if(ln)ln.onclick=()=>openForm('loans',null,()=>draw(p));
     aprInto(B.querySelector('#fbApr'),null);fleetInto(B.querySelector('#fbFleet'));kindInto(B.querySelector('#fbKind')).catch(()=>{});fuelFcInto(B.querySelector('#fbFuelFc'),true).catch(()=>{});
-    sb.rpc('khg_fuel_status',{p_date:today()}).then(({data})=>{const el=B.querySelector('#fbFuel');if(!el||!data)return;const V=data.vehicles||[];el.innerHTML=`<h3>🛞 Tồn dầu xe hôm nay <span class="sp"></span><a href="#" id="fbFuelGo" class="sub" style="font-weight:400">Xem chi tiết →</a></h3><div class="sub" style="line-height:1.7">${V.map(v=>`<b>${esc(v.plate)}</b>: ${v.level_l!=null?`còn ~${fmtN(v.level_l)} L (${v.pct}%) · chạy được ~<b style="color:${v.range_km<50?'#B91C1C':'inherit'}">${fmtN(v.range_km)} km</b>`:'chưa có số'}${v.reported_today?'':' · <span style="color:#B45309">chưa báo km hôm nay</span>'}${Number(v.diff_30d)<-5?` · <span style="color:#B91C1C">lệch ${fmtN(v.diff_30d)} L/30 ngày</span>`:''}`).join('<br>')||'Chưa có xe.'}</div>`;const g=el.querySelector('#fbFuelGo');if(g)g.onclick=e=>{e.preventDefault();RPT.sub='fuel';go('reports')}});
+    sb.rpc('khg_fuel_usage',{p_from:fuFrom(7),p_to:today()}).then(({data})=>{const el=B.querySelector('#fbFuel');if(!el||!data)return;const V=data.vehicles||[];el.innerHTML=`<h3>🛞 Dầu & km 7 ngày <span class="sp"></span><a href="#" id="fbFuelGo" class="sub" style="font-weight:400">Xem chi tiết →</a></h3><div class="sub" style="line-height:1.7">${V.map(v=>`<b>${esc(v.plate)}</b>: đổ ${n2(v.liters)} L · chạy ${v.km_period!=null?fmtN(v.km_period):'—'} km${v.l100!=null?` · <b>${n2(v.l100)} L/100km</b>`:''}${v.norm_max!=null?' <span style="opacity:.7">(ĐM '+fuDm(v)+')</span>':''}`).join('<br>')||'Chưa có số liệu 7 ngày.'}</div>`;const g=el.querySelector('#fbFuelGo');if(g)g.onclick=e=>{e.preventDefault();RPT.sub='fuel';go('reports')}});
     const bs=B.querySelector('#bgSet');if(bs)bs.onclick=()=>{modal(`<h3>⚙ Định mức dự toán chi</h3><p class="sub">Số xe chạy theo từng mốc ngày và định mức chi mỗi xe mỗi ngày. Bấm vào ô để sửa (Enter lưu), “+ Thêm” để thêm mốc / khoản mới.</p><h3>Số xe chạy</h3><div id="bgF"></div><h3 style="margin-top:14px">Định mức chi / xe / ngày</h3><div id="bgR"></div><div class="acts"><span class="sp"></span><button class="btn p" id="bgX">Xong, tính lại dự toán</button></div>`,true);
       dataGrid($('#bgF'),'fleet_plan',{allDates:true,inModal:true});dataGrid($('#bgR'),'budget_rules',{allDates:true,inModal:true});$('#bgX').onclick=()=>{closeModal();draw(p)}}};
   periodPicker($('#fpp'),P,draw);await draw(periodRange(P))}
@@ -5555,7 +5555,7 @@ fuelStatusInto=async host=>{host.innerHTML='<div class="empty">Đang tải…</d
     <p class="sub" style="margin:6px 0 0">Cập nhật ngay khi có lần đổ dầu (dầu mới cộng vào số dầu đang còn trong bình) hoặc km cuối ngày / kết thúc ca (trừ km đã chạy × mức tiêu hao thực tế của xe). * Xe chưa có đơn ngày mai: km kế hoạch lấy trung bình 7 ngày. Cần cấp = km ca sau × mức tiêu hao × 1,1 − số lít còn trong bình.</p></div>`;
   const tf=host.querySelector('#toFleet');if(tf)tf.onclick=e=>{e.preventDefault();PST.fleetS='fuelctl';go('fleet')};return data};
 // thêm mục vào Đội xe & thiết bị
-const _fleet34=VIEWS.fleet;VIEWS.fleet=async m=>{await _fleet34(m);const st=m.querySelector('.subtabs');if(!st)return;const b=document.createElement('button');b.dataset.s='fuelctl';b.textContent='⛽ Km cuối ngày & dầu còn';st.appendChild(b);
+const _fleet34=VIEWS.fleet;VIEWS.fleet=async m=>{await _fleet34(m);const st=m.querySelector('.subtabs');if(!st)return;const b=document.createElement('button');b.dataset.s='fuelctl';b.textContent='⛽ Đổ dầu & km chạy';st.appendChild(b);
   const open=()=>{st.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));fuelCtrlInto(m.querySelector('#h'))};b.onclick=open;
   st.querySelectorAll('button:not([data-s="fuelctl"])').forEach(x=>x.addEventListener('click',()=>{PST.fleetS=null}));
   if(PST.fleetS==='fuelctl')setTimeout(open,600)};
@@ -5613,6 +5613,56 @@ async function fuelTimeline(id,days){days=days||30;modal('<div class="empty">Đa
    <p class="sub" style="margin:6px 0">Lít còn sau mỗi sự kiện = lít còn trước − km chạy × tiêu hao ÷ 100 (+ số lít đổ). Lần đổ vượt dung tích bình không được cộng vào bình cho tới khi sửa lại số liệu.</p>
    <div class="row"><button class="btn s" onclick="closeModal()">Đóng</button></div>`,true);
   const s=$('#tlD');if(s)s.onchange=()=>fuelTimeline(id,+s.value)}
+// v68: nhiên liệu chỉ ghi nhận – đổ bao nhiêu lít, chạy được bao nhiêu km, L/100km thực tế; định mức chỉ tham khảo
+Object.assign(O.vd_flag,{thieu_km_do:'Lần đổ chưa ghi km đồng hồ'});
+const FU_VS={cao_hon:['Cao hơn định mức','red'],thap_hon:['Thấp hơn định mức','amber'],trong_khoang:['Trong khoảng định mức','green']};
+const fuDm=v=>v.norm_max!=null?(v.norm_min!=null?n2(v.norm_min)+' – ':'')+n2(v.norm_max):'—';
+function fuPeriod(el,days,cb){el.innerHTML=`<select class="in" style="width:auto">${[[7,'7 ngày'],[30,'30 ngày'],[60,'60 ngày'],[90,'90 ngày'],[120,'120 ngày']].map(([d,t])=>`<option value="${d}" ${d===days?'selected':''}>${t} gần nhất</option>`).join('')}</select>`;el.querySelector('select').onchange=e=>cb(+e.target.value)}
+const fuFrom=days=>{const d=new Date(today());d.setDate(d.getDate()-days+1);return d.toISOString().slice(0,10)};
+fuelCtrlInto=async function(host,days){days=days||30;host.innerHTML='<div class="empty">Đang tải…</div>';const {data,error}=await sb.rpc('khg_fuel_usage',{p_from:fuFrom(days),p_to:today()});if(error){host.innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}
+  const V=data.vehicles||[];const can=has(['admin','ke_toan','dieu_phoi']);
+  host.innerHTML=`<div class="card"><h3>⛽ Đổ dầu & km xe chạy <span class="sp"></span><span id="fuP"></span> ${can?'<button class="btn p" id="vdNew2">+ Nhập km cuối ngày</button>':''} <button class="btn s" ${dgAttr('vdaily',{title:'Km cuối ngày – sửa trực tiếp'})}>✎ Data km cuối ngày</button></h3>
+   <p class="sub" style="margin:0 0 8px;line-height:1.7">Chỉ ghi nhận số liệu thực: mỗi lần đổ dầu (số lít, số tiền, <b>km đồng hồ lúc đổ</b>) và <b>km cuối ngày</b>. Km chạy được của một lần đổ = km lúc đổ lần sau − km lúc đổ lần này (lần đổ gần nhất: tính tới km mới nhất).
+   <b>L/100km thực tế</b> = tổng lít đã chạy hết ÷ tổng km tương ứng × 100. Định mức chỉ để so tham khảo, không ràng buộc. Bấm biển số để xem từng lần đổ.</p>
+   <div class="tw"><table><thead><tr><th>Xe</th><th class="n">Số lần đổ</th><th class="n">Tổng lít đã đổ</th><th class="n">Tổng tiền dầu</th><th class="n">Km đã chạy trong kỳ</th><th class="n">Km đồng hồ mới nhất</th><th class="n">L/100km thực tế</th><th class="n">Định mức tham khảo</th><th class="n">Chi phí dầu / km</th><th>Ghi chú số liệu</th></tr></thead><tbody>
+   ${V.map(v=>{const vs=FU_VS[v.vs_norm];return `<tr><td><a href="#" data-fu="${v.vehicle_id}"><b>${esc(v.plate)}</b></a><br><span class="sub">${v.load_t?String(v.load_t).replace('.',',')+'t · ':''}bình ${n2(v.tank_l)} L</span></td>
+     <td class="n">${v.n_fill}</td><td class="n"><b>${n2(v.liters)}</b></td><td class="n">${v.amount!=null?fmtN(v.amount):'—'}</td><td class="n"><b>${v.km_period!=null?fmtN(v.km_period):'—'}</b></td><td class="n">${v.odo_now!=null?fmtN(v.odo_now):'—'}</td>
+     <td class="n"><b style="font-size:15px">${n2(v.l100)}</b>${v.l100!=null?`<br><span class="sub">${n2(v.l_closed)} L / ${fmtN(v.km_closed)} km</span>`:'<br><span class="sub">chưa đủ số liệu</span>'}</td>
+     <td class="n">${fuDm(v)}${vs?`<br><span class="pill ${vs[1]}">${vs[0]}</span>`:''}</td><td class="n">${v.cost_km!=null?fmtN(v.cost_km)+' đ':'—'}</td>
+     <td>${+v.n_issue?`<span class="pill amber">${v.n_issue} lần đổ cần kiểm tra</span>`:''}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Chưa có lần đổ dầu / km trong kỳ.</td></tr>'}</tbody></table></div></div>`;
+  fuPeriod(host.querySelector('#fuP'),days,d=>fuelCtrlInto(host,d));
+  host.querySelectorAll('[data-fu]').forEach(a=>a.onclick=e=>{e.preventDefault();fuelTimeline(a.dataset.fu,days)});
+  const nb=host.querySelector('#vdNew2');if(nb)nb.onclick=()=>openForm('vdaily',null,()=>fuelCtrlInto(host,days))};
+fuelTimeline=async function(id,days){days=days||30;modal('<div class="empty">Đang tải…</div>',true);const {data,error}=await sb.rpc('khg_fuel_usage',{p_from:fuFrom(days),p_to:today(),p_vehicle:id});
+  const v=data&&data.vehicles&&data.vehicles[0];if(error||!v){modal(`<h3>Nhật ký đổ dầu</h3><div class="empty">${esc(error?error.message:'Không có dữ liệu')}</div><div class="row"><button class="btn s" onclick="closeModal()">Đóng</button></div>`);return}
+  const F=v.fills||[];
+  modal(`<h3>⛽ Các lần đổ dầu xe ${esc(v.plate)} <span class="sp"></span><span id="fuP2"></span></h3>
+   <div class="kpis"><div class="kpi"><div class="l">Tổng lít đã đổ</div><div class="v">${n2(v.liters)} L</div><div class="h">${v.n_fill} lần · ${v.amount!=null?fmtN(v.amount)+' đ':''}</div></div>
+    <div class="kpi"><div class="l">Km đã chạy trong kỳ</div><div class="v">${v.km_period!=null?fmtN(v.km_period):'—'}</div><div class="h">km đồng hồ mới nhất ${v.odo_now!=null?fmtN(v.odo_now):'—'}</div></div>
+    <div class="kpi"><div class="l">L/100km thực tế</div><div class="v">${n2(v.l100)}</div><div class="h">${v.l100!=null?n2(v.l_closed)+' L / '+fmtN(v.km_closed)+' km':'chưa đủ số liệu'}</div></div>
+    <div class="kpi"><div class="l">Định mức tham khảo</div><div class="v" style="font-size:18px">${fuDm(v)}</div><div class="h">${FU_VS[v.vs_norm]?FU_VS[v.vs_norm][0]:'chỉ để so sánh'}</div></div></div>
+   <div class="tw" style="max-height:60vh"><table><thead><tr><th>Ngày đổ</th><th class="n">Km lúc đổ</th><th class="n">Số lít</th><th class="n">Số tiền</th><th class="n">Đơn giá</th><th>Cây xăng</th><th class="n">Km lúc đổ lần sau</th><th class="n">Chạy được (km)</th><th class="n">L/100km</th><th>Ghi chú</th></tr></thead><tbody>
+   ${F.map(f=>`<tr><td>${fmtD(f.d)}${f.full?' <span class="pill green">đầy bình</span>':''}</td><td class="n">${f.odo!=null?fmtN(f.odo):'—'}</td><td class="n"><b>${n2(f.liters)}</b></td><td class="n">${f.amount!=null?fmtN(f.amount):'—'}</td><td class="n">${f.price!=null?fmtN(f.price):'—'}</td><td>${esc(f.supplier||'')}</td>
+     <td class="n">${f.next_odo!=null?fmtN(f.next_odo):'<span class="sub">chưa đổ lại</span>'}</td><td class="n"><b>${f.km!=null?fmtN(f.km):'—'}</b>${f.open&&f.km!=null?'<br><span class="sub">tới km mới nhất</span>':''}</td><td class="n">${n2(f.l100)}</td>
+     <td>${(f.flags||[]).map(x=>`<span class="pill ${x==='vuot_dung_tich'?'red':'amber'}">${esc(O.vd_flag[x]||x)}</span>`).join(' ')}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Không có lần đổ trong kỳ.</td></tr>'}</tbody></table></div>
+   <p class="sub" style="margin:6px 0">L/100km từng lần chỉ là con số gần đúng (tài xế đổ thêm khi bình chưa cạn); số đáng tin là L/100km cả kỳ ở trên. Hai lần đổ cùng km được tính chung một quãng.</p>
+   <div class="row"><button class="btn s" onclick="closeModal()">Đóng</button></div>`,true);
+  fuPeriod($('#fuP2'),days,d=>fuelTimeline(id,d))};
+// báo cáo CEO: theo dõi tiêu hao thực tế so với định mức tham khảo
+fuelStatusInto=async function(host,days){days=days||30;host.innerHTML='<div class="empty">Đang tải…</div>';const {data,error}=await sb.rpc('khg_fuel_usage',{p_from:fuFrom(days),p_to:today()});if(error){host.innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}
+  const V=data.vehicles||[];const S=k=>V.reduce((s,v)=>s+(+v[k]||0),0);const L=S('l_closed'),K=V.reduce((s,v)=>s+(v.l100!=null?+v.km_closed:0),0),Lc=V.reduce((s,v)=>s+(v.l100!=null?+v.l_closed:0),0);const hi=V.filter(v=>v.vs_norm==='cao_hon');const iss=V.filter(v=>+v.n_issue);
+  host.innerHTML=`<div class="kpis"><div class="kpi"><div class="l">Tổng lít dầu đã đổ</div><div class="v">${n2(Math.round(S('liters')))} L</div><div class="h">${V.length} xe · ${days} ngày</div></div>
+    <div class="kpi"><div class="l">Tổng tiền dầu</div><div class="v">${fmtTr(S('amount'))}</div><div class="h">${S('km_period')?fmtN(Math.round(S('amount')/S('km_period')))+' đ/km':''}</div></div>
+    <div class="kpi"><div class="l">Tổng km xe chạy</div><div class="v">${fmtN(S('km_period'))}</div><div class="h">theo km đồng hồ</div></div>
+    <div class="kpi"><div class="l">L/100km bình quân đội xe</div><div class="v">${K?n2(Math.round(Lc*1000/K)/10):'—'}</div><div class="h">thực tế từ lần đổ & km</div></div>
+    <div class="kpi ${hi.length?'hot':''}"><div class="l">Xe tiêu hao cao hơn định mức</div><div class="v">${hi.length}</div><div class="h">${hi.map(v=>esc(v.plate)+' '+n2(v.l100)).join(', ')||'không có'}</div></div></div>
+   <div class="card"><h3>⛽ Tiêu hao nhiên liệu từng xe – CEO theo dõi <span class="sp"></span><span id="fuP3"></span> <a href="#" id="toFleet" class="sub" style="font-weight:400">Chi tiết từng lần đổ ở Đội xe →</a></h3>
+    <div class="tw"><table><thead><tr><th>Xe</th><th class="n">Lít đã đổ</th><th class="n">Tiền dầu</th><th class="n">Km đã chạy</th><th class="n">L/100km thực tế (kỳ)</th><th class="n">Tự tính 120 ngày</th><th class="n">Định mức tham khảo</th><th>So định mức</th><th class="n">Đ/km</th><th>Số liệu cần kiểm tra</th></tr></thead><tbody>
+    ${V.map(v=>{const vs=FU_VS[v.vs_norm];return `<tr><td><b>${esc(v.plate)}</b></td><td class="n">${n2(v.liters)}</td><td class="n">${v.amount!=null?fmtN(v.amount):'—'}</td><td class="n">${v.km_period!=null?fmtN(v.km_period):'—'}</td><td class="n"><b>${n2(v.l100)}</b></td><td class="n">${n2(v.actual_120d)}</td><td class="n">${fuDm(v)}</td>
+      <td>${vs?`<span class="pill ${vs[1]}">${vs[0]}</span>`:'<span class="sub">chưa đủ số liệu</span>'}</td><td class="n">${v.cost_km!=null?fmtN(v.cost_km):'—'}</td><td>${+v.n_issue?`<span class="pill amber">${v.n_issue} lần đổ</span>`:''}</td></tr>`}).join('')||'<tr><td colspan="10" class="empty">Chưa có số liệu.</td></tr>'}</tbody></table></div>
+    <p class="sub" style="margin:6px 0 0">Định mức chỉ để tham khảo. “Tự tính 120 ngày” là mức tiêu hao thực tế hệ thống tự tính từ các lần đổ có ghi km (ưu tiên giữa 2 lần đổ đầy bình) – dùng để CEO xem xét chỉnh khoảng định mức. Số liệu cần kiểm tra: số lít vượt dung tích bình, hai lần đổ cùng km, lần đổ chưa ghi km.</p></div>`;
+  fuPeriod(host.querySelector('#fuP3'),days,d=>fuelStatusInto(host,d));
+  const tf=host.querySelector('#toFleet');if(tf)tf.onclick=e=>{e.preventDefault();PST.fleetS='fuelctl';go('fleet')};return data};
 
 // ===== v35: Km lúc đổ dầu & km cuối ngày – soát sai, tô đỏ biển số xe trên toàn CRM
 (()=>{const ex=E.expenses&&E.expenses.f.find(f=>f.k==='odometer_km');if(ex){ex.list=true;ex.l='Km đồng hồ lúc đổ dầu';ex.hint='Bắt buộc với nhiên liệu – dùng để tính km còn chạy được'}
