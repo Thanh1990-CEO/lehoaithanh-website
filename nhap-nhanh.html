@@ -830,7 +830,7 @@ async function boot(){const {data:s}=await sb.auth.getSession();if(!s?.session)r
   $('#hN').textContent=(ME.full_name||'')+' · '+({admin:'Quản trị',quan_ly:'Quản lý',ke_toan:'Kế toán',dieu_phoi:'Điều phối',kinh_doanh:'Kinh doanh'}[ME.role]||ME.role);
   $('#hOut').classList.remove('hidden');$('#hOut').onclick=async()=>{await sb.auth.signOut();location.reload()};
   const since=new Date(Date.now()-120*864e5).toISOString();
-  const [v,d,c,pa,pc,co,ac,ho,he,pp]=await Promise.all([sb.from('khg_vehicles').select('id,plate,load_t,ownership,partner_id,partner_name,fuel_norm_l100,odometer_km').is('archived_at',null).order('plate'),
+  const [v,d,c,pa,pc,co,ac,ho,he,pp]=await Promise.all([sb.from('khg_vehicles').select('id,plate,load_t,ownership,partner_id,partner_name,fuel_norm_l100,fuel_norm_min_l100,fuel_norm_max_l100,odometer_km').is('archived_at',null).order('plate'),
     sb.from('khg_people').select('id,full_name,phone,vehicle_id,role,partner_id').is('archived_at',null).eq('active',true).eq('role','tai_xe').order('full_name'),
     sb.from('khg_customers').select('id,code,name,phone,contact_name,tax_code,address,email,payment_terms_days').is('archived_at',null).order('name').limit(3000),
     sb.from('khg_partners').select('id,name,short_name,phone,kind').is('archived_at',null).order('name').limit(1000),
@@ -1132,8 +1132,8 @@ function fuel(){$('#main').innerHTML=head('⛽ Đổ dầu')+`<form class="card"
   $$('[data-money]').forEach(i=>KMONEY.attach&&KMONEY.attach(i));bindPhoto('fF');KADDR.attach($('#fSA'));
   TA($('#fS'),srcList(()=>HIST.fsup),x=>{const a=HIST.fst[x.t];if(a&&!$('#fSA').value)$('#fSA').value=a});
   const FD=drvBind('fD');
-  const calc=()=>{const a=num($('#fA').value),p=+$('#fP').value||0;if(a&&p&&!$('#fL').dataset.man)$('#fL').value=(a/p).toFixed(2).replace('.',',');const v=FV.get();const L=+String($('#fL').value).replace(',','.')||0;const nm=v&&+v.fuel_norm_l100||13;
-    $('#fCalc').textContent=L?`≈ ${L.toLocaleString('vi-VN')} lít → chạy được khoảng ${Math.round(L/nm*100)} km (định mức ${String(nm).replace('.',',')} L/100km)`:''};
+  const calc=()=>{const a=num($('#fA').value),p=+$('#fP').value||0;if(a&&p&&!$('#fL').dataset.man)$('#fL').value=(a/p).toFixed(2).replace('.',',');const v=FV.get();const L=+String($('#fL').value).replace(',','.')||0;const mx=v&&(+v.fuel_norm_max_l100||+v.fuel_norm_l100)||13,mn=v&&+v.fuel_norm_min_l100||mx;const f1=x=>String(x).replace('.',',');
+    $('#fCalc').textContent=L?`≈ ${L.toLocaleString('vi-VN')} lít → tham khảo chạy được khoảng ${Math.round(L/mx*100)}${mn<mx?' – '+Math.round(L/mn*100):''} km (định mức tham khảo ${mn<mx?f1(mn)+' – ':''}${f1(mx)} L/100km)`:''};
   ['fA','fP'].forEach(id=>$('#'+id).addEventListener('input',calc));$('#fL').addEventListener('input',()=>{$('#fL').dataset.man=1;calc()});
   $('#fT').onchange=async()=>{try{const {data:p}=await sb.rpc('khg_fuel_market',{p_date:$('#fDt').value||todayVN(),p_type:$('#fT').value});if(+p>1000){$('#fP').value=Math.round(+p);calc()}}catch(e){}};
   const FV=vehBind('fV',async v=>{calc();$('#fVI').innerHTML='';$('#fO').dataset.min='';if(!v)return;const dr=DRV.find(p=>p.vehicle_id===v.id);if(dr&&!FD.text())FD.set(dr);
