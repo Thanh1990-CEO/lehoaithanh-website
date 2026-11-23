@@ -627,6 +627,7 @@ V.chi=async m=>{
   $('#esave').onclick=async()=>{const amt=Number($('#eam').value);if(!amt)return toast('Nhập số tiền');$('#esave').disabled=true;
     const pm=$('#epm').value;
     if(item==='nhien_lieu'&&!Number($('#ekm').value)){toast('Nhập km đồng hồ lúc đổ dầu');$('#esave').disabled=false;return}
+    if(item==='nhien_lieu'){const tankOf=t=>{t=t==null?2:+t;return t<1.5?60:t<2.5?75:t<4?100:t<6.5?140:t<9?200:t<12?250:t<16?300:400};const vv=(typeof VEH!=='undefined'&&VEH)?VEH[$('#eve').value]:null;const tk=tankOf(vv?vv.load_t:null);const LL=Number($('#eli').value)||(Number($('#eup').value)?amt/Number($('#eup').value):0);if(LL>tk*1.02&&!confirm(`Số lít ${Math.round(LL*10)/10} lớn hơn dung tích bình xe (~${tk} lít). Kiểm tra lại số tiền / đơn giá / số lít. Vẫn gửi?`)){$('#esave').disabled=false;return}}
     const {data:ins,error}=await sb.from('khg_expenses').insert({spent_on:today(),item,amount:amt,liters:item==='nhien_lieu'?Number($('#eli').value)||null:null,quantity:item!=='nhien_lieu'?Number($('#eli').value)||null:null,unit_price:Number($('#eup').value)||null,fuel_type:item==='nhien_lieu'?$('#eft').value:null,odometer_km:Number($('#ekm').value)||null,full_tank:item==='nhien_lieu'?$('#efull').checked:null,vehicle_id:$('#eve').value||null,person_id:ME.id,
       order_id:$('#eor').value||null,invoice_type:$('#eiv').value,
       payment_method:pm,advance_id:pm==='tam_ung'?openAdv[0].id:null,supplier:$('#esu').value||null,note:$('#eno').value||null,source:'khac'}).select('id').single();
