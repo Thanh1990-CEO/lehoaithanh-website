@@ -7716,6 +7716,24 @@ try{E.partners.f.push({h:'Tính tiền chuyến trên app Nhận Hàng Nhanh'},{
    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center"><label style="font-size:13px">Hiệu lực (phút) <input id="bcMin" type="number" min="5" value="30" style="width:80px"></label><label style="font-size:13px">Giá cố định (tùy chọn) <input id="bcPr" type="number" min="0" placeholder="tự tính" style="width:130px"></label><input id="bcNote" placeholder="Ghi chú cho đối tác" style="flex:1;min-width:160px"><button class="btn p" id="bcAll">📣 Phát cho tất cả</button></div>`;
   acts.before(w);$('#bcAll').onclick=async()=>{const b=$('#bcAll');b.disabled=true;const {data,error}=await sb.rpc('khg_partner_broadcast',{p_order:o.id,p_minutes:+$('#bcMin').value||30,p_note:$('#bcNote').value||null,p_price:+$('#bcPr').value||null});b.disabled=false;
     if(error)return toast(error.message);toast(`Đã phát đơn ${o.code} tới ${data.sent} đối tác`);closeModal();after&&after()}}}
+// ===================== v79 · ĐIỀU PHỐI CẬP NHẬT TÌNH TRẠNG CHUYẾN THAY TÀI XẾ =====================
+{const _of=E.orders.onForm;E.orders.onForm=(frm,row)=>{if(_of)_of(frm,row);try{if(!row||!row.id||!has(['admin','dieu_phoi','quan_ly']))return;const sel=frm.querySelector('select[name="trip_status"]');if(!sel)return;
+  const wrap=sel.closest('label')||sel.parentNode;const box=document.createElement('div');box.style.cssText='margin-top:6px;font-size:13px';
+  const nowL=()=>{const d=new Date(Date.now()-new Date().getTimezoneOffset()*6e4);return d.toISOString().slice(0,16)};
+  box.innerHTML=`<label style="display:flex;gap:6px;align-items:center;font-weight:600;cursor:pointer"><input type="checkbox" id="tsOv"> ✎ Cập nhật thay tài xế</label>
+    <div id="tsOvB" class="hidden" style="margin-top:6px;padding:8px;border:1px dashed #D97706;border-radius:8px;background:#FFFBEB">
+     <div class="sub" style="margin:0 0 6px">Dùng khi tài xế chưa bấm nhận chuyến / không thao tác app. Hệ thống ghi lịch sử “điều phối cập nhật thay tài xế”.</div>
+     <label style="display:block">Thời điểm thực tế<input type="datetime-local" id="tsOvAt" value="${nowL()}" style="width:100%"></label>
+     <label style="display:block;margin-top:4px">Ghi chú<input id="tsOvN" placeholder="VD: tài xế báo qua điện thoại" style="width:100%"></label>
+     <button type="button" class="btn s p" id="tsOvGo" style="margin-top:6px">Áp dụng tình trạng chuyến</button></div>`;
+  wrap.appendChild(box);const ck=box.querySelector('#tsOv'),bx=box.querySelector('#tsOvB');const orig=sel.value;
+  ck.onchange=()=>{sel.disabled=!ck.checked;bx.classList.toggle('hidden',!ck.checked);if(!ck.checked)sel.value=orig};
+  box.querySelector('#tsOvGo').onclick=async()=>{const st=sel.value;if(!st)return toast('Chọn tình trạng chuyến');if(st===orig)return toast('Tình trạng chưa thay đổi');
+    const at=box.querySelector('#tsOvAt').value;const b=box.querySelector('#tsOvGo');b.disabled=true;
+    const {data,error}=await sb.rpc('khg_order_set_trip_at',{p_order:row.id,p_status:st,p_note:box.querySelector('#tsOvN').value||null,p_at:at?new Date(at).toISOString():null});b.disabled=false;
+    if(error)return toast(error.message);toast('Đã cập nhật: '+(O.trip[st]||st)+(data&&data.status?' · trạng thái đơn: '+(O.order_status&&O.order_status[data.status]||data.status):''));
+    const {data:fresh}=await sb.from('khg_orders').select('*').eq('id',row.id).maybeSingle();closeModal();try{await go(cur)}catch(e){}if(fresh)openForm('orders',fresh,()=>go(cur))};
+  sel.disabled=true}catch(e){console.warn('trip override',e)}}}
 // ===================== v74 · KPI & ĐÁNH GIÁ ĐỐI TÁC XE LIÊN KẾT =====================
 const PKPI_EV={huy:'Hủy / nhả đơn',tre:'Trễ hẹn',hong_hang:'Hư hỏng hàng',mat_hang:'Mất / thiếu hàng',khieu_nai:'Khách khiếu nại',phat:'Bị phạt',khen:'Khách khen',danh_gia:'Đánh giá sao'};
 VIEWS.pkpi=async m=>{const P=PST.pkpi=PST.pkpi||{kind:'thang'};
