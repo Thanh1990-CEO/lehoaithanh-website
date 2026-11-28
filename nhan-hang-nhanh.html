@@ -144,20 +144,31 @@ try{SOUND=localStorage.getItem('nhn_snd')!=='0'}catch(e){}
 // ============== ĐĂNG NHẬP ==============
 function authView(step,phone){
   $('#top').classList.add('hidden');$('#nav').classList.add('hidden');
-  const ph=phone||normPhone(qs('sdt')||qs('u'));
+  const ph=phone||normPhone(qs('sdt')||qs('u'));const reg=step==='reg';
   $('#main').innerHTML=`<div style="margin:-10px">
    <div class="hero"><svg viewBox="0 0 400 120"><path d="M0 70 Q100 30 200 70 T400 60 V120 H0z" fill="#fff" opacity=".18"/><g fill="#fff"><rect x="40" y="58" width="70" height="34" rx="4"/><path d="M110 66h18l12 12v14h-30z"/><circle cx="60" cy="96" r="8"/><circle cx="125" cy="96" r="8"/><rect x="250" y="50" width="90" height="42" rx="4"/><path d="M340 60h22l14 14v18h-36z"/><circle cx="275" cy="96" r="9"/><circle cx="355" cy="96" r="9"/></g></svg></div>
-   <div style="padding:20px 18px"><div class="logo">${IC('<rect x="2" y="7" width="13" height="10" rx="1"/><path d="M15 10h4l3 3v4h-7"/><circle cx="6" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/>').replace('<svg','<svg style="width:30px;height:30px;color:#fff"')}</div>
-   <h2 style="font-size:24px;margin:14px 0 4px">Nhận Hàng Nhanh xin chào</h2><div class="mut">Ứng dụng nhận đơn cho chủ xe, nhà xe và doanh nghiệp vận tải liên kết với Kim Hoàng Gia.</div>
-   <form id="af"><input class="i" style="margin-top:18px" id="aPh" inputmode="tel" autocomplete="tel" placeholder="Số điện thoại" value="${esc(ph)}">
-   ${step==='pw'?`<input class="i" style="margin-top:10px" id="aPw" type="password" autocomplete="current-password" placeholder="Mật khẩu do KHG cấp">`:''}
-   <button class="btn" style="margin-top:14px" id="aGo">${step==='pw'?'Đăng nhập':'Tiếp tục'}</button><div id="aErr"></div></form>
-   <p class="sm mut" style="margin-top:18px">Chưa có tài khoản? <a href="/doi-tac.html#dangky" style="color:var(--o);font-weight:700">Đăng ký hợp tác</a> – nộp hồ sơ xe, giấy tờ và ký hợp đồng điện tử. KHG duyệt xong sẽ cấp tài khoản và gửi link đăng nhập.</p>
-   <p class="sm mut">Quên mật khẩu: liên hệ điều phối KHG – hotline <a href="tel:0399831228" style="color:var(--o)">0399 831 228</a>.</p></div></div>`;
-  $('#af').onsubmit=async e=>{e.preventDefault();const p=normPhone($('#aPh').value);if(p.length<9){$('#aErr').innerHTML='<div class="err">Số điện thoại không hợp lệ</div>';return}
-    if(step!=='pw'){authView('pw',p);setTimeout(()=>$('#aPw')&&$('#aPw').focus(),50);return}
-    await busy($('#aGo'),async()=>{const {error}=await sb.auth.signInWithPassword({email:p+DOMAIN,password:$('#aPw').value});
-      if(error){$('#aErr').innerHTML=`<div class="err">${/Invalid/i.test(error.message)?'Sai số điện thoại hoặc mật khẩu':esc(error.message)}</div>`;return}await boot()})};
+   <div style="padding:20px 18px"><h2 style="font-size:24px;margin:0 0 4px">${reg?'Đăng ký đối tác xe':'Nhận Hàng Nhanh xin chào'}</h2><div class="mut">${reg?'Chỉ cần số điện thoại và mật khẩu. Giấy tờ, hợp đồng bổ sung sau trong app.':'Ứng dụng nhận đơn cho chủ xe, nhà xe và doanh nghiệp vận tải liên kết với Kim Hoàng Gia.'}</div>
+   <div class="tabs full" style="margin-top:14px;border-bottom:1px solid var(--line)"><button data-m="ph" class="${reg?'':'on'}">Đăng nhập</button><button data-m="reg" class="${reg?'on':''}">Đăng ký mới</button></div>
+   <form id="af"><input type="text" id="aHp" style="display:none" tabindex="-1" autocomplete="off">
+   <input class="i" style="margin-top:14px" id="aPh" inputmode="tel" autocomplete="tel" placeholder="Số điện thoại" value="${esc(ph)}">
+   ${reg||step==='pw'?`<input class="i" style="margin-top:10px" id="aPw" type="password" autocomplete="${reg?'new-password':'current-password'}" placeholder="${reg?'Đặt mật khẩu (tối thiểu 6 ký tự)':'Mật khẩu'}">`:''}
+   ${reg?`<input class="i" style="margin-top:10px" id="aPw2" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu">
+     <input class="i" style="margin-top:10px" id="aNm" placeholder="Tên chủ xe / nhà xe (không bắt buộc)">`:''}
+   <button class="btn" style="margin-top:14px" id="aGo">${reg?'Đăng ký':step==='pw'?'Đăng nhập':'Tiếp tục'}</button><div id="aErr"></div></form>
+   ${reg?'<p class="sm mut" style="margin-top:14px">Sau khi đăng ký, CEO KHG duyệt tài khoản là bạn nhận được đơn. Hồ sơ (CCCD, giấy tờ xe, hợp đồng đã ký – chụp ảnh, scan hoặc quay video) tải lên dần trong mục <b>Tài khoản › Hồ sơ & giấy tờ</b>.</p>':''}
+   <p class="sm mut">Cần hỗ trợ / quên mật khẩu: điều phối KHG – hotline <a href="tel:0399831228" style="color:var(--o)">0399 831 228</a>.</p></div></div>`;
+  $$('#main .tabs button').forEach(b=>b.onclick=()=>authView(b.dataset.m,normPhone($('#aPh').value)));
+  $('#af').onsubmit=async e=>{e.preventDefault();const p=normPhone($('#aPh').value);const err=m=>{$('#aErr').innerHTML=`<div class="err">${esc(m)}</div>`};$('#aErr').innerHTML='';
+    if(p.length<9||p.length>11)return err('Số điện thoại không hợp lệ');
+    if(!reg&&step!=='pw'){authView('pw',p);setTimeout(()=>$('#aPw')&&$('#aPw').focus(),50);return}
+    const pw=$('#aPw').value;if(pw.length<6)return err('Mật khẩu tối thiểu 6 ký tự');
+    await busy($('#aGo'),async()=>{
+      if(reg){if(pw!==$('#aPw2').value)return err('Hai lần nhập mật khẩu không khớp');
+        const r=await fetch(SUPABASE_URL+'/functions/v1/khg-public',{method:'POST',headers:{'content-type':'application/json',apikey:SUPABASE_ANON_KEY},body:JSON.stringify({action:'partner_register',hp:$('#aHp').value,phone:p,password:pw,name:$('#aNm').value.trim()||('Đối tác '+p),kind:'ca_nhan',ref:qs('ref')})});
+        const j=await r.json().catch(()=>({}));if(!r.ok||j.error)return err(j.error||'Không đăng ký được');}
+      const {error}=await sb.auth.signInWithPassword({email:p+DOMAIN,password:pw});
+      if(error)return err(/Invalid/i.test(error.message)?'Sai số điện thoại hoặc mật khẩu':error.message);
+      if(reg)toast('Đăng ký thành công – chờ CEO KHG duyệt tài khoản',5000);await boot()})};
   if(step==='pw'&&ph)setTimeout(()=>$('#aPw')&&$('#aPw').focus(),50);
 }
 async function mustChange(){const {data}=await sb.auth.getUser();if(!data?.user?.user_metadata?.must_change)return;
@@ -208,7 +219,9 @@ function offerCard(o){const km=o.distance_km?`~${(+o.distance_km).toFixed(1).rep
    <div class="price"><span class="ic">💵</span><span>${fmtM(o.price_offer)}</span></div></div>`}
 async function viewNhan(m,quiet){
   if(!quiet){m.innerHTML='<div class="empty">Đang tải đơn…</div>';await loadOffers().catch(()=>{});navDraw()}
-  if(P.status!=='dang_hop_tac'){m.innerHTML=`<div class="warn">⏳ Tài khoản <b>${esc(P.name)}</b> đang chờ KHG duyệt hợp tác. Hoàn thiện hồ sơ xe, giấy tờ và ký hợp đồng để được duyệt.</div><a class="btn" style="display:block;text-align:center;text-decoration:none" href="/doi-tac.html">Hoàn thiện hồ sơ</a>`;return}
+  if(P.status!=='dang_hop_tac'){m.innerHTML=`<div class="empty">${EMPTY}<h3>Tài khoản đang chờ CEO KHG duyệt</h3><div>Bạn đã đăng ký thành công. KHG sẽ gọi xác nhận và duyệt tài khoản – sau đó bạn nhận được đơn ngay.</div>
+    <div class="sm" style="margin-top:10px">Muốn duyệt nhanh hơn: tải trước CCCD, giấy tờ xe, ảnh xe (chụp ảnh, scan hoặc quay video đều được).</div><button class="btn" style="width:auto;margin-top:16px;padding:12px 22px" id="bDocs">📎 Tải hồ sơ & giấy tờ</button>
+    <div style="margin-top:10px"><a href="tel:0399831228" style="color:var(--o);font-weight:700">☎️ Gọi KHG 0399 831 228</a></div></div>`;$('#bDocs').onclick=docsPage;return}
   if(!P.online){m.innerHTML=`<div class="empty">${EMPTY}<h3>Nhiều đơn hàng đang chờ bạn</h3><div>Sẵn sàng bật chế độ làm việc và kiếm thêm thu nhập?</div><button class="btn" style="width:auto;margin-top:16px;padding:12px 22px" id="bOn">Bật chế độ làm việc</button></div>`;$('#bOn').onclick=toggleOnline;return}
   let L=OFFERS.filter(o=>o.status==='moi');const s=SUB.nhan;if(s==='near')L=L.filter(o=>!(+o.distance_km>50));if(s==='far')L=L.filter(o=>+o.distance_km>50);
   m.innerHTML=L.length?L.map(offerCard).join(''):`<div class="empty">${EMPTY}<h3>${s==='far'?'Hiện chưa có đơn đi xa':'Chưa có đơn mới'}</h3><div>Giữ ứng dụng mở – đơn mới sẽ báo chuông ngay khi KHG phát đơn.</div></div>`;
@@ -251,14 +264,20 @@ function swipe(el,done){const k=el.querySelector('.k'),f=el.querySelector('.fill
   const up=()=>{if(x0===null)return;x0=null;k.style.transition='';if(dx>=max()*0.85){k.style.left=(max()+5)+'px';done();setTimeout(()=>{k.style.left='5px';f.style.width='0'},600)}else{k.style.left='5px';f.style.width='0'}dx=0};
   k.addEventListener('pointerdown',e=>{x0=e.clientX;k.setPointerCapture&&k.setPointerCapture(e.pointerId)});k.addEventListener('pointermove',mv);k.addEventListener('pointerup',up);k.addEventListener('pointercancel',up)}
 async function loadFleet(){const [{data:v},{data:d}]=await Promise.all([sb.from('khg_vehicles').select('id,plate,status,load_t,body_type,vehicle_type').order('plate'),sb.from('khg_partner_drivers').select('id,full_name,phone,status').order('full_name')]);VEH=v||[];DRV=d||[]}
-async function acceptSheet(o){await loadFleet().catch(()=>{});const vs=VEH.filter(v=>['san_sang','dang_chay'].includes(v.status)),ds=DRV.filter(d=>d.status==='hoat_dong');
+async function acceptSheet(o){await loadFleet().catch(()=>{});const vs=VEH.filter(v=>['san_sang','dang_chay'].includes(v.status)),ds=DRV.filter(d=>d.status==='hoat_dong');const quick=!vs.length||!ds.length;
   sheet(`<h3>Nhận đơn ${esc(o.code)}</h3><div class="sm mut">${esc(o.from)} → ${esc(o.to)} · <b style="color:var(--ink)">${fmtM(o.price)}</b></div>
-   <label class="f">Xe chạy</label><select class="i" id="acV">${vs.map(v=>`<option value="${v.id}">${esc(v.plate)}${v.load_t?' · '+v.load_t+' tấn':''}${v.body_type?' · '+esc(v.body_type):''}</option>`).join('')||'<option value="">Chưa có xe sẵn sàng</option>'}</select>
-   <label class="f">Tài xế</label><select class="i" id="acD">${ds.map(d=>`<option value="${d.id}">${esc(d.full_name)} · ${esc(d.phone||'')}</option>`).join('')||'<option value="">Chưa có tài xế hoạt động</option>'}</select>
-   ${!vs.length||!ds.length?`<div class="warn" style="margin-top:10px">Cần ít nhất 1 xe đã được KHG duyệt và 1 tài xế đang hoạt động. <a href="/doi-tac.html#fleet" style="color:var(--o)">Thêm xe / tài xế</a></div>`:''}
+   ${quick?`<div class="warn" style="margin-top:10px">Khai nhanh xe và tài xế chạy đơn này – giấy tờ xe bổ sung sau trong Tài khoản › Hồ sơ.</div>
+     <label class="f">Biển số xe</label><input class="i" id="qPl" placeholder="VD: 51D-123.45" value="${esc((vs[0]||{}).plate||'')}" ${vs.length?'readonly':''}>
+     <label class="f">Tải trọng (tấn)</label><input class="i" id="qLd" inputmode="decimal" placeholder="VD: 1.9" value="${esc((vs[0]||{}).load_t||'')}" ${vs.length?'readonly':''}>
+     <label class="f">Tài xế</label><input class="i" id="qDn" placeholder="Họ tên tài xế" value="${esc((ds[0]||{}).full_name||'')}">
+     <label class="f">SĐT tài xế</label><input class="i" id="qDp" inputmode="tel" placeholder="Số điện thoại" value="${esc((ds[0]||{}).phone||P.phone||'')}">`
+   :`<label class="f">Xe chạy</label><select class="i" id="acV">${vs.map(v=>`<option value="${v.id}">${esc(v.plate)}${v.load_t?' · '+v.load_t+' tấn':''}</option>`).join('')}</select>
+     <label class="f">Tài xế</label><select class="i" id="acD">${ds.map(d=>`<option value="${d.id}">${esc(d.full_name)} · ${esc(d.phone||'')}</option>`).join('')}</select>`}
    <label class="f">Lời nhắn cho điều phối (không bắt buộc)</label><input class="i" id="acN" placeholder="VD: 30 phút nữa xe có mặt">
-   <div class="btns"><button class="btn g" onclick="closeSheet()">Hủy</button><button class="btn" id="acGo" ${!vs.length||!ds.length?'disabled':''}>Xác nhận nhận đơn</button></div><div id="acE"></div>`);
-  $('#acGo').onclick=()=>busy($('#acGo'),async()=>{try{const r=await rpc('khg_partner_accept',{p_offer:o.id,p_vehicle:$('#acV').value,p_driver:$('#acD').value,p_note:$('#acN').value||null});closeSheet();await Promise.all([loadOffers(),loadOrders()]);acceptedPage(r,o)}
+   <div class="btns"><button class="btn g" onclick="closeSheet()">Hủy</button><button class="btn" id="acGo">Xác nhận nhận đơn</button></div><div id="acE"></div>`);
+  $('#acGo').onclick=()=>busy($('#acGo'),async()=>{try{let v=$('#acV')?.value,d=$('#acD')?.value;
+      if(quick){const q=await rpc('khg_partner_quick_fleet',{p_plate:$('#qPl').value,p_load:Number(String($('#qLd').value).replace(',','.'))||null,p_driver_name:$('#qDn').value,p_driver_phone:normPhone($('#qDp').value)});v=q.vehicle_id;d=q.driver_id}
+      const r=await rpc('khg_partner_accept',{p_offer:o.id,p_vehicle:v,p_driver:d,p_note:$('#acN').value||null});closeSheet();await Promise.all([loadOffers(),loadOrders()]);acceptedPage(r,o)}
     catch(e){$('#acE').innerHTML=`<div class="err">${esc(/trước/.test(e.message)?'Rất tiếc! Đơn này đã có đối tác khác nhận trước. Hãy thử đơn tiếp theo nhé.':e.message)}</div>`;loadOffers().then(navDraw)}})}
 function acceptedPage(r,o){page(`<div style="padding:24px 18px;text-align:center"><div class="done-ic">✓</div><h2 style="margin:6px 0">Nhận đơn thành công!</h2><div class="mut">Đơn <b>${esc(r.code||o.code)}</b> đã là của bạn. Điều phối KHG đã nhận thông báo.</div>
    <div class="card" style="text-align:left;margin-top:18px"><div class="bd"><div class="rt"><div class="p">${esc(o.from)}</div><div class="p d">${esc(o.to)}</div></div></div><div class="price"><span class="ic">💵</span><span>${fmtM(o.price)}</span></div></div>
@@ -350,16 +369,36 @@ async function viewKpi(m){m.innerHTML='<div class="empty">Đang tải…</div>';
    <h4 style="margin:14px 4px 6px">Ghi nhận gần đây</h4>
    <div class="card">${(r.events||[]).length?(r.events||[]).map(e=>`<div class="li"><div class="t"><b>${esc(K[e.kind]||e.kind)}${e.stars?' '+e.stars+'★':''}</b><small>${esc(e.reason||'')}</small></div><span class="sm mut">${fmtD(e.at)}</span></div>`).join(''):'<div class="empty" style="padding:30px">Chưa có ghi nhận – tiếp tục giữ phong độ!</div>'}</div>`}
 
+
+// ============== HỒ SƠ & GIẤY TỜ (tải lên dần: ảnh, scan PDF, video) ==============
+const DOCS=[['cccd','🪪 CCCD người đại diện (2 mặt)'],['bang_lai','🚦 GPLX tài xế'],['dang_ky_xe','📄 Đăng ký xe'],['dang_kiem','🔧 Đăng kiểm xe'],['bao_hiem','🛡 Bảo hiểm xe'],['hinh_xe','🚛 Ảnh xe, bãi xe (thấy rõ biển số)'],
+  ['phu_hieu','🏷 Phù hiệu / Giấy phép KD vận tải'],['giay_phep_kd','🏢 Giấy phép kinh doanh (nếu có)'],['hop_dong','📝 Hợp đồng hợp tác đã ký (chụp / scan)'],['video','🎬 Video (ký hợp đồng, xe, bãi…)'],['khac','📎 Giấy tờ khác']];
+async function docsPage(){const L=await rpc('khg_partner_my_files').catch(e=>{toast(e.message);return []});const by={};L.forEach(f=>(by[f.doc]=by[f.doc]||[]).push(f));
+  let urls={};const img=L.filter(f=>/^image\//.test(f.mime||''));if(img.length){const {data}=await sb.storage.from('khg-files').createSignedUrls(img.map(f=>f.path),3600);(data||[]).forEach(x=>{if(x.signedUrl)urls[x.path]=x.signedUrl})}
+  page(`<div class="phead w"><button class="back" id="pb">←</button><h2>Hồ sơ & giấy tờ</h2></div><div style="padding:10px">
+    <div class="card"><div class="bd sm">Tải dần từng mục – chụp ảnh, chọn file scan (PDF) hoặc quay video đều được. KHG xem và xác nhận; giấy tờ còn thiếu không ảnh hưởng việc nhận đơn khi CEO đã duyệt tài khoản.</div></div>
+    ${DOCS.map(([k,l])=>{const fs=by[k]||[];return `<div class="card"><div class="li" style="border:0"><div class="t"><b>${l}</b><small>${fs.length?`<span style="color:var(--g)">✓ đã tải ${fs.length} tệp</span>`:'Chưa có'}</small></div><button class="btn w" style="width:auto;padding:8px 12px" data-up="${k}">⬆ Tải lên</button></div>
+      ${fs.length?`<div class="photos" style="padding:0 14px 12px">${fs.map(f=>/^image\//.test(f.mime||'')&&urls[f.path]?`<img src="${urls[f.path]}" alt="" loading="lazy">`:`<div style="aspect-ratio:1;border-radius:8px;background:#F3F4F6;display:flex;align-items:center;justify-content:center;font-size:12px;text-align:center;padding:4px">${/video/.test(f.mime||'')?'🎬':'📄'}<br>${esc(String(f.name||'').slice(0,18))}</div>`).join('')}</div>`:''}</div>`}).join('')}</div>`);
+  $('#pb').onclick=()=>{closePage();go(TAB)};
+  $$('[data-up]').forEach(b=>b.onclick=()=>{const k=b.dataset.up;const i=document.createElement('input');i.type='file';i.multiple=true;i.accept=k==='video'?'video/*':'image/*,application/pdf,video/*';
+    i.onchange=()=>busy(b,async()=>{const fs=[...i.files];if(!fs.length)return;for(const file of fs){if(file.size>80*1024*1024)throw new Error(file.name+' lớn hơn 80MB – quay ngắn lại hoặc gửi qua Zalo cho KHG');
+      const f=/^image\//.test(file.type)?await shrink(file,2000):file;const ext=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'bin';
+      const path=`partner/${P.id}/hoso/${Date.now()}-${k}.${/^image\//.test(file.type)?'jpg':ext}`;b.textContent='Đang tải…';
+      const {error}=await sb.storage.from('khg-files').upload(path,f,{contentType:f.type||file.type||'application/octet-stream',upsert:false});if(error)throw new Error(error.message);
+      await rpc('khg_partner_add_file',{p_type:'partner',p_id:P.id,p_doc:k,p_path:path,p_name:file.name,p_mime:f.type||file.type,p_size:f.size,p_lat:null,p_lng:null})}
+      toast('Đã tải lên '+fs.length+' tệp');docsPage()});i.click()})}
+
 // ============== TÀI KHOẢN ==============
 async function viewMe(m){P=await rpc('khg_partner_me');const ok=P.status==='dang_hop_tac';
   m.innerHTML=`<div class="card"><div class="bd" style="text-align:center"><div class="logo" style="margin:4px auto 8px;width:64px;height:64px;border-radius:50%;font-size:26px;color:#fff;font-weight:800">${esc((P.short_name||P.name||'?').trim().charAt(0).toUpperCase())}</div>
     <b style="font-size:18px">${esc(P.short_name||P.name)}</b><div class="sm mut">${esc(P.code||'')} · ${esc(P.phone||'')}</div>
-    <div style="margin-top:8px"><span class="tag ${ok?'g':'o'}">${ok?'✓ Đã duyệt hợp tác':'⏳ Chờ KHG duyệt'}</span> <span class="tag">${P.vehicles_ready||0}/${P.vehicles||0} xe sẵn sàng</span> <span class="tag">${P.drivers||0} tài xế</span></div></div></div>
-   <div class="card">${[['/doi-tac.html#fleet','🚛 Đội xe & tài xế','Thêm xe, tài xế – xe mới cần KHG duyệt'],['/doi-tac.html#me','🪪 Hồ sơ & giấy tờ','CCCD, giấy phép, đăng ký xe, đăng kiểm, bảo hiểm'],['/doi-tac.html#me','📝 Hợp đồng hợp tác','Ký điện tử hợp đồng vận tải với KHG'],['/doi-tac.html#settle','🧾 Đối soát','Bảng kê và thanh toán từng kỳ'],['/doi-tac.html#money','📒 Sổ thu chi xe','Chi phí, lãi từng xe mỗi tháng']].map(([h,a,b])=>`<a class="li" href="${h}" style="text-decoration:none;color:inherit"><div class="t"><b>${a}</b><small>${b}</small></div>›</a>`).join('')}
+    <div style="margin-top:8px"><span class="tag ${ok?'g':'o'}">${ok?'✓ Đã duyệt hợp tác':'⏳ Chờ CEO KHG duyệt'}</span> <span class="tag">${P.vehicles_ready||0}/${P.vehicles||0} xe sẵn sàng</span> <span class="tag">${P.drivers||0} tài xế</span></div></div></div>
+   <div class="card"><div class="li" id="docsL" style="cursor:pointer"><div class="t"><b>📎 Hồ sơ & giấy tờ</b><small>CCCD, giấy tờ xe, hợp đồng đã ký – chụp ảnh, scan, quay video</small></div>›</div>${[['/doi-tac.html#fleet','🚛 Đội xe & tài xế','Thêm xe, tài xế – xe mới cần KHG duyệt'],['/doi-tac.html#me','📝 Ký hợp đồng điện tử','Ký online hợp đồng vận tải với KHG (không bắt buộc nếu đã ký giấy)'],['/doi-tac.html#settle','🧾 Đối soát','Bảng kê và thanh toán từng kỳ'],['/doi-tac.html#money','📒 Sổ thu chi xe','Chi phí, lãi từng xe mỗi tháng']].map(([h,a,b])=>`<a class="li" href="${h}" style="text-decoration:none;color:inherit"><div class="t"><b>${a}</b><small>${b}</small></div>›</a>`).join('')}
     <div class="li"><div class="t"><b>💹 Cách tính tiền chuyến</b><small>${P.commission_mode==='bang_gia'?'Theo bảng giá dịch vụ đã ký':`Hoa hồng KHG ${+P.commission_pct||0}% · bạn nhận ${100-(+P.commission_pct||0)}% giá cước`}</small></div></div>
     <a class="li" href="tel:0399831228" style="text-decoration:none;color:inherit"><div class="t"><b>☎️ Trợ giúp – điều phối KHG</b><small>0399 831 228</small></div>›</a>
     <div class="li" id="ins" style="cursor:pointer"><div class="t"><b>📲 Cài app lên màn hình chính</b><small>Mở nhanh như ứng dụng, nhận chuông đơn mới</small></div>›</div></div>
    <button class="btn g" id="out">Đăng xuất</button><p class="sm mut" style="text-align:center">Nhận Hàng Nhanh · vận hành bởi Công ty TNHH Kim Hoàng Gia</p>`;
+  $('#docsL').onclick=docsPage;
   $('#out').onclick=async()=>{try{if(P.online)await rpc('khg_partner_online',{p_on:false})}catch(e){}await sb.auth.signOut();P=null;clearInterval(POLL);authView('ph')};
   $('#ins').onclick=()=>{if(window._bip){window._bip.prompt();window._bip=null}else toast(/iPhone|iPad/.test(navigator.userAgent)?'Safari: bấm Chia sẻ → Thêm vào MH chính':'Trình duyệt: menu ⋮ → Cài đặt ứng dụng / Thêm vào màn hình chính',5000)}}
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();window._bip=e});

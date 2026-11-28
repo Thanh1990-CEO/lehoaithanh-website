@@ -1144,7 +1144,7 @@ async function renderList(name,host,opts={}){
     sb_.classList.remove('hidden');
     sb_.innerHTML=`<b>Đã chọn ${sel.size}/${rows.length}</b>${sel.size<rows.length?'<button class="btn s" data-x="all">Chọn tất cả '+rows.length+'</button>':''}
       ${RO?'':'<button class="btn s" data-x="edit">✎ Sửa hàng loạt</button>'}${sel.size===1?'<button class="btn s" data-x="one">✎ Sửa dòng này</button>':''}${!RO&&stF?`${okV?`<button class="btn s" data-x="st:${okV}" style="background:#065F46">✓ ${esc(stO[okV])} hàng loạt</button>`:''}${cxV?`<button class="btn s" data-x="st:${cxV}" style="background:#7F1D1D">✕ ${esc(stO[cxV])} hàng loạt</button>`:''}<select data-stsel style="background:#1F2937;color:#fff;border:1px solid #374151;border-radius:8px;padding:5px"><option value="">Đổi ${esc(stF.l.toLowerCase())}…</option>${Object.entries(stO).map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('')}</select>`:''}
-      <button class="btn s" data-x="xls">⬇ Excel đã chọn</button><button class="btn s" data-x="doc">⬇ Word</button><button class="btn s" data-x="pdf">⬇ PDF</button><button class="btn s" data-x="link">🔗 Sao chép link</button>${opts.bulkExtra?opts.bulkExtra():''}
+      ${name==='orders'&&!RO&&has(['admin','dieu_phoi','quan_ly'])?'<button class="btn s" data-x="trip" style="background:#B45309;color:#fff">🚚 Cập nhật chuyến thay tài xế</button>':''}<button class="btn s" data-x="xls">⬇ Excel đã chọn</button><button class="btn s" data-x="doc">⬇ Word</button><button class="btn s" data-x="pdf">⬇ PDF</button><button class="btn s" data-x="link">🔗 Sao chép link</button>${opts.bulkExtra?opts.bulkExtra():''}
       ${RO||opts.noArchive?'':'<button class="btn s dg" data-x="arch">🗑 Xoá dòng đã chọn</button>'}<span style="flex:1"></span><button class="btn s" data-x="none">✕ Bỏ chọn</button>`;
     const picked=()=>rows.filter(r=>sel.has(r.id));
     const ss=sb_.querySelector('[data-stsel]');if(ss)ss.onchange=()=>{if(ss.value)bulkStatus(ss.value,ss)};
@@ -1156,6 +1156,7 @@ async function renderList(name,host,opts={}){
       if(x==='doc'||x==='pdf')return listExport(x,cfg,picked(),opts.exportExtra);
       if(x==='link')return copyText(picked().map(r=>`${r.code||r.full_name||r.name||r.plate||r.party||''} ${recLink(name,r.id)}`).join('\n'),'Đã sao chép '+sel.size+' link');
       if(x==='edit')return bulkEdit(name,picked(),()=>{sel.clear();load()});
+      if(x==='trip')return bulkTrip(picked(),()=>{sel.clear();load()});
       if(x==='arch'){const RZ=await askDel(sel.size,'',cfg.title);if(!RZ)return;b.disabled=true;let ok=0,err='';
         {const {data:rr,error}=await sb.rpc('khg_archive_r',{p_table:cfg.table,p_ids:picked().map(r=>r.id),p_reason:RZ});if(error)err=error.message;else{ok=rr.ok;err=rr.error||''}}
         toast(`Đã xoá ${ok}/${sel.size} dòng (đưa vào thùng lưu trữ)`+(err?' · '+err:''));if(cfg.label)delete REF[name];sel.clear();load()}
@@ -7734,6 +7735,34 @@ try{E.partners.f.push({h:'Tính tiền chuyến trên app Nhận Hàng Nhanh'},{
     if(error)return toast(error.message);toast('Đã cập nhật: '+(O.trip[st]||st)+(data&&data.status?' · trạng thái đơn: '+(O.order_status&&O.order_status[data.status]||data.status):''));
     const {data:fresh}=await sb.from('khg_orders').select('*').eq('id',row.id).maybeSingle();closeModal();try{await go(cur)}catch(e){}if(fresh)openForm('orders',fresh,()=>go(cur))};
   sel.disabled=true}catch(e){console.warn('trip override',e)}}}
+// ===================== v80 · CEO DUYỆT TÀI KHOẢN ĐỐI TÁC KHI CHƯA ĐỦ HỒ SƠ =====================
+{const _pf=E.partners.onForm;E.partners.onForm=(frm,row)=>{if(_pf)try{_pf(frm,row)}catch(e){}try{if(!row||!row.id||row.status==='dang_hop_tac'||!isAdmin())return;
+  const acts=document.querySelector('#modal-box .acts');if(!acts||acts.querySelector('#pApv'))return;const b=document.createElement('button');b.className='btn p';b.id='pApv';b.type='button';
+  b.textContent='✅ CEO duyệt tài khoản';b.title='Duyệt cho đối tác nhận đơn ngay trên app Nhận Hàng Nhanh – hồ sơ bổ sung sau';acts.insertBefore(b,acts.firstChild);
+  b.onclick=async()=>{const note=prompt('Duyệt tài khoản '+(row.short_name||row.name)+' khi hồ sơ chưa đủ?\nGhi chú (không bắt buộc):','');if(note===null)return;b.disabled=true;
+    const {error}=await sb.rpc('khg_partner_approve',{p_partner:row.id,p_note:note||null});b.disabled=false;if(error)return toast(error.message);toast('Đã duyệt – đối tác nhận đơn được ngay');closeModal();try{go(cur)}catch(e){}}}catch(e){console.warn(e)}}}
+// ===================== v81 · CẬP NHẬT TÌNH TRẠNG CHUYẾN HÀNG LOẠT THAY TÀI XẾ =====================
+function bulkTrip(list,done){const nowL=()=>{const d=new Date(Date.now()-new Date().getTimezoneOffset()*6e4);return d.toISOString().slice(0,16)};
+  const noDrv=list.filter(r=>!r.driver_id).length;const ST=['da_nhan','dang_den_lay','cho_boc_hang','da_lay_hang','dang_giao','den_diem_giao','da_giao','giao_mot_phan','giao_that_bai','tra_hang_ve','su_co','huy_chuyen'];
+  modal(`<h3>🚚 Cập nhật tình trạng chuyến thay tài xế · ${list.length} đơn</h3>
+   <p class="sub">Dùng khi tài xế chưa bấm trên app. Mỗi đơn được ghi lịch sử “Điều phối cập nhật thay tài xế”, trạng thái đơn và giờ nhận / lấy / giao tự cập nhật theo.${noDrv?` <b style="color:#B42318">${noDrv} đơn chưa gán tài xế sẽ bị bỏ qua.</b>`:''}</p>
+   <div class="form" style="grid-template-columns:1fr 1fr">
+    <label>Tình trạng chuyến mới<select id="btS">${ST.map(k=>`<option value="${k}" ${k==='da_giao'?'selected':''}>${esc((O.trip||{})[k]||k)}</option>`).join('')}</select></label>
+    <label>Thời điểm thực tế<input type="datetime-local" id="btAt" value="${nowL()}"></label>
+    <label style="grid-column:1/-1"><span><input type="checkbox" id="btOwn" style="width:auto"> Dùng giờ hẹn chạy (lịch) của từng đơn làm thời điểm thực tế</span></label>
+    <label style="grid-column:1/-1">Ghi chú<input id="btN" placeholder="VD: tài xế báo qua điện thoại, không thao tác app"></label></div>
+   <div class="tw" style="max-height:34vh;overflow:auto;margin-top:8px"><table style="min-width:0"><thead><tr><th>Mã đơn</th><th>Tài xế</th><th>Tình trạng hiện tại</th><th>Kết quả</th></tr></thead><tbody>
+    ${list.map(r=>`<tr data-r="${r.id}"><td>${esc(r.code||'')}</td><td>${esc((REF.people||{})[r.driver_id]||(r.ext_driver&&r.ext_driver.name)||'—')}</td><td>${esc((O.trip||{})[r.trip_status]||r.trip_status||'')}</td><td data-res></td></tr>`).join('')}</tbody></table></div>
+   <div class="acts"><span class="sp"></span><button class="btn" id="btX">Đóng</button><button class="btn p" id="btGo">Áp dụng cho ${list.length-noDrv} đơn</button></div>`,true);
+  $('#btX').onclick=closeModal;
+  $('#btGo').onclick=async()=>{const st=$('#btS').value,note=$('#btN').value||null,own=$('#btOwn').checked,at=$('#btAt').value;
+    if(!confirm(`Cập nhật ${list.length-noDrv} đơn sang “${(O.trip||{})[st]||st}”?`))return;const b=$('#btGo');b.disabled=true;let ok=0,bad=0;
+    for(const r of list){const cell=document.querySelector(`#modal-box tr[data-r="${r.id}"] [data-res]`);
+      if(!r.driver_id){cell.innerHTML='<span style="color:#B45309">Bỏ qua – chưa có tài xế</span>';continue}
+      const t=own&&r.scheduled_at?r.scheduled_at:(at?new Date(at).toISOString():null);
+      const {error}=await sb.rpc('khg_order_set_trip_at',{p_order:r.id,p_status:st,p_note:note,p_at:t});
+      if(error){bad++;cell.innerHTML=`<span style="color:#B42318">${esc(error.message)}</span>`}else{ok++;cell.innerHTML='<span style="color:#15803D">✓ Đã cập nhật</span>'}}
+    toast(`Đã cập nhật ${ok} đơn`+(bad?` · ${bad} lỗi`:''));b.textContent='Xong';b.onclick=()=>{closeModal();done&&done()};b.disabled=false;$('#btX').onclick=()=>{closeModal();done&&done()}}}
 // ===================== v74 · KPI & ĐÁNH GIÁ ĐỐI TÁC XE LIÊN KẾT =====================
 const PKPI_EV={huy:'Hủy / nhả đơn',tre:'Trễ hẹn',hong_hang:'Hư hỏng hàng',mat_hang:'Mất / thiếu hàng',khieu_nai:'Khách khiếu nại',phat:'Bị phạt',khen:'Khách khen',danh_gia:'Đánh giá sao'};
 VIEWS.pkpi=async m=>{const P=PST.pkpi=PST.pkpi||{kind:'thang'};
