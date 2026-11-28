@@ -331,7 +331,7 @@ async function pushSync(ask){
     await rpc('khg_push_subscribe',{p_sub:sub.toJSON(),p_ua:navigator.userAgent.slice(0,280)});PUSH_ST='ok'}catch(e){PUSH_ST='err';console.warn(e)}
   setupPaint();return PUSH_ST==='ok'}
 function localNotify(title,body,tag,url){try{if(Notification.permission!=='granted')return;(SWR?SWR.showNotification(title,{body,tag,icon:'/icons/nhn-192.png',badge:'/icons/nhn-192.png',data:{url},vibrate:[200,100,200]}):Promise.reject()).catch(()=>{try{new Notification(title,{body,tag,icon:'/icons/nhn-192.png'})}catch(_){}})}catch(e){}}
-if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{const d=e.data||{};if(d.type==='push'){if(SOUND)beep();if(navigator.vibrate)navigator.vibrate([200,100,200]);toast('🔔 '+(d.title||'Thông báo mới'),5000);loadOffers().then(()=>{navDraw();if(TAB==='nhan'&&!$('#page'))viewNhan($('#main'),true)}).catch(()=>{});noticeCount()}
+if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{const d=e.data||{};if(d.type==='push'){const isOf=String(d.url||'').includes('#of=');if(!isOf){ringLoud(2);toast('🔔 '+(d.title||'Thông báo mới'),5000);loadOrders().then(()=>{navDraw();if(TAB==='don'&&!$('#page'))go('don')}).catch(()=>{})}loadOffers().then(()=>{navDraw();if(TAB==='nhan'&&!$('#page'))viewNhan($('#main'),true)}).catch(()=>{});noticeCount()}
   if(d.type==='nav'&&d.url)routeUrl(d.url)});
 function routeUrl(u){try{const x=new URL(u,location.href);if(x.pathname!==location.pathname){location.href=x.href;return}const h=x.hash.slice(1);
   if(h.startsWith('of='))offerPage(h.slice(3));else if(h.startsWith('od='))tripPage(h.slice(3));else if(['nhan','don','quy','kpi','me'].includes(h))go(h)}catch(e){}}
@@ -362,10 +362,16 @@ async function noticesPage(){const L=await noticeCount();const pg=page(`<div cla
   pg.querySelectorAll('.nt[data-u]').forEach(e=>e.onclick=()=>{const u=e.dataset.u;if(u){closePage();routeUrl(u)}});
   if(UNREAD){rpc('khg_partner_notices_read').then(()=>{UNREAD=0;$('#snd').dataset.n=''}).catch(()=>{})}}
 
-let AC=null;function beep(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();[0,.25,.5].forEach((t,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=i===2?1175:880;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.25,AC.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+t+.22);o.start(AC.currentTime+t);o.stop(AC.currentTime+t+.23)})}catch(e){}}
-async function loadOffers(first){const L=await rpc('khg_partner_offers');OFFERS=(L||[]);const fresh=OFFERS.filter(o=>o.status==='moi'&&!SEEN.has(o.id));OFFERS.forEach(o=>SEEN.add(o.id));
-  if(!first&&fresh.length&&P?.online){if(SOUND)beep();if(navigator.vibrate)navigator.vibrate([200,100,200]);const o=fresh[0];
-    if(document.visibilityState!=='visible'&&PUSH_ST!=='ok')localNotify(`📦 Đơn mới: ${o.from} → ${o.to}`,`Giá ${fmtM(o.price_offer)} – Nhận đơn ngay!`,'of-'+o.id,'/nhan-hang-nhanh.html#of='+o.id);toast(`📣 Đơn mới ${o.from} → ${o.to} · ${fmtM(o.price_offer)}`,5000)}}
+let RING=null;function ringLoud(n=4){if(!SOUND)return;clearInterval(RING);let i=0;beep(.6);RING=setInterval(()=>{if(++i>=n){clearInterval(RING);return}beep(.6)},1400);const stop=()=>{clearInterval(RING);removeEventListener('pointerdown',stop,true)};addEventListener('pointerdown',stop,true)}
+function newOfferAlert(o){if(navigator.vibrate)navigator.vibrate([400,150,400,150,400]);ringLoud();if($('#page')||$('#sheet'))return toast(`📣 Đơn mới ${o.from} → ${o.to} · ${fmtM(o.price_offer)}`,6000);
+  sheet(`<div style="text-align:center"><div style="font-size:42px;line-height:1">📣</div><h3 style="margin:6px 0 2px">Có đơn mới cho bạn!</h3><div class="sm mut">${esc(o.vehicle_req||'')}${o.distance_km?' · '+(+o.distance_km).toFixed(1).replace('.',',')+' km':''}</div></div>
+   <div class="oc" style="margin:12px 0"><div class="r1"><span class="pr" style="margin-left:0">${fmtM(o.price_offer)}</span></div>${pickBadge(o)}<div class="ab"><i>A</i><div>${esc(o.from||'—')}</div><span class="ln"></span><span></span><i class="b">B</i><div>${esc(o.to||'—')}</div></div><div class="ft">${o.scheduled_at?'🕒 '+fmtDT(o.scheduled_at):'⚡ Lấy ngay'}${o.expires_at?' · còn '+left(o.expires_at):''}</div></div>
+   <button class="btn" id="naGo" style="height:54px;font-size:16px">Xem & nhận đơn</button><button class="btn g" id="naX" style="margin-top:8px">Để sau</button>`);
+  $('#naGo').onclick=()=>{clearInterval(RING);closeSheet();offerPage(o.id)};$('#naX').onclick=()=>{clearInterval(RING);closeSheet()}}
+let AC=null;function beep(vol){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();[0,.25,.5].forEach((t,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=i===2?1175:880;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(vol||.25,AC.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+t+.22);o.start(AC.currentTime+t);o.stop(AC.currentTime+t+.23)})}catch(e){}}
+async function loadOffers(first){const L=await rpc('khg_partner_offers');OFFERS=(L||[]);const sk=o=>o.id+'|'+(o.created_at||'');const fresh=OFFERS.filter(o=>o.status==='moi'&&!SEEN.has(sk(o)));OFFERS.forEach(o=>SEEN.add(sk(o)));
+  if(!first&&fresh.length&&P?.online){const o=fresh[0];if(document.visibilityState==='visible')newOfferAlert(o);
+    if(document.visibilityState!=='visible'&&PUSH_ST!=='ok')localNotify(`📦 Đơn mới: ${o.from} → ${o.to}`,`Giá ${fmtM(o.price_offer)} – Nhận đơn ngay!`,'of-'+o.id,'/nhan-hang-nhanh.html#of='+o.id);}}
 async function loadOrders(){const f=new Date(Date.now()-90*864e5);ORD=(await rpc('khg_partner_orders',{p_from:iso(f),p_to:null}))||[]}
 const isRun=o=>o.status!=='huy'&&!['da_giao','huy_chuyen','giao_that_bai'].includes(o.trip_status);
 
