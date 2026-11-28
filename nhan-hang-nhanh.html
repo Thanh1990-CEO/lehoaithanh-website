@@ -488,7 +488,7 @@ async function offerPage(id){const o=await rpc('khg_partner_offer_detail',{p_off
     if(!o.distance_km&&a&&b){const t=await routeInfo(a,b);const e2=$('#riTrip');if(e2&&t)e2.textContent=`~${t.km.toFixed(1).replace('.',',')} km · ${fmtDur(t.min)}`}
     if(!o.plat||!o.dlat)drawMap($('#omap'),a,b,false)})()}
 function holdBtn(b,done){let t=null,fired=false;const sp=b.querySelector('span');const MOUSE=matchMedia('(hover:hover) and (pointer:fine)').matches;
-  const txt=MOUSE?'Nhận đơn này':'Nhấn giữ để nhận đơn';sp.textContent=txt;
+  const txt=MOUSE?'✅ Nhận đơn hàng':'✅ Nhấn giữ để nhận đơn hàng';sp.textContent=txt;
   const fire=()=>{if(fired)return;fired=true;b.classList.remove('go');b.classList.add('ok');sp.textContent='✓ Đang nhận…';if(navigator.vibrate)navigator.vibrate([30,40,30]);done();setTimeout(()=>{fired=false;b.classList.remove('ok');sp.textContent=txt},1200)};
   const stop=()=>{if(!t)return;clearTimeout(t);t=null;b.classList.remove('go');sp.textContent=txt};
   b.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||t)return;e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch(_){}b.classList.add('go');if(navigator.vibrate)navigator.vibrate(10);sp.textContent='Giữ tiếp…';t=setTimeout(()=>{t=null;fire()},850)});
@@ -528,7 +528,7 @@ async function crewSheet(orderId,sug){await loadFleet().catch(()=>{});const o=OR
 function acceptedPage(r,o){crewSheet(r.order_id,r.suggest)}
 
 // ============== ĐƠN HÀNG ==============
-function orderCard(o,lbl){const done=o.trip_status==='da_giao';return `<div class="card" data-od="${o.id}" role="button" tabindex="0"><div class="bd" style="padding-bottom:6px"><div style="display:flex;justify-content:space-between"><b>${esc(lbl||TRIP[o.trip_status]||o.trip_status||'')}</b><span class="sm mut">${fmtDT(o.delivered_at||o.scheduled_at||o.accepted_at)}</span></div>
+function orderCard(o,lbl){const done=o.trip_status==='da_giao';return `<div class="card" data-od="${o.id}" role="button" tabindex="0"><div class="bd" style="padding-bottom:6px"><div style="display:flex;justify-content:space-between"><b>${esc(lbl||(o.trip_status==='cho_nhan'||!o.trip_status?'🔔 Chờ bạn nhận đơn':TRIP[o.trip_status])||o.trip_status||'')}</b><span class="sm mut">${fmtDT(o.delivered_at||o.scheduled_at||o.accepted_at)}</span></div>
   <div class="tags" style="margin-top:6px"><span class="otag ${oType(o).k}">${oType(o).l}</span>${o.crew_ok===false&&isRun(o)?'<span class="tag r">⚠️ Chưa chọn xe</span>':''}${o.plate?`<span class="tag">${esc(o.plate)}</span>`:''}${o.driver?`<span class="tag">${esc(o.driver)}</span>`:''}<span class="sm mut" style="margin-left:auto">#${esc(o.code)}</span></div>
   ${o.distance_km?`<div class="sm mut">${(+o.distance_km).toFixed(1).replace('.',',')} km</div>`:''}<div class="rt"><div class="p">${esc(short(o.pickup))}</div>${(o.stops||[]).filter(s=>s.kind==='giao').length>1?`<div class="p mut">${(o.stops||[]).filter(s=>s.kind==='giao').length-1} điểm dừng</div>`:''}<div class="p d">${esc(short(o.dropoff))}</div></div></div>
   <div class="price" style="font-size:17px"><span class="ic">💵</span><span>${fmtM(o.partner_cost)}</span></div></div>`}
@@ -559,7 +559,7 @@ const STEPS=[['da_nhan','Nhận đơn'],['dang_den_lay','Xác nhận đi lấy']
 async function tripPage(id){const o=ORD.find(x=>x.id===id);if(!o)return;const run=isRun(o);
   const ALIAS={su_co:'da_lay_hang',dang_tra_hang:'den_diem_giao',giao_mot_phan:'den_diem_giao',tra_hang_ve:'den_diem_giao',thu_hoi:'den_diem_giao',giao_that_bai:'den_diem_giao',luu_dem:'da_lay_hang',da_xac_nhan:'da_nhan',cho_nhan:'da_nhan'};
   const ts=o.trip_status||'cho_nhan';const si=STEPS.findIndex(x=>x[0]===(ALIAS[ts]||ts));const picked=SEQ.indexOf(ALIAS[ts]||ts)>=SEQ.indexOf('da_lay_hang');
-  const nx=NEXT[ts];const crew=o.crew_ok!==false&&!!(o.driver||o.plate);const T=oType(o);
+  const acc=ts!=='cho_nhan';const nx=acc?NEXT[ts]:null;const crew=o.crew_ok!==false&&!!(o.driver||o.plate);const T=oType(o);
   const files=await rpc('khg_partner_files',{p_type:'order',p_id:id}).catch(()=>[]);let urls={};
   if(files.length){const {data}=await sb.storage.from('khg-files').createSignedUrls(files.map(f=>f.file_path),3600);(data||[]).forEach(x=>{if(x.signedUrl)urls[x.path]=x.signedUrl})}
   const imgs=files.filter(f=>/^image\//.test(f.mime||'')||/\.(jpe?g|png|webp|heic)$/i.test(f.file_name||'')),docs=files.filter(f=>!imgs.includes(f));
@@ -573,28 +573,35 @@ async function tripPage(id){const o=ORD.find(x=>x.id===id);if(!o)return;const ru
    <div class="map" id="tmap" style="height:260px"></div>
    <div style="padding:10px">
     <div class="tbox ${T.k}"><small>${T.l}${o.eta_pickup_at&&!picked?' · bạn hẹn có mặt '+hhmm(o.eta_pickup_at):''}</small><b class="big">⏰ ${T.w}</b>${o.scheduled_at&&!picked?`<small>${untilTxt(o.scheduled_at)}</small>`:''}</div>
-    ${!crew&&run?`<div class="crewwarn"><b>${ts==='cho_nhan'?'🚚 KHG giao chuyến này cho bạn':'⚠️ Chưa chọn xe & tài xế'}</b><div class="sm" style="margin:4px 0 8px">Chọn xe, tài xế và giờ dự kiến có mặt để ${ts==='cho_nhan'?'nhận chuyến và ':''}bắt đầu chạy.</div><button class="btn" id="crewGo">Chọn xe & tài xế</button></div>`:''}
+    ${!acc&&run?`<div class="crewwarn" style="border-color:var(--o);background:var(--ol)"><b style="font-size:16px">🚚 KHG giao đơn này cho bạn</b><div class="sm" style="margin:4px 0 10px">Xem kỹ giờ có mặt, tuyến đường, hàng hóa và hướng dẫn. Bấm <b>Nhận đơn hàng</b> để xác nhận – sau đó mới hiện các bước đi lấy, giao, trả hàng và số điện thoại liên hệ.</div>
+      <button class="btn" id="accGo" style="height:56px;font-size:17px">✅ Nhận đơn hàng</button><button class="btn g" id="accNo" style="margin-top:8px">Không nhận được đơn này</button></div>`:''}
+    ${acc&&!crew&&run?`<div class="crewwarn"><b>⚠️ Chưa chọn xe & tài xế</b><div class="sm" style="margin:4px 0 8px">Chọn xe, tài xế và giờ dự kiến có mặt để bắt đầu chạy.</div><button class="btn" id="crewGo">Chọn xe & tài xế</button></div>`:''}
     <div class="rinfo"><div><small>${picked?'Bạn → điểm giao':'Bạn → điểm lấy'}</small><b id="riMe">${GEO_ST==='ok'?'đang tính…':'bật định vị'}</b></div><div><small>Lấy → giao</small><b id="riTrip">${o.distance_km?(+o.distance_km).toFixed(1).replace('.',',')+' km':'đang tính…'}</b></div></div>
     ${o.partner_guide||docs.length?`<div class="guide"><h4>📋 Hướng dẫn lấy / giao / trả hàng</h4>${o.partner_guide?`<p>${esc(o.partner_guide)}</p>`:''}${docs.length?`<div class="gf">${docs.map(f=>`<a href="${urls[f.file_path]||'#'}" target="_blank" rel="noopener">📎 ${esc(f.file_name||'Tài liệu')}</a>`).join('')}</div>`:''}</div>`:''}
     <div class="card"><div class="bd"><div style="display:flex;justify-content:space-between;gap:8px"><b style="color:var(--o)">${esc(TRIP[ts]||ts)}</b><span class="sm mut">${o.plate?esc(o.plate)+' · ':''}${esc(o.driver||'')}${o.driver_phone?' · '+esc(o.driver_phone):''}</span></div>
-     <ul class="tl2">${STEPS.map((x,k)=>`<li class="${k<si?'on':k===si?'cur':''}">${x[1]}</li>`).join('')}</ul>
+     ${acc?'':'<div class="sm mut" style="margin-top:6px">Chưa xác nhận nhận đơn</div>'}<ul class="tl2" ${acc?'':'style="display:none"'}>${STEPS.map((x,k)=>`<li class="${k<si?'on':k===si?'cur':''}">${x[1]}</li>`).join('')}</ul>
      ${crew&&run?`<button class="btn g" style="margin-top:4px;padding:9px" id="crewEd">✎ Đổi xe / tài xế</button>`:''}</div></div>
-    <div class="calls">${calls}</div>
+    <div class="calls">${acc?calls:`<a href="tel:0399831228"><i>🎧</i><span><b>Điều phối KHG</b><small>Hỏi thêm về đơn ${esc(o.code)} trước khi nhận</small></span><b class="ph">📞 Gọi</b></a>`}</div>
     <a class="btn w" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" target="_blank" rel="noopener" href="${gmaps(picked?o.pickup:'',picked?(recv.address||o.dropoff):o.pickup)}">🧭 Chỉ đường ${picked?'đến điểm giao':'đến điểm lấy'} (Google Maps)</a>
     <div class="card"><div class="bd"><div class="rt"><div class="p"><b>Điểm lấy</b><small>${esc(o.pickup||'')}</small></div>
       ${stops.length?stops.map(s=>`<div class="p d"><b>${KN[s.kind]||'Điểm'}${stops.length>1?' '+s.seq:''}</b><small>${esc(s.address||'')}${s.note?' · '+esc(s.note):''}${+s.cod?' · Thu hộ '+fmtM(s.cod):''}</small></div>`).join(''):`<div class="p d"><b>Điểm giao</b><small>${esc(o.dropoff||'')}</small></div>`}</div>
      ${[['Hàng hóa',[o.cargo,o.weight_t?o.weight_t+' tấn':''].filter(Boolean).join(' · ')||'—'],['Bốc xếp',o.need_loading?'Có':'Không'],['Thu hộ COD',+o.cod?fmtM(o.cod):'Không'],['Tiền chuyến bạn nhận',fmtM(o.partner_cost)],['Đối soát',o.settlement?esc(o.settlement):'Chưa vào kỳ']].map(([a,b])=>`<div style="display:flex;justify-content:space-between;padding:4px 0"><span class="mut">${a}</span><b>${b}</b></div>`).join('')}
      ${o.trip_note?`<div class="sm mut" style="margin-top:6px">Ghi chú: ${esc(o.trip_note)}</div>`:''}</div></div>
-    <div class="card"><div class="bd"><b>Ảnh & chứng từ (${imgs.length})</b>${imgs.length?`<div class="photos">${imgs.map(f=>`<a href="${urls[f.file_path]||'#'}" target="_blank"><img src="${urls[f.file_path]||''}" alt="" loading="lazy"></a>`).join('')}</div>`:'<div class="sm mut">Chưa có ảnh.</div>'}
+    <div class="card" ${acc?'':'style="display:none"'}><div class="bd"><b>Ảnh & chứng từ (${imgs.length})</b>${imgs.length?`<div class="photos">${imgs.map(f=>`<a href="${urls[f.file_path]||'#'}" target="_blank"><img src="${urls[f.file_path]||''}" alt="" loading="lazy"></a>`).join('')}</div>`:'<div class="sm mut">Chưa có ảnh.</div>'}
      <button class="btn g" style="margin-top:8px" id="addPh">📷 Thêm ảnh chứng từ / sự cố</button></div></div>
     ${run&&nx?`<div class="fixb"><button class="btn" id="nxt" style="padding:16px;font-size:16px" ${crew?'':'disabled'}>${nx[1]}</button>${nx[2]?`<p class="sm mut" style="text-align:center;margin:6px 0">Bắt buộc: ${esc(nx[3])}</p>`:''}
       ${(ALT[ts]||[]).length&&crew?`<div class="alt">${ALT[ts].map(a=>`<button data-alt="${a[0]}">${a[1]}</button>`).join('')}</div>`:''}</div>`:''}
-    ${run&&!picked?`<button class="btn r" id="cxl" style="margin-top:8px">Hủy chuyến</button>`:''}
+    ${run&&acc&&!picked?`<button class="btn r" id="cxl" style="margin-top:8px">Hủy chuyến</button>`:''}
     ${run&&picked&&crew?`<button class="btn r" id="inc" style="margin-top:8px">⚠️ Báo sự cố</button>`:''}
     <p class="sm mut" style="text-align:center;margin-top:10px">Chủ xe / người trực có thể bấm thay tài xế – mọi thao tác ghi nhận trên CRM KHG kèm giờ & vị trí.</p>
    </div>`);
   $('#pb').onclick=()=>{closePage();go('don')};
-  const cg=$('#crewGo');if(cg)cg.onclick=()=>crewSheet(id,null);const ce=$('#crewEd');if(ce)ce.onclick=()=>crewSheet(id,{vehicle_id:o.vehicle_id,driver_id:o.partner_driver_id});
+  const cg=$('#crewGo');if(cg)cg.onclick=()=>crewSheet(id,null);
+  const ag=$('#accGo');if(ag)ag.onclick=()=>busy(ag,async()=>{await rpc('khg_partner_confirm',{p_order:id,p_accept:true,p_reason:null});if(navigator.vibrate)navigator.vibrate([60,60,60]);toast('✅ Đã nhận đơn '+o.code,3000);await loadOrders();navDraw();
+    const o2=ORD.find(x=>x.id===id);await tripPage(id);if(o2&&o2.crew_ok===false)crewSheet(id,null)});
+  const an=$('#accNo');if(an)an.onclick=()=>{sheet(`<h3>Không nhận đơn ${esc(o.code)}?</h3><p class="sm mut">KHG sẽ điều xe khác. Không trừ điểm khi từ chối trước khi nhận.</p><div class="chips" id="dr">${['Không có xe trống','Tài xế bận','Tuyến quá xa','Giá chưa phù hợp','Khác'].map(x=>`<button>${x}</button>`).join('')}</div><input class="i" style="margin-top:10px" id="drn" placeholder="Ghi thêm (không bắt buộc)"><div class="btns"><button class="btn g" onclick="closeSheet()">Quay lại</button><button class="btn" style="background:var(--r)" id="drok">Xác nhận không nhận</button></div>`);
+    $$('#dr button').forEach(x=>x.onclick=()=>{$$('#dr button').forEach(y=>y.classList.remove('on'));x.classList.add('on')});
+    $('#drok').onclick=()=>busy($('#drok'),async()=>{const r=[($('#dr .on')||{}).textContent,$('#drn').value.trim()].filter(Boolean).join(' – ');if(r.length<3)return toast('Chọn lý do');await rpc('khg_partner_confirm',{p_order:id,p_accept:false,p_reason:r});closeSheet();closePage();toast('Đã báo KHG – đơn được điều xe khác',3500);await loadOrders();go('don')})};const ce=$('#crewEd');if(ce)ce.onclick=()=>crewSheet(id,{vehicle_id:o.vehicle_id,driver_id:o.partner_driver_id});
   (async()=>{const dropPt=recv.lat?[+recv.lat,+recv.lng]:o.drop_lat?[+o.drop_lat,+o.drop_lng]:null;
     let a=o.pickup_lat?[+o.pickup_lat,+o.pickup_lng]:await geocode(o.pickup),b=dropPt||await geocode(recv.address||o.dropoff);
     drawMap($('#tmap'),a,b,true);const me=await meToPick(picked?b:a);const e1=$('#riMe');if(e1)e1.textContent=me?`~${me.km.toFixed(1).replace('.',',')} km · ${fmtDur(me.min)}`:(GEO_ST==='ok'?'không rõ':'bật định vị');
