@@ -6405,7 +6405,7 @@ function opPanel(frm,row){v48Css();const g=k=>frm.elements.namedItem(k);const pc
   if(labP)labP.style.display='none';if(labC)labC.style.display='none';
   const r0=row||{};const st={on:!!r0.partner_id,pid:r0.partner_id||'',vid:r0.partner_id?r0.vehicle_id||'':'',did:r0.partner_driver_id||'',lines:{...(r0.partner_cost_lines||{})},
     terms:r0.partner_pay_terms||'cong_no',days:r0.partner_pay_days,status:r0.partner_pay_status||'chua_tra',note:r0.partner_note||'',P:[],V:[],D:[],
-    mode:r0.partner_id?'chi_dinh':'phat_all',sel:new Set(),min:30,pmsg:'',OF:[],pq:''};
+    mode:r0.partner_id?'chi_dinh':'phat_all',guide:r0.partner_guide||'',sel:new Set(),min:30,pmsg:'',OF:[],pq:''};
   if(!r0.partner_id&&r0.id&&(r0.partner_cost>0||r0.bc_at))st.on=true;
   if(!r0.partner_cost_lines&&Number(r0.partner_cost))st.lines.cuoc=Number(r0.partner_cost);
   frm._op=st;
@@ -6427,6 +6427,7 @@ function opPanel(frm,row){v48Css();const g=k=>frm.elements.namedItem(k);const pc
         <label>Xe của đối tác<select id="opV"><option value="">${st.pid?(st.V.length?'— Chọn xe —':'Đối tác chưa có xe – bấm + Thêm xe'):'Chọn đối tác trước'}</option>${st.V.map(x=>`<option value="${x.id}" ${x.id===st.vid?'selected':''}>${esc(x.plate)}${x.load_t?' · '+String(x.load_t).replace('.',',')+' tấn':''}${x.vehicle_type?' · '+esc((O.vtype||{})[x.vehicle_type]||''):''}</option>`).join('')}</select></label>
         <label>Tài xế của đối tác<select id="opD"><option value="">${st.pid?(st.D.length?'— Chọn tài xế —':'Chưa có tài xế – bấm + Thêm tài xế'):'Chọn đối tác trước'}</option>${st.D.map(x=>`<option value="${x.id}" ${x.id===st.did?'selected':''}>${esc(x.full_name)}${x.phone?' · '+esc(x.phone):''}</option>`).join('')}</select></label></div>
       ${st.pid&&st.mode==='chi_dinh'?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button type="button" class="btn s" id="opAV">+ Thêm xe cho đối tác</button><button type="button" class="btn s" id="opAD">+ Thêm tài xế cho đối tác</button>${p&&p.phone?`<span class="sub" style="margin:0;align-self:center">📞 Đối tác: ${esc(p.phone)}</span>`:''}${dd&&dd.phone?`<span class="sub" style="margin:0;align-self:center">· Tài xế: ${esc(dd.phone)}</span>`:''}</div>`:''}
+      <label style="margin-top:10px;display:block">📋 Hướng dẫn lấy / giao / trả hàng cho đối tác & tài xế <span class="sub" style="margin:0">(hiện nổi bật trên app; tài liệu, ảnh hướng dẫn đính kèm bằng nút 📎 Chứng từ của đơn)</span><textarea id="opGuide" rows="3" style="width:100%" placeholder="VD: Có mặt cổng số 2 trước 7h, gọi anh Hùng 09xx trước 30 phút, xuất trình CCCD; giao tầng trệt, trả pallet về kho Củ Chi">${esc(st.guide||'')}</textarea></label>
       <div class="sub" style="margin-top:10px"><b>Các khoản KHG trả đối tác cho đơn này</b>${st.mode!=='chi_dinh'?' <span style="color:#0A6E5C">– tổng này là giá đối tác thấy trên app (không hiện giá KHG báo khách)</span>':''}</div>
       <div class="g3">${PCL.map(([k,l])=>`<label>${esc(l)}<input data-pl="${k}" inputmode="numeric" value="${st.lines[k]?moneyFmt(st.lines[k]):''}" placeholder="0" ${k==='khau_tru'?'style="color:#B91C1C"':''}></label>`).join('')}</div>
       <div class="tot" id="opTot"></div>
@@ -6459,7 +6460,7 @@ function opPanel(frm,row){v48Css();const g=k=>frm.elements.namedItem(k);const pc
 {const of=E.orders.onForm;E.orders.onForm=(frm,row)=>{of&&of(frm,row);try{opPanel(frm,row)}catch(e){console.warn(e)}};
  const b0=E.orders.beforeSave;E.orders.beforeSave=async(data,frm,row)=>{if(b0){const r=await b0(data,frm,row);if(r===false)return false}const st=frm&&frm._op;if(!st)return;
   if(!st.on){if(row&&row.partner_id&&!data.partner_id){data.partner_cost=data.partner_cost||0}return}
-  frm._opSend=null;
+  frm._opSend=null;data.partner_guide=(st.guide||'').trim()||null;
   if(st.mode!=='chi_dinh'){const T=pclTotal(st.lines);if(!(T>0)){toast('Nhập cước KHG trả đối tác trước khi phát đơn – đối tác sẽ thấy số tiền này');return false}
     const ids=st.mode==='phat_chon'?[...st.sel]:null;if(st.mode==='phat_chon'&&!ids.length){toast('Chọn ít nhất 1 đối tác để gửi đơn');return false}
     data.partner_cost=T;data.partner_cost_lines=Object.fromEntries(Object.entries(st.lines).filter(([k,v])=>Number(v)));data.partner_pay_terms=st.terms;data.partner_pay_days=st.terms==='cong_no'?Number(st.days||0):0;data.partner_pay_status=st.status;data.partner_note=st.note||null;
@@ -6490,7 +6491,7 @@ function opModeBind(box,st,draw,loadVD){box.querySelectorAll('#opMode [data-m]')
   const so=box.querySelector('#opSelOn');if(so)so.onclick=()=>{st.P.filter(x=>x.status==='dang_hop_tac'&&x.user_id&&x.online).forEach(x=>st.sel.add(x.id));draw()};
   const sx=box.querySelector('#opSelX');if(sx)sx.onclick=()=>{st.sel.clear();draw()};
   const mi=box.querySelector('#opMin');if(mi)mi.oninput=()=>{st.min=mi.value};const ms=box.querySelector('#opMsg');if(ms)ms.oninput=()=>{st.pmsg=ms.value};
-  const se=box.querySelector('#opSend');if(se)se.onchange=()=>{st.send=se.checked}}
+  const se=box.querySelector('#opSend');if(se)se.onchange=()=>{st.send=se.checked};const gd=box.querySelector('#opGuide');if(gd)gd.oninput=()=>{st.guide=gd.value}}
 {const a0=E.orders.afterSave;E.orders.afterSave=async(r,row)=>{if(a0)await a0(r,row);const frm=document.getElementById('frm');const S=frm&&frm._opSend;if(!S||!r||!r.id)return;frm._opSend=null;
   const {data,error}=await sb.rpc('khg_partner_offer_send',{p_order:r.id,p_partners:S.ids,p_price:S.price,p_minutes:S.min,p_note:S.note});
   if(error)return toast('Chưa phát được đơn cho đối tác: '+error.message,6000);
@@ -6504,6 +6505,47 @@ const PNAME={};sb.from('khg_partners').select('id,name,short_name').then(({data}
 {const c0=cell;cell=function(f,v,r,cfg){let h=c0(f,v,r,cfg);try{const t=(cfg||CUR_CFG||{}).table;if(f.k==='code'&&r&&t==='khg_orders'){
   if(r.partner_id)h+=`<span class="ptag p" title="Đơn chạy bằng xe đối tác liên kết">🤝 ĐT ${esc(PNAME[r.partner_id]||'liên kết')}</span>`;
   else if(r.bc_until&&!r.driver_id)h+=new Date(r.bc_until)>new Date()?`<span class="ptag b" title="Đang chờ đối tác nhận trên app">📣 Đang phát đối tác</span>`:`<span class="ptag b" style="background:#F3F4F6;color:#6B7280" title="Đã phát cho đối tác nhưng chưa ai nhận">📣 Hết hạn phát – chưa ai nhận</span>`}}catch(e){}return h}}
+
+// ---------- v86 · ĐƠN ĐỐI TÁC: theo dõi, sửa, cập nhật thay, thu hồi phát lại, xoá ----------
+const PTRIP={cho_nhan:'Chờ nhận',da_nhan:'Đã nhận',da_xac_nhan:'Sẵn sàng',dang_den_lay:'Đang đến điểm lấy',cho_boc_hang:'Đã tới điểm lấy',da_lay_hang:'Đã lấy hàng',dang_giao:'Đang giao',den_diem_giao:'Đã tới điểm giao',dang_tra_hang:'Đang dỡ / trả hàng',giao_mot_phan:'Giao một phần',da_giao:'Đã giao',giao_that_bai:'Giao thất bại',tra_hang_ve:'Chở hàng về kho',thu_hoi:'Đã trả về kho',luu_dem:'Lưu đêm',su_co:'Sự cố',huy_chuyen:'Hủy chuyến'};
+async function partnerOrdersView(h){const st=partnerOrdersView.st=partnerOrdersView.st||{p:'',s:'run',q:'',d:30};
+  h.innerHTML='<div class="empty">Đang tải…</div>';
+  const [{data:P},{data:O}]=await Promise.all([sb.from('khg_partners').select('id,code,name,short_name,phone').is('archived_at',null).order('name'),
+    sb.from('khg_orders').select('id,code,partner_id,trip_status,status,scheduled_at,accepted_at,eta_pickup_at,pickup,dropoff,pickup_province,drop_province,partner_cost,revenue,ext_driver,vehicle_id,bc_at,bc_until,created_at,partner_guide').is('archived_at',null)
+      .or('partner_id.not.is.null,bc_at.not.is.null').gte('created_at',new Date(Date.now()-st.d*864e5).toISOString()).order('created_at',{ascending:false}).limit(500)]);
+  const PN={};(P||[]).forEach(p=>PN[p.id]=p);const run=o=>!['da_giao','huy_chuyen'].includes(o.trip_status)&&!['huy','da_giao','doi_soat','xuat_hd','da_thu'].includes(o.status);
+  const q=(st.q||'').toLowerCase();const L=(O||[]).filter(o=>(!st.p||(st.p==='_bc'?!o.partner_id:o.partner_id===st.p))&&(st.s==='all'||(st.s==='run'?run(o):st.s==='done'?!run(o):st.s==='nocrew'?o.partner_id&&!(o.ext_driver&&o.ext_driver.plate)&&run(o):true))
+    &&(!q||[o.code,o.pickup,o.dropoff,(o.ext_driver||{}).plate,(o.ext_driver||{}).name,(PN[o.partner_id]||{}).name].join(' ').toLowerCase().includes(q)));
+  const byP={};(O||[]).filter(o=>o.partner_id&&run(o)).forEach(o=>byP[o.partner_id]=(byP[o.partner_id]||0)+1);
+  h.innerHTML=`<p class="sub">Mọi thao tác của đối tác trên app (nhận đơn, chọn xe, đi lấy, tới điểm, giao, trả hàng, hủy) đều ghi lại ở <b>🕘 Lịch sử</b>. CEO / điều phối có thể sửa đơn, cập nhật trạng thái thay, thu hồi để phát lại hoặc xoá.</p>
+   <div class="bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"><select id="poP"><option value="">Tất cả đối tác</option><option value="_bc" ${st.p==='_bc'?'selected':''}>📣 Đang phát / chưa ai nhận</option>${(P||[]).map(p=>`<option value="${p.id}" ${st.p===p.id?'selected':''}>${esc(p.short_name||p.name)}${byP[p.id]?' ('+byP[p.id]+' đang chạy)':''}</option>`).join('')}</select>
+    <select id="poS">${[['run','Đang chạy'],['nocrew','Chưa chọn xe / tài xế'],['done','Đã xong / hủy'],['all','Tất cả']].map(([k,l])=>`<option value="${k}" ${st.s===k?'selected':''}>${l}</option>`).join('')}</select>
+    <select id="poD">${[[7,'7 ngày'],[30,'30 ngày'],[90,'90 ngày']].map(([k,l])=>`<option value="${k}" ${st.d==k?'selected':''}>${l}</option>`).join('')}</select>
+    <input id="poQ" type="search" placeholder="Mã đơn, biển số, tài xế, địa chỉ…" value="${esc(st.q)}" style="flex:1 1 180px"><button class="btn s" id="poR">↻</button></div>
+   <div class="tw"><table><thead><tr><th>Đơn</th><th>Đối tác · xe · tài xế</th><th>Tuyến</th><th>Có mặt</th><th>Trạng thái</th><th class="n">Trả đối tác</th><th>Thao tác</th></tr></thead><tbody>
+   ${L.map(o=>{const p=PN[o.partner_id];const x=o.ext_driver||{};const bc=!o.partner_id;return `<tr data-o="${o.id}"><td><b>${esc(o.code)}</b>${o.partner_guide?'<div class="sub" style="margin:0">📋 có hướng dẫn</div>':''}</td>
+     <td>${p?`<b>${esc(p.short_name||p.name)}</b>${p.phone?` · <a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>`:''}<div class="sub" style="margin:0">${x.plate?esc(x.plate)+' · '+esc(x.name||'')+(x.phone?` · <a href="tel:${esc(x.phone)}">${esc(x.phone)}</a>`:''):'<span style="color:#B45309">⚠ chưa chọn xe / tài xế</span>'}</div>`:`<span class="ptag b">📣 ${o.bc_until&&new Date(o.bc_until)>new Date()?'Đang phát':'Hết hạn phát'}</span>`}</td>
+     <td style="max-width:240px">${esc(o.pickup_province||'')} → ${esc(o.drop_province||'')}<div class="sub" style="margin:0">${esc(String(o.pickup||'').slice(0,50))}</div></td>
+     <td>${o.scheduled_at?fmtDT(o.scheduled_at):'Lấy ngay'}${o.eta_pickup_at?`<div class="sub" style="margin:0">ĐT hẹn ${fmtDT(o.eta_pickup_at)}</div>`:''}</td>
+     <td><b>${esc(PTRIP[o.trip_status]||o.trip_status||'')}</b></td><td class="n">${fmtN(o.partner_cost||0)}</td>
+     <td style="white-space:nowrap"><button class="btn s" data-a="edit" title="Sửa đơn">✎</button> <button class="btn s" data-a="log" title="Lịch sử thao tác">🕘</button>${!bc?` <button class="btn s" data-a="st" title="Cập nhật trạng thái thay đối tác">🔄</button> <button class="btn s" data-a="back" title="Thu hồi khỏi đối tác & phát lại">↩</button>`:` <button class="btn s" data-a="bc" title="Phát lại">📣</button>`}${isAdmin()?` <button class="btn s" data-a="del" title="Xoá (lưu trữ)" style="color:var(--red)">🗑</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="7"><div class="empty">Không có đơn</div></td></tr>'}</tbody></table></div>`;
+  const re=()=>partnerOrdersView(h);
+  h.querySelector('#poP').onchange=e=>{st.p=e.target.value;re()};h.querySelector('#poS').onchange=e=>{st.s=e.target.value;re()};h.querySelector('#poD').onchange=e=>{st.d=+e.target.value;re()};h.querySelector('#poR').onclick=re;
+  h.querySelector('#poQ').onkeydown=e=>{if(e.key==='Enter'){st.q=e.target.value;re()}};
+  h.querySelectorAll('tr[data-o] [data-a]').forEach(b=>b.onclick=async()=>{const o=(O||[]).find(x=>x.id===b.closest('tr').dataset.o);const a=b.dataset.a;
+    if(a==='edit'){const {data:row}=await sb.from('khg_orders').select('*').eq('id',o.id).single();openForm('orders',row,re);return}
+    if(a==='log'){const {data:ev}=await sb.from('khg_order_events').select('*').eq('order_id',o.id).order('created_at',{ascending:false}).limit(100);
+      modal(`<h3>🕘 Lịch sử đơn ${esc(o.code)}</h3><div class="tw"><table style="min-width:0"><thead><tr><th>Lúc</th><th>Trạng thái</th><th>Nội dung</th><th>Nguồn</th><th>Vị trí</th></tr></thead><tbody>${(ev||[]).map(e=>`<tr><td style="white-space:nowrap">${fmtDT(e.created_at)}</td><td>${esc(PTRIP[e.status]||e.status||'')}</td><td>${esc(e.note||'')}</td><td>${{doi_tac:'📱 App đối tác',app:'📱 App tài xế',web:'💻 CRM',telegram:'Telegram',khac:'Khác'}[e.source]||esc(e.source||'')}</td><td>${e.lat?`<a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${e.lat},${e.lng}">🗺</a>`:''}</td></tr>`).join('')||'<tr><td colspan="5">Chưa có thao tác</td></tr>'}</tbody></table></div><div class="acts"><span class="sp"></span><button class="btn" onclick="closeModal()">Đóng</button></div>`,true);return}
+    if(a==='st'){modal(`<h3>🔄 Cập nhật trạng thái thay đối tác · ${esc(o.code)}</h3><p class="sub">Hiện tại: <b>${esc(PTRIP[o.trip_status]||'')}</b>. Ghi nhận vào lịch sử là thao tác từ CRM.</p>
+        <label>Trạng thái mới<select id="psS">${Object.entries(PTRIP).filter(([k])=>k!=='cho_nhan').map(([k,l])=>`<option value="${k}" ${k===o.trip_status?'selected':''}>${l}</option>`).join('')}</select></label>
+        <label>Thời điểm<input type="datetime-local" id="psT" value="${new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16)}"></label><label>Ghi chú<input id="psN" placeholder="VD: tài xế gọi báo đã tới kho"></label>
+        <div class="acts"><span class="sp"></span><button class="btn" onclick="closeModal()">Đóng</button><button class="btn p" id="psGo">Cập nhật</button></div>`,true);
+      document.getElementById('psGo').onclick=async()=>{const t=document.getElementById('psT').value;const {error}=await sb.rpc('khg_order_set_trip_at',{p_order:o.id,p_status:document.getElementById('psS').value,p_note:document.getElementById('psN').value||'Điều phối cập nhật thay đối tác',p_at:t?new Date(t).toISOString():null});if(error)return toast(error.message);closeModal();toast('Đã cập nhật');re()};return}
+    if(a==='back'||a==='bc'){if(a==='back'&&!confirm(`Thu hồi đơn ${o.code} khỏi ${(PN[o.partner_id]||{}).name||'đối tác'} và phát lại cho tất cả đối tác?`))return;
+      const {data,error}=await sb.rpc('khg_order_reoffer',{p_order:o.id,p_reason:a==='back'?'KHG thu hồi đơn':null});if(error)return toast(error.message);toast(`Đã phát lại tới ${data.sent} đối tác`);re();return}
+    if(a==='del'){const RZ=await askDel(1,'','Đơn hàng');if(!RZ)return;const {error}=await sb.rpc('khg_archive_r',{p_table:'khg_orders',p_ids:[o.id],p_reason:RZ});if(error)return toast('Lỗi: '+error.message);toast('Đã xoá (lưu trữ) – đã ghi nhật ký');re()}})}
+{const v0=VIEWS.partners;VIEWS.partners=async m=>{await v0(m);const st=m.querySelector('.subtabs');if(!st||st.querySelector('[data-s="pord"]'))return;const b=document.createElement('button');b.dataset.s='pord';b.textContent='📋 Đơn đối tác';st.insertBefore(b,st.children[1]||null);
+  b.onclick=()=>{st.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));partnerOrdersView(m.querySelector('#h'))}}}
 // ---------- 3. Trả đối tác theo đơn & dự án (tab trong Đối tác xe liên kết) ----------
 async function partnerPayView(h){v48Css();dxCss();
   const f0=addDays(today(),-90);
