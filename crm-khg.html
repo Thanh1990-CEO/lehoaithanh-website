@@ -7765,6 +7765,35 @@ function bulkTrip(list,done){const nowL=()=>{const d=new Date(Date.now()-new Dat
       if(error){bad++;cell.innerHTML=`<span style="color:#B42318">${esc(error.message)}</span>`}else{ok++;cell.innerHTML='<span style="color:#15803D">✓ Đã cập nhật</span>'}}
     toast(`Đã cập nhật ${ok} đơn`+(bad?` · ${bad} lỗi`:''));b.textContent='Xong';b.onclick=()=>{closeModal();done&&done()};b.disabled=false;$('#btX').onclick=()=>{closeModal();done&&done()}}}
 try{O.doc_type.phu_hieu=O.doc_type.phu_hieu||'Phù hiệu / GP KD vận tải'}catch(e){}
+// ===================== v84 · VỊ TRÍ ĐỐI TÁC (app Nhận Hàng Nhanh gửi về) =====================
+const PPOS={hv(a1,o1,a2,o2){if([a1,o1,a2,o2].some(v=>v==null||v===''||isNaN(+v)))return null;const r=x=>x*Math.PI/180,R=6371;const h=Math.sin(r(a2-a1)/2)**2+Math.cos(r(a1))*Math.cos(r(a2))*Math.sin(r(o2-o1)/2)**2;return 2*R*Math.asin(Math.sqrt(h))},
+  ago(t){if(!t)return 'chưa có';const m=Math.round((Date.now()-new Date(t))/6e4);return m<1?'vừa xong':m<60?m+' phút trước':m<1440?Math.round(m/60)+' giờ trước':Math.round(m/1440)+' ngày trước'},
+  fresh(t){return t&&(Date.now()-new Date(t))<30*6e4},
+  async list(){const {data,error}=await sb.rpc('khg_partner_positions');if(error){toast(error.message);return []}return data||[]},
+  leaflet(){if(window.L&&L.map)return Promise.resolve();return new Promise((ok,no)=>{const c=document.createElement('link');c.rel='stylesheet';c.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';document.head.appendChild(c);
+    const j=document.createElement('script');j.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';j.onload=ok;j.onerror=no;document.head.appendChild(j)})},
+  row(p,k){const g=p.lat!=null?`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`:'';return `<tr><td><b>${esc(p.name)}</b><div class="sub" style="margin:0">${esc(p.code||'')}${(p.vehicle_types||[]).length?' · '+esc(p.vehicle_types.join(', ')):''}</div></td>
+    <td>${p.online?'<span style="color:#16A34A;font-weight:700">● Đang nhận</span>':'<span style="color:#9CA3AF">○ Nghỉ</span>'}</td>${k!==undefined?`<td class="n"><b>${k==null?'—':'~'+(k*1.3).toFixed(1).replace('.',',')+' km'}</b></td>`:''}
+    <td><span style="color:${PPOS.fresh(p.at)?'#16A34A':'#6B7280'}">${PPOS.ago(p.at)}</span>${p.acc?`<div class="sub" style="margin:0">±${Math.round(p.acc)} m</div>`:''}</td>
+    <td>${p.phone?`<a href="tel:${esc(p.phone)}">📞 ${esc(p.phone)}</a>`:''}</td><td>${g?`<a href="${g}" target="_blank" rel="noopener">🗺 Xem</a>`:''}</td></tr>`},
+  async view(h){h.innerHTML='<div class="empty">Đang tải vị trí…</div>';const L0=await PPOS.list();const on=L0.filter(p=>p.online).length,has=L0.filter(p=>p.lat!=null).length;
+    h.innerHTML=`<p class="sub">Vị trí do app <b>Nhận Hàng Nhanh</b> gửi về khi đối tác mở app (khoảng 1 phút/lần khi đang nhận đơn). Xanh = cập nhật trong 30 phút. ${on} đối tác đang nhận đơn · ${has}/${L0.length} có vị trí.</p>
+     <div class="row" style="margin-bottom:8px"><button class="btn s" id="ppR">↻ Tải lại</button></div>
+     <div id="ppMap" style="height:380px;border-radius:12px;margin-bottom:10px;background:#eef2f1"></div>
+     <div class="tw"><table><thead><tr><th>Đối tác</th><th>Trạng thái</th><th>Cập nhật vị trí</th><th>Điện thoại</th><th>Bản đồ</th></tr></thead><tbody>${L0.map(p=>PPOS.row(p)).join('')||'<tr><td colspan="5">Chưa có đối tác</td></tr>'}</tbody></table></div>`;
+    h.querySelector('#ppR').onclick=()=>PPOS.view(h);
+    try{await PPOS.leaflet();const el=h.querySelector('#ppMap');const mp=L.map(el,{zoomControl:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(mp);
+      const pts=[];L0.filter(p=>p.lat!=null).forEach(p=>{const c=p.online&&PPOS.fresh(p.at)?'#0A6E5C':p.online?'#F59E0B':'#9CA3AF';pts.push([p.lat,p.lng]);
+        L.circleMarker([p.lat,p.lng],{radius:9,color:'#fff',weight:2,fillColor:c,fillOpacity:1}).addTo(mp).bindPopup(`<b>${esc(p.name)}</b><br>${p.online?'Đang nhận đơn':'Nghỉ'} · ${PPOS.ago(p.at)}${p.phone?`<br><a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>`:''}`)});
+      if(pts.length)mp.fitBounds(L.latLngBounds(pts).pad(.2),{maxZoom:13});else mp.setView([10.85,106.75],10)}catch(e){h.querySelector('#ppMap').innerHTML='<div class="empty">Không tải được bản đồ – xem bảng bên dưới</div>'}}};
+{const v0=VIEWS.partners;VIEWS.partners=async m=>{await v0(m);const st=m.querySelector('.subtabs');if(!st||st.querySelector('[data-s="pos"]'))return;const b=document.createElement('button');b.dataset.s='pos';b.textContent='📍 Vị trí đối tác';st.appendChild(b);
+  b.onclick=()=>{st.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));PPOS.view(m.querySelector('#h'))}}}
+{const _oo=openOffer;openOffer=async(o,after)=>{await _oo(o,after);try{if(!has(['admin','dieu_phoi','quan_ly']))return;const acts=document.querySelector('#modal-box .acts');if(!acts||document.querySelector('#ppNear'))return;
+  const w=document.createElement('div');w.id='ppNear';w.className='card';w.style.cssText='margin:10px 0 0;padding:10px 12px;background:#F2F8F6;border:1px solid #CFE6E0';w.innerHTML='<b>📍 Đối tác gần điểm lấy hàng</b> <span class="sub" style="margin:0">đang tải…</span>';acts.before(w);
+  const L0=await PPOS.list();const pl=o.pickup_lat,pg=o.pickup_lng;
+  const R=L0.filter(p=>p.lat!=null).map(p=>({...p,k:PPOS.hv(p.lat,p.lng,pl,pg)})).sort((a,b)=>(b.online-a.online)||((a.k??1e9)-(b.k??1e9))).slice(0,8);
+  w.innerHTML=`<b>📍 Đối tác gần điểm lấy hàng</b> <span class="sub" style="margin:0">${pl==null?'– đơn chưa có tọa độ điểm lấy, sắp theo trạng thái':'– khoảng cách ước tính đường bộ, ưu tiên gọi xe gần đang nhận đơn'}</span>
+   <div class="tw" style="margin-top:6px"><table style="min-width:0"><thead><tr><th>Đối tác</th><th>Trạng thái</th><th class="n">Cách điểm lấy</th><th>Cập nhật</th><th>Điện thoại</th><th></th></tr></thead><tbody>${R.map(p=>PPOS.row(p,pl==null?null:p.k)).join('')||'<tr><td colspan="6">Chưa đối tác nào bật định vị trên app</td></tr>'}</tbody></table></div>`}catch(e){console.warn(e)}}}
 // ===================== v74 · KPI & ĐÁNH GIÁ ĐỐI TÁC XE LIÊN KẾT =====================
 const PKPI_EV={huy:'Hủy / nhả đơn',tre:'Trễ hẹn',hong_hang:'Hư hỏng hàng',mat_hang:'Mất / thiếu hàng',khieu_nai:'Khách khiếu nại',phat:'Bị phạt',khen:'Khách khen',danh_gia:'Đánh giá sao'};
 VIEWS.pkpi=async m=>{const P=PST.pkpi=PST.pkpi||{kind:'thang'};

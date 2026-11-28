@@ -175,6 +175,14 @@ button,[role=button],.oc,.card[data-od],.li[id]{cursor:pointer;-webkit-tap-highl
  .fixb{position:static;background:none}
  .hold{max-width:420px;display:block;margin:0 auto}
 }
+
+.pk{display:inline-block;font-size:12.5px;font-weight:700;color:var(--od);background:var(--ol);border-radius:8px;padding:3px 8px;margin:2px 0 6px}.pk.n{background:#DCFCE7;color:#166534}.pk.f{background:var(--al);color:#7A4B00}
+.setup{background:#fff;border:1px solid var(--line);border-left:5px solid var(--a);border-radius:14px;padding:12px 14px;margin:0 0 10px}
+.setup .srow{display:flex;align-items:center;gap:10px;margin-top:10px}.setup .srow>span{font-size:20px}.setup .srow>div{flex:1}.setup small{display:block;color:var(--mut);font-size:12px}
+.setup .btn.s,.btn.s{width:auto;padding:8px 14px;font-size:13px}.setup .ok{color:var(--g);font-size:13px;white-space:nowrap}
+#snd{position:relative}#snd[data-n]:not([data-n=""]):after{content:attr(data-n);position:absolute;top:-2px;right:-4px;background:var(--r);color:#fff;font-size:10px;font-weight:700;border-radius:9px;padding:0 5px;line-height:16px}
+.nt.unr{background:#F3FBF9}.nt.unr b:before{content:"● ";color:var(--a)}
+.geob{display:flex;align-items:center;gap:8px;background:#FFF4DC;color:#7A4B00;border-radius:12px;padding:8px 12px;font-size:13px;margin:0 0 10px}
 </style>
 </head>
 <body>
@@ -265,8 +273,8 @@ const NAV=[['nhan','Đơn mới',IC('<path d="M4 7l8-4 8 4v10l-8 4-8-4z"/><path 
 function navDraw(){const n=OFFERS.filter(o=>o.status==='moi').length,r=ORD.filter(o=>!['da_giao','huy_chuyen','giao_that_bai'].includes(o.trip_status)&&o.status!=='huy').length;
   $('#nav').innerHTML=NAV.map(([k,l,ic])=>k==='@'?`<button class="fab ${P&&P.online?'live':''}" id="fab" aria-label="Bật / tắt nhận đơn"><span class="k">${IC('<path d="M12 3v8"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/>').replace('<svg','<svg style="width:28px;height:28px"')}</span><span class="l">${P&&P.online?'Đang nhận':'Bật nhận'}</span></button>`:`<button data-t="${k}" class="${k===TAB||(k==='me'&&TAB==='kpi')?'on':''}">${ic}<span>${l}</span>${k==='nhan'&&n?`<b>${n}</b>`:''}${k==='don'&&r?`<b>${r}</b>`:''}</button>`).join('');
   $$('#nav button[data-t]').forEach(b=>b.onclick=()=>go(b.dataset.t));const fb=$('#fab');if(fb)fb.onclick=()=>{if(navigator.vibrate)navigator.vibrate(15);toggleOnline()}}
-function topDraw(){const on=!!P.online;const o=$('#onl');o.classList.toggle('on',on);o.querySelector('span').innerHTML=on?'Đang nhận<span class="x"> đơn</span>':'Đang nghỉ';$('#snd').textContent=SOUND?'🔔':'🔕';$('#lgTop').innerHTML=LOGO(34);$('#hiName').textContent=P.short_name||P.name||'Đối tác vận tải KHG';
-  const S={nhan:[['all','Tất cả'],['near','Gần ≤ 50 km'],['far','Đường dài']],don:[['run','Đang chạy'],['done','Hoàn thành'],['cancel','Đã hủy']]}[TAB];
+function topDraw(){const on=!!P.online;const o=$('#onl');o.classList.toggle('on',on);o.querySelector('span').innerHTML=on?'Đang nhận<span class="x"> đơn</span>':'Đang nghỉ';$('#snd').textContent=SOUND?'🔔':'🔕';$('#snd').title='Thông báo';$('#lgTop').innerHTML=LOGO(34);$('#hiName').textContent=P.short_name||P.name||'Đối tác vận tải KHG';
+  const S={nhan:[['all','Tất cả'],['near','Gần tôi'],['far','Đường dài']],don:[['run','Đang chạy'],['done','Hoàn thành'],['cancel','Đã hủy']]}[TAB];
   const sub=$('#sub');sub.className='seg';sub.innerHTML=S?S.map(([k,l])=>`<button data-s="${k}" class="${SUB[TAB]===k?'on':''}">${l}</button>`).join(''):'';sub.classList.toggle('hidden',!S);
   $$('#sub button').forEach(b=>b.onclick=()=>{SUB[TAB]=b.dataset.s;go(TAB)})}
 async function go(t){TAB=t;closePage();navDraw();topDraw();window.scrollTo(0,0);const m=$('#main');
@@ -275,20 +283,89 @@ async function boot(){
   try{P=await rpc('khg_partner_me')}catch(e){await sb.auth.signOut();authView('ph');toast('Tài khoản này không phải tài khoản đối tác. '+e.message,5000);return}
   await mustChange();
   $('#top').classList.remove('hidden');$('#nav').classList.remove('hidden');
-  $('#onl').onclick=()=>toggleOnline();$('#snd').onclick=()=>{SOUND=!SOUND;try{localStorage.setItem('nhn_snd',SOUND?'1':'0')}catch(e){}topDraw();if(SOUND)beep()};
+  $('#onl').onclick=()=>toggleOnline();$('#snd').onclick=()=>noticesPage();
   await Promise.all([loadOffers(true),loadOrders()]);
+  geoStart();swReg().then(()=>pushSync(false));noticeCount();
   const h=location.hash.slice(1);go(['nhan','don','quy','kpi','me'].includes(h)?h:(ORD.some(o=>isRun(o))?'don':'nhan'));
-  clearInterval(POLL);POLL=setInterval(()=>{if(document.visibilityState==='visible'&&P?.online)loadOffers().then(()=>{navDraw();if(TAB==='nhan'&&!$('#page'))viewNhan($('#main'),true)})},20000);
+  if(h.startsWith('of=')||h.startsWith('od='))setTimeout(()=>routeUrl(location.href),300);
+  clearInterval(POLL);POLL=setInterval(()=>{if(document.visibilityState==='visible'&&P?.online){loadOffers().then(()=>{navDraw();if(TAB==='nhan'&&!$('#page'))viewNhan($('#main'),true)});geoSend()}},20000);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&P)loadOffers().then(navDraw)});
-  if(P.online&&'Notification' in window&&Notification.permission==='default')document.addEventListener('click',()=>Notification.requestPermission().catch(()=>{}),{once:true});
+  if('Notification' in window&&Notification.permission==='default'&&pushOK())document.addEventListener('click',()=>pushSync(true),{once:true});
 }
 async function toggleOnline(){if(P.status!=='dang_hop_tac'&&!P.online)return toast('Tài khoản đang chờ KHG duyệt – chưa bật làm việc được',4000);
+  if(!P.online&&GEO_ST!=='ok'){toast('Đang lấy vị trí của bạn…',2500);const r=await geoOnce(12000);
+    if(!r){if(GEO_ST==='denied'||GEO_ST==='na'){sheet(`<h3>📍 Cần bật định vị để nhận đơn</h3><p>KHG dùng vị trí để biết bạn cách điểm lấy hàng bao xa và ưu tiên xe gần.</p><p class="sm">${geoHelp()}</p><button class="btn" onclick="location.reload()">Tôi đã bật – tải lại</button>`);return}
+      toast('Chưa bắt được GPS – vẫn bật nhận đơn, vị trí sẽ cập nhật khi có sóng',4000)}else geoStart()}
   await busy(null,async()=>{const r=await rpc('khg_partner_online',{p_on:!P.online});P.online=r.online;topDraw();navDraw();toast(P.online?'Đã bật chế độ làm việc – đơn mới sẽ báo ngay':'Đã chuyển sang trạng thái nghỉ');
-    if(P.online){if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});await loadOffers()}if(TAB==='nhan')go('nhan')})}
+    if(P.online){geoSend(true);if(PUSH_ST!=='ok')pushSync(true);await loadOffers()}if(TAB==='nhan')go('nhan')})}
+
+// ============== ĐỊNH VỊ & THÔNG BÁO ==============
+const VAPID='BJwkjUre0aD3d2-z5MU_GQjm1kS-TlU6EuuZwI6ok04sR3wrAb3M5aTchz7zaDSFY7-nCAjtoknO1BgTPuvSozc';
+let MYPOS=null,GEO_W=null,GEO_ST='?',GEO_SENT=0,GEO_LASTSENT=null,SWR=null,PUSH_ST='?',UNREAD=0;
+const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent),STANDALONE=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+function hv(a1,o1,a2,o2){if([a1,o1,a2,o2].some(v=>v==null||v===''||isNaN(+v)))return null;const R=6371,r=x=>x*Math.PI/180,dA=r(a2-a1),dO=r(o2-o1);const h=Math.sin(dA/2)**2+Math.cos(r(a1))*Math.cos(r(a2))*Math.sin(dO/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+function toPick(o){const lat=o.pick_lat??o.plat,lng=o.pick_lng??o.plng;let k=MYPOS?hv(MYPOS.lat,MYPOS.lng,lat,lng):null;if(k==null&&o.to_pick_km!=null)k=+o.to_pick_km;return k==null?null:k*1.3}
+const kmTxt=k=>k==null?'':(k<1?'dưới 1 km':'~'+(k<10?k.toFixed(1).replace('.',','):Math.round(k))+' km');
+function pickBadge(o){const k=toPick(o);return k==null?'':`<span class="pk ${k<=10?'n':k>40?'f':''}" data-pk="${o.id}">📍 Cách điểm lấy ${kmTxt(k)}</span>`}
+function geoPaint(){$$('[data-pk]').forEach(e=>{const o=OFFERS.find(x=>x.id===e.dataset.pk);if(o){const k=toPick(o);if(k!=null)e.textContent='📍 Cách điểm lấy '+kmTxt(k)}});setupPaint()}
+function geoSend(force){if(!MYPOS||!P)return;const now=Date.now();const moved=GEO_LASTSENT?hv(GEO_LASTSENT.lat,GEO_LASTSENT.lng,MYPOS.lat,MYPOS.lng):1e9;
+  if(!force&&now-GEO_SENT<60000&&moved<0.15)return;GEO_SENT=now;GEO_LASTSENT={...MYPOS};rpc('khg_partner_set_pos',{p_lat:MYPOS.lat,p_lng:MYPOS.lng,p_acc:Math.round(MYPOS.acc||0)}).catch(()=>{})}
+function geoOnce(timeout=15000){return new Promise(r=>{if(!navigator.geolocation){GEO_ST='na';return r(null)}navigator.geolocation.getCurrentPosition(p=>{GEO_ST='ok';MYPOS={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};geoSend(true);geoPaint();r(MYPOS)},e=>{GEO_ST=e.code===1?'denied':'err';setupPaint();r(null)},{enableHighAccuracy:true,timeout,maximumAge:60000})})}
+function geoStart(){if(!navigator.geolocation){GEO_ST='na';setupPaint();return}if(GEO_W!=null)return;
+  GEO_W=navigator.geolocation.watchPosition(p=>{const first=GEO_ST!=='ok';GEO_ST='ok';MYPOS={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};geoSend(first);geoPaint()},
+    e=>{GEO_ST=e.code===1?'denied':(GEO_ST==='ok'?'ok':'err');if(e.code===1){try{navigator.geolocation.clearWatch(GEO_W)}catch(_){}GEO_W=null}setupPaint()},{enableHighAccuracy:true,maximumAge:30000,timeout:30000})}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&P){if(GEO_W==null&&GEO_ST!=='denied')geoStart();geoSend(true)}});
+function geoHelp(){return IOS?'iPhone: Cài đặt → Quyền riêng tư → Dịch vụ định vị → bật, rồi Cài đặt → Safari (hoặc app Nhận Hàng Nhanh) → Vị trí → "Khi dùng ứng dụng". Mở lại app.'
+  :/Android/.test(navigator.userAgent)?'Android: bật Vị trí trên thanh thông báo. Trong Chrome bấm biểu tượng ổ khóa cạnh địa chỉ → Quyền → Vị trí → Cho phép. Mở lại app.'
+  :'Máy tính: bấm biểu tượng ổ khóa cạnh địa chỉ trang → Vị trí → Cho phép, rồi tải lại trang. Windows cần bật Cài đặt → Quyền riêng tư → Vị trí.'}
+// --- Thông báo đẩy ---
+const b64u=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))};
+const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+async function swReg(){if(!('serviceWorker' in navigator))return null;try{SWR=SWR||await navigator.serviceWorker.register('/nhn-sw.js',{scope:'/nhan-hang-nhanh'});return SWR}catch(e){return null}}
+async function pushSync(ask){
+  if(!pushOK()){PUSH_ST=IOS&&!STANDALONE?'ios':'na';setupPaint();return false}
+  let perm=Notification.permission;if(perm==='default'&&ask){try{perm=await Notification.requestPermission()}catch(e){}}
+  if(perm!=='granted'){PUSH_ST=perm==='denied'?'denied':'off';setupPaint();return false}
+  try{const r=await swReg();if(!r)throw new Error('sw');await navigator.serviceWorker.ready;
+    let sub=await r.pushManager.getSubscription();if(!sub)sub=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID)});
+    await rpc('khg_push_subscribe',{p_sub:sub.toJSON(),p_ua:navigator.userAgent.slice(0,280)});PUSH_ST='ok'}catch(e){PUSH_ST='err';console.warn(e)}
+  setupPaint();return PUSH_ST==='ok'}
+function localNotify(title,body,tag,url){try{if(Notification.permission!=='granted')return;(SWR?SWR.showNotification(title,{body,tag,icon:'/icons/nhn-192.png',badge:'/icons/nhn-192.png',data:{url},vibrate:[200,100,200]}):Promise.reject()).catch(()=>{try{new Notification(title,{body,tag,icon:'/icons/nhn-192.png'})}catch(_){}})}catch(e){}}
+if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{const d=e.data||{};if(d.type==='push'){if(SOUND)beep();if(navigator.vibrate)navigator.vibrate([200,100,200]);toast('🔔 '+(d.title||'Thông báo mới'),5000);loadOffers().then(()=>{navDraw();if(TAB==='nhan'&&!$('#page'))viewNhan($('#main'),true)}).catch(()=>{});noticeCount()}
+  if(d.type==='nav'&&d.url)routeUrl(d.url)});
+function routeUrl(u){try{const x=new URL(u,location.href);if(x.pathname!==location.pathname){location.href=x.href;return}const h=x.hash.slice(1);
+  if(h.startsWith('of='))offerPage(h.slice(3));else if(h.startsWith('od='))tripPage(h.slice(3));else if(['nhan','don','quy','kpi','me'].includes(h))go(h)}catch(e){}}
+addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(P&&(h.startsWith('of=')||h.startsWith('od=')))routeUrl(location.href)});
+// --- Thẻ kiểm tra thiết lập ---
+function setupNeed(){return GEO_ST!=='ok'||(PUSH_ST!=='ok')}
+function setupCard(){if(!P||P.status!=='dang_hop_tac'||!setupNeed())return '';
+  const g=GEO_ST==='ok'?'<b class="ok">✓ Đã bật</b>':GEO_ST==='denied'?'<button class="btn s" data-su="geoh">Cách bật</button>':'<button class="btn s" data-su="geo">Bật</button>';
+  const n=PUSH_ST==='ok'?'<b class="ok">✓ Đã bật</b>':PUSH_ST==='ios'?'<button class="btn s" data-su="ios">Hướng dẫn</button>':PUSH_ST==='na'?'<span class="sm mut">Trình duyệt không hỗ trợ</span>':PUSH_ST==='denied'?'<button class="btn s" data-su="nh">Cách bật</button>':'<button class="btn s" data-su="push">Bật</button>';
+  return `<div class="setup" id="setup"><b>Hoàn tất để nhận đơn nhanh nhất</b>
+   <div class="srow"><span>📍</span><div><b>Định vị</b><small>Biết bạn cách điểm lấy hàng bao xa – KHG ưu tiên xe gần</small></div>${g}</div>
+   <div class="srow"><span>🔔</span><div><b>Thông báo</b><small>Báo đơn mới, đơn được giao, đơn hủy kể cả khi tắt màn hình</small></div>${n}</div></div>`}
+function setupPaint(){const el=$('#setup');if(!el)return;const h=setupCard();if(!h){el.remove();return}el.outerHTML=h;setupBind()}
+function setupBind(){$$('[data-su]').forEach(b=>b.onclick=async()=>{const k=b.dataset.su;
+  if(k==='geo'){b.disabled=true;const r=await geoOnce();if(r)geoStart();else if(GEO_ST==='denied')sheet(`<h3>📍 Bật định vị</h3><p>${geoHelp()}</p><button class="btn" onclick="closeSheet()">Đã hiểu</button>`);else toast('Chưa lấy được vị trí – bật GPS/Vị trí trên máy rồi thử lại',4000)}
+  if(k==='geoh')sheet(`<h3>📍 Bật định vị</h3><p>${geoHelp()}</p><button class="btn" onclick="location.reload()">Tôi đã bật – tải lại</button>`);
+  if(k==='push'){b.disabled=true;const ok=await pushSync(true);toast(ok?'Đã bật thông báo đơn mới':'Chưa bật được thông báo',3000)}
+  if(k==='nh')sheet(`<h3>🔔 Bật thông báo</h3><p>${IOS?'iPhone: Cài đặt → Thông báo → Nhận Hàng Nhanh → Cho phép.':'Bấm biểu tượng ổ khóa cạnh địa chỉ trang → Thông báo → Cho phép, rồi tải lại trang.'}</p><button class="btn" onclick="location.reload()">Tôi đã bật – tải lại</button>`);
+  if(k==='ios')sheet(`<h3>🔔 Thông báo trên iPhone</h3><p>iPhone chỉ cho web gửi thông báo khi app đã được thêm ra màn hình chính (iOS 16.4 trở lên):</p><ol><li>Mở trang này bằng <b>Safari</b></li><li>Bấm nút <b>Chia sẻ</b> (ô vuông mũi tên lên)</li><li>Chọn <b>Thêm vào MH chính</b></li><li>Mở app <b>Nhận Hàng Nhanh</b> từ màn hình chính và bấm <b>Bật</b> thông báo</li></ol><button class="btn" onclick="closeSheet()">Đã hiểu</button>`)})}
+// --- Hộp thông báo ---
+async function noticeCount(){try{const L=await rpc('khg_partner_notices_list');UNREAD=(L||[]).filter(n=>!n.read_at).length;const b=$('#snd');if(b)b.dataset.n=UNREAD>0?(UNREAD>9?'9+':UNREAD):'';return L}catch(e){return []}}
+async function noticesPage(){const L=await noticeCount();const pg=page(`<div class="phead"><button class="back" id="pb">←</button><h2>Thông báo</h2></div>
+  <div style="padding:10px"><div class="card"><div class="li"><div class="t"><b>Âm báo đơn mới</b><small>Chuông khi app đang mở</small></div><button class="sw2 ${SOUND?'on':''}" id="sndT"><i>${SOUND?'🔔':'🔕'}</i><span>${SOUND?'Bật':'Tắt'}</span></button></div></div>
+  ${setupCard()}
+  <div class="card">${(L||[]).length?L.map(n=>`<div class="li nt ${n.read_at?'':'unr'}" data-u="${esc(n.url||'')}"><div class="t"><b>${esc(n.title)}</b><small>${esc(n.body||'')}</small><small>${fmtDT(n.created_at)}</small></div>${n.url?'›':''}</div>`).join(''):'<div class="empty" style="padding:30px">Chưa có thông báo</div>'}</div></div>`);
+  $('#pb').onclick=closePage;setupBind();
+  $('#sndT').onclick=()=>{SOUND=!SOUND;try{localStorage.setItem('nhn_snd',SOUND?'1':'0')}catch(e){}if(SOUND)beep();noticesPage()};
+  pg.querySelectorAll('.nt[data-u]').forEach(e=>e.onclick=()=>{const u=e.dataset.u;if(u){closePage();routeUrl(u)}});
+  if(UNREAD){rpc('khg_partner_notices_read').then(()=>{UNREAD=0;$('#snd').dataset.n=''}).catch(()=>{})}}
+
 let AC=null;function beep(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();[0,.25,.5].forEach((t,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=i===2?1175:880;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.25,AC.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+t+.22);o.start(AC.currentTime+t);o.stop(AC.currentTime+t+.23)})}catch(e){}}
 async function loadOffers(first){const L=await rpc('khg_partner_offers');OFFERS=(L||[]);const fresh=OFFERS.filter(o=>o.status==='moi'&&!SEEN.has(o.id));OFFERS.forEach(o=>SEEN.add(o.id));
   if(!first&&fresh.length&&P?.online){if(SOUND)beep();if(navigator.vibrate)navigator.vibrate([200,100,200]);const o=fresh[0];
-    try{if('Notification' in window&&Notification.permission==='granted')new Notification(`[Vận chuyển] ${o.from} > ${o.to}`,{body:`Giá ${fmtM(o.price_offer)} – Nhận đơn ngay!`,tag:o.id})}catch(e){}toast(`📣 Đơn mới ${o.from} → ${o.to} · ${fmtM(o.price_offer)}`,5000)}}
+    if(document.visibilityState!=='visible'&&PUSH_ST!=='ok')localNotify(`📦 Đơn mới: ${o.from} → ${o.to}`,`Giá ${fmtM(o.price_offer)} – Nhận đơn ngay!`,'of-'+o.id,'/nhan-hang-nhanh.html#of='+o.id);toast(`📣 Đơn mới ${o.from} → ${o.to} · ${fmtM(o.price_offer)}`,5000)}}
 async function loadOrders(){const f=new Date(Date.now()-90*864e5);ORD=(await rpc('khg_partner_orders',{p_from:iso(f),p_to:null}))||[]}
 const isRun=o=>o.status!=='huy'&&!['da_giao','huy_chuyen','giao_that_bai'].includes(o.trip_status);
 
@@ -298,7 +375,7 @@ function ringOf(o){if(!o.expires_at)return '';const tot=Math.max(60,(new Date(o.
   return `<span class="ring ${l<120?'low':''}" style="--p:${p}" data-ring="${o.expires_at}" data-t0="${o.created_at||''}"><span>${l>=3600?Math.floor(l/3600)+'h':Math.ceil(l/60)+'′'}</span></span>`}
 function offerCard(o){const km=o.distance_km?(+o.distance_km).toFixed(1).replace('.',',')+' km':'';const hot=o.expires_at&&(new Date(o.expires_at)-Date.now())<5*60e3;
   return `<div class="oc ${hot?'hot':''}" data-of="${o.id}" role="button" tabindex="0"><div class="r1"><span class="vh">${esc(o.vehicle_req||'Xe tải')}</span>${km?`<span class="sm mut">${km}</span>`:''}<span class="pr">${fmtM(o.price_offer)}</span>${ringOf(o)}</div>
-   <div class="ab"><i>A</i><div>${esc(o.from||'—')}</div><span class="ln"></span><span></span><i class="b">B</i><div>${esc(o.to||'—')}${+o.stops>1?` <span class="sm mut">+${o.stops-1} điểm</span>`:''}</div></div>
+   ${pickBadge(o)}<div class="ab"><i>A</i><div>${esc(o.from||'—')}</div><span class="ln"></span><span></span><i class="b">B</i><div>${esc(o.to||'—')}${+o.stops>1?` <span class="sm mut">+${o.stops-1} điểm</span>`:''}</div></div>
    <div class="ft">${o.scheduled_at?`🕒 ${fmtDT(o.scheduled_at)}`:'⚡ Lấy ngay'}${o.need_loading?' · Bốc xếp':''}${o.has_cod?' · Thu hộ':''}${o.cargo||o.weight_t?' · '+esc([o.cargo,o.weight_t?o.weight_t+'T':''].filter(Boolean).join(' ')):''}<span class="go">Xem & nhận ›</span></div></div>`}
 async function viewNhan(m,quiet){
   if(!quiet){if(!OFFERS.length)m.innerHTML='<div class="sk"></div><div class="sk"></div><div class="sk"></div>';else viewNhan(m,true);loadOffers().then(()=>{navDraw();if(TAB==='nhan'&&!$('#page'))viewNhan(m,true)}).catch(()=>{});if(OFFERS.length)return}
@@ -307,20 +384,23 @@ async function viewNhan(m,quiet){
     <a class="btn" style="display:inline-block;width:auto;margin-top:16px;padding:12px 22px;text-decoration:none" href="tel:0399831228">☎️ Gọi KHG 0399 831 228</a></div>`;return}
   const td=today(),tdo=ORD.filter(o=>o.trip_status==='da_giao'&&o.delivered_at&&iso(new Date(new Date(o.delivered_at).getTime()+7*36e5))===td);
   const strip=`<div class="today"><div><small>Hôm nay</small><b>${tdo.length} chuyến</b></div><div><small>Thu nhập</small><b>${fmtM(tdo.reduce((a,o)=>a+(+o.partner_cost||0),0))}</b></div><div><small>Đánh giá</small><b>${(+P.rating||5).toFixed(1).replace('.',',')} ★</b></div></div>`;
-  if(!P.online){m.innerHTML=strip+`<div class="empty" style="padding-top:30px">${EMPTY}<h3>Bạn đang nghỉ</h3><div>Bật nhận đơn để bắt đầu nhận chuyến – trên điện thoại có thể bấm nút tròn giữa thanh dưới.</div><button class="btn" style="width:auto;margin-top:16px;padding:12px 22px" id="bOn">⏻ Bật nhận đơn</button></div>`;$('#bOn').onclick=toggleOnline;return}
-  let L=OFFERS.filter(o=>o.status==='moi');const s=SUB.nhan;if(s==='near')L=L.filter(o=>!(+o.distance_km>50));if(s==='far')L=L.filter(o=>+o.distance_km>50);
-  m.innerHTML=strip+(L.length?'<div class="ocg">'+L.map(offerCard).join('')+'</div>':`<div class="empty" style="padding-top:30px">${EMPTY}<h3>${s==='far'?'Chưa có đơn đường dài':'Đang chờ đơn mới…'}</h3><div>Giữ ứng dụng mở – có đơn là chuông báo ngay.</div></div>`);
-  $$('[data-of]').forEach(c=>{c.onclick=()=>offerPage(c.dataset.of);c.onkeydown=e=>{if(e.key==='Enter')offerPage(c.dataset.of)}})}
+  if(!P.online){m.innerHTML=setupCard()+strip+`<div class="empty" style="padding-top:30px">${EMPTY}<h3>Bạn đang nghỉ</h3><div>Bật nhận đơn để bắt đầu nhận chuyến – trên điện thoại có thể bấm nút tròn giữa thanh dưới.</div><button class="btn" style="width:auto;margin-top:16px;padding:12px 22px" id="bOn">⏻ Bật nhận đơn</button></div>`;$('#bOn').onclick=toggleOnline;setupBind();return}
+  let L=OFFERS.filter(o=>o.status==='moi');const s=SUB.nhan;
+  if(s==='near'){const hasPos=L.some(o=>toPick(o)!=null);L=hasPos?L.filter(o=>{const k=toPick(o);return k!=null&&k<=25}).sort((a,b)=>toPick(a)-toPick(b)):L.filter(o=>!(+o.distance_km>50))}
+  if(s==='far')L=L.filter(o=>+o.distance_km>50);
+  m.innerHTML=setupCard()+strip+(s==='near'&&GEO_ST!=='ok'?'<div class="geob">📍 Bật định vị để lọc đơn gần vị trí của bạn (đang lọc theo quãng đường ≤ 50 km).</div>':'')+(L.length?'<div class="ocg">'+L.map(offerCard).join('')+'</div>':`<div class="empty" style="padding-top:30px">${EMPTY}<h3>${s==='far'?'Chưa có đơn đường dài':'Đang chờ đơn mới…'}</h3><div>Giữ ứng dụng mở – có đơn là chuông báo ngay.</div></div>`);
+  setupBind();$$('[data-of]').forEach(c=>{c.onclick=()=>offerPage(c.dataset.of);c.onkeydown=e=>{if(e.key==='Enter')offerPage(c.dataset.of)}})}
 setInterval(()=>{$$('[data-exp]').forEach(e=>{if(e.dataset.exp)e.textContent='còn '+left(e.dataset.exp)});$$('[data-ring]').forEach(e=>{const ex=new Date(e.dataset.ring),t0=e.dataset.t0?new Date(e.dataset.t0):null;const l=Math.max(0,(ex-Date.now())/1000),tot=t0?Math.max(60,(ex-t0)/1000):1800;e.style.setProperty('--p',Math.round(l/tot*100));e.classList.toggle('low',l<120);e.firstChild.textContent=l>=3600?Math.floor(l/3600)+'h':Math.ceil(l/60)+'′'})},1000);
 
 let MAP=null;
 async function drawMap(el,a,b,exact){if(!window.L)return;try{if(MAP){MAP.remove();MAP=null}}catch(e){}
-  const pts=[a,b].filter(p=>p&&p[0]&&p[1]);if(!pts.length){el.innerHTML='<div class="empty" style="padding:40px">Chưa có tọa độ trên bản đồ</div>';return}
+  const pts=[a,b].filter(p=>p&&p[0]&&p[1]);const me=MYPOS&&pts[0]&&hv(MYPOS.lat,MYPOS.lng,pts[0][0],pts[0][1])<300?[MYPOS.lat,MYPOS.lng]:null;if(!pts.length){el.innerHTML='<div class="empty" style="padding:40px">Chưa có tọa độ trên bản đồ</div>';return}
   MAP=L.map(el,{zoomControl:false,attributionControl:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(MAP);
   const ic=c=>L.divIcon({className:'',html:`<div style="width:18px;height:18px;border-radius:50%;background:${c};border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,iconSize:[18,18],iconAnchor:[9,9]});
   if(pts[0])L.marker(pts[0],{icon:ic('#fff;outline:3px solid #0A6E5C')}).addTo(MAP);if(pts[1])L.marker(pts[1],{icon:ic('#0A6E5C')}).addTo(MAP);
   if(!exact&&pts.length)pts.forEach(p=>L.circle(p,{radius:900,color:'#0A6E5C',weight:1,fillOpacity:.08}).addTo(MAP));
-  MAP.fitBounds(L.latLngBounds(pts).pad(.3),{maxZoom:14});
+  if(me)try{L.marker(me,{icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;border-radius:50%;background:#2563EB;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,.2)"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(MAP).bindTooltip('Bạn đang ở đây');L.polyline([me,pts[0]],{color:'#2563EB',weight:3,dashArray:'4 8',opacity:.8}).addTo(MAP)}catch(e){}
+  MAP.fitBounds(L.latLngBounds(me?[...pts,me]:pts).pad(.3),{maxZoom:14});
   if(pts.length===2){try{const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${pts[0][1]},${pts[0][0]};${pts[1][1]},${pts[1][0]}?overview=simplified&geometries=geojson`).then(x=>x.json());
     const c=r.routes?.[0]?.geometry?.coordinates;if(c&&MAP){L.polyline(c.map(x=>[x[1],x[0]]),{color:'#0A6E5C',weight:5,opacity:.9}).addTo(MAP)}}catch(e){L.polyline(pts,{color:'#0A6E5C',weight:4,dashArray:'6 8'}).addTo(MAP)}}}
 const gmaps=(a,b)=>`https://www.google.com/maps/dir/?api=1${a?`&origin=${encodeURIComponent(a)}`:''}&destination=${encodeURIComponent(b||'')}&travelmode=driving`;
@@ -330,7 +410,7 @@ async function offerPage(id){const o=await rpc('khg_partner_offer_detail',{p_off
      <div class="tags" style="margin:8px 0 0"><span class="tag">📦 Vận chuyển</span>${o.vehicle?`<span class="tag">${esc(o.vehicle)}</span>`:''}${o.need_loading?'<span class="tag o">Bốc xếp</span>':''}${o.has_cod?'<span class="tag r">Thu hộ COD</span>':''}</div></div>
     <div class="map" id="omap" style="height:300px"></div>
     <div class="bsheet">
-     <div class="card"><div class="bd"><div class="sm mut">${o.distance_km?(+o.distance_km).toFixed(1).replace('.',',')+' km':''}</div><div class="rt"><div class="p"><b>Điểm lấy</b><small>${esc(o.from||'')}</small></div>${(o.stop_list||[]).filter(s=>s.kind==='giao').length>1?`<div class="p" style="color:var(--mut)">${(o.stop_list||[]).filter(s=>s.kind==='giao').length-1} điểm dừng</div>`:''}<div class="p d"><b>Điểm giao</b><small>${esc(o.to||'')}</small></div></div>
+     <div class="card"><div class="bd">${(()=>{const k=toPick(o);return k!=null?`<div class="pk ${k<=10?'n':k>40?'f':''}">📍 Bạn cách điểm lấy ${kmTxt(k)} · khoảng ${Math.max(5,Math.round(k/35*60))} phút chạy xe</div>`:(GEO_ST!=='ok'?'<div class="geob">📍 Bật định vị để biết bạn cách điểm lấy bao xa</div>':'')})()}<div class="sm mut">${o.distance_km?'Quãng đường giao '+(+o.distance_km).toFixed(1).replace('.',',')+' km':''}</div><div class="rt"><div class="p"><b>Điểm lấy</b><small>${esc(o.from||'')}</small></div>${(o.stop_list||[]).filter(s=>s.kind==='giao').length>1?`<div class="p" style="color:var(--mut)">${(o.stop_list||[]).filter(s=>s.kind==='giao').length-1} điểm dừng</div>`:''}<div class="p d"><b>Điểm giao</b><small>${esc(o.to||'')}</small></div></div>
       <div class="sm mut" style="margin-top:6px">Địa chỉ chi tiết, số điện thoại người gửi/nhận hiện sau khi bạn nhận đơn.</div></div></div>
      <div class="card"><div class="bd">${[['Thời gian lấy hàng',o.scheduled_at?fmtDT(o.scheduled_at):'Càng sớm càng tốt'],['Loại xe',o.vehicle||'Theo yêu cầu'],['Hàng hóa',[o.cargo,o.weight_t?o.weight_t+' tấn':'',o.volume_m3?o.volume_m3+' m³':''].filter(Boolean).join(' · ')||'—'],['Số chuyến',o.trips||1],['Bốc xếp',o.need_loading?'Có – tài xế hỗ trợ':'Không'],['Ghi chú',o.note||'—']].map(([a,b])=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:5px 0"><span class="mut">${a}</span><b style="text-align:right">${esc(b)}</b></div>`).join('')}</div></div>
      <div class="card"><div class="bd" style="display:flex;align-items:center"><div style="flex:1"><div style="font-size:24px;font-weight:800">${fmtM(o.price)}</div><div class="sm mut">💵 Bạn thực nhận cho đơn này${P.commission_mode==='pct'?` (đã trừ hoa hồng KHG ${+P.commission_pct||0}%)`:' (theo bảng giá đã ký)'}</div></div></div></div>
@@ -487,12 +567,12 @@ async function viewMe(m){P=await rpc('khg_partner_me');const ok=P.status==='dang
     <b style="font-size:18px">${esc(P.short_name||P.name)}</b><div class="sm mut">${esc(P.code||'')} · ${esc(P.phone||'')}</div>
     <div style="margin-top:8px"><span class="tag ${ok?'g':'o'}">${ok?'✓ Đã duyệt hợp tác':'⏳ Chờ CEO KHG duyệt'}</span> <span class="tag">${P.vehicles_ready||0}/${P.vehicles||0} xe sẵn sàng</span> <span class="tag">${P.drivers||0} tài xế</span></div></div></div>
    <div class="card">${[['/doi-tac.html#fleet','🚛 Đội xe & tài xế','Thêm xe, tài xế – xe mới cần KHG duyệt'],['/doi-tac.html#settle','🧾 Đối soát','Bảng kê và thanh toán từng kỳ'],['/doi-tac.html#money','📒 Sổ thu chi xe','Chi phí, lãi từng xe mỗi tháng']].map(([h,a,b])=>`<a class="li" href="${h}" style="text-decoration:none;color:inherit"><div class="t"><b>${a}</b><small>${b}</small></div>›</a>`).join('')}
-    <div class="li" id="kpiL" style="cursor:pointer"><div class="t"><b>⭐ Đánh giá & KPI</b><small>Sao, tỷ lệ hủy, ghi nhận của KHG</small></div>›</div><div class="li"><div class="t"><b>💹 Cách tính tiền chuyến</b><small>${P.commission_mode==='bang_gia'?'Theo bảng giá dịch vụ đã ký':`Hoa hồng KHG ${+P.commission_pct||0}% · bạn nhận ${100-(+P.commission_pct||0)}% giá cước`}</small></div></div>
+    <div class="li" id="ntL" style="cursor:pointer"><div class="t"><b>🔔 Thông báo & định vị</b><small>${PUSH_ST==='ok'?'Thông báo: đã bật':'Thông báo: chưa bật'} · ${GEO_ST==='ok'?'Định vị: đã bật':'Định vị: chưa bật'}</small></div>›</div><div class="li" id="kpiL" style="cursor:pointer"><div class="t"><b>⭐ Đánh giá & KPI</b><small>Sao, tỷ lệ hủy, ghi nhận của KHG</small></div>›</div><div class="li"><div class="t"><b>💹 Cách tính tiền chuyến</b><small>${P.commission_mode==='bang_gia'?'Theo bảng giá dịch vụ đã ký':`Hoa hồng KHG ${+P.commission_pct||0}% · bạn nhận ${100-(+P.commission_pct||0)}% giá cước`}</small></div></div>
     <a class="li" href="tel:0399831228" style="text-decoration:none;color:inherit"><div class="t"><b>☎️ Trợ giúp – điều phối KHG</b><small>0399 831 228</small></div>›</a>
     <div class="li" id="ins" style="cursor:pointer"><div class="t"><b>📲 Cài app lên màn hình chính</b><small>Mở nhanh như ứng dụng, nhận chuông đơn mới</small></div>›</div></div>
    <button class="btn g" id="out">Đăng xuất</button><div style="text-align:center;margin:14px 0 4px">${LOGO(40)}</div><p class="sm mut" style="text-align:center;margin-top:4px">Nhận Hàng Nhanh · nền tảng nhận đơn vận tải của Công ty TNHH Kim Hoàng Gia</p>`;
-  $('#kpiL').onclick=()=>go('kpi');
-  $('#out').onclick=async()=>{try{if(P.online)await rpc('khg_partner_online',{p_on:false})}catch(e){}await sb.auth.signOut();P=null;clearInterval(POLL);authView('ph')};
+  $('#kpiL').onclick=()=>go('kpi');$('#ntL').onclick=()=>noticesPage();
+  $('#out').onclick=async()=>{try{if(P.online)await rpc('khg_partner_online',{p_on:false})}catch(e){}try{if(GEO_W!=null)navigator.geolocation.clearWatch(GEO_W)}catch(e){}GEO_W=null;try{const r=SWR||await swReg();const sub=r&&await r.pushManager.getSubscription();if(sub)await sub.unsubscribe()}catch(e){}PUSH_ST='?';await sb.auth.signOut();P=null;clearInterval(POLL);authView('ph')};
   $('#ins').onclick=()=>{if(window._bip){window._bip.prompt();window._bip=null}else toast(/iPhone|iPad/.test(navigator.userAgent)?'Safari: bấm Chia sẻ → Thêm vào MH chính':'Trình duyệt: menu ⋮ → Cài đặt ứng dụng / Thêm vào màn hình chính',5000)}}
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();window._bip=e});
 if('serviceWorker' in navigator)navigator.serviceWorker.getRegistration('/').then(r=>{}).catch(()=>{});
