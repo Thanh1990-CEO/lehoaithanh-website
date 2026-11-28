@@ -3200,7 +3200,7 @@ Object.assign(O,{
 O.veh_status.cho_duyet='Chờ duyệt (đối tác)';
 Object.assign(O.entity,{partner:'Đối tác xe',partner_driver:'Tài xế đối tác',fd_driver:'Tài xế Fast Driver',driver_job:'Nhu cầu thuê tài xế',settlement:'Đối soát'});
 Object.assign(O.doc_type,{giay_phep_kd:'Giấy phép kinh doanh',phu_hieu:'Phù hiệu xe',ly_lich_tu_phap:'Lý lịch tư pháp',chung_chi:'Chứng chỉ',xac_nhan_cu_tru:'Xác nhận cư trú',uy_quyen:'Giấy ủy quyền',doi_soat:'Bảng đối soát'});
-Object.assign(DOC_BY,{partner:['giay_phep_kd','cccd','hop_dong','uy_quyen','khac'],partner_driver:['bang_lai','cccd','giay_kham_suc_khoe','anh_dai_dien','khac'],
+Object.assign(DOC_BY,{partner:['hop_dong','ban_ky','cccd','bang_lai','giay_phep_kd','phu_hieu','dang_ky_xe','dang_kiem','bao_hiem','hinh_xe','video','uy_quyen','khac'],partner_driver:['bang_lai','cccd','giay_kham_suc_khoe','anh_dai_dien','khac'],
   fd_driver:['cccd','bang_lai','anh_dai_dien','giay_kham_suc_khoe','ly_lich_tu_phap','chung_chi','xac_nhan_cu_tru','hop_dong','khac'],driver_job:['hop_dong','khac'],settlement:['doi_soat','bien_lai_nop_tien','hoa_don','khac']});
 DOC_BY.vehicle=[...new Set([...(DOC_BY.vehicle||[]),'phu_hieu'])];
 Object.assign(PILL,{dang_hop_tac:'green',tam_dung:'amber',ngung:'',hoat_dong:'green',nhan:'green',het_han:'',gui_doi_tac:'blue',doi_tac_xac_nhan:'green',khieu_nai:'red',da_thanh_toan:'green',
@@ -3521,7 +3521,7 @@ async function kycReview(type,id,after){
       ${X.exams?`<h3 style="margin-top:12px">Bài thi</h3>${X.exams.map(e=>`<div>${e.passed?'✅':'❌'} ${e.score}/${e.total} · sai điểm liệt ${e.critical_wrong} · ${fmtDT(e.at)}</div>`).join('')||'<div class="sub">Chưa thi</div>'}`:''}</div></div>
    ${cmp.length?`<h3 style="margin-top:14px">Đối chiếu khuôn mặt</h3><p class="sub">So sánh ảnh CCCD với ảnh chụp trực tiếp và chân dung khi ký – phải là cùng một người.</p><div class="kgrid">${cmp.map(([f,c])=>img(f.file_path,c,true)).join('')}</div>`:''}
    ${(by.selfie_xac_thuc||[]).length?`<h3 style="margin-top:14px">Các khung hình xác thực (${by.selfie_xac_thuc.length})</h3><div class="kgrid">${by.selfie_xac_thuc.map(f=>img(f.file_path,f.file_name.replace(/^\d+-/,'').replace(/\.jpg$/,'')+' · '+fmtDT(f.created_at))).join('')}</div>`:''}
-   <h3 style="margin-top:14px">Giấy tờ & hình ảnh</h3>${Object.entries(by).filter(([k])=>!['selfie_xac_thuc','chu_ky','anh_ky_cam_ket'].includes(k)).map(([k,a])=>`<div class="sub" style="margin-top:8px"><b>${esc(O.doc_kyc[k]||k)}</b> (${a.length})</div><div class="kgrid">${a.map(f=>img(f.file_path,fmtDT(f.created_at)+(f.lat?' · có GPS':''))).join('')}</div>`).join('')||'<div class="sub">Chưa có.</div>'}
+   <h3 style="margin-top:14px;display:flex;gap:8px;align-items:center">Giấy tờ & hình ảnh${isP&&!RO?`<span style="flex:1"></span><button class="btn s p" id="kvUp" type="button">📎 Tải hồ sơ lên CRM</button>`:""}</h3>${Object.entries(by).filter(([k])=>!['selfie_xac_thuc','chu_ky','anh_ky_cam_ket'].includes(k)).map(([k,a])=>`<div class="sub" style="margin-top:8px"><b>${esc(O.doc_kyc[k]||k)}</b> (${a.length})</div><div class="kgrid">${a.map(f=>img(f.file_path,fmtDT(f.created_at)+(f.lat?' · có GPS':''))).join('')}</div>`).join('')||'<div class="sub">Chưa có.</div>'}
    ${ag?`<h3 style="margin-top:14px">Văn bản ký điện tử</h3><div class="card"><b>${esc(ag.title)}</b> · v${esc(ag.template_version)} ${pill('x',ag.status==='hieu_luc'?'Hiệu lực':ag.status)}<div class="sub">Người ký: ${esc(ag.signer_name)} · CCCD ${esc(ag.signer_id_number||'')} · ${fmtDT(ag.signed_at)}${ag.ip?' · IP '+esc(ag.ip):''}${map(ag.lat,ag.lng)}</div>
       <div class="kgrid" style="margin-top:8px">${img(ag.signature_path,'Chữ ký',true)}${img(ag.portrait_path,'Chân dung khi ký',true)}</div><div class="sub" style="margin-top:6px">SHA-256: <code style="word-break:break-all">${esc(ag.doc_hash)}</code></div>
       <details style="margin-top:6px"><summary>Xem toàn văn</summary><div style="white-space:pre-wrap;font-size:13px;margin-top:6px">${esc(ag.body)}</div></details></div>`:''}
@@ -3530,9 +3530,10 @@ async function kycReview(type,id,after){
    <div class="form" style="margin-top:14px"><label style="grid-column:1/-1">Ghi chú gửi người đăng ký (bắt buộc khi yêu cầu bổ sung / từ chối / khóa)<textarea id="kvN" rows="2" placeholder="VD: Ảnh CCCD mặt sau bị lóa, chụp lại rõ số"></textarea></label></div>
    <div class="acts"><button class="btn" onclick="closeModal()">Đóng</button><span class="sp"></span>${RO?'':`
      <button class="btn" data-kv="khoa">⛔ Khóa</button><button class="btn" data-kv="mo_khoa">🔓 Mở khóa</button><button class="btn" data-kv="tu_choi">❌ Từ chối</button><button class="btn" data-kv="bo_sung">📝 Yêu cầu bổ sung</button>
-     <button class="btn p" data-kv="duyet" ${K.complete?'':'disabled title="Hồ sơ chưa đủ"'}>✅ Duyệt hồ sơ</button>`}</div>`,true);
+     ${K.complete?'<button class="btn p" data-kv="duyet">✅ Duyệt hồ sơ</button>':(isP&&isAdmin()?'<button class="btn p" data-kv="duyet" title="CEO duyệt khi hồ sơ chưa đủ – bổ sung hồ sơ sau trên CRM">✅ CEO duyệt (hồ sơ chưa đủ)</button>':'<button class="btn p" data-kv="duyet" disabled title="Hồ sơ chưa đủ – chỉ CEO duyệt được">✅ Duyệt hồ sơ</button>')}`}</div>`,true);
+  {const u=$('#kvUp');if(u)u.onclick=()=>openFiles('partner',id,r.name||'');}
   $$('#modal [data-kv]').forEach(b=>b.onclick=async()=>{const a=b.dataset.kv,n=$('#kvN').value.trim();
-    if(a==='duyet'&&!confirm(`Xác nhận đã đối chiếu ảnh CCCD – khuôn mặt – chân dung khi ký và giấy tờ hợp lệ?\nDuyệt ${tName(type)} ${isP?r.name:r.full_name}.`))return;
+    if(a==='duyet'&&!confirm(K.complete?`Xác nhận đã đối chiếu ảnh CCCD – khuôn mặt – chân dung khi ký và giấy tờ hợp lệ?\nDuyệt ${tName(type)} ${isP?r.name:r.full_name}.`:`CEO duyệt ${isP?r.name:r.full_name} khi hồ sơ còn thiếu ${K.missing} mục?\nĐối tác nhận đơn được ngay; nhân viên bổ sung hồ sơ sau trên CRM (nút 📎 Tải hồ sơ lên CRM).`))return;
     b.disabled=true;const {error}=await sb.rpc('khg_kyc_review',{p_type:type,p_id:id,p_action:a,p_note:n||null});b.disabled=false;
     if(error)return toast(error.message);toast('Đã cập nhật – người đăng ký nhận thông báo trên app');closeModal();after&&after()});
 }
@@ -7763,6 +7764,7 @@ function bulkTrip(list,done){const nowL=()=>{const d=new Date(Date.now()-new Dat
       const {error}=await sb.rpc('khg_order_set_trip_at',{p_order:r.id,p_status:st,p_note:note,p_at:t});
       if(error){bad++;cell.innerHTML=`<span style="color:#B42318">${esc(error.message)}</span>`}else{ok++;cell.innerHTML='<span style="color:#15803D">✓ Đã cập nhật</span>'}}
     toast(`Đã cập nhật ${ok} đơn`+(bad?` · ${bad} lỗi`:''));b.textContent='Xong';b.onclick=()=>{closeModal();done&&done()};b.disabled=false;$('#btX').onclick=()=>{closeModal();done&&done()}}}
+try{O.doc_type.phu_hieu=O.doc_type.phu_hieu||'Phù hiệu / GP KD vận tải'}catch(e){}
 // ===================== v74 · KPI & ĐÁNH GIÁ ĐỐI TÁC XE LIÊN KẾT =====================
 const PKPI_EV={huy:'Hủy / nhả đơn',tre:'Trễ hẹn',hong_hang:'Hư hỏng hàng',mat_hang:'Mất / thiếu hàng',khieu_nai:'Khách khiếu nại',phat:'Bị phạt',khen:'Khách khen',danh_gia:'Đánh giá sao'};
 VIEWS.pkpi=async m=>{const P=PST.pkpi=PST.pkpi||{kind:'thang'};
